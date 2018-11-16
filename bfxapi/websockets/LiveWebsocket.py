@@ -70,7 +70,6 @@ class LiveBfxWebsocket(GenericWebsocket):
     - all: listen for all messages coming through
     - connected: called when a connection is made
     - authenticated: called when the websocket passes authentication
-    - message (string): new incoming message from the websocket
     - notification (array): incoming account notification
     - error (string): error from the websocket
     - order_closed (string): when an order confirmation is recieved
