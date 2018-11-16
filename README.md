@@ -48,6 +48,16 @@ NOTE: Instead of using the python decorators, you can also listen to events via 
 ws.on('new_trade', log_trade)
 ```
 
+### Functions
+
+- `subscribe(channel_name, symbol, timeframe=None, **kwargs)`
+  Subsribes the socket to a data feed such as 'trades' or 'candles'.
+- `submit_order(symbol, price, amount, market_type, hidden=False, onComplete=None, onError=None, *args, **kwargs)`
+  Submits an order to the bitfinex api. If the order is successful then the order_closed event will be triggered and the onComplete function will also be called if provided in the parameters.
+- `on(event, function)`
+  subscribes the function to be triggered on the given event.
+
+
 ## `bfxapi.DataServerWebsocket`
 
 The data-server websocket is used for retrieving large amounts of historical data from a `bfx-hf-data-server` instance. The library then takes all of the incoming historical data from the server and pushes it down the `new_trade` and `new_candle` events. For information on how to start a data-server instance please visit the repo at: https://github.com/bitfinexcom/bfx-hf-data-server
