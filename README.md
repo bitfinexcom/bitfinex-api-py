@@ -2,7 +2,7 @@
 This repo contains an official python library that is used to connect to the both the Bitfinex api and the Honey Frameworks data-server. The library communicates with these servers using both websocket connection and a REST interface.
 
 ## `bfxapi.LiveWebsocket`
-The websocket exposes a collection of events that are triggered when certain data is received. Here is a full list of available events:
+The websocket exposes a collection of events that are triggered when certain data is received. When subscribing to an event you are able to pass either a standard function or an asyncio co-routine Here is a full list of available events:
 
 - `all`: listen for all messages coming through
 - `connected:` called when a connection is made
@@ -90,3 +90,7 @@ then = now - (1000 * 60 * 60 * 24 * 2) # 2 days ago
 ws.run(then, now)
 
 ```
+
+
+## Please see examples folder
+There you will be able to find working scripts that submit orders, establish a connect and run backtests.
