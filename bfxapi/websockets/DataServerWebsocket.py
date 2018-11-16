@@ -7,6 +7,10 @@ class DataServerWebsocket(GenericWebsocket):
   Basic websocket client that simply reads data from the DataServer. This instance
   of the websocket should only ever be used in backtest mode since it isnt capable
   of handling orders.
+
+  Events:
+    - connected: called when a connection is made
+    - done: fires when the backtest has finished running
   '''
   WS_END = 'bt.end'
   WS_CANDLE = 'bt.candle'
@@ -46,9 +50,9 @@ class DataServerWebsocket(GenericWebsocket):
       self.logger.info("Backtest data stream complete.")
       await self.on_close()
     elif eType == self.WS_CANDLE:
-      self._onCandle(msg)
+      await self._onCandle(msg)
     elif eType == self.WS_TRADE:
-      self._onTrade(msg)
+      await self._onTrade(msg)
     elif eType == self.WS_CONNECT:
       await self.on_open()
     else:
@@ -61,13 +65,14 @@ class DataServerWebsocket(GenericWebsocket):
     return data
   
   async def on_open(self):
+    self._emit('connected')
     data = self._exec_bt_string()
     await self.ws.send(data)
   
   async def _onCandle(self, data):
     candle = data[3]
-    await self.onCandleHook(candle)
+    self._emit('new_canlde', candle)
   
   async def _onTrade(self, data):
     trade = data[2]
-    await self.onTradeHook(trade)
+    self._emit('new_trade', trade)
