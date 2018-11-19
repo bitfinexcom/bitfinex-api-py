@@ -4,12 +4,6 @@ sys.path.append('../')
 
 from bfxapi.websockets.LiveWebsocket import LiveBfxWebsocket
 
-'''
-This script requires you to run an instance of the bfx-hf-data-server on 
-port 8899. For more info on how to setup the data-server please visit:
-https://github.com/bitfinexcom/bfx-hf-data-server
-'''
-
 ws = LiveBfxWebsocket(
   logLevel='INFO'
 )

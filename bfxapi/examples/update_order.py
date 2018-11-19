@@ -13,26 +13,26 @@ ws = LiveBfxWebsocket(
   logLevel='INFO'
 )
 
-@ws.on('order_confirmed')
-def trade_completed(order, trade):
+@ws.on('order_update')
+def order_updated(order, trade):
+  print ("Order updated.")
+  print (order)
+  print (trade)
+
+@ws.once('order_confirmed')
+async def trade_completed(order, trade):
   print ("Order confirmed.")
   print (order)
   print (trade)
+  await ws.update_order(order.id, price=100, amount=0.01)
 
 @ws.on('error')
 def log_error(msg):
   print ("Error: {}".format(msg))
 
-@ws.on('authenticated')
+@ws.once('authenticated')
 async def submit_order(auth_message):
-  await ws.submit_order('tBTCUSD', 0, 0.01, 'EXCHANGE MARKET')
-
-# If you dont want to use a decorator
-# ws.on('authenticated', submit_order)
-# ws.on('error', log_error)
-
-# You can also provide a callback
-# await ws.submit_order('tBTCUSD', 0, 0.01,
-# 'EXCHANGE MARKET', onComplete=trade_complete)
+  # create an inital order a really low price so it stays open
+  await ws.submit_order('tBTCUSD', 10, 1, 'EXCHANGE LIMIT')
 
 ws.run()
