@@ -25,7 +25,7 @@ def now_in_mills():
 
 class Order:
   def __init__(self, closingOrderArray):
-    self.id = closingOrderArray[OrderClosedModel.ID]
+    self.id =  closingOrderArray[OrderClosedModel.ID]
     self.gId = closingOrderArray[OrderClosedModel.GID]
     self.cId = closingOrderArray[OrderClosedModel.CID]
     self.symbol = closingOrderArray[OrderClosedModel.SYMBOL]
@@ -47,4 +47,5 @@ class Order:
   
   def __str__(self):
     ''' Allow us to print the Order object in a pretty format '''
-    return "Order <'{0}' mtsCreate={1}>".format(self.symbol, self.mtsCreate)
+    return "Order <'{0}' mtsCreate={1} {}>".format(self.symbol, self.mtsCreate,
+      self.status)

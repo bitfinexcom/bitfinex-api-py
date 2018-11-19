@@ -43,11 +43,13 @@ class GenericWebsocket(object):
       return self.events.on(event)
     self.events.on(event, func)
 
+  def once(self, event, func=None):
+    if not func:
+      return self.events.once(event)
+    self.events.once(event, func)
+
   def _emit(self, event, *args, **kwargs):
     self.events.emit(event, *args, **kwargs)
-
-  def once(self, event, func):
-    self.events.once(event, func)
 
   async def on_error(self, error):
     self.logger.error(error)
