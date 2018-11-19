@@ -2,30 +2,30 @@ import os
 import sys
 sys.path.append('../')
 
-from bfxapi.websockets.LiveWebsocket import LiveBfxWebsocket
+from bfxapi import Client
 
 API_KEY=os.getenv("BFX_KEY")
 API_SECRET=os.getenv("BFX_SECRET")
 
-ws = LiveBfxWebsocket(
+bfx = Client(
   API_KEY=API_KEY,
   API_SECRET=API_SECRET,
   logLevel='INFO'
 )
 
-@ws.on('order_confirmed')
+@bfx.ws.on('order_confirmed')
 def trade_completed(order, trade):
   print ("Order confirmed.")
   print (order)
   print (trade)
 
-@ws.on('error')
+@bfx.ws.on('error')
 def log_error(msg):
   print ("Error: {}".format(msg))
 
-@ws.on('authenticated')
+@bfx.ws.on('authenticated')
 async def submit_order(auth_message):
-  await ws.submit_order('tBTCUSD', 0, 0.01, 'EXCHANGE MARKET')
+  await bfx.ws.submit_order('tBTCUSD', 0, 0.01, 'EXCHANGE MARKET')
 
 # If you dont want to use a decorator
 # ws.on('authenticated', submit_order)
@@ -35,4 +35,4 @@ async def submit_order(auth_message):
 # await ws.submit_order('tBTCUSD', 0, 0.01,
 # 'EXCHANGE MARKET', onComplete=trade_complete)
 
-ws.run()
+bfx.ws.run()
