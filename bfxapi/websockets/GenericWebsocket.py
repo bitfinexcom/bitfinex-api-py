@@ -16,13 +16,8 @@ def is_json(myjson):
 
 class GenericWebsocket(object):
 
-  def __init__(self, host, symbol='tBTCUSD', onCandleHook=None, onTradeHook=None, 
-      logLevel='ERROR'):
-    self.symbol = symbol
+  def __init__(self, host, logLevel='ERROR'):
     self.host = host
-    self.awaiting_request = False
-    self.onCandleHook = onCandleHook
-    self.onTradeHook = onTradeHook
     self.logger = CustomLogger('HFWebSocket', logLevel=logLevel)
     self.loop = asyncio.get_event_loop()
     self.events = EventEmitter(scheduler=asyncio.ensure_future, loop=self.loop)
