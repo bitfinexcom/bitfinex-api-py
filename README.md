@@ -19,7 +19,9 @@ The websocket exposes a collection of events that are triggered when certain dat
 - `authenticated` (): called when the websocket passes authentication
 - `notification` (array): incoming account notification
 - `error` (array): error from the websocket
-- `order_closed` (Order, Trade): when an order confirmation is received
+- `order_closed` (Order, Trade): when an order has been closed
+- `order_new` (Order, Trade): when an order has been created but not closed. Note: will not be called if order is executed and filled instantly
+- `order_confirmed` (Order, Trade): When an order has been submitted and received
 - `wallet_snapshot` (array): Initial wallet balances (Fired once)
 - `order_snapshot` (array): Initial open orders (Fired once)
 - `positions_snapshot` (array): Initial open positions (Fired once)
@@ -32,6 +34,8 @@ The websocket exposes a collection of events that are triggered when certain dat
 - `balance_update` (array): when the state of a balance is changed
 - `new_trade` (array): a new trade on the market has been executed
 - `new_candle` (array): a new candle has been produced
+- `margin_info_updates` (array): new margin information has been broadcasted
+- `funding_info_updates` (array): new funding information has been broadcasted
 
 For example. If you wanted to subscribe to all of the trades on the `tBTCUSD` market, then you can simply listen to the `new_trade` event. For Example:
 
@@ -57,49 +61,22 @@ NOTE: Instead of using the python decorators, you can also listen to events via 
 ws.on('new_trade', log_trade)
 ```
 
-### Exposed Functions
+### Exposed Async Functions
 
 - `subscribe(channel_name, symbol, timeframe=None, **kwargs)`
   Subscribes the socket to a data feed such as 'trades' or 'candles'.
 - `submit_order(symbol, price, amount, market_type, hidden=False, onComplete=None, onError=None, *args, **kwargs)`
   Submits an order to the Bitfinex api. If the order is successful then the order_closed event will be triggered and the onComplete function will also be called if provided in the parameters.
+- `update_order(orderId, price=None, amount=None, delta=None, price_aux_limit=None, price_trailing=None, flags=None, time_in_force=None, onComplete=None, onError=None)`
+  Updates the given order_id with the provided values
+- `cancel_order(self, orderId, onComplete=None, onError=None):`
+  Cancels the order with the given order id
+- `cancel_order_multi(self, orderIds, onComplete=None, onError=None)`
+  Cancels multiple orders in a batch.
+
+### Exposed Functions
+
 - `on(event, function)`
-  subscribes the function to be triggered on the given event.
-
-
-## `bfxapi.DataServerWebsocket`
-
-The data-server websocket is used for retrieving large amounts of historical data from a `bfx-hf-data-server` instance. The library then takes all of the incoming historical data from the server and pushes it down the `new_trade` and `new_candle` events. For information on how to start a data-server instance please visit the repo at: https://github.com/bitfinexcom/bfx-hf-data-server
-
-A list of events available:
-
-- `connected`: connection is made
-- `new_trade`: a historical trade item is received
-- `new_candle`: a historical candle item is received
-- `done`: backtest has finished running
-
-An example of a script that loads all of the historical trades for symbol `tBTCUSD` over the last 2 days:
-
-```
-ws = DataServerWebsocket(
-  symbol='tBTCUSD',
-  host='ws://localhost:8899'
-)
-
-@ws.on('new_trade')
-def trade(trade):
-  print ("Backtest trade: {}".format(trade))
-
-@ws.on('done')
-def finish():
-  print ("Backtest complete!")
-
-now = int(round(time.time() * 1000))
-then = now - (1000 * 60 * 60 * 24 * 2) # 2 days ago
-ws.run(then, now)
-
-```
-
-<br>
-<br>
-Please see the <b>bfxapi/examples</b> folder. There you will be able to find working scripts that submit orders, establish a connect and run backtests.
+  Subscribes the function to be triggered on the given event.
+- `once(event, function)`
+  Subscribes the function to the given event but only triggers once.
