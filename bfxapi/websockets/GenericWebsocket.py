@@ -16,10 +16,10 @@ def is_json(myjson):
 
 class GenericWebsocket(object):
 
-  def __init__(self, host, logLevel='ERROR'):
+  def __init__(self, host, logLevel='INFO', loop=None):
     self.host = host
-    self.logger = CustomLogger('HFWebSocket', logLevel=logLevel)
-    self.loop = asyncio.get_event_loop()
+    self.logger = CustomLogger('BfxWebsocket', logLevel=logLevel)
+    self.loop = loop or asyncio.get_event_loop()
     self.events = EventEmitter(scheduler=asyncio.ensure_future, loop=self.loop)
 
   def run(self):
@@ -28,6 +28,7 @@ class GenericWebsocket(object):
   async def _main(self, host):
     async with websockets.connect(host) as websocket:
       self.ws = websocket
+      self.logger.info("Wesocket connectedt to {}".format(self.host))
       while True:
         await asyncio.sleep(0)
         message = await websocket.recv()
