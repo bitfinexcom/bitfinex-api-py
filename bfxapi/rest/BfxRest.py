@@ -7,7 +7,8 @@ from ..utils.CustomLogger import CustomLogger
 
 class BfxRest:
 
-  def __init__(self, API_KEY, API_SECRET, host='https://api.bitfinex.com/v2', loop=None, logLevel='INFO'):
+  def __init__(self, API_KEY, API_SECRET, host='https://api.bitfinex.com/v2', loop=None,
+      logLevel='INFO', *args, **kwargs):
     self.loop = loop or asyncio.get_event_loop()
     self.host = host
     self.logger = CustomLogger('BfxRest', logLevel=logLevel)

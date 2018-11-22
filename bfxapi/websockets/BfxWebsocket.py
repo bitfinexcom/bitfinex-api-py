@@ -6,7 +6,22 @@ import hmac
 import random
 
 from .GenericWebsocket import GenericWebsocket, AuthError
-from ..models import Order, Trade
+from ..models import Order, Trade, OrderBook
+
+class Flags:
+  DEC_S = 9
+  TIME_S = 32
+  TIMESTAMP = 32768
+  SEQ_ALL = 65536
+  CHECKSUM = 131072
+
+  strings = {
+    9: 'DEC_S',
+    32: 'TIME_S',
+    32768: 'TIMESTAMP',
+    65536: 'SEQ_ALL',
+    131072: 'CHECKSUM'
+  }
 
 def _parse_candle(cData, symbol, tf):
   return {
@@ -117,11 +132,13 @@ class BfxWebsocket(GenericWebsocket):
   }
 
   def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api.bitfinex.com/ws/2',
-      onSeedCandleHook=None, onSeedTradeHook=None, *args, **kwargs):
+      onSeedCandleHook=None, onSeedTradeHook=None, manageOrderBooks=False, *args, **kwargs):
     self.channels = {}
     self.API_KEY=API_KEY
     self.API_SECRET=API_SECRET
+    self.manageOrderBooks = manageOrderBooks
     self.pendingOrders = {}
+    self.orderBooks = {}
 
     super(BfxWebsocket, self).__init__(host, *args, **kwargs)
 
@@ -149,7 +166,8 @@ class BfxWebsocket(GenericWebsocket):
       'info': self._system_info_handler,
       'subscribed': self._system_subscribed_handler,
       'error': self._system_error_handler,
-      'auth': self._system_auth_handler
+      'auth': self._system_auth_handler,
+      'conf': self._system_conf_handler
     }
 
   async def _ws_system_handler(self, msg):
@@ -157,7 +175,7 @@ class BfxWebsocket(GenericWebsocket):
     if eType in self._WS_SYSTEM_HANDLERS:
       await self._WS_SYSTEM_HANDLERS[eType](msg)
     else:
-      self.logger.warn('Unknown websocket event: {}'.format(eType))
+      self.logger.warn("Unknown websocket event: '{}' {}".format(eType, msg))
 
   async def _ws_data_handler(self, data):
     dataEvent = data[1]
@@ -169,6 +187,8 @@ class BfxWebsocket(GenericWebsocket):
       # candles do not have an event 
       if self.channels[chanId].get('channel') == 'candles':
         await self._candle_handler(data)
+      if self.channels[chanId].get('channel') == 'book':
+        await self._order_book_handler(data)
     else:
       self.logger.warn("Unknow data event: '{}' {}".format(dataEvent, data))
 
@@ -177,6 +197,18 @@ class BfxWebsocket(GenericWebsocket):
     if data.get('serverId', None):
       ## connection has been established
       await self.on_open()
+  
+  async def _system_conf_handler(self, data):
+    flag = data.get('flags')
+    status = data.get('status')
+    if flag not in Flags.strings:
+      self.logger.warn("Unknown config value set {}".format(flag))
+      return
+    flagString = Flags.strings[flag]
+    if status == "OK":
+      self.logger.info("Enabled config flag {}".format(flagString))
+    else:
+      self.logger.error("Unable to enable config flag {}".format(flagString))
 
   async def _system_subscribed_handler(self, data):
     chanEvent = data.get('channel')
@@ -209,7 +241,6 @@ class BfxWebsocket(GenericWebsocket):
       channelData = self.channels[data[0]]
       tradeObj = _parse_trade(tData, channelData.get('symbol'))
       self._emit('new_trade', tradeObj)
-
 
   async def _trade_executed_handler(self, data):
     tData = data[2]
@@ -363,6 +394,32 @@ class BfxWebsocket(GenericWebsocket):
     else:
       candle = _parse_candle(data[1], channelData['symbol'], channelData['tf'])
       self._emit('new_candle', candle)
+  
+  async def _order_book_handler(self, data):
+    obInfo = data[1]
+    channelData = self.channels[data[0]]
+    symbol = channelData.get('symbol')
+    if data[1] == "cs":
+      dChecksum = data[2] & 0xffffffff # force to signed int
+      checksum = self.orderBooks[symbol].checksum()
+      # force checksums to signed integers
+      isValid = (dChecksum) == (checksum)
+      if isValid:
+        self.logger.debug("Checksum orderbook validation for '{}' successful."
+          .format(symbol))
+      else:
+        # TODO: resync with snapshot
+        self.logger.warn("Checksum orderbook invalid for '{}'. Orderbook out of syc."
+          .format(symbol))
+      return
+    isSnapshot = type(obInfo[0]) is list
+    if isSnapshot:
+      self.orderBooks[symbol] = OrderBook()
+      self.orderBooks[symbol].updateFromSnapshot(obInfo)
+      self._emit('order_book_snapshot', { 'symbol': symbol, 'data': obInfo })
+    else:
+      self.orderBooks[symbol].updateWith(obInfo)
+      self._emit('order_book_update', { 'symbol': symbol, 'data': obInfo })
 
   async def on_message(self, message):
     self.logger.debug(message)
@@ -396,11 +453,21 @@ class BfxWebsocket(GenericWebsocket):
     self.logger.info("Websocket opened.")
     self._emit('connected')
     # Orders are simulated in backtest mode
-    if not self.API_KEY and self.API_SECRET:
+    if self.API_KEY and self.API_SECRET:
       await self._ws_authenticate_socket()
+    # enable order book checksums
+    if self.manageOrderBooks:
+      await self.enable_flag(Flags.CHECKSUM)
 
   async def send_auth_command(self, channel_name, data):
     payload = [0, channel_name, None, data]
+    await self.ws.send(json.dumps(payload))
+
+  async def enable_flag(self, flag):
+    payload = {
+      "event": 'conf',
+      "flags": flag
+    }
     await self.ws.send(json.dumps(payload))
 
   def subscribe(self, channel_name, symbol, timeframe=None, **kwargs):

@@ -36,6 +36,8 @@ The websocket exposes a collection of events that are triggered when certain dat
 - `new_candle` (array): a new candle has been produced
 - `margin_info_updates` (array): new margin information has been broadcasted
 - `funding_info_updates` (array): new funding information has been broadcasted
+- `order_book_snapshot` (array): initial snapshot of the order book on connection
+- `order_book_update` (array): a new order has been placed into the ordebrook
 
 For example. If you wanted to subscribe to all of the trades on the `tBTCUSD` market, then you can simply listen to the `new_trade` event. For Example:
 

@@ -8,6 +8,6 @@ class Client:
       ws_host='wss://api.bitfinex.com/ws/2', loop=None, logLevel='INFO', *args, **kwargs):
     self.loop = loop or asyncio.get_event_loop()
     self.ws = BfxWebsocket(API_KEY=API_KEY, API_SECRET=API_SECRET, host=ws_host,
-        loop=self.loop, *args, **kwargs)
+        loop=self.loop, logLevel=logLevel, *args, **kwargs)
     self.rest = BfxRest(API_KEY=API_KEY, API_SECRET=API_SECRET, host=rest_host,
-        loop=self.loop, *args, **kwargs)
+        loop=self.loop, logLevel=logLevel, *args, **kwargs)
