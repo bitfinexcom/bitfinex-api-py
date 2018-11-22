@@ -5,7 +5,7 @@ sys.path.append('../')
 from bfxapi import Client
 
 bfx = Client(
-  logLevel='INFO'
+  logLevel='DEBUG'
 )
 
 @bfx.ws.on('error')
