@@ -20,9 +20,9 @@ def log_candle(candle):
 def log_trade(trade):
   print ("New trade: {}".format(trade))
 
-def start():
-  bfx.ws.subscribe('candles', 'tBTCUSD', timeframe='1m')
-  bfx.ws.subscribe('trades', 'tBTCUSD')
+async def start():
+  await bfx.ws.subscribe('candles', 'tBTCUSD', timeframe='1m')
+  await bfx.ws.subscribe('trades', 'tBTCUSD')
 
 bfx.ws.on('connected', start)
 bfx.ws.run()

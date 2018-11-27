@@ -5,7 +5,7 @@ sys.path.append('../')
 from bfxapi import Client
 
 bfx = Client(
-  logLevel='INFO',
+  logLevel='DEBUG',
   # Verifies that the local orderbook is up to date
   # with the bitfinex servers
   manageOrderBooks=True
@@ -23,9 +23,9 @@ def log_update(data):
 def log_snapshot(data):
   print ("Initial book: {}".format(data))
 
-def start():
-  bfx.ws.subscribe('book', 'tBTCUSD')
-  bfx.ws.subscribe('book', 'tETHUSD')
+async def start():
+  await bfx.ws.subscribe('book', 'tBTCUSD')
+  # bfx.ws.subscribe('book', 'tETHUSD')
 
 bfx.ws.on('connected', start)
 bfx.ws.run()
