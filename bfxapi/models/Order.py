@@ -43,7 +43,18 @@ class Order:
     self.priceAuxLimit = closingOrderArray[OrderClosedModel.PRICE_AUX_LIMIT]
     self.notfiy = closingOrderArray[OrderClosedModel.NOTIFY]
     self.placeId = closingOrderArray[OrderClosedModel.PLACE_ID]
+    self.is_pending_bool = True
+    self.is_confirmed_bool = False
 
+  def set_confirmed(self):
+    self.is_pending_bool = False
+    self.is_confirmed_bool = True
+
+  def isPending(self):
+    return self.is_pending_bool
+
+  def isConfirmed(self):
+    return self.is_confirmed_bool
   
   def __str__(self):
     ''' Allow us to print the Order object in a pretty format '''

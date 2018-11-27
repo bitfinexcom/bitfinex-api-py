@@ -7,6 +7,7 @@ import random
 
 from .GenericWebsocket import GenericWebsocket, AuthError
 from .SubscriptionManager import SubscriptionManager
+from .OrderManager import OrderManager
 from ..models import Order, Trade, OrderBook
 
 class Flags:
@@ -142,6 +143,7 @@ class BfxWebsocket(GenericWebsocket):
 
     super(BfxWebsocket, self).__init__(host, *args, **kwargs)
     self.subscriptionManager = SubscriptionManager(self)
+    self.orderManager = OrderManager(self)
 
     self._WS_DATA_HANDLERS = {
       'tu': self._trade_update_handler,
@@ -282,55 +284,13 @@ class BfxWebsocket(GenericWebsocket):
     self._emit('balance_update', data[2])
 
   async def _order_closed_handler(self, data):
-    # order created and executed
-    # [0,"oc",[1151349678,null,1542203391995,"tBTCUSD",1542203389940,1542203389966,0,0.1,
-    # "EXCHANGE MARKET",null,null,null,0,"EXECUTED @ 18922.0(0.03299997): was PARTIALLY FILLED 
-    # @ 18909.0(0.06700003)",null,null,18909,18913.2899961,0,0,null,null,null,0,0,null,null,null,
-    # "API>BFX",null,null,null]]
-    tInfo = data[2]
-    order = Order(tInfo)
-    trade = Trade(order)
-    self.logger.info("Order closed: {} {}".format(order.symbol, order.status))
-    self._emit('order_closed', order, trade)
-    if order.cId in self.pendingOrders:
-      if self.pendingOrders[order.cId][0]:
-        await self.pendingOrders[order.cId][0](order, trade)
-      del self.pendingOrders[order.cId]
-      self._emit('order_confirmed', order, trade)
+    await self.orderManager.confirm_order_closed(data)
 
   async def _order_update_handler(self, data):
-    # order created but partially filled
-    # [0, 'ou', [1151351581, None, 1542629457873, 'tBTCUSD', 1542629458071, 
-    # 1542629458189, 0.01, 0.01, 'EXCHANGE LIMIT', None, None, None, 0, 'ACTIVE', 
-    # None, None, 100, 0, 0, 0, None, None, None, 0, 0, None, None, None, 'API>BFX', 
-    # None, None, None]]
-    tInfo = data[2]
-    order = Order(tInfo)
-    trade = Trade(order)
-    self.logger.info("Order update: {} {}".format(order, trade))
-    self._emit('order_update', order, trade)
-    if order.cId in self.pendingOrders:
-      if self.pendingOrders[order.cId][0]:
-        await self.pendingOrders[order.cId][0](order, trade)
-      del self.pendingOrders[order.cId]
-      self._emit('order_confirmed', order, trade)
+    await self.orderManager.confirm_order_update(data)
 
   async def _order_new_handler(self, data):
-    # order created but not executed /  created but partially filled
-    # [0, 'on', [1151351563, None, 1542624024383, 'tBTCUSD', 1542624024596,
-    # 1542624024617, 0.01, 0.01, 'EXCHANGE LIMIT', None, None, None, 0, 'ACTIVE',
-    # None, None, 100, 0, 0, 0, None, None, None, 0, 0, None, None, None, 'API>BFX',
-    # None, None, None]]
-    tInfo = data[2]
-    order = Order(tInfo)
-    trade = Trade(order)
-    self.logger.info("Order new: {} {}".format(order, trade))
-    self._emit('order_new', order, trade)
-    if order.cId in self.pendingOrders:
-      if self.pendingOrders[order.cId][0]:
-        await self.pendingOrders[order.cId][0](order, trade)
-      self._emit('order_confirmed', order, trade)
-      del self.pendingOrders[order.cId]
+    await self.orderManager.confirm_order_new(data)
 
   async def _order_snapshot_handler(self, data):
     self._emit('order_snapshot', data)
@@ -467,64 +427,28 @@ class BfxWebsocket(GenericWebsocket):
     await self.ws.send(json.dumps(payload))
 
   async def subscribe(self, *args, **kwargs):
-    await self.subscriptionManager.subscribe(*args, **kwargs)
+    return await self.subscriptionManager.subscribe(*args, **kwargs)
 
   async def unsubscribe(self, *args, **kwargs):
-    await self.subscriptionManager.unsubscribe(*args, **kwargs)
+    return await self.subscriptionManager.unsubscribe(*args, **kwargs)
 
   async def resubscribe(self, *args, **kwargs):
-    await self.subscriptionManager.resubscribe(*args, **kwargs)
+    return await self.subscriptionManager.resubscribe(*args, **kwargs)
 
   async def unsubscribe_all(self, *args, **kwargs):
-    await self.subscriptionManager.unsubscribe_all(*args, **kwargs)
+    return await self.subscriptionManager.unsubscribe_all(*args, **kwargs)
 
   async def resubscribe_all(self, *args, **kwargs):
-    await self.subscriptionManager.resubscribe_all(*args, **kwargs)
+    return await self.subscriptionManager.resubscribe_all(*args, **kwargs)
 
-  async def submit_order(self, symbol, price, amount, market_type,
-      hidden=False, onComplete=None, onError=None, *args, **kwargs):
-    order_id = int(round(time.time() * 1000))
-    # send order over websocket
-    payload = {
-      "cid": order_id,
-      "type": str(market_type),
-      "symbol": symbol,
-      "amount": str(amount),
-      "price": str(price)
-    }
-    self.pendingOrders[order_id] = (onComplete, onError)
-    await self._send_auth_command('on', payload)
-    self.logger.info("Order cid={} ({} {} @ {}) dispatched".format(
-      order_id, symbol, amount, price))
+  async def submit_order(self, *args, **kwargs):
+    return await self.orderManager.submit_order(*args, **kwargs)
 
-  async def update_order(self, orderId, price=None, amount=None, delta=None,
-    price_aux_limit=None, price_trailing=None, flags=None, time_in_force=None,
-    onComplete=None, onError=None):
-    payload = { "id": orderId }
-    if price is not None:
-      payload['price'] = str(price)
-    if amount is not None:
-      payload['amount'] = str(amount)
-    if delta is not None:
-      payload['delta'] = str(delta)
-    if price_aux_limit is not None:
-      payload['price_aux_limit'] = str(price_aux_limit)
-    if price_trailing is not None:
-      payload['price_trailing'] = str(price_trailing)
-    if flags is not None:
-      payload['flags'] = str(flags)
-    if time_in_force is not None:
-      payload['time_in_force'] = str(time_in_force)
-    self.pendingOrders[orderId] = (onComplete, onError)
-    await self._send_auth_command('ou', payload)
-    self.logger.info("Update Order order_id={} dispatched".format(orderId))
+  async def update_order(self, *args, **kwargs):
+    return await self.orderManager.update_order(*args, **kwargs)
 
-  async def cancel_order(self, orderId, onComplete=None, onError=None):
-    self.pendingOrders[orderId] = (onComplete, onError)
-    await self._send_auth_command('oc', { 'id': orderId })
-    self.logger.info("Order cancel order_id={} dispatched".format(orderId))
+  async def cancel_order(self, *args, **kwargs):
+    return await self.orderManager.cancel_order(*args, **kwargs)
   
-  async def cancel_order_multi(self, orderIds, onComplete=None, onError=None):
-    self.pendingOrders[orderIds[0]] = (onComplete, onError)
-    await self._send_auth_command('oc', { 'id': orderIds })
-    self.logger.info("Order cancel order_ids={} dispatched".format(orderIds))
+  async def cancel_order_multi(self, *args, **kwargs):
+    return await self.cancel_order_multi(*args, **kwargs)
