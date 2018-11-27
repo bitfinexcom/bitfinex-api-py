@@ -21,6 +21,7 @@ class GenericWebsocket(object):
     self.logger = CustomLogger('BfxWebsocket', logLevel=logLevel)
     self.loop = loop or asyncio.get_event_loop()
     self.events = EventEmitter(scheduler=asyncio.ensure_future, loop=self.loop)
+    self.ws = None
 
   def run(self):
     self.loop.run_until_complete(self._main(self.host))
