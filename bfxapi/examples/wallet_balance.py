@@ -14,12 +14,15 @@ bfx = Client(
 )
 
 @bfx.ws.on('wallet_snapshot')
-def log_snapshot(data):
-  print ("Opening balance: {}".format(data))
+def log_snapshot(wallets):
+  for wallet in wallets:
+    print (wallet)
+  
+  # or bfx.ws.wallets.get_wallets()
 
 @bfx.ws.on('wallet_update')
-def log_update(data):
-  print ("Balance updates: {}".format(data))
+def log_update(wallet):
+  print ("Balance updates: {}".format(wallet))
 
 @bfx.ws.on('error')
 def log_error(msg):
