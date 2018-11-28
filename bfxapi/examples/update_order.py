@@ -10,7 +10,7 @@ API_SECRET=os.getenv("BFX_SECRET")
 bfx = Client(
   API_KEY=API_KEY,
   API_SECRET=API_SECRET,
-  logLevel='INFO'
+  logLevel='DEBUG'
 )
 
 @bfx.ws.on('order_update')
@@ -18,6 +18,11 @@ def order_updated(order, trade):
   print ("Order updated.")
   print (order)
   print (trade)
+
+@bfx.ws.once('order_update')
+async def order_once_updated(order, trade):
+  # update a second time using the object function
+  await order.update(price=80, amount=0.02, flags="2nd update")
 
 @bfx.ws.once('order_confirmed')
 async def trade_completed(order, trade):
