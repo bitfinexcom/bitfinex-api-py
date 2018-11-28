@@ -65,7 +65,7 @@ class OrderManager:
       order.set_open_state(True)
       self.open_orders[order.id] = order
       # await self._confirm_order(order, trade)
-    self.bfxapi._emit('order_snapshot', self.open_orders)
+    self.bfxapi._emit('order_snapshot', self.get_open_orders())
 
   async def confirm_order_update(self, raw_ws_data):
     # order created but partially filled
