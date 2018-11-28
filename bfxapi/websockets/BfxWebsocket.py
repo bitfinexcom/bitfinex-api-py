@@ -7,6 +7,7 @@ import random
 
 from .GenericWebsocket import GenericWebsocket, AuthError
 from .SubscriptionManager import SubscriptionManager
+from .WalletManager import WalletManager
 from .OrderManager import OrderManager
 from ..models import Order, Trade, OrderBook
 
@@ -144,6 +145,7 @@ class BfxWebsocket(GenericWebsocket):
     super(BfxWebsocket, self).__init__(host, *args, **kwargs)
     self.subscriptionManager = SubscriptionManager(self)
     self.orderManager = OrderManager(self)
+    self.wallets = WalletManager()
 
     self._WS_DATA_HANDLERS = {
       'tu': self._trade_update_handler,
@@ -249,9 +251,9 @@ class BfxWebsocket(GenericWebsocket):
   
   async def _wallet_update_handler(self, data):
     # [0,"wu",["exchange","USD",89134.66933283,0]]
-    wu = data[2]
-    self._emit('wallet_update', data)
-    self.logger.info("Wallet update: {}({}) = {}".format(wu[1], wu[0], wu[2]))
+    uw = self.wallets._update_from_event(data)
+    self._emit('wallet_update', uw)
+    self.logger.info("Wallet update: {}".format(uw))
 
   async def _heart_beat_handler(self, data):
     self.logger.debug("Heartbeat - {}".format(self.host))
@@ -293,12 +295,11 @@ class BfxWebsocket(GenericWebsocket):
     await self.orderManager.confirm_order_new(data)
 
   async def _order_snapshot_handler(self, data):
-    self._emit('order_snapshot', data)
-    self.logger.info("Position snapshot: {}".format(data))
+    await self.orderManager.build_from_order_snapshot(data)
   
   async def _wallet_snapshot_handler(self, data):
-    self._emit('wallet_snapshot', data[2])
-    self.logger.info("Wallet snapshot: {}".format(data))
+    wallets = self.wallets._update_from_snapshot(data)
+    self._emit('wallet_snapshot', wallets)
   
   async def _position_snapshot_handler(self, data):
     self._emit('position_snapshot', data)
@@ -447,8 +448,11 @@ class BfxWebsocket(GenericWebsocket):
   async def update_order(self, *args, **kwargs):
     return await self.orderManager.update_order(*args, **kwargs)
 
-  async def cancel_order(self, *args, **kwargs):
-    return await self.orderManager.cancel_order(*args, **kwargs)
+  async def close_order(self, *args, **kwargs):
+    return await self.orderManager.close_order(*args, **kwargs)
+
+  async def close_all_orders(self, *args, **kwargs):
+    return await self.orderManager.close_all_orders(*args, **kwargs)
   
-  async def cancel_order_multi(self, *args, **kwargs):
-    return await self.cancel_order_multi(*args, **kwargs)
+  async def close_order_multi(self, *args, **kwargs):
+    return await self.close_order_multi(*args, **kwargs)
