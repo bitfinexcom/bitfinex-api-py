@@ -135,7 +135,7 @@ class BfxWebsocket(GenericWebsocket):
   }
 
   def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api.bitfinex.com/ws/2',
-      onSeedCandleHook=None, onSeedTradeHook=None, manageOrderBooks=False, *args, **kwargs):
+      onSeedCandleHook=None, onSeedTradeHook=None, manageOrderBooks=False, logLevel='INFO', *args, **kwargs):
     self.API_KEY=API_KEY
     self.API_SECRET=API_SECRET
     self.manageOrderBooks = manageOrderBooks
@@ -143,8 +143,8 @@ class BfxWebsocket(GenericWebsocket):
     self.orderBooks = {}
 
     super(BfxWebsocket, self).__init__(host, *args, **kwargs)
-    self.subscriptionManager = SubscriptionManager(self)
-    self.orderManager = OrderManager(self)
+    self.subscriptionManager = SubscriptionManager(self, logLevel=logLevel)
+    self.orderManager = OrderManager(self, logLevel=logLevel)
     self.wallets = WalletManager()
 
     self._WS_DATA_HANDLERS = {
@@ -359,7 +359,7 @@ class BfxWebsocket(GenericWebsocket):
       dChecksum = data[2] & 0xffffffff # force to signed int
       checksum = self.orderBooks[symbol].checksum()
       # force checksums to signed integers
-      isValid = (dChecksum) != (checksum)
+      isValid = (dChecksum) == (checksum)
       if isValid:
         self.logger.debug("Checksum orderbook validation for '{}' successful."
           .format(symbol))
