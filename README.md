@@ -1,5 +1,5 @@
 
-```
+```python
 from bfxapi import Client
 
 bfx = Client(
@@ -24,11 +24,11 @@ bfx.ws.run()
 This is an official python library that is used to connect interact with the Bitfinex api. Currently it only has support for websockets but will soon have Rest functionality as well.
 
 Install dependencies
-```
+```sh
 pip3 install -r requirements.txt
 ```
 Run the trades/candles example:
-```
+```sh
 cd bfxapi/examples
 python3 subsribe_trades_candles.py
 ```
@@ -46,7 +46,7 @@ python3 subsribe_trades_candles.py
 
 ### Authenticate
 
-```
+```python
 bfx = Client(
   API_KEY='<YOUR_API_KEY>'
   API_SECRET='<YOUR_API_SECRET>'
@@ -61,26 +61,26 @@ bfx.ws.run()
 
 ### Submit limit order
 
-```
+```python
 await bfx.ws.submit_order('tBTCUSD', 19000, 0.01, 'EXCHANGE LIMIT')
 ```
 
 ### Listen for completion
-```
+```python
 @bfx.ws.on('order_confirmed')
 async def order_completed(order, trade):
   print ("Order has been confrmed")
 ```
 
 ### Get wallets
-```
+```python
 wallets = bfxapi.wallets.get_wallets()
 # [ Wallet <'exchange_BTC' balance='41.25809589' unsettled='0'>,
 #   Wallet <'exchange_USD' balance='62761.86070104' unsettled='0'> ]
 ```
 
 ### Close all orders
-```
+```python
 await bfx.ws.close_all_orders()
 ```
 
