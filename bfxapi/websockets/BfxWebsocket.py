@@ -1,14 +1,13 @@
 import asyncio
 import json
 import time
-import hashlib
-import hmac
 import random
 
 from .GenericWebsocket import GenericWebsocket, AuthError
 from .SubscriptionManager import SubscriptionManager
 from .WalletManager import WalletManager
 from .OrderManager import OrderManager
+from ..utils.auth import generate_auth_payload
 from ..models import Order, Trade, OrderBook
 
 class Flags:
@@ -392,18 +391,7 @@ class BfxWebsocket(GenericWebsocket):
       self.logger.warn('Unknown websocket response: {}'.format(msg))
 
   async def _ws_authenticate_socket(self):
-    nonce = int(round(time.time() * 1000000))
-    authMsg = 'AUTH{}'.format(nonce)
-    secret = self.API_SECRET.encode()
-    sig = hmac.new(secret, authMsg.encode(), hashlib.sha384).hexdigest()
-    hmac.new(secret, self.API_SECRET.encode('utf'), hashlib.sha384).hexdigest()
-    jdata = {
-      'apiKey': self.API_KEY,
-      'authSig': sig,
-      'authNonce': nonce,
-      'authPayload': authMsg,
-      'event': 'auth'
-    }
+    jdata = generate_auth_payload(self.API_KEY, self.API_SECRET)
     await self.ws.send(json.dumps(jdata))
 
   async def on_open(self):
