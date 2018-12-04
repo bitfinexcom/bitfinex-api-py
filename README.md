@@ -148,15 +148,15 @@ The websocket exposes a collection of events that are triggered when certain dat
     
   Unsubscribe and subscribe to all data feeds
 
-#### `submit_order(symbol, price, amount, market_type, hidden=False, onComplete=None, onError=None, *args, **kwargs)`
+#### `submit_order(symbol, price, amount, market_type, hidden=False, onConfirm=None,   onClose=None, *args, **kwargs)`
   
-  Submits an order to the Bitfinex api. If the order is successful then the order_closed event will be triggered and the onComplete function will also be called if provided in the parameters.
+  Submits an order to the Bitfinex api. When it has been verified that bitfine xhas received the order then the `onConfirm` callback will be called followed by the `order_confirmed` event. Once it has been verified that the order has completely closed due to either being filled or canceled then the `onClose` function will be called, followed by the `order_closed` event.
 
-#### `update_order(orderId, price=None, amount=None, delta=None, price_aux_limit=None, price_trailing=None, flags=None, time_in_force=None, onComplete=None, onError=None)`
+#### `update_order(orderId, price=None, amount=None, delta=None, price_aux_limit=None, price_trailing=None, flags=None, time_in_force=None, onConfirm=None, onClose=None)`
   
   Attempts to update an order with the given values. If the order is no longer open then the update will be ignored.
 
-#### `close_order(self, orderId, onComplete=None, onError=None):`
+#### `close_order(self, orderId, onConfirm=None, onClose=None):`
   
   Close the order with the given orderId if it still open.
 

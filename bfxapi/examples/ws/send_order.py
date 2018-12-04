@@ -42,6 +42,6 @@ async def submit_order(auth_message):
 
 # You can also provide a callback
 # await ws.submit_order('tBTCUSD', 0, 0.01,
-# 'EXCHANGE MARKET', onComplete=trade_complete)
+# 'EXCHANGE MARKET', onClose=trade_complete)
 
 bfx.ws.run()

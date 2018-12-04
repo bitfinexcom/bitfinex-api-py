@@ -23,19 +23,21 @@ class OrderManager:
   def get_pending_orders(self):
     return list(self.pending_orders.values())
 
-  async def _confirm_order(self, order):
+  async def _confirm_order(self, order, isClosed=False):
     '''
     Called once when we first recieve infomation back from the bitfinex api
     that the order has been accepted.
     '''
     if order.cId in self.pending_orders:
       if self.pending_callbacks[order.cId][0]:
-        # call onComplete callback
+        # call onConfirm callback
         await self.pending_callbacks[order.cId][0](order)
+        if isClosed:
+          await self.pending_callbacks[order.cId][1](order)
+          del self.pending_callbacks[order.cId]
       order.set_confirmed()
       # remove from pending orders list
       del self.pending_orders[order.cId]
-      del self.pending_callbacks[order.cId]
       self.bfxapi._emit('order_confirmed', order)
 
   async def confirm_order_closed(self, raw_ws_data):
@@ -48,7 +50,7 @@ class OrderManager:
     order.set_open_state(False)
     if order.id in self.open_orders:
       del self.open_orders[order.id]
-    await self._confirm_order(order)
+    await self._confirm_order(order, isClosed=True)
     self.logger.info("Order closed: {} {}".format(order.symbol, order.status))
     self.bfxapi._emit('order_closed', order)
 
@@ -94,7 +96,7 @@ class OrderManager:
     return int(round(time.time() * 1000))
 
   async def submit_order(self, symbol, price, amount, market_type,
-      hidden=False, onComplete=None, onError=None, *args, **kwargs):
+      hidden=False, onConfirm=None, onClose=None, *args, **kwargs):
     cId = self._gen_unqiue_cid()
     # send order over websocket
     payload = {
@@ -105,24 +107,24 @@ class OrderManager:
       "price": str(price)
     }
     self.pending_orders[cId] = payload
-    self.pending_callbacks[cId] = (onComplete, onError)
+    self.pending_callbacks[cId] = (onConfirm, onClose)
     await self.bfxapi._send_auth_command('on', payload)
     self.logger.info("Order cid={} ({} {} @ {}) dispatched".format(
       cId, symbol, amount, price))
 
-  async def update_order(self, orderId, *args, onComplete=None, onError=None, **kwargs):
+  async def update_order(self, orderId, *args, onConfirm=None, onClose=None, **kwargs):
     if orderId not in self.open_orders:
       raise Exception("Order id={} is not open".format(orderId))
     order = self.open_orders[orderId]
-    self.pending_callbacks[order.cId] = (onComplete, onError)
+    self.pending_callbacks[order.cId] = (onConfirm, onClose)
     await order.update(*args, **kwargs)
     self.logger.info("Update Order order_id={} dispatched".format(orderId))
 
-  async def close_order(self, orderId, onComplete=None, onError=None):
+  async def close_order(self, orderId, onConfirm=None, onClose=None):
     if orderId not in self.open_orders:
       raise Exception("Order id={} is not open".format(orderId))
     order = self.open_orders[orderId]
-    self.pending_callbacks[order.cId] = (onComplete, onError)
+    self.pending_callbacks[order.cId] = (onConfirm, onClose)
     await order.cancel()
     self.logger.info("Order cancel order_id={} dispatched".format(orderId))
 

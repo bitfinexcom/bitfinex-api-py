@@ -24,7 +24,7 @@ async def trade_completed(order, trade):
   print ("Order confirmed.")
   print (order)
   print (trade)
-  await bfx.ws.cancel_order(order.id)
+  await bfx.ws.close_order(order.id)
 
 @bfx.ws.on('error')
 def log_error(msg):
