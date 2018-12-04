@@ -17,8 +17,6 @@ def generate_auth_payload(API_KEY, API_SECRET):
 def generate_auth_headers(API_KEY, API_SECRET, path, body):
   nonce = str(_gen_nonce())
   signature = "/api/v2/{}{}{}".format(path, nonce, body)
-  print (API_KEY)
-  print (API_SECRET)
   h = hmac.new(API_SECRET.encode('utf8'), signature.encode('utf8'), hashlib.sha384)
   signature = h.hexdigest()
 
