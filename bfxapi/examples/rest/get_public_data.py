@@ -8,7 +8,6 @@ from bfxapi import Client
 
 bfx = Client(
   logLevel='DEBUG',
-  rest_host='https://test.bitfinex.com/v2'
 )
 
 now = int(round(time.time() * 1000))
