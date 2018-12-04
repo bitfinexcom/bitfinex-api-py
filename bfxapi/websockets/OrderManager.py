@@ -46,7 +46,7 @@ class OrderManager:
     # "EXCHANGE MARKET",null,null,null,0,"EXECUTED @ 18922.0(0.03299997): was PARTIALLY FILLED 
     # @ 18909.0(0.06700003)",null,null,18909,18913.2899961,0,0,null,null,null,0,0,null,null,null,
     # "API>BFX",null,null,null]]
-    order = Order(self.bfxapi, raw_ws_data[2])
+    order = Order.from_raw_order(raw_ws_data[2])
     order.set_open_state(False)
     if order.id in self.open_orders:
       del self.open_orders[order.id]
@@ -61,7 +61,7 @@ class OrderManager:
     osData = raw_ws_data[2]
     self.open_orders = {}
     for raw_order in osData:
-      order = Order(self.bfxapi, raw_order)
+      order = Order.from_raw_order(raw_ws_data[2])
       order.set_open_state(True)
       self.open_orders[order.id] = order
     self.bfxapi._emit('order_snapshot', self.get_open_orders())
@@ -72,7 +72,7 @@ class OrderManager:
     # 1542629458189, 0.01, 0.01, 'EXCHANGE LIMIT', None, None, None, 0, 'ACTIVE', 
     # None, None, 100, 0, 0, 0, None, None, None, 0, 0, None, None, None, 'API>BFX', 
     # None, None, None]]
-    order = Order(self.bfxapi, raw_ws_data[2])
+    order = Order.from_raw_order(raw_ws_data[2])
     order.set_open_state(True)
     self.open_orders[order.id] = order
     await self._confirm_order(order)
@@ -85,7 +85,7 @@ class OrderManager:
     # 1542624024617, 0.01, 0.01, 'EXCHANGE LIMIT', None, None, None, 0, 'ACTIVE',
     # None, None, 100, 0, 0, 0, None, None, None, 0, 0, None, None, None, 'API>BFX',
     # None, None, None]]
-    order = Order(self.bfxapi, raw_ws_data[2])
+    order = Order.from_raw_order(raw_ws_data[2])
     order.set_open_state(True)
     self.open_orders[order.id] = order
     await self._confirm_order(order)
@@ -117,7 +117,7 @@ class OrderManager:
       raise Exception("Order id={} is not open".format(orderId))
     order = self.open_orders[orderId]
     self.pending_callbacks[order.cId] = (onConfirm, onClose)
-    await order.update(*args, **kwargs)
+    await order._update(orderId, *args, **kwargs)
     self.logger.info("Update Order order_id={} dispatched".format(orderId))
 
   async def close_order(self, orderId, onConfirm=None, onClose=None):
@@ -125,7 +125,7 @@ class OrderManager:
       raise Exception("Order id={} is not open".format(orderId))
     order = self.open_orders[orderId]
     self.pending_callbacks[order.cId] = (onConfirm, onClose)
-    await order.cancel()
+    await self._close_order(orderId)
     self.logger.info("Order cancel order_id={} dispatched".format(orderId))
 
   async def close_all_orders(self):
@@ -139,3 +139,25 @@ class OrderManager:
         asyncio.ensure_future(self.open_orders[oid].close())
       ]
     await asyncio.wait(*[ task_batch ])
+
+  async def _close_order(self, orderId):
+    await self.bfxapi._send_auth_command('oc', { 'id': orderId })
+
+  async def _update(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,
+      price_trailing=None, flags=None, time_in_force=None):
+    payload = { "id": orderId }
+    if price is not None:
+      payload['price'] = str(price)
+    if amount is not None:
+      payload['amount'] = str(amount)
+    if delta is not None:
+      payload['delta'] = str(delta)
+    if price_aux_limit is not None:
+      payload['price_aux_limit'] = str(price_aux_limit)
+    if price_trailing is not None:
+      payload['price_trailing'] = str(price_trailing)
+    if flags is not None:
+      payload['flags'] = str(flags)
+    if time_in_force is not None:
+      payload['time_in_force'] = str(time_in_force)
+    await self.bfxapi._send_auth_command('ou', payload)

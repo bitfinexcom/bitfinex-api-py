@@ -1,4 +1,5 @@
 import time
+import datetime
 
 class OrderClosedModel:
   ID = 0
@@ -24,51 +25,59 @@ def now_in_mills():
   return int(round(time.time() * 1000))
 
 class Order:
-  def __init__(self, bfxapi, closingOrderArray):
-    self.bfxapi = bfxapi
-    self.id =  closingOrderArray[OrderClosedModel.ID]
-    self.gId = closingOrderArray[OrderClosedModel.GID]
-    self.cId = closingOrderArray[OrderClosedModel.CID]
-    self.symbol = closingOrderArray[OrderClosedModel.SYMBOL]
-    self.mtsCreate = closingOrderArray[OrderClosedModel.MTS_CREATE]
-    self.mtsUpdate = closingOrderArray[OrderClosedModel.MTS_UPDATE]
-    self.amount = closingOrderArray[OrderClosedModel.AMOUNT]
-    self.amountOrig = closingOrderArray[OrderClosedModel.AMOUNT_ORIG]
-    self.type = closingOrderArray[OrderClosedModel.TYPE]
-    self.typePrev = closingOrderArray[OrderClosedModel.TYPE_PREV]
-    self.flags = closingOrderArray[OrderClosedModel.FLAGS]
-    self.status = closingOrderArray[OrderClosedModel.STATUS]
-    self.price = closingOrderArray[OrderClosedModel.PRICE]
-    self.priceAvg = closingOrderArray[OrderClosedModel.PRIVE_AVG]
-    self.priceTrailing = closingOrderArray[OrderClosedModel.PRICE_TRAILING]
-    self.priceAuxLimit = closingOrderArray[OrderClosedModel.PRICE_AUX_LIMIT]
-    self.notfiy = closingOrderArray[OrderClosedModel.NOTIFY]
-    self.placeId = closingOrderArray[OrderClosedModel.PLACE_ID]
+  def __init__(self, id, gId, cId, symbol, mtsCreate, mtsUpdate, amount, amountOrig, oType,
+      typePrev, flags, status, price, priceAvg, priceTrailing, priceAuxLimit, notfiy, placeId):
+    self.id =  id
+    self.gId = gId
+    self.cId = cId
+    self.symbol = symbol
+    self.mtsCreate = mtsCreate
+    self.mtsUpdate = mtsUpdate
+    self.amount = amount
+    self.amountOrig = amountOrig
+    self.type = oType
+    self.typePrev = typePrev
+    self.flags = flags
+    self.status = status
+    self.price = price
+    self.priceAvg = priceAvg
+    self.priceTrailing = priceTrailing
+    self.priceAuxLimit = priceAuxLimit
+    self.notfiy = notfiy
+    self.placeId = placeId
+
     self.is_pending_bool = True
     self.is_confirmed_bool = False
     self.is_open_bool = False
 
-  async def update(self, price=None, amount=None, delta=None, price_aux_limit=None,
-      price_trailing=None, flags=None, time_in_force=None):
-    payload = { "id": self.id }
-    if price is not None:
-      payload['price'] = str(price)
-    if amount is not None:
-      payload['amount'] = str(amount)
-    if delta is not None:
-      payload['delta'] = str(delta)
-    if price_aux_limit is not None:
-      payload['price_aux_limit'] = str(price_aux_limit)
-    if price_trailing is not None:
-      payload['price_trailing'] = str(price_trailing)
-    if flags is not None:
-      payload['flags'] = str(flags)
-    if time_in_force is not None:
-      payload['time_in_force'] = str(time_in_force)
-    await self.bfxapi._send_auth_command('ou', payload)
+    self.date = datetime.datetime.fromtimestamp(mtsCreate/1000.0)
+    if priceAvg:
+      ## if cancelled then priceAvg wont exist
+      self.fee = (priceAvg * abs(amount)) * 0.002
 
-  async def close(self):
-    await self.bfxapi._send_auth_command('oc', { 'id': self.id })
+  @staticmethod
+  def from_raw_order(raw_order):
+    id =  raw_order[OrderClosedModel.ID]
+    gId = raw_order[OrderClosedModel.GID]
+    cId = raw_order[OrderClosedModel.CID]
+    symbol = raw_order[OrderClosedModel.SYMBOL]
+    mtsCreate = raw_order[OrderClosedModel.MTS_CREATE]
+    mtsUpdate = raw_order[OrderClosedModel.MTS_UPDATE]
+    amount = raw_order[OrderClosedModel.AMOUNT]
+    amountOrig = raw_order[OrderClosedModel.AMOUNT_ORIG]
+    oType = raw_order[OrderClosedModel.TYPE]
+    typePrev = raw_order[OrderClosedModel.TYPE_PREV]
+    flags = raw_order[OrderClosedModel.FLAGS]
+    status = raw_order[OrderClosedModel.STATUS]
+    price = raw_order[OrderClosedModel.PRICE]
+    priceAvg = raw_order[OrderClosedModel.PRIVE_AVG]
+    priceTrailing = raw_order[OrderClosedModel.PRICE_TRAILING]
+    priceAuxLimit = raw_order[OrderClosedModel.PRICE_AUX_LIMIT]
+    notfiy = raw_order[OrderClosedModel.NOTIFY]
+    placeId = raw_order[OrderClosedModel.PLACE_ID]
+
+    return Order(id, gId, cId, symbol, mtsCreate, mtsUpdate, amount, amountOrig, oType,
+      typePrev, flags, status, price, priceAvg, priceTrailing, priceAuxLimit, notfiy, placeId)
 
   def set_confirmed(self):
     self.is_pending_bool = False
