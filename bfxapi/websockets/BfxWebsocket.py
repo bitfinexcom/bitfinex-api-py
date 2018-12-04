@@ -141,7 +141,7 @@ class BfxWebsocket(GenericWebsocket):
     self.pendingOrders = {}
     self.orderBooks = {}
 
-    super(BfxWebsocket, self).__init__(host, *args, **kwargs)
+    super(BfxWebsocket, self).__init__(host, logLevel=logLevel, *args, **kwargs)
     self.subscriptionManager = SubscriptionManager(self, logLevel=logLevel)
     self.orderManager = OrderManager(self, logLevel=logLevel)
     self.wallets = WalletManager()
