@@ -2,7 +2,7 @@ import time
 import asyncio
 
 from ..utils.CustomLogger import CustomLogger
-from ..models import Order, Trade
+from ..models import Order
 
 class OrderManager:
 
@@ -23,7 +23,7 @@ class OrderManager:
   def get_pending_orders(self):
     return list(self.pending_orders.values())
 
-  async def _confirm_order(self, order, trade):
+  async def _confirm_order(self, order):
     '''
     Called once when we first recieve infomation back from the bitfinex api
     that the order has been accepted.
@@ -31,12 +31,12 @@ class OrderManager:
     if order.cId in self.pending_orders:
       if self.pending_callbacks[order.cId][0]:
         # call onComplete callback
-        await self.pending_callbacks[order.cId][0](order, trade)
+        await self.pending_callbacks[order.cId][0](order)
       order.set_confirmed()
       # remove from pending orders list
       del self.pending_orders[order.cId]
       del self.pending_callbacks[order.cId]
-      self.bfxapi._emit('order_confirmed', order, trade)
+      self.bfxapi._emit('order_confirmed', order)
 
   async def confirm_order_closed(self, raw_ws_data):
     # order created and executed
@@ -45,13 +45,12 @@ class OrderManager:
     # @ 18909.0(0.06700003)",null,null,18909,18913.2899961,0,0,null,null,null,0,0,null,null,null,
     # "API>BFX",null,null,null]]
     order = Order(self.bfxapi, raw_ws_data[2])
-    trade = Trade(order)
     order.set_open_state(False)
     if order.id in self.open_orders:
       del self.open_orders[order.id]
-    await self._confirm_order(order, trade)
+    await self._confirm_order(order)
     self.logger.info("Order closed: {} {}".format(order.symbol, order.status))
-    self.bfxapi._emit('order_closed', order, trade)
+    self.bfxapi._emit('order_closed', order)
 
   async def build_from_order_snapshot(self, raw_ws_data):
     '''
@@ -61,10 +60,8 @@ class OrderManager:
     self.open_orders = {}
     for raw_order in osData:
       order = Order(self.bfxapi, raw_order)
-      trade = Trade(order)
       order.set_open_state(True)
       self.open_orders[order.id] = order
-      # await self._confirm_order(order, trade)
     self.bfxapi._emit('order_snapshot', self.get_open_orders())
 
   async def confirm_order_update(self, raw_ws_data):
@@ -75,11 +72,10 @@ class OrderManager:
     # None, None, None]]
     order = Order(self.bfxapi, raw_ws_data[2])
     order.set_open_state(True)
-    trade = Trade(order)
     self.open_orders[order.id] = order
-    await self._confirm_order(order, trade)
-    self.logger.info("Order update: {} {}".format(order, trade))
-    self.bfxapi._emit('order_update', order, trade)
+    await self._confirm_order(order)
+    self.logger.info("Order update: {}".format(order))
+    self.bfxapi._emit('order_update', order)
 
   async def confirm_order_new(self, raw_ws_data):
     # order created but not executed /  created but partially filled
@@ -89,11 +85,10 @@ class OrderManager:
     # None, None, None]]
     order = Order(self.bfxapi, raw_ws_data[2])
     order.set_open_state(True)
-    trade = Trade(order)
     self.open_orders[order.id] = order
-    await self._confirm_order(order, trade)
-    self.logger.info("Order new: {} {}".format(order, trade))
-    self.bfxapi._emit('order_new', order, trade)
+    await self._confirm_order(order)
+    self.logger.info("Order new: {}".format(order))
+    self.bfxapi._emit('order_new', order)
 
   def _gen_unqiue_cid(self):
     return int(round(time.time() * 1000))

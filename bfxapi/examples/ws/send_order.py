@@ -18,10 +18,9 @@ async def close_all(data):
   await bfx.ws.close_all_orders()
 
 @bfx.ws.on('order_confirmed')
-async def trade_completed(order, trade):
+async def trade_completed(order):
   print ("Order confirmed.")
   print (order)
-  print (trade)
   ## close the order
   # await order.close()
   # or
