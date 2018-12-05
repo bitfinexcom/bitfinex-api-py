@@ -33,11 +33,17 @@ async def log_ticker():
   print ("Ticker:")
   print (ticker)
 
+async def log_mul_tickers():
+  tickers = await bfx.rest.get_public_tickers(['tBTCUSD', 'tETHBTC'])
+  print ("Tickers:")
+  print (tickers)
+
 async def run():
   await log_historical_candles()
   await log_historical_trades()
   await log_books()
   await log_ticker()
+  await log_mul_tickers()
   
 t = asyncio.ensure_future(run())
 asyncio.get_event_loop().run_until_complete(t)
