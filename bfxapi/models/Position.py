@@ -1,9 +1,20 @@
 
 class Position:
+  """
+  SYMBOL	string	Pair (tBTCUSD, …).
+  STATUS	string	Status (ACTIVE, CLOSED).
+  ±AMOUNT	float	Size of the position. Positive values means a long position, negative values means a short position.
+  BASE_PRICE	float	The price at which you entered your position.
+  MARGIN_FUNDING	float	The amount of funding being used for this position.
+  MARGIN_FUNDING_TYPE	int	0 for daily, 1 for term.
+  PL	float	Profit & Loss
+  PL_PERC	float	Profit & Loss Percentage
+  PRICE_LIQ	float	Liquidation price
+  LEVERAGE	float	Beta value
+  """
 
   def __init__(self, symbol, status, amount, bPrice, mFunding, mFundingType,
       profit_loss, profit_loss_perc, lPrice, lev):
-      # [['tBTCUSD', 'ACTIVE', -2.37709587, 20720, -0.00066105, 0, 13115.99728968, 26.6296139, 104156.986252, -1.2332]]
     self.symbol = symbol
     self.status = status
     self.amount = amount

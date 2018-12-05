@@ -1,6 +1,22 @@
 import time
 import datetime
 
+class OrderType:
+  MARKET = 'market'
+  LIMIT = 'limit'
+  STOP = 'stop'
+  TRAILING_STOP = 'trailing-stop'
+  FILL_OR_KILL = 'fill-or-kill'
+  EXCHANGE_MARKET = 'exchange market'
+  EXCHANGE_LIMIT = 'exchange limit'
+  EXCHANGE_STOP = 'exchange stop'
+  EXCHANGE_TRAILING_STOP = 'exchange trailing-stop'
+  EXCHANGE_FILL_OR_KILL = 'exchange fill-or-kill'
+
+class OrderSide:
+  BUY = 'buy'
+  SELL = 'sell'
+
 class OrderClosedModel:
   ID = 0
   GID = 1
@@ -25,6 +41,30 @@ def now_in_mills():
   return int(round(time.time() * 1000))
 
 class Order:
+  """
+  ID	int64	Order ID
+  GID	int	Group ID
+  CID	int	Client Order ID
+  SYMBOL	string	Pair (tBTCUSD, …)
+  MTS_CREATE	int	Millisecond timestamp of creation
+  MTS_UPDATE	int	Millisecond timestamp of update
+  AMOUNT	float	Positive means buy, negative means sell.
+  AMOUNT_ORIG	float	Original amount
+  TYPE	string	The type of the order: LIMIT, MARKET, STOP, TRAILING STOP, EXCHANGE MARKET, EXCHANGE LIMIT, EXCHANGE STOP, EXCHANGE TRAILING STOP, FOK, EXCHANGE FOK.
+  TYPE_PREV	string	Previous order type
+  FLAGS	int	Upcoming Params Object (stay tuned)
+  ORDER_STATUS	string	Order Status: ACTIVE, EXECUTED, PARTIALLY FILLED, CANCELED
+  PRICE	float	Price
+  PRICE_AVG	float	Average price
+  PRICE_TRAILING	float	The trailing price
+  PRICE_AUX_LIMIT	float	Auxiliary Limit price (for STOP LIMIT)
+  HIDDEN	int	1 if Hidden, 0 if not hidden
+  PLACED_ID	int	If another order caused this order to be placed (OCO) this will be that other order's ID
+  """
+
+  Type = OrderType()
+  Side = OrderSide()
+
   def __init__(self, id, gId, cId, symbol, mtsCreate, mtsUpdate, amount, amountOrig, oType,
       typePrev, flags, status, price, priceAvg, priceTrailing, priceAuxLimit, notfiy, placeId):
     self.id =  id

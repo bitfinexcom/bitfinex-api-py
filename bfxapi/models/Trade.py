@@ -1,6 +1,20 @@
 import datetime
 
 class Trade:
+  """
+  ID	integer	Trade database id
+  PAIR	string	Pair (BTCUSD, …)
+  MTS_CREATE	integer	Execution timestamp
+  ORDER_ID	integer	Order id
+  EXEC_AMOUNT	float	Positive means buy, negative means sell
+  EXEC_PRICE	float	Execution price
+  ORDER_TYPE	string	Order type
+  ORDER_PRICE	float	Order price
+  MAKER	int	1 if true, 0 if false
+  FEE	float	Fee
+  FEE_CURRENCY	string	Fee currency
+  """
+
   SHORT = 'SHORT'
   LONG = 'LONG'
 
