@@ -69,25 +69,75 @@ class BfxRest:
 
   async def get_public_candles(self, symbol, start, end, section='hist',
     tf='1m', limit="100", sort=-1):
+    """
+    Get all of the public candles between the start and end period.
+
+    @param symbol symbol string: pair symbol i.e tBTCUSD
+    @param secton string: available values: "last", "hist"
+    @param start int: millisecond start time
+    @param end int: millisecond end time
+    @param limit int: max number of items in response
+    @param tf int: timeframe inbetween candles i.e 1m (min), ..., 1D (day), ... 1M (month)
+    @param sort int: if = 1 it sorts results returned with old > new
+    @return Array [ MTS, OPEN, CLOSE, HIGH, LOW, VOLUME ]
+    """
     endpoint = "candles/trade:{}:{}/{}".format(tf, symbol, section)
     params = "?start={}&end={}&limit={}&sort={}".format(start, end, limit, sort)
     candles = await self.fetch(endpoint, params=params)
     return candles
 
   async def get_public_trades(self, symbol, start, end, limit="100", sort=-1):
+    """
+    Get all of the public trades between the start and end period.
+
+    @param symbol symbol string: pair symbol i.e tBTCUSD
+    @param start int: millisecond start time
+    @param end int: millisecond end time
+    @param limit int: max number of items in response
+    @return Array [ ID, MTS, AMOUNT, RATE, PERIOD? ]
+    """
     endpoint = "trades/{}/hist".format(symbol)
     params = "?start={}&end={}&limit={}&sort={}".format(start, end, limit, sort)
     trades = await self.fetch(endpoint, params=params)
     return trades
 
   async def get_public_books(self, symbol, precision="P0", length=25):
+    """
+    Get the public orderbook for a given symbol.
+
+    @param symbol symbol string: pair symbol i.e tBTCUSD
+    @param precision string: level of price aggregation (P0, P1, P2, P3, P4, R0)
+    @param length int: number of price points ("25", "100")
+    @return Array [ PRICE, COUNT, AMOUNT ]
+    """
     endpoint = "book/{}/{}".format(symbol, precision)
     params = "?len={}".format(length)
     books = await self.fetch(endpoint, params)
     return books
 
   async def get_public_ticker(self, symbol):
+    """
+    Get tickers for the given symbol. Tickers shows you the current best bid and ask,
+    as well as the last trade price.
+
+    @parms symbols symbol string: pair symbol i.e tBTCUSD
+    @return Array [ SYMBOL, BID, BID_SIZE, ASK, ASK_SIZE, DAILY_CHANGE,  DAILY_CHANGE_PERC,
+      LAST_PRICE, VOLUME, HIGH, LOW ]
+    """
     endpoint = "ticker/{}".format(symbol)
+    ticker = await self.fetch(endpoint)
+    return ticker
+
+  async def get_public_tickers(self, symbols):
+    """
+    Get tickers for the given symbols. Tickers shows you the current best bid and ask,
+    as well as the last trade price.
+
+    @parms symbols Array<string>: array of symbols i.e [tBTCUSD, tETHUSD]
+    @return Array [ SYMBOL, BID, BID_SIZE, ASK, ASK_SIZE, DAILY_CHANGE,  DAILY_CHANGE_PERC,
+      LAST_PRICE, VOLUME, HIGH, LOW ]
+    """
+    endpoint = "tickers/?symbols={}".format(','.join(symbols))
     ticker = await self.fetch(endpoint)
     return ticker
 
@@ -96,49 +146,128 @@ class BfxRest:
   ##################################################
 
   async def get_wallets(self):
+    """
+    Get all wallets on account associated with API_KEY - Requires authentication.
+
+    @return Array <models.Wallet>
+    """
     endpoint = "auth/r/wallets"
     raw_wallets = await self.post(endpoint)
     return [ Wallet(*rw[:4]) for rw in raw_wallets ]
 
   async def get_active_orders(self, symbol):
+    """
+    Get all of the active orders associated with API_KEY - Requires authentication.
+
+    @param symbol string: pair symbol i.e tBTCUSD
+    @return Array <models.Order>
+    """
     endpoint = "auth/r/orders/{}".format(symbol)
     raw_orders = await self.post(endpoint)
     return [ Order.from_raw_order(ro) for ro in raw_orders ]
 
   async def get_order_history(self, symbol, start, end, limit=25, sort=-1):
+    """
+    Get all of the orders between the start and end period associated with API_KEY
+    - Requires authentication.
+
+    @param symbol string: pair symbol i.e tBTCUSD
+    @param start int: millisecond start time
+    @param end int: millisecond end time
+    @param limit int: max number of items in response
+    @return Array <models.Order>
+    """
     endpoint = "auth/r/orders/{}/hist".format(symbol)
     params = "?start={}&end={}&limit={}&sort={}".format(start, end, limit, sort)
     raw_orders = await self.post(endpoint, params=params)
     return [ Order.from_raw_order(ro) for ro in raw_orders ]
 
   async def get_active_position(self):
+    """
+    Get all of the active position associated with API_KEY - Requires authentication.
+
+    @return Array <models.Position>
+    """
     endpoint = "auth/r/positions"
     raw_positions = await self.post(endpoint)
     return [ Position.from_raw_rest_position(rp) for rp in raw_positions ]
 
+  async def get_order_trades(self, symbol, order_id):
+    """
+    Get all of the trades that have been generated by the given order associated with API_KEY
+    - Requires authentication.
+
+    @param symbol string: pair symbol i.e tBTCUSD
+    @param order_id string: id of the order
+    @return Array <models.Trade>
+    """
+    endpoint = "auth/r/order/{}:{}/trades".format(symbol, order_id)
+    raw_trades = await self.post(endpoint)
+    return [ Trade.from_raw_rest_trade(rt) for rt in raw_trades ]
+
   async def get_trades(self, symbol, start, end, limit=25):
+    """
+    Get all of the trades between the start and end period associated with API_KEY
+    - Requires authentication.
+
+    @param symbol string: pair symbol i.e tBTCUSD
+    @param start int: millisecond start time
+    @param end int: millisecond end time
+    @param limit int: max number of items in response
+    @return Array <models.Trade>
+    """
     endpoint = "auth/r/trades/{}/hist".format(symbol)
     params = "?start={}&end={}&limit={}".format(start, end, limit)
     raw_trades = await self.post(endpoint, params=params)
     return [ Trade.from_raw_rest_trade(rt) for rt in raw_trades ]
 
   async def get_funding_offers(self, symbol):
+    """
+    Get all of the funding offers associated with API_KEY - Requires authentication.
+
+    @return Array <models.FundingOffer>
+    """
     endpoint = "auth/r/funding/offers/{}".format(symbol)
     offers = await self.post(endpoint)
     return [ FundingOffer.from_raw_offer(o) for o in offers ]
 
   async def get_funding_offer_history(self, symbol, start, end, limit=25):
+    """
+    Get all of the funding offers between the start and end period associated with API_KEY
+    - Requires authentication.
+
+    @param symbol string: pair symbol i.e tBTCUSD
+    @param start int: millisecond start time
+    @param end int: millisecond end time
+    @param limit int: max number of items in response
+    @return Array <models.FundingOffer>
+    """
     endpoint = "auth/r/funding/offers/{}/hist".format(symbol)
     params = "?start={}&end={}&limit={}".format(start, end, limit)
     offers = await self.post(endpoint, params=params)
     return [ FundingOffer.from_raw_offer(o) for o in offers ]
 
   async def get_funding_loans(self, symbol):
+    """
+    Get all of the funding loans associated with API_KEY - Requires authentication.
+
+    @return Array <models.FundingLoan>
+    """
     endpoint = "auth/r/funding/loans/{}".format(symbol)
     loans = await self.post(endpoint)
     return [ FundingLoan.from_raw_loan(o) for o in loans ]
 
   async def get_funding_loan_history(self, symbol, start, end, limit=25):
+    """
+    Get all of the funding loans between the start and end period associated with API_KEY
+    - Requires authentication.
+
+    @param symbol string: pair symbol i.e tBTCUSD
+    @param start int: millisecond start time
+    @param end int: millisecond end time
+    @param limit int: max number of items in response
+    @return Array <models.FundingLoan>
+    """
     endpoint = "auth/r/funding/loans/{}/hist".format(symbol)
     params = "?start={}&end={}&limit={}".format(start, end, limit)
     loans = await self.post(endpoint, params=params)
@@ -150,6 +279,16 @@ class BfxRest:
     return [ FundingCredit.from_raw_credit(c) for c in credits]
 
   async def get_funding_credit_history(self, symbol, start, end, limit=25):
+    """
+    Get all of the funding credits between the start and end period associated with API_KEY
+    - Requires authentication.
+
+    @param symbol string: pair symbol i.e tBTCUSD
+    @param start int: millisecond start time
+    @param end int: millisecond end time
+    @param limit int: max number of items in response
+    @return Array <models.FundingCredit>
+    """
     endpoint = "auth/r/funding/credits/{}/hist".format(symbol)
     params = "?start={}&end={}&limit={}".format(start, end, limit)
     credits = await self.post(endpoint, params=params)
