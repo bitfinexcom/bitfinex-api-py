@@ -5,7 +5,8 @@ import json
 
 from ..utils.CustomLogger import CustomLogger
 from ..utils.auth import generate_auth_headers
-from ..models import Wallet, Order, Position, Trade
+from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer
+from ..models import FundingCredit
 
 class BfxRest:
 
@@ -42,7 +43,7 @@ class BfxRest:
         return await resp.json()
 
   ##################################################
-  #                     Public                     #
+  #                  Public Data                   #
   ##################################################
 
   async def get_seed_candles(self, symbol):
@@ -91,7 +92,7 @@ class BfxRest:
     return ticker
 
   ##################################################
-  #                 Authenticated                  #
+  #               Authenticated Data               #
   ##################################################
 
   async def get_wallets(self):
@@ -120,3 +121,79 @@ class BfxRest:
     params = "?start={}&end={}&limit={}".format(start, end, limit)
     raw_trades = await self.post(endpoint, params=params)
     return [ Trade.from_raw_rest_trade(rt) for rt in raw_trades ]
+
+  async def get_funding_offers(self, symbol):
+    endpoint = "auth/r/funding/offers/{}".format(symbol)
+    offers = await self.post(endpoint)
+    return [ FundingOffer.from_raw_offer(o) for o in offers ]
+
+  async def get_funding_offer_history(self, symbol, start, end, limit=25):
+    endpoint = "auth/r/funding/offers/{}/hist".format(symbol)
+    params = "?start={}&end={}&limit={}".format(start, end, limit)
+    offers = await self.post(endpoint, params=params)
+    return [ FundingOffer.from_raw_offer(o) for o in offers ]
+
+  async def get_funding_loans(self, symbol):
+    endpoint = "auth/r/funding/loans/{}".format(symbol)
+    loans = await self.post(endpoint)
+    return [ FundingLoan.from_raw_loan(o) for o in loans ]
+
+  async def get_funding_loan_history(self, symbol, start, end, limit=25):
+    endpoint = "auth/r/funding/loans/{}/hist".format(symbol)
+    params = "?start={}&end={}&limit={}".format(start, end, limit)
+    loans = await self.post(endpoint, params=params)
+    return [ FundingLoan.from_raw_loan(o) for o in loans ]
+
+  async def get_funding_credits(self, symbol):
+    endpoint = "auth/r/funding/credits/{}".format(symbol)
+    credits = await self.post(endpoint)
+    return [ FundingCredit.from_raw_credit(c) for c in credits]
+
+  async def get_funding_credit_history(self, symbol, start, end, limit=25):
+    endpoint = "auth/r/funding/credits/{}/hist".format(symbol)
+    params = "?start={}&end={}&limit={}".format(start, end, limit)
+    credits = await self.post(endpoint, params=params)
+    return [ FundingCredit.from_raw_credit(c) for c in credits]
+
+  ##################################################
+  #                     Orders                     #
+  ##################################################
+
+  async def __submit_order(self, symbol, amount, price, oType=Order.Type.LIMIT,
+    is_hidden=False, is_postonly=False, use_all_available=False, stop_order=False,
+    stop_buy_price=0, stop_sell_price=0):
+    """
+    Submit a new order
+
+    @param symbol: the name of the symbol i.e 'tBTCUSD
+    @param amount: order size: how much you want to buy/sell,
+      a negative amount indicates a sell order and positive a buy order
+    @param price: the price you want to buy/sell at (must be positive)
+    @param oType: order type, see Order.Type enum
+    @param is_hidden: True if order should be hidden from orderbooks
+    @param is_postonly: True if should be post only. Only relevant for limit
+    @param use_all_available: True if order should use entire balance
+    @param stop_order: True to set an additional STOP OCO order linked to the
+      current order
+    @param stop_buy_price: set the OCO stop buy price (requires stop_order True)
+    @param stop_sell_price: set the OCO stop sell price (requires stop_order True)
+    """
+    raise NotImplementedError(
+      "V2 submit order has not yet been added to the bfx api. Please use bfxapi.ws")
+    side = Order.Side.SELL if amount < 0 else Order.Side.BUY
+    use_all_balance = 1 if use_all_available else 0
+    payload = {}
+    payload['symbol'] = symbol
+    payload['amount'] = abs(amount)
+    payload['price'] = price
+    payload['side'] = side
+    payload['type'] = oType
+    payload['is_hidden'] = is_hidden
+    payload['is_postonly'] = is_postonly
+    payload['use_all_available'] = use_all_balance
+    payload['ocoorder'] = stop_order
+    if stop_order:
+      payload['buy_price_oco'] = stop_buy_price
+      payload['sell_price_oco'] = stop_sell_price
+    endpoint = 'order/new'
+    return await self.post(endpoint, data=payload)
