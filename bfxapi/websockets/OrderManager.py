@@ -24,10 +24,10 @@ class OrderManager:
     return list(self.pending_orders.values())
 
   async def _confirm_order(self, order, isClosed=False):
-    '''
-    Called once when we first recieve infomation back from the bitfinex api
-    that the order has been accepted.
-    '''
+    """
+    Called every time an order signal has been received. This function
+    manages the local list of open orders.
+    """
     if order.cId in self.pending_orders:
       if self.pending_callbacks[order.cId][0]:
         # call onConfirm callback
@@ -198,46 +198,41 @@ class OrderManager:
     self.logger.info("Update Order order_id={} dispatched".format(orderId))
 
   async def cancel_order(self, orderId, onConfirm=None, onClose=None):
-    if orderId not in self.open_orders:
-      raise Exception("Order id={} is not open".format(orderId))
+    """
+    Cancel an existing open order
+
+    @param orderId: the id of the order that you want to update
+    @param onConfirm: function called when the bitfinex websocket receives signal that the order
+      was confirmed
+    @param onClose: function called when the bitfinex websocket receives signal that the order
+      was closed due to being filled or cancelled
+    """
     order = self.open_orders[orderId]
     self.pending_callbacks[order.cId] = (onConfirm, onClose)
-    await self._cancel_order(orderId)
+    await self.bfxapi._send_auth_command('oc', { 'id': orderId })
     self.logger.info("Order cancel order_id={} dispatched".format(orderId))
 
   async def cancel_all_orders(self):
+    """
+    Cancel all existing open orders
+
+    This function closes orders that have been tracked locally by the OrderManager.
+    """
     ids = [self.open_orders[x].id for x in self.open_orders]
     await self.cancel_order_multi(ids)
 
   async def cancel_order_multi(self, orderIds):
+    """
+    Cancel existing open orders as a batch
+
+    @param orderIds: an array of order ids
+    """
     task_batch = []
     for oid in orderIds:
       task_batch += [
         asyncio.ensure_future(self.open_orders[oid].close())
       ]
     await asyncio.wait(*[ task_batch ])
-
-  async def _cancel_order(self, orderId):
-    await self.bfxapi._send_auth_command('oc', { 'id': orderId })
-
-  async def _update(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,
-      price_trailing=None, flags=None, time_in_force=None):
-    payload = { "id": orderId }
-    if price is not None:
-      payload['price'] = str(price)
-    if amount is not None:
-      payload['amount'] = str(amount)
-    if delta is not None:
-      payload['delta'] = str(delta)
-    if price_aux_limit is not None:
-      payload['price_aux_limit'] = str(price_aux_limit)
-    if price_trailing is not None:
-      payload['price_trailing'] = str(price_trailing)
-    if flags is not None:
-      payload['flags'] = str(flags)
-    if time_in_force is not None:
-      payload['time_in_force'] = str(time_in_force)
-    await self.bfxapi._send_auth_command('ou', payload)
 
   def _calculate_flags(self, hidden, close, reduce_only, post_only, oco):
     flags = 0
