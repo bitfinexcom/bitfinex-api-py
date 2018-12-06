@@ -197,19 +197,19 @@ class OrderManager:
     await self.bfxapi._send_auth_command('ou', payload)
     self.logger.info("Update Order order_id={} dispatched".format(orderId))
 
-  async def close_order(self, orderId, onConfirm=None, onClose=None):
+  async def cancel_order(self, orderId, onConfirm=None, onClose=None):
     if orderId not in self.open_orders:
       raise Exception("Order id={} is not open".format(orderId))
     order = self.open_orders[orderId]
     self.pending_callbacks[order.cId] = (onConfirm, onClose)
-    await self._close_order(orderId)
+    await self._cancel_order(orderId)
     self.logger.info("Order cancel order_id={} dispatched".format(orderId))
 
-  async def close_all_orders(self):
+  async def cancel_all_orders(self):
     ids = [self.open_orders[x].id for x in self.open_orders]
-    await self.close_order_multi(ids)
+    await self.cancel_order_multi(ids)
 
-  async def close_order_multi(self, orderIds):
+  async def cancel_order_multi(self, orderIds):
     task_batch = []
     for oid in orderIds:
       task_batch += [
@@ -217,7 +217,7 @@ class OrderManager:
       ]
     await asyncio.wait(*[ task_batch ])
 
-  async def _close_order(self, orderId):
+  async def _cancel_order(self, orderId):
     await self.bfxapi._send_auth_command('oc', { 'id': orderId })
 
   async def _update(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,

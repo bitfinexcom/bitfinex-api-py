@@ -14,8 +14,8 @@ bfx = Client(
 )
 
 @bfx.ws.on('order_snapshot')
-async def close_all(data):
-  await bfx.ws.close_all_orders()
+async def cancel_all(data):
+  await bfx.ws.cancel_all_orders()
 
 @bfx.ws.on('order_confirmed')
 async def trade_completed(order):
@@ -24,9 +24,9 @@ async def trade_completed(order):
   ## close the order
   # await order.close()
   # or
-  # await bfx.ws.close_order(order.id)
+  # await bfx.ws.cancel_order(order.id)
   # or
-  # await bfx.ws.close_all_orders()
+  # await bfx.ws.cancel_all_orders()
 
 @bfx.ws.on('error')
 def log_error(msg):

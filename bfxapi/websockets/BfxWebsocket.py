@@ -55,59 +55,11 @@ def _parse_trade(tData, symbol):
   }
 
 class BfxWebsocket(GenericWebsocket):
-  '''
+  """
   More complex websocket that heavily relies on the btfxwss module. This websocket requires
   authentication and is capable of handling orders.
   https://github.com/Crypto-toolbox/btfxwss
-
-  Translation names:
-
-  translation table for channel names:
-    Data Channels
-    os      -   Orders
-    hos     -   Historical Orders
-    ps      -   Positions
-    hts     -   Trades (snapshot)
-    te      -   Trade Executed
-    tu      -   Trade Execution update
-    ws      -   Wallets
-    bu      -   Balance Info
-    miu     -   Margin Info
-    fiu     -   Funding Info
-    fos     -   Offers
-    hfos    -   Historical Offers
-    fcs     -   Credits
-    hfcs    -   Historical Credits
-    fls     -   Loans
-    hfls    -   Historical Loans
-    htfs    -   Funding Trades
-    n       -   Notifications (WIP)
-
-  Events:
-    - all: listen for all messages coming through
-    - connected: called when a connection is made
-    - authenticated: called when the websocket passes authentication
-    - notification (array): incoming account notification
-    - error (string): error from the websocket
-    - order_closed (Order, Trade): when an order has been closed
-    - order_new (Order, Trade): when an order has been created but not closed. Note: will
-        not be called if order is executed and filled instantly
-    - order_confirmed (Order, Trade): when an order has been submitted and received
-    - wallet_snapshot (string): Initial wallet balances (Fired once)
-    - order_snapshot (string): Initial open orders (Fired once)
-    - positions_snapshot (string): Initial open positions (Fired once)
-    - wallet_update (string): changes to the balance of wallets
-    - seed_candle (candleArray): initial past candle to prime strategy
-    - seed_trade (tradeArray): initial past trade to prime strategy
-    - funding_offer_snapshot:
-    - funding_loan_snapshot:
-    - funding_credit_snapshot:
-    - balance_update when the state of a balance is changed
-    - new_trade: a new trade on the market has been executed
-    - new_candle: a new candle has been produced
-    - margin_info_update: new margin information has been broadcasted
-    - funding_info_update: new funding information has been broadcasted
-  '''
+  """
 
   ERRORS = {
     10000: 'Unknown event',
@@ -436,11 +388,11 @@ class BfxWebsocket(GenericWebsocket):
   async def update_order(self, *args, **kwargs):
     return await self.orderManager.update_order(*args, **kwargs)
 
-  async def close_order(self, *args, **kwargs):
-    return await self.orderManager.close_order(*args, **kwargs)
+  async def cancel_order(self, *args, **kwargs):
+    return await self.orderManager.cancel_order(*args, **kwargs)
 
-  async def close_all_orders(self, *args, **kwargs):
-    return await self.orderManager.close_all_orders(*args, **kwargs)
+  async def cancel_all_orders(self, *args, **kwargs):
+    return await self.orderManager.cancel_all_orders(*args, **kwargs)
   
-  async def close_order_multi(self, *args, **kwargs):
-    return await self.close_order_multi(*args, **kwargs)
+  async def cancel_order_multi(self, *args, **kwargs):
+    return await self.cancel_order_multi(*args, **kwargs)
