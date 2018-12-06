@@ -95,17 +95,58 @@ class OrderManager:
   def _gen_unqiue_cid(self):
     return int(round(time.time() * 1000))
 
-  async def submit_order(self, symbol, price, amount, market_type,
-      hidden=False, onConfirm=None, onClose=None, *args, **kwargs):
+  async def submit_order(self, symbol, price, amount, market_type=Order.Type.LIMIT,
+      hidden=False, price_trailing=None, price_aux_limit=None, oco_stop_price=None,
+      close=False, reduce_only=False, post_only=False, oco=False, time_in_force=None,
+      onConfirm=None, onClose=None, *args, **kwargs):
+    """
+    Submit a new order
+
+    @param symbol: the name of the symbol i.e 'tBTCUSD
+    @param price: the price you want to buy/sell at (must be positive)
+    @param amount: order size: how much you want to buy/sell,
+      a negative amount indicates a sell order and positive a buy order
+    @param market_type	Order.Type: please see Order.Type enum
+      amount	decimal string	Positive for buy, Negative for sell
+    @param hidden: if True, order should be hidden from orderbooks
+    @param price_trailing:	decimal trailing price
+    @param price_aux_limit:	decimal	auxiliary Limit price (only for STOP LIMIT)
+    @param oco_stop_price: set the oco stop price (requires oco = True)
+    @param close: if True, close position if position present
+    @param reduce_only: if True, ensures that the executed order does not flip the opened position
+    @param post_only: if True, ensures the limit order will be added to the order book and not
+      match with a pre-existing order
+    @param oco: cancels other order option allows you to place a pair of orders stipulating
+      that if one order is executed fully or partially, then the other is automatically canceled
+
+    @param time_in_force:	datetime for automatic order cancellation ie. 2020-01-01 10:45:23
+    @param onConfirm: function called when the bitfinex websocket receives signal that the order
+      was confirmed
+    @param onClose: function called when the bitfinex websocket receives signal that the order
+      was closed due to being filled or cancelled
+    """
     cId = self._gen_unqiue_cid()
-    # send order over websocket
+    # create base payload with required data
     payload = {
       "cid": cId,
       "type": str(market_type),
       "symbol": symbol,
       "amount": str(amount),
-      "price": str(price)
+      "price": str(price),
     }
+    # caclulate and add flags
+    flags = self._calculate_flags(hidden, close, reduce_only, post_only, oco)
+    payload['flags'] = flags
+    # add extra parameters
+    if (price_trailing):
+      payload['price_trailing'] = price_trailing
+    if (price_aux_limit):
+      payload['price_aux_limit'] = price_aux_limit
+    if (oco_stop_price):
+      payload['price_oco_stop'] = oco_stop_price
+    if (time_in_force):
+      payload['tif'] = time_in_force
+    # submit the order
     self.pending_orders[cId] = payload
     self.pending_callbacks[cId] = (onConfirm, onClose)
     await self.bfxapi._send_auth_command('on', payload)
@@ -161,3 +202,12 @@ class OrderManager:
     if time_in_force is not None:
       payload['time_in_force'] = str(time_in_force)
     await self.bfxapi._send_auth_command('ou', payload)
+
+  def _calculate_flags(self, hidden, close, reduce_only, post_only, oco):
+    flags = 0
+    flags = flags + Order.Flags.HIDDEN if hidden else flags
+    flags = flags + Order.Flags.CLOSE if close else flags
+    flags = flags + Order.Flags.REDUUCE_ONLY if reduce_only else flags
+    flags = flags + Order.Flags.POST_ONLY if post_only else flags
+    flags = flags + Order.Flags.OCO if oco else flags
+    return flags
