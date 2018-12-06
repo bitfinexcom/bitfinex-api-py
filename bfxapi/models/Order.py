@@ -37,6 +37,13 @@ class OrderClosedModel:
   NOTIFY = 23
   PLACE_ID = 25
 
+class OrderFlags:
+  HIDDEN = 64
+  CLOSE =	12
+  REDUCE_ONLY = 1024
+  POST_ONLY =	4096
+  OCO = 16384
+
 def now_in_mills():
   return int(round(time.time() * 1000))
 
@@ -64,6 +71,7 @@ class Order:
 
   Type = OrderType()
   Side = OrderSide()
+  Flags = OrderFlags()
 
   def __init__(self, id, gId, cId, symbol, mtsCreate, mtsUpdate, amount, amountOrig, oType,
       typePrev, flags, status, price, priceAvg, priceTrailing, priceAuxLimit, notfiy, placeId):
