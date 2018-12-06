@@ -2,16 +2,16 @@ import time
 import datetime
 
 class OrderType:
-  MARKET = 'market'
-  LIMIT = 'limit'
-  STOP = 'stop'
-  TRAILING_STOP = 'trailing-stop'
-  FILL_OR_KILL = 'fill-or-kill'
-  EXCHANGE_MARKET = 'exchange market'
-  EXCHANGE_LIMIT = 'exchange limit'
-  EXCHANGE_STOP = 'exchange stop'
-  EXCHANGE_TRAILING_STOP = 'exchange trailing-stop'
-  EXCHANGE_FILL_OR_KILL = 'exchange fill-or-kill'
+  MARKET = 'MARKET'
+  LIMIT = 'LIMIT'
+  STOP = 'STOP'
+  TRAILING_STOP = 'TRAILING STOP'
+  FILL_OR_KILL = 'FOK'
+  EXCHANGE_MARKET = 'EXCHANGE MARKET'
+  EXCHANGE_LIMIT = 'EXCHANGE LIMIT'
+  EXCHANGE_STOP = 'EXCHANGE STOP'
+  EXCHANGE_TRAILING_STOP = 'EXCHANGE TRAILING STOP'
+  EXCHANGE_FILL_OR_KILL = 'EXCHANGE FOK'
 
 class OrderSide:
   BUY = 'buy'
