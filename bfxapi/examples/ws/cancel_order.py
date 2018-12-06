@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append('../')
 
-from bfxapi import Client
+from bfxapi import Client, Order
 
 API_KEY=os.getenv("BFX_KEY")
 API_SECRET=os.getenv("BFX_SECRET")
@@ -33,6 +33,6 @@ def log_error(msg):
 @bfx.ws.once('authenticated')
 async def submit_order(auth_message):
   # create an inital order a really low price so it stays open
-  await bfx.ws.submit_order('tBTCUSD', 10, 1, 'EXCHANGE LIMIT')
+  await bfx.ws.submit_order('tBTCUSD', 10, 1, Order.Type.EXCHANGE_LIMIT)
 
 bfx.ws.run()
