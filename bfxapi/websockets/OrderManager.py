@@ -153,12 +153,48 @@ class OrderManager:
     self.logger.info("Order cid={} ({} {} @ {}) dispatched".format(
       cId, symbol, amount, price))
 
-  async def update_order(self, orderId, *args, onConfirm=None, onClose=None, **kwargs):
-    if orderId not in self.open_orders:
-      raise Exception("Order id={} is not open".format(orderId))
+  async def update_order(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,
+      price_trailing=None, hidden=False, close=False, reduce_only=False, post_only=False,
+      time_in_force=None, onConfirm=None, onClose=None):
+    """
+    Update an existing order
+
+    @param orderId: the id of the order that you want to update
+    @param price: the price you want to buy/sell at (must be positive)
+    @param amount: order size: how much you want to buy/sell,
+      a negative amount indicates a sell order and positive a buy order
+    @param delta:	change of amount
+    @param price_trailing:	decimal trailing price
+    @param price_aux_limit:	decimal	auxiliary Limit price (only for STOP LIMIT)
+    @param hidden: if True, order should be hidden from orderbooks
+    @param close: if True, close position if position present
+    @param reduce_only: if True, ensures that the executed order does not flip the opened position
+    @param post_only: if True, ensures the limit order will be added to the order book and not
+      match with a pre-existing order
+    @param time_in_force:	datetime for automatic order cancellation ie. 2020-01-01 10:45:23
+    @param onConfirm: function called when the bitfinex websocket receives signal that the order
+      was confirmed
+    @param onClose: function called when the bitfinex websocket receives signal that the order
+      was closed due to being filled or cancelled
+    """
     order = self.open_orders[orderId]
     self.pending_callbacks[order.cId] = (onConfirm, onClose)
-    await order._update(orderId, *args, **kwargs)
+    payload = { "id": orderId }
+    if price is not None:
+      payload['price'] = str(price)
+    if amount is not None:
+      payload['amount'] = str(amount)
+    if delta is not None:
+      payload['delta'] = str(delta)
+    if price_aux_limit is not None:
+      payload['price_aux_limit'] = str(price_aux_limit)
+    if price_trailing is not None:
+      payload['price_trailing'] = str(price_trailing)
+    if time_in_force is not None:
+      payload['time_in_force'] = str(time_in_force)
+    flags = self._calculate_flags(hidden, close, reduce_only, post_only, False)
+    payload['flags'] = flags
+    await self.bfxapi._send_auth_command('ou', payload)
     self.logger.info("Update Order order_id={} dispatched".format(orderId))
 
   async def close_order(self, orderId, onConfirm=None, onClose=None):
