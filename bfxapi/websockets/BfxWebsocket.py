@@ -85,11 +85,12 @@ class BfxWebsocket(GenericWebsocket):
     20061: 'Websocket server resync complete'
   }
 
-  def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api.bitfinex.com/ws/2',
-      onSeedCandleHook=None, onSeedTradeHook=None, manageOrderBooks=False, logLevel='INFO', *args, **kwargs):
+  def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api.bitfinex.com/ws/2', manageOrderBooks=False,
+    dead_man_switch=False, logLevel='INFO', *args, **kwargs):
     self.API_KEY=API_KEY
     self.API_SECRET=API_SECRET
     self.manageOrderBooks = manageOrderBooks
+    self.dead_man_switch = dead_man_switch
     self.pendingOrders = {}
     self.orderBooks = {}
 
@@ -344,6 +345,8 @@ class BfxWebsocket(GenericWebsocket):
 
   async def _ws_authenticate_socket(self):
     jdata = generate_auth_payload(self.API_KEY, self.API_SECRET)
+    if self.dead_man_switch:
+      jdata['dms'] = 4
     await self.ws.send(json.dumps(jdata))
 
   async def on_open(self):
