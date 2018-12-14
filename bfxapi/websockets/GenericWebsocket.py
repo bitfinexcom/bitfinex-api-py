@@ -26,6 +26,9 @@ class GenericWebsocket(object):
   def run(self):
     self.loop.run_until_complete(self._main(self.host))
 
+  def get_task_executable(self):
+    return self._main(self.host)
+
   async def _main(self, host):
     async with websockets.connect(host) as websocket:
       self.ws = websocket
@@ -34,6 +37,9 @@ class GenericWebsocket(object):
         await asyncio.sleep(0)
         message = await websocket.recv()
         await self.on_message(message)
+
+  def remove_all_listeners(self, event):
+    self.events.remove_all_listeners(event)
 
   def on(self, event, func=None):
     if not func:

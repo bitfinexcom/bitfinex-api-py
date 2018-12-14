@@ -12,6 +12,12 @@ class OrderBook:
     self.asks = []
     self.bids = []
 
+  def get_bids(self):
+    return self.bids
+
+  def get_asks(self):
+    return self.asks
+
   def updateFromSnapshot(self, data):
     # [[4642.3, 1, 4.192], [4641.5, 1, 1]]
     for order in data:

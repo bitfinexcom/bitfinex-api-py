@@ -5,13 +5,18 @@ class OrderType:
   MARKET = 'MARKET'
   LIMIT = 'LIMIT'
   STOP = 'STOP'
+  STOP_LIMIT = 'STOP LIMIT'
   TRAILING_STOP = 'TRAILING STOP'
   FILL_OR_KILL = 'FOK'
   EXCHANGE_MARKET = 'EXCHANGE MARKET'
   EXCHANGE_LIMIT = 'EXCHANGE LIMIT'
   EXCHANGE_STOP = 'EXCHANGE STOP'
+  EXCHANGE_STOP_LIMIT = 'EXCHANGE STOP LIMIT'
   EXCHANGE_TRAILING_STOP = 'EXCHANGE TRAILING STOP'
   EXCHANGE_FILL_OR_KILL = 'EXCHANGE FOK'
+
+LIMIT_ORDERS = [OrderType.LIMIT, OrderType.STOP_LIMIT, OrderType.EXCHANGE_LIMIT,
+  OrderType.EXCHANGE_STOP_LIMIT, OrderType.FILL_OR_KILL, OrderType.EXCHANGE_FILL_OR_KILL]
 
 class OrderSide:
   BUY = 'buy'
@@ -81,6 +86,7 @@ class Order:
     self.symbol = symbol
     self.mtsCreate = mtsCreate
     self.mtsUpdate = mtsUpdate
+    # self.amount = amount
     self.amount = amount
     self.amountOrig = amountOrig
     self.type = oType
@@ -93,19 +99,25 @@ class Order:
     self.priceAuxLimit = priceAuxLimit
     self.notfiy = notfiy
     self.placeId = placeId
+    self.tag = ""
+    self.fee = 0
 
     self.is_pending_bool = True
     self.is_confirmed_bool = False
     self.is_open_bool = False
 
     self.date = datetime.datetime.fromtimestamp(mtsCreate/1000.0)
+    ## if cancelled then priceAvg wont exist
     if priceAvg:
-      ## if cancelled then priceAvg wont exist
-      self.fee = (priceAvg * abs(amount)) * 0.002
+      ## check if order is taker or maker
+      if self.type in LIMIT_ORDERS:
+        self.fee = (priceAvg * abs(amount)) * 0.001
+      else:
+        self.fee = (priceAvg * abs(amount)) * 0.002
 
   @staticmethod
   def from_raw_order(raw_order):
-    id =  raw_order[OrderClosedModel.ID]
+    oid = raw_order[OrderClosedModel.ID]
     gId = raw_order[OrderClosedModel.GID]
     cId = raw_order[OrderClosedModel.CID]
     symbol = raw_order[OrderClosedModel.SYMBOL]
@@ -124,7 +136,7 @@ class Order:
     notfiy = raw_order[OrderClosedModel.NOTIFY]
     placeId = raw_order[OrderClosedModel.PLACE_ID]
 
-    return Order(id, gId, cId, symbol, mtsCreate, mtsUpdate, amount, amountOrig, oType,
+    return Order(oid, gId, cId, symbol, mtsCreate, mtsUpdate, amount, amountOrig, oType,
       typePrev, flags, status, price, priceAvg, priceTrailing, priceAuxLimit, notfiy, placeId)
 
   def set_confirmed(self):
