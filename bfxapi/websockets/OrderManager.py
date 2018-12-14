@@ -29,16 +29,17 @@ class OrderManager:
     manages the local list of open orders.
     """
     if order.cId in self.pending_orders:
-      if self.pending_callbacks[order.cId][0]:
-        # call onConfirm callback
-        await self.pending_callbacks[order.cId][0](order)
-        if isClosed:
-          await self.pending_callbacks[order.cId][1](order)
-          del self.pending_callbacks[order.cId]
+      await self._execute_confirm_callback(order.cId, order)
+      if isClosed:
+        await self._execute_close_callback(order.cId, order)
       order.set_confirmed()
       # remove from pending orders list
       del self.pending_orders[order.cId]
       self.bfxapi._emit('order_confirmed', order)
+    else:
+      await self._execute_confirm_callback(order.id, order)
+      if isClosed:
+        await self._execute_close_callback(order.id, order)
 
   async def confirm_order_closed(self, raw_ws_data):
     # order created and executed
@@ -55,13 +56,17 @@ class OrderManager:
     self.bfxapi._emit('order_closed', order)
 
   async def build_from_order_snapshot(self, raw_ws_data):
+    print (raw_ws_data)
+    #[0, 'os', [[1151363978, None, 1544460962979, 'tBTCUSD', 1544460959604, 1544460959626, 
+    # -0.12620639, -0.12620639, 'EXCHANGE LIMIT', None, None,None, 0, 'ACTIVE', None, None, 18793, 
+    # 0, 0, 0, None, None, None, 0, 0, None, None, None, 'API>BFX', None, None, None]]]
     '''
     Rebuild the user orderbook based on an incoming snapshot
     '''
     osData = raw_ws_data[2]
     self.open_orders = {}
     for raw_order in osData:
-      order = Order.from_raw_order(raw_ws_data[2])
+      order = Order.from_raw_order(raw_order)
       order.set_open_state(True)
       self.open_orders[order.id] = order
     self.bfxapi._emit('order_snapshot', self.get_open_orders())
@@ -148,7 +153,7 @@ class OrderManager:
       payload['tif'] = time_in_force
     # submit the order
     self.pending_orders[cId] = payload
-    self.pending_callbacks[cId] = (onConfirm, onClose)
+    self._create_callback(cId, onConfirm=onConfirm, onClose=onClose)
     await self.bfxapi._send_auth_command('on', payload)
     self.logger.info("Order cid={} ({} {} @ {}) dispatched".format(
       cId, symbol, amount, price))
@@ -178,7 +183,7 @@ class OrderManager:
       was closed due to being filled or cancelled
     """
     order = self.open_orders[orderId]
-    self.pending_callbacks[order.cId] = (onConfirm, onClose)
+    self._create_callback(order.cId, onConfirm=onConfirm, onClose=onClose)
     payload = { "id": orderId }
     if price is not None:
       payload['price'] = str(price)
@@ -207,8 +212,8 @@ class OrderManager:
     @param onClose: function called when the bitfinex websocket receives signal that the order
       was closed due to being filled or cancelled
     """
-    order = self.open_orders[orderId]
-    self.pending_callbacks[order.cId] = (onConfirm, onClose)
+    # order = self.open_orders[orderId]
+    self._create_callback(orderId, onConfirm=onConfirm, onClose=onClose)
     await self.bfxapi._send_auth_command('oc', { 'id': orderId })
     self.logger.info("Order cancel order_id={} dispatched".format(orderId))
 
@@ -233,6 +238,25 @@ class OrderManager:
         asyncio.ensure_future(self.open_orders[oid].close())
       ]
     await asyncio.wait(*[ task_batch ])
+
+  def _create_callback(self, order_identifier, onConfirm=None, onClose=None):
+    if order_identifier in self.pending_callbacks:
+      self.pending_callbacks[order_identifier] += [(onClose, onConfirm)]
+    else:
+      self.pending_callbacks[order_identifier] = [(onClose, onConfirm)]
+
+  async def _execute_close_callback(self, order_identifier, *args, **kwargs):
+    if order_identifier in self.pending_callbacks:
+      for c in self.pending_callbacks[order_identifier]:
+        if c[0]:
+          await c[0](*args, **kwargs)
+      del self.pending_callbacks[order_identifier]
+
+  async def _execute_confirm_callback(self, order_identifier, *args, **kwargs):
+    if order_identifier in self.pending_callbacks:
+      for c in self.pending_callbacks[order_identifier]:
+        if c[1]:
+          await c[1](*args, **kwargs)
 
   def _calculate_flags(self, hidden, close, reduce_only, post_only, oco):
     flags = 0
