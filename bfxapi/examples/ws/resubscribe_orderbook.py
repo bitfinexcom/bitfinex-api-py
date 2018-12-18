@@ -27,7 +27,7 @@ async def on_subscribe(subscription):
 @bfx.ws.once('subscribed')
 async def on_once_subscribe(subscription):
   print ("Performig resubscribe")
-  await bfx.ws.resubscribe(subscription.chanId)
+  await bfx.ws.resubscribe(subscription.chan_id)
 
 
 async def start():

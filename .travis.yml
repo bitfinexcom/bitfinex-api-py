@@ -9,4 +9,4 @@ python:
 install:
   - pip install -r requirements.txt
 # command to run tests
-script: pylint bfxapi
+script: pylint --rcfile=pylint.rc bfxapi

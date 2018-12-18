@@ -1,3 +1,7 @@
+"""
+Module used to describe all of the different data types
+"""
+
 import logging
 
 RESET_SEQ = "\033[0m"
@@ -22,13 +26,19 @@ KEYWORD_COLORS = {
 }
 
 def formatter_message(message, use_color = True):
-  if use_color:
-      message = message.replace("$RESET", RESET_SEQ).replace("$BOLD", BOLD_SEQ)
-  else:
-      message = message.replace("$RESET", "").replace("$BOLD", "")
-  return message
+    """
+    Syntax highlight certain keywords
+    """
+    if use_color:
+        message = message.replace("$RESET", RESET_SEQ).replace("$BOLD", BOLD_SEQ)
+    else:
+        message = message.replace("$RESET", "").replace("$BOLD", "")
+    return message
 
 def format_word(message, word, color_seq, bold=False, underline=False):
+    """
+    Surround the fiven word with a sequence
+    """
     replacer = color_seq + word + RESET_SEQ
     if underline:
         replacer = UNDERLINE_SEQ + replacer
@@ -45,6 +55,9 @@ class Formatter(logging.Formatter):
     self.use_color = use_color
 
   def format(self, record):
+    """
+    Format and highlight certain keywords
+    """
     levelname = record.levelname
     if self.use_color and levelname in KEYWORD_COLORS:
         levelname_color = KEYWORD_COLORS[levelname] + levelname + RESET_SEQ
@@ -71,6 +84,9 @@ class CustomLogger(logging.Logger):
         return
     
     def trade(self, message, *args, **kws):
+        """
+        Print a syntax highlighted trade signal
+        """
         if self.isEnabledFor(self.TRADE):
             message = format_word(message, 'CLOSED ', YELLOW, bold=True)
             message = format_word(message, 'OPENED ', LIGHT_BLUE, bold=True)
