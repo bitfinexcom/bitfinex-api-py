@@ -176,8 +176,7 @@ class OrderManager:
         @param onClose: function called when the bitfinex websocket receives signal that the order
           was closed due to being filled or cancelled
         """
-        order = self.open_orders[orderId]
-        self._create_callback(order.cId, onConfirm=onConfirm, onClose=onClose)
+        self._create_callback(orderId, onConfirm=onConfirm, onClose=onClose)
         payload = {"id": orderId}
         if price is not None:
             payload['price'] = str(price)
