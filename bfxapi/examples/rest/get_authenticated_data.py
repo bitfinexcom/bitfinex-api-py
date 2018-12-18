@@ -35,7 +35,7 @@ async def log_orders_history():
   [ print (o) for o in orders ]
 
 async def log_active_positions():
-  positions = await bfx.rest.get_active_position()
+  positions = await bfx.rest.get_active_positions()
   print ("Positions:")
   [ print (p) for p in positions ]
 

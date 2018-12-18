@@ -1,0 +1,10 @@
+[MESSAGES CONTROL]
+
+disable=too-few-public-methods,
+        import-error,
+        too-many-arguments,
+        duplicate-code,
+        too-many-locals,
+        no-init,
+        len-as-condition,
+        too-many-instance-attributes
