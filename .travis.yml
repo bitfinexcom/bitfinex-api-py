@@ -1,12 +1,11 @@
 language: python
-python:
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  # PyPy versions
-  - "pypy3.5"
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install python3
+  - sudo apt-get install python3-pip
 # command to install dependencies
 install:
-  - python3 -m pip install -r requirements.txt
+  - python3 -m pip install -r requirements.txt --user
 # command to run tests
-script: pylint --rcfile=pylint.rc bfxapi
+script: python3 -m pylint --rcfile=pylint.rc bfxapi
