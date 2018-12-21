@@ -7,4 +7,5 @@ disable=too-few-public-methods,
         too-many-locals,
         no-init,
         len-as-condition,
-        too-many-instance-attributes
+        too-many-instance-attributes,
+        invalid-name

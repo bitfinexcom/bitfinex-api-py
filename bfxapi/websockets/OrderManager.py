@@ -38,13 +38,13 @@ class OrderManager:
         Called every time an order signal has been received. This function
         manages the local list of open orders.
         """
-        if order.cId in self.pending_orders:
-            await self._execute_confirm_callback(order.cId, order)
+        if order.cid in self.pending_orders:
+            await self._execute_confirm_callback(order.cid, order)
             if isClosed:
-                await self._execute_close_callback(order.cId, order)
+                await self._execute_close_callback(order.cid, order)
             order.set_confirmed()
             # remove from pending orders list
-            del self.pending_orders[order.cId]
+            del self.pending_orders[order.cid]
             self.bfxapi._emit('order_confirmed', order)
         else:
             await self._execute_confirm_callback(order.id, order)
@@ -123,10 +123,10 @@ class OrderManager:
         @param onClose: function called when the bitfinex websocket receives signal that the order
           was closed due to being filled or cancelled
         """
-        cId = self._gen_unqiue_cid()
+        cid = self._gen_unqiue_cid()
         # create base payload with required data
         payload = {
-            "cid": cId,
+            "cid": cid,
             "type": str(market_type),
             "symbol": symbol,
             "amount": str(amount),
@@ -146,11 +146,11 @@ class OrderManager:
         if (time_in_force):
             payload['tif'] = time_in_force
         # submit the order
-        self.pending_orders[cId] = payload
-        self._create_callback(cId, onConfirm=onConfirm, onClose=onClose)
+        self.pending_orders[cid] = payload
+        self._create_callback(cid, onConfirm=onConfirm, onClose=onClose)
         await self.bfxapi._send_auth_command('on', payload)
         self.logger.info("Order cid={} ({} {} @ {}) dispatched".format(
-            cId, symbol, amount, price))
+            cid, symbol, amount, price))
 
     async def update_order(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,
                            price_trailing=None, hidden=False, close=False, reduce_only=False,
