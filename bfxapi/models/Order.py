@@ -55,7 +55,7 @@ class OrderClosedModel:
     FLAGS = 12
     STATUS = 13
     PRICE = 16
-    PRIVE_AVG = 17
+    PRICE_AVG = 17
     PRICE_TRAILING = 18
     PRICE_AUX_LIMIT = 19
     NOTIFY = 23
@@ -112,16 +112,18 @@ class Order:
     def __init__(self, oid, gid, cid, symbol, mts_create, mts_update, amount,
                  amount_orig, o_type, typePrev, flags, status, price, price_avg,
                  price_trailing, price_aux_limit, notfiy, place_id):
-        # pylint: disable=invalid-name
-        self.id = oid
+        self.id = oid # pylint: disable=invalid-name
         self.gid = gid
         self.cid = cid
         self.symbol = symbol
         self.mts_create = mts_create
         self.mts_update = mts_update
-        # self.amount = amount
         self.amount = amount
         self.amount_orig = amount_orig
+        if self.amount_orig > 0:
+            self.amount_filled = amount_orig - amount
+        else:
+            self.amount_filled = -(abs(amount_orig) - abs(amount))
         self.type = o_type
         self.type_prev = typePrev
         self.flags = flags
@@ -134,7 +136,6 @@ class Order:
         self.place_id = place_id
         self.tag = ""
         self.fee = 0
-
         self.is_pending_bool = True
         self.is_confirmed_bool = False
         self.is_open_bool = False
@@ -144,9 +145,9 @@ class Order:
         if price_avg:
             # check if order is taker or maker
             if self.type in LIMIT_ORDERS:
-                self.fee = (price_avg * abs(amount)) * 0.001
+                self.fee = (price_avg * abs(self.amount_filled)) * 0.001
             else:
-                self.fee = (price_avg * abs(amount)) * 0.002
+                self.fee = (price_avg * abs(self.amount_filled)) * 0.002
 
     @staticmethod
     def from_raw_order(raw_order):
@@ -168,7 +169,7 @@ class Order:
         flags = raw_order[OrderClosedModel.FLAGS]
         status = raw_order[OrderClosedModel.STATUS]
         price = raw_order[OrderClosedModel.PRICE]
-        price_avg = raw_order[OrderClosedModel.PRIVE_AVG]
+        price_avg = raw_order[OrderClosedModel.PRICE_AVG]
         price_trailing = raw_order[OrderClosedModel.PRICE_TRAILING]
         price_aux_limit = raw_order[OrderClosedModel.PRICE_AUX_LIMIT]
         notfiy = raw_order[OrderClosedModel.NOTIFY]
@@ -217,5 +218,6 @@ class Order:
 
     def __str__(self):
         ''' Allow us to print the Order object in a pretty format '''
-        text = "Order <'{}' mts_create={} status='{}' id={}>"
-        return text.format(self.symbol, self.mts_create, self.status, self.id)
+        text = "Order <'{}' amount_orig={} amount_filled={} mts_create={} status='{}' id={}>"
+        return text.format(self.symbol, self.amount_orig, self.amount_filled,
+                           self.mts_create, self.status, self.id)
