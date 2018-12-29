@@ -91,7 +91,7 @@ class SubscriptionManager:
 
         This function is mostly used to force the channel to produce a fresh snapshot.
         """
-        sub = self.subscriptions_chanid[chan_d]
+        sub = self.subscriptions_chanid[chan_id]
 
         async def re_sub():
             await sub.subscribe()
