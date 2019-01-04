@@ -39,7 +39,7 @@ class Subscription:
         """
         if not self.is_subscribed():
             raise Exception("Subscription is not subscribed to websocket")
-        payload = {'event': 'unsubscribe', 'chan_id': self.chan_id}
+        payload = {'event': 'unsubscribe', 'chanId': self.chan_id}
         await self._ws.send(json.dumps(payload))
 
     async def subscribe(self):
