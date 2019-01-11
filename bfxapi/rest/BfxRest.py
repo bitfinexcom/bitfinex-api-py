@@ -67,11 +67,11 @@ class BfxRest:
     #                  Public Data                   #
     ##################################################
 
-    async def get_seed_candles(self, symbol):
+    async def get_seed_candles(self, symbol, tf='1m'):
         """
         Used by the honey framework, this function gets the last 4k candles.
         """
-        endpoint = 'candles/trade:1m:{}/hist?limit=5000&_bfx=1'.format(symbol)
+        endpoint = 'candles/trade:{}:{}/hist?limit=5000&_bfx=1'.format(tf, symbol)
         time_difference = (1000 * 60) * 5000
         # get now to the nearest min
         now = int(round((time.time() // 60 * 60) * 1000))
