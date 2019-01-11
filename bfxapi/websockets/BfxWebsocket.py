@@ -194,8 +194,8 @@ class BfxWebsocket(GenericWebsocket):
         await self.subscriptionManager.confirm_unsubscribe(data)
 
     async def _system_error_handler(self, data):
-        err_string = ERRORS[data.get('code', 10000)]
-        err_string = "{} - {}".format(ERRORS[data.get('code', 10000)],
+        err_string = self.ERRORS[data.get('code', 10000)]
+        err_string = "{} - {}".format(self.ERRORS[data.get('code', 10000)],
                                       data.get("msg", ""))
         self._emit('error', Exception(err_string))
 
