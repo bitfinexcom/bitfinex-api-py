@@ -278,6 +278,8 @@ Get the public orderbook of a given symbol
 
 For more info on how to use this library please see the example scripts in the `bfxapi/examples` directory. Here you will find usage of all interface exposed functions for both the rest and websocket.
 
+Also please see [this medium article](https://medium.com/@Bitfinex/15f201ad20d4) for a tutorial.
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/bitfinex/fork )
