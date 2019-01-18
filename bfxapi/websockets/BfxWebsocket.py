@@ -369,7 +369,7 @@ class BfxWebsocket(GenericWebsocket):
         jdata = generate_auth_payload(self.API_KEY, self.API_SECRET)
         if self.dead_man_switch:
             jdata['dms'] = 4
-        await self.ws.send(json.dumps(jdata))
+        await self.get_ws().send(json.dumps(jdata))
 
     async def on_open(self):
         self.logger.info("Websocket opened.")
@@ -380,17 +380,19 @@ class BfxWebsocket(GenericWebsocket):
         # enable order book checksums
         if self.manageOrderBooks:
             await self.enable_flag(Flags.CHECKSUM)
+        # resubscribe to any channels
+        await self.subscriptionManager.resubscribe_all()
 
     async def _send_auth_command(self, channel_name, data):
         payload = [0, channel_name, None, data]
-        await self.ws.send(json.dumps(payload))
+        await self.get_ws().send(json.dumps(payload))
 
     async def enable_flag(self, flag):
         payload = {
             "event": 'conf',
             "flags": flag
         }
-        await self.ws.send(json.dumps(payload))
+        await self.get_ws().send(json.dumps(payload))
 
     def get_orderbook(self, symbol):
         return self.orderBooks.get(symbol, None)

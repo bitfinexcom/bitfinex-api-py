@@ -32,7 +32,7 @@ class SubscriptionManager:
         """
         # create a new subscription
         subscription = Subscription(
-            self.bfxapi.ws, channel_name, symbol, timeframe, **kwargs)
+            self.bfxapi, channel_name, symbol, timeframe, **kwargs)
         self.logger.info("Subscribing to channel {}".format(channel_name))
         key = "{}_{}".format(channel_name, subscription.key or symbol)
         self.pending_subscriptions[key] = subscription
@@ -121,6 +121,8 @@ class SubscriptionManager:
                 task_batch += [
                     asyncio.ensure_future(self.unsubscribe(chan_id))
                 ]
+        if len(task_batch) == 0:
+            return
         await asyncio.wait(*[task_batch])
 
     async def resubscribe_all(self):
@@ -132,4 +134,6 @@ class SubscriptionManager:
             task_batch += [
                 asyncio.ensure_future(self.resubscribe(chan_id))
             ]
+        if len(task_batch) == 0:
+            return
         await asyncio.wait(*[task_batch])

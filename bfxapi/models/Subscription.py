@@ -13,8 +13,8 @@ class Subscription:
     such as unsibscribe and subscribe.
     """
 
-    def __init__(self, ws, channel_name, symbol, timeframe=None, **kwargs):
-        self._ws = ws
+    def __init__(self, bfxapi, channel_name, symbol, timeframe=None, **kwargs):
+        self.bfxapi = bfxapi
         self.channel_name = channel_name
         self.symbol = symbol
         self.timeframe = timeframe
@@ -40,13 +40,13 @@ class Subscription:
         if not self.is_subscribed():
             raise Exception("Subscription is not subscribed to websocket")
         payload = {'event': 'unsubscribe', 'chanId': self.chan_id}
-        await self._ws.send(json.dumps(payload))
+        await self.bfxapi.get_ws().send(json.dumps(payload))
 
     async def subscribe(self):
         """
         Send a subscription request to the bitfinex socket
         """
-        await self._ws.send(json.dumps(self._get_send_payload()))
+        await self.bfxapi.get_ws().send(json.dumps(self._get_send_payload()))
 
     def confirm_unsubscribe(self):
         """
