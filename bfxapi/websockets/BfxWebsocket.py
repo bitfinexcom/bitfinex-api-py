@@ -7,6 +7,7 @@ import json
 import time
 import random
 
+from decimal import *
 from .GenericWebsocket import GenericWebsocket, AuthError
 from .SubscriptionManager import SubscriptionManager
 from .WalletManager import WalletManager
@@ -354,7 +355,8 @@ class BfxWebsocket(GenericWebsocket):
 
     async def on_message(self, message):
         self.logger.debug(message)
-        msg = json.loads(message)
+        # convert float values to decimal
+        msg = json.loads(message, parse_float=Decimal)
         self._emit('all', msg)
         if type(msg) is dict:
             # System messages are received as json

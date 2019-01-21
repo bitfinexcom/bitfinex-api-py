@@ -4,17 +4,6 @@ Module used to describe all of the different data types
 
 import zlib
 
-
-def prepare_price(price):
-    """
-    Convert the price to an acceptable format
-    """
-    # convert to 4 significant figures
-    prep_price = '{0:.4f}'.format(price)
-    # remove decimal place if zero float
-    return '{0:g}'.format(float(prep_price))
-
-
 class OrderBook:
     """
     Object used to store the state of the orderbook. This can then be used
@@ -107,13 +96,13 @@ class OrderBook:
                 bid = self.bids[index]
                 price = bid[0]
                 amount = bid[3] if len(bid) == 4 else bid[2]
-                data += [prepare_price(price)]
+                data += [str(price)]
                 data += [str(amount)]
             if index < len(self.asks):
                 ask = self.asks[index]
                 price = ask[0]
                 amount = ask[3] if len(ask) == 4 else ask[2]
-                data += [prepare_price(price)]
+                data += [str(price)]
                 data += [str(amount)]
         checksum_str = ':'.join(data)
         # calculate checksum and force signed integer
