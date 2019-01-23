@@ -7,7 +7,6 @@ import json
 import time
 import random
 
-from decimal import *
 from .GenericWebsocket import GenericWebsocket, AuthError
 from .SubscriptionManager import SubscriptionManager
 from .WalletManager import WalletManager
