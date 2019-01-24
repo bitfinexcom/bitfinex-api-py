@@ -4,7 +4,15 @@ Module used to describe all of the different data types
 
 import time
 import json
+from random import randint
 
+def generate_sub_id():
+    """
+    Generates a unique id in the form of 12345566-12334556
+    """
+    prefix = str(int(round(time.time() * 1000)))
+    suffix = str(randint(0, 9999999))
+    return "{}-{}".format(prefix, suffix)
 
 class Subscription:
     """
@@ -23,7 +31,7 @@ class Subscription:
         self.chan_id = None
         if timeframe:
             self.key = 'trade:{}:{}'.format(self.timeframe, self.symbol)
-        self.sub_id = int(round(time.time() * 1000))
+        self.sub_id = generate_sub_id()
         self.send_payload = self._generate_payload(**kwargs)
 
     def confirm_subscription(self, chan_id):
