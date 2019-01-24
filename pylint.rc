@@ -9,3 +9,5 @@ disable=too-few-public-methods,
         len-as-condition,
         too-many-instance-attributes,
         invalid-name
+
+ignore=tests
