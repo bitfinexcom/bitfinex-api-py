@@ -3,6 +3,7 @@ Module used to describe all of the different data types
 """
 
 import zlib
+import json
 
 class OrderBook:
     """
@@ -31,26 +32,37 @@ class OrderBook:
         """
         return self.asks
 
-    def update_from_snapshot(self, data):
+    def update_from_snapshot(self, data, orig_raw_msg):
         """
         Update the orderbook with a raw orderbook snapshot
         """
-        for order in data:
-            if len(order) == 4:
-                if order[3] < 0:
+        # we need to keep the original string values that are sent to use
+        # this avoids any problems with floats
+        orig_raw = json.loads(orig_raw_msg, parse_float=str, parse_int=str)[1]
+        zip_data = []
+        # zip both the float values and string values together
+        for index, order in enumerate(data):
+            zip_data += [(order, orig_raw[index])]
+        ## build our bids and asks
+        for order in zip_data:
+            if len(order[0]) == 4:
+                if order[0][3] < 0:
                     self.bids += [order]
                 else:
                     self.asks += [order]
             else:
-                if order[2] < 0:
+                if order[0][2] < 0:
                     self.asks += [order]
                 else:
                     self.bids += [order]
 
-    def update_with(self, order):
+    def update_with(self, order, orig_raw_msg):
         """
         Update the orderbook with a single update
         """
+        # keep orginal string vlues to avoid checksum float errors
+        orig_raw = json.loads(orig_raw_msg, parse_float=str, parse_int=str)[1]
+        zip_order = (order, orig_raw)
         if len(order) == 4:
             amount = order[3]
             count = order[2]
@@ -63,12 +75,12 @@ class OrderBook:
 
         # if first item in ordebook
         if len(side) == 0:
-            side += [order]
+            side += [zip_order]
             return
 
-        # match price level
+        # match price level but use the float parsed object
         for index, s_order in enumerate(side):
-            s_price = s_order[0]
+            s_price = s_order[0][0]
             if s_price == price:
                 if count == 0:
                     del side[index]
@@ -81,8 +93,8 @@ class OrderBook:
             return
 
         # add to book and sort lowest to highest
-        side += [order]
-        side.sort(key=lambda x: x[0], reverse=not amount < 0)
+        side += [zip_order]
+        side.sort(key=lambda x: x[0][0], reverse=not amount < 0)
         return
 
     def checksum(self):
@@ -93,17 +105,19 @@ class OrderBook:
         # take set of top 25 bids/asks
         for index in range(0, 25):
             if index < len(self.bids):
-                bid = self.bids[index]
+                # use the string parsed array
+                bid = self.bids[index][1]
                 price = bid[0]
                 amount = bid[3] if len(bid) == 4 else bid[2]
-                data += [str(price)]
-                data += [str(amount)]
+                data += [price]
+                data += [amount]
             if index < len(self.asks):
-                ask = self.asks[index]
+                # use the string parsed array
+                ask = self.asks[index][1]
                 price = ask[0]
                 amount = ask[3] if len(ask) == 4 else ask[2]
-                data += [str(price)]
-                data += [str(amount)]
+                data += [price]
+                data += [amount]
         checksum_str = ':'.join(data)
         # calculate checksum and force signed integer
         checksum = zlib.crc32(checksum_str.encode('utf8')) & 0xffffffff
