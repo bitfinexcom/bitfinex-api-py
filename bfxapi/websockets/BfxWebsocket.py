@@ -98,13 +98,17 @@ class BfxWebsocket(GenericWebsocket):
     }
 
     def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api.bitfinex.com/ws/2',
-                 manageOrderBooks=False, dead_man_switch=False, logLevel='INFO', *args, **kwargs):
+                 manageOrderBooks=False, dead_man_switch=False, logLevel='INFO', parse_float=float,
+                 *args, **kwargs):
         self.API_KEY = API_KEY
         self.API_SECRET = API_SECRET
         self.manageOrderBooks = manageOrderBooks
         self.dead_man_switch = dead_man_switch
         self.pendingOrders = {}
         self.orderBooks = {}
+        # How should we store float values? could also be bfxapi.Decimal
+        # which is slower but has higher precision.
+        self.parse_float = parse_float
 
         super(BfxWebsocket, self).__init__(
             host, logLevel=logLevel, *args, **kwargs)
@@ -149,7 +153,7 @@ class BfxWebsocket(GenericWebsocket):
             self.logger.warn(
                 "Unknown websocket event: '{}' {}".format(eType, msg))
 
-    async def _ws_data_handler(self, data):
+    async def _ws_data_handler(self, data, raw_message_str):
         dataEvent = data[1]
         chan_id = data[0]
 
@@ -161,7 +165,7 @@ class BfxWebsocket(GenericWebsocket):
             if subscription.channel_name == 'candles':
                 await self._candle_handler(data)
             if subscription.channel_name == 'book':
-                await self._order_book_handler(data)
+                await self._order_book_handler(data, raw_message_str)
             if subscription.channel_name == 'trades':
                 await self._trade_handler(data)
         else:
@@ -320,7 +324,7 @@ class BfxWebsocket(GenericWebsocket):
                 data[1], subscription.symbol, subscription.timeframe)
             self._emit('new_candle', candle)
 
-    async def _order_book_handler(self, data):
+    async def _order_book_handler(self, data, orig_raw_message):
         obInfo = data[1]
         chan_id = data[0]
         subscription = self.subscriptionManager.get(data[0])
@@ -345,23 +349,24 @@ class BfxWebsocket(GenericWebsocket):
         isSnapshot = type(obInfo[0]) is list
         if isSnapshot:
             self.orderBooks[symbol] = OrderBook()
-            self.orderBooks[symbol].update_from_snapshot(obInfo)
+            self.orderBooks[symbol].update_from_snapshot(obInfo, orig_raw_message)
             self._emit('order_book_snapshot', {
                        'symbol': symbol, 'data': obInfo})
         else:
-            self.orderBooks[symbol].update_with(obInfo)
+            self.orderBooks[symbol].update_with(obInfo, orig_raw_message)
             self._emit('order_book_update', {'symbol': symbol, 'data': obInfo})
 
     async def on_message(self, message):
         self.logger.debug(message)
-        msg = json.loads(message)
+        # convert float values to decimal
+        msg = json.loads(message, parse_float=self.parse_float)
         self._emit('all', msg)
         if type(msg) is dict:
             # System messages are received as json
             await self._ws_system_handler(msg)
         elif type(msg) is list:
             # All data messages are received as a list
-            await self._ws_data_handler(msg)
+            await self._ws_data_handler(msg, message)
         else:
             self.logger.warn('Unknown websocket response: {}'.format(msg))
 
@@ -369,7 +374,7 @@ class BfxWebsocket(GenericWebsocket):
         jdata = generate_auth_payload(self.API_KEY, self.API_SECRET)
         if self.dead_man_switch:
             jdata['dms'] = 4
-        await self.ws.send(json.dumps(jdata))
+        await self.get_ws().send(json.dumps(jdata))
 
     async def on_open(self):
         self.logger.info("Websocket opened.")
@@ -380,17 +385,19 @@ class BfxWebsocket(GenericWebsocket):
         # enable order book checksums
         if self.manageOrderBooks:
             await self.enable_flag(Flags.CHECKSUM)
+        # resubscribe to any channels
+        await self.subscriptionManager.resubscribe_all()
 
     async def _send_auth_command(self, channel_name, data):
         payload = [0, channel_name, None, data]
-        await self.ws.send(json.dumps(payload))
+        await self.get_ws().send(json.dumps(payload))
 
     async def enable_flag(self, flag):
         payload = {
             "event": 'conf',
             "flags": flag
         }
-        await self.ws.send(json.dumps(payload))
+        await self.get_ws().send(json.dumps(payload))
 
     def get_orderbook(self, symbol):
         return self.orderBooks.get(symbol, None)

@@ -4,7 +4,15 @@ Module used to describe all of the different data types
 
 import time
 import json
+from random import randint
 
+def generate_sub_id():
+    """
+    Generates a unique id in the form of 12345566-12334556
+    """
+    prefix = str(int(round(time.time() * 1000)))
+    suffix = str(randint(0, 9999999))
+    return "{}-{}".format(prefix, suffix)
 
 class Subscription:
     """
@@ -13,8 +21,8 @@ class Subscription:
     such as unsibscribe and subscribe.
     """
 
-    def __init__(self, ws, channel_name, symbol, timeframe=None, **kwargs):
-        self._ws = ws
+    def __init__(self, bfxapi, channel_name, symbol, timeframe=None, **kwargs):
+        self.bfxapi = bfxapi
         self.channel_name = channel_name
         self.symbol = symbol
         self.timeframe = timeframe
@@ -23,7 +31,7 @@ class Subscription:
         self.chan_id = None
         if timeframe:
             self.key = 'trade:{}:{}'.format(self.timeframe, self.symbol)
-        self.sub_id = int(round(time.time() * 1000))
+        self.sub_id = generate_sub_id()
         self.send_payload = self._generate_payload(**kwargs)
 
     def confirm_subscription(self, chan_id):
@@ -40,13 +48,13 @@ class Subscription:
         if not self.is_subscribed():
             raise Exception("Subscription is not subscribed to websocket")
         payload = {'event': 'unsubscribe', 'chanId': self.chan_id}
-        await self._ws.send(json.dumps(payload))
+        await self.bfxapi.get_ws().send(json.dumps(payload))
 
     async def subscribe(self):
         """
         Send a subscription request to the bitfinex socket
         """
-        await self._ws.send(json.dumps(self._get_send_payload()))
+        await self.bfxapi.get_ws().send(json.dumps(self._get_send_payload()))
 
     def confirm_unsubscribe(self):
         """

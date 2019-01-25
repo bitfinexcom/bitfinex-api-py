@@ -2,3 +2,4 @@ eventemitter==0.2.0
 asyncio==3.4.3
 websockets==7.0
 pylint==2.2.2
+pytest-asyncio==0.6.0

@@ -5,7 +5,6 @@ Module used to describe all of the different data types
 import time
 import datetime
 
-
 class OrderType:
     """
     Enum used to describe all of the different order types available for use

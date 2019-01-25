@@ -22,11 +22,13 @@ class BfxRest:
     """
 
     def __init__(self, API_KEY, API_SECRET, host='https://api.bitfinex.com/v2', loop=None,
-                 logLevel='INFO', *args, **kwargs):
+                 logLevel='INFO', parse_float=float, *args, **kwargs):
         self.loop = loop or asyncio.get_event_loop()
         self.API_KEY = API_KEY
         self.API_SECRET = API_SECRET
         self.host = host
+        # this value can also be set to bfxapi.Decimal for much higher precision
+        self.parse_float = parse_float
         self.logger = CustomLogger('BfxRest', logLevel=logLevel)
 
     async def fetch(self, endpoint, params=""):
@@ -42,7 +44,8 @@ class BfxRest:
                 if resp.status is not 200:
                     raise Exception('GET {} failed with status {} - {}'
                                     .format(url, resp.status, text))
-                return await resp.json()
+                parsed = json.loads(text, parse_float=self.parse_float)
+                return parsed
 
     async def post(self, endpoint, data={}, params=""):
         """
@@ -61,7 +64,8 @@ class BfxRest:
                 if resp.status is not 200:
                     raise Exception('POST {} failed with status {} - {}'
                                     .format(url, resp.status, text))
-                return await resp.json()
+                parsed = json.loads(text, parse_float=self.parse_float)
+                return parsed
 
     ##################################################
     #                  Public Data                   #

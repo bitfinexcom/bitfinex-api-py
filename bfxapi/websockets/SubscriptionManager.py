@@ -32,7 +32,7 @@ class SubscriptionManager:
         """
         # create a new subscription
         subscription = Subscription(
-            self.bfxapi.ws, channel_name, symbol, timeframe, **kwargs)
+            self.bfxapi, channel_name, symbol, timeframe, **kwargs)
         self.logger.info("Subscribing to channel {}".format(channel_name))
         key = "{}_{}".format(channel_name, subscription.key or symbol)
         self.pending_subscriptions[key] = subscription
@@ -63,11 +63,11 @@ class SubscriptionManager:
         chan_id = raw_ws_data.get("chanId")
         sub = self.subscriptions_chanid[chan_id]
         sub.confirm_unsubscribe()
-        self.bfxapi._emit('unsubscribed', sub)
         # call onComplete callback if exists
         if sub.sub_id in self.unsubscribe_callbacks:
             await self.unsubscribe_callbacks[sub.sub_id]()
             del self.unsubscribe_callbacks[sub.sub_id]
+        self.bfxapi._emit('unsubscribed', sub)
 
     def get(self, chan_id):
         return self.subscriptions_chanid[chan_id]
@@ -121,6 +121,8 @@ class SubscriptionManager:
                 task_batch += [
                     asyncio.ensure_future(self.unsubscribe(chan_id))
                 ]
+        if len(task_batch) == 0:
+            return
         await asyncio.wait(*[task_batch])
 
     async def resubscribe_all(self):
@@ -132,4 +134,6 @@ class SubscriptionManager:
             task_batch += [
                 asyncio.ensure_future(self.resubscribe(chan_id))
             ]
+        if len(task_batch) == 0:
+            return
         await asyncio.wait(*[task_batch])
