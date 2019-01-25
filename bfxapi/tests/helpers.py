@@ -20,13 +20,14 @@ class StubbedWebsocket(BfxWebsocket):
 	def get_ws(self):
 		return self
 
-	async def publish(self, data):
+	async def publish(self, data, is_json=True):
 		self.published_items += [{
 		'time': get_now(),
 		'data': data
 		}]
 		# convert to string and push through the websocket
-		return await self.on_message(json.dumps(data))
+		data = json.dumps(data) if is_json else data
+		return await self.on_message(data)
   
 	async def publish_auth_confirmation(self):
 		return self.publish({"event":"auth","status":"OK","chanId":0,"userId":269499,"auth_id":"58aa0472-b1a9-4690-8ab8-300d68e66aaf","caps":{"orders":{"read":1,"write":1},"account":{"read":1,"write":0},"funding":{"read":1,"write":1},"history":{"read":1,"write":0},"wallets":{"read":1,"write":1},"withdraw":{"read":0,"write":1},"positions":{"read":1,"write":1}}})
