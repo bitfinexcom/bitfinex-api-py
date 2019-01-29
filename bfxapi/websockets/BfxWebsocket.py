@@ -201,7 +201,7 @@ class BfxWebsocket(GenericWebsocket):
         err_string = self.ERRORS[data.get('code', 10000)]
         err_string = "{} - {}".format(self.ERRORS[data.get('code', 10000)],
                                       data.get("msg", ""))
-        self._emit('error', Exception(err_string))
+        self._emit('error', err_string)
 
     async def _system_auth_handler(self, data):
         if data.get('status') == 'FAILED':
@@ -385,7 +385,9 @@ class BfxWebsocket(GenericWebsocket):
         # enable order book checksums
         if self.manageOrderBooks:
             await self.enable_flag(Flags.CHECKSUM)
-        # resubscribe to any channels
+        # set any existing subscriptions to not subscribed
+        self.subscriptionManager.set_all_unsubscribed()
+        # re-subscribe to existing channels
         await self.subscriptionManager.resubscribe_all()
 
     async def _send_auth_command(self, channel_name, data):

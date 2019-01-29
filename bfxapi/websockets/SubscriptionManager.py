@@ -72,6 +72,13 @@ class SubscriptionManager:
     def get(self, chan_id):
         return self.subscriptions_chanid[chan_id]
 
+    def set_all_unsubscribed(self):
+        """
+        Sets all f the subscriptions ot state 'unsubscribed'
+        """
+        for sub in self.subscriptions_chanid.values():
+            sub.confirm_unsubscribe()
+
     async def unsubscribe(self, chan_id, onComplete=None):
         """
         Unsubscribe from the channel with the given chanId
