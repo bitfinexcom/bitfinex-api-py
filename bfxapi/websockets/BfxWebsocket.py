@@ -310,6 +310,9 @@ class BfxWebsocket(GenericWebsocket):
 
     async def _candle_handler(self, data):
         subscription = self.subscriptionManager.get(data[0])
+        # if candle data is empty
+        if data[1] == []:
+            return
         if type(data[1][0]) is list:
             # Process the batch of seed candles on
             # websocket subscription
@@ -428,8 +431,11 @@ class BfxWebsocket(GenericWebsocket):
     async def cancel_order(self, *args, **kwargs):
         return await self.orderManager.cancel_order(*args, **kwargs)
 
+    async def cancel_order_group(self, *args, **kwargs):
+        return await self.orderManager.cancel_order_group(*args, **kwargs)
+
     async def cancel_all_orders(self, *args, **kwargs):
         return await self.orderManager.cancel_all_orders(*args, **kwargs)
 
     async def cancel_order_multi(self, *args, **kwargs):
-        return await self.cancel_order_multi(*args, **kwargs)
+        return await self.orderManager.cancel_order_multi(*args, **kwargs)
