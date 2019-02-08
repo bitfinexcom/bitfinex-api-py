@@ -201,7 +201,7 @@ class BfxWebsocket(GenericWebsocket):
         err_string = self.ERRORS[data.get('code', 10000)]
         err_string = "{} - {}".format(self.ERRORS[data.get('code', 10000)],
                                       data.get("msg", ""))
-        self._emit('error', Exception(err_string))
+        self._emit('error', err_string)
 
     async def _system_auth_handler(self, data):
         if data.get('status') == 'FAILED':
@@ -310,6 +310,9 @@ class BfxWebsocket(GenericWebsocket):
 
     async def _candle_handler(self, data):
         subscription = self.subscriptionManager.get(data[0])
+        # if candle data is empty
+        if data[1] == []:
+            return
         if type(data[1][0]) is list:
             # Process the batch of seed candles on
             # websocket subscription
@@ -385,7 +388,9 @@ class BfxWebsocket(GenericWebsocket):
         # enable order book checksums
         if self.manageOrderBooks:
             await self.enable_flag(Flags.CHECKSUM)
-        # resubscribe to any channels
+        # set any existing subscriptions to not subscribed
+        self.subscriptionManager.set_all_unsubscribed()
+        # re-subscribe to existing channels
         await self.subscriptionManager.resubscribe_all()
 
     async def _send_auth_command(self, channel_name, data):
@@ -426,8 +431,11 @@ class BfxWebsocket(GenericWebsocket):
     async def cancel_order(self, *args, **kwargs):
         return await self.orderManager.cancel_order(*args, **kwargs)
 
+    async def cancel_order_group(self, *args, **kwargs):
+        return await self.orderManager.cancel_order_group(*args, **kwargs)
+
     async def cancel_all_orders(self, *args, **kwargs):
         return await self.orderManager.cancel_all_orders(*args, **kwargs)
 
     async def cancel_order_multi(self, *args, **kwargs):
-        return await self.cancel_order_multi(*args, **kwargs)
+        return await self.orderManager.cancel_order_multi(*args, **kwargs)

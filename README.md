@@ -102,6 +102,8 @@ The websocket exposes a collection of events that are triggered when certain dat
 
 - `all` (array|json): listen for all messages coming through
 - `connected:` () called when a connection is made
+- `disconnected`: () called when a connection is ended (A reconnect attempt may follow)
+- `stopped`: () called when max amount of connection retries is met and the socket is closed
 - `authenticated` (): called when the websocket passes authentication
 - `notification` (array): incoming account notification
 - `error` (array): error from the websocket

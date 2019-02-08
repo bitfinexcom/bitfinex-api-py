@@ -38,8 +38,11 @@ class GenericWebsocket:
         self.loop = loop or asyncio.get_event_loop()
         self.events = EventEmitter(
             scheduler=asyncio.ensure_future, loop=self.loop)
+        # overide 'error' event to stop it raising an exception
+        # self.events.on('error', self.on_error)
         self.ws = None
         self.max_retries = max_retries
+        self.attempt_retry = True
 
     def run(self):
         """
@@ -67,18 +70,22 @@ class GenericWebsocket:
 
     async def _main(self, host):
         retries = 0
-        while retries < self.max_retries:
+        while retries < self.max_retries and self.attempt_retry:
             try:
                 await self._connect(host)
                 retries = 0
             except (ConnectionClosed, socket.error) as e:
+                self._emit('disconnected')
+                if (not self.attempt_retry):
+                    return
                 self.logger.error(str(e))
                 retries += 1
                 # wait 5 seconds befor retrying
-                self.logger.info("Waiting 5 seconds befor retrying...")
+                self.logger.info("Waiting 5 seconds before retrying...")
                 await asyncio.sleep(5)
                 self.logger.info("Reconnect attempt {}/{}".format(retries, self.max_retries))
         self.logger.info("Unable to connect to websocket.")
+        self._emit('stopped')
 
     def remove_all_listeners(self, event):
         """
@@ -111,13 +118,13 @@ class GenericWebsocket:
         On websocket error print and fire event
         """
         self.logger.error(error)
-        self.events.emit('error', error)
 
     async def on_close(self):
         """
-        On websocket close print and fire event
+        On websocket close print and fire event. This is used by the data server.
         """
         self.logger.info("Websocket closed.")
+        self.attempt_retry = False
         await self.ws.close()
         self._emit('done')
 

@@ -5,7 +5,7 @@ import asyncio
 from .. import Client, BfxWebsocket
 
 def get_now():
-	return int(round(time.time() * 1000))
+	  return int(round(time.time() * 1000))
 
 class StubbedWebsocket(BfxWebsocket):
 	def __new__(cls, *args, **kwargs):
@@ -28,7 +28,7 @@ class StubbedWebsocket(BfxWebsocket):
 		# convert to string and push through the websocket
 		data = json.dumps(data) if is_json else data
 		return await self.on_message(data)
-  
+
 	async def publish_auth_confirmation(self):
 		return self.publish({"event":"auth","status":"OK","chanId":0,"userId":269499,"auth_id":"58aa0472-b1a9-4690-8ab8-300d68e66aaf","caps":{"orders":{"read":1,"write":1},"account":{"read":1,"write":0},"funding":{"read":1,"write":1},"history":{"read":1,"write":0},"wallets":{"read":1,"write":1},"withdraw":{"read":0,"write":1},"positions":{"read":1,"write":1}}})
 
