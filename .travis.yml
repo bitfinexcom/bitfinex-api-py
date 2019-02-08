@@ -1,14 +1,8 @@
 language: python
-
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install python3
-  - sudo apt-get install python3-pip
-  - sudo python3 -m pip install --upgrade pip
-# command to install dependencies
+python:
+  - "3.6"
 install:
-  - python3 -m pip install -r requirements.txt --user
-# command to run tests
+  - python3.6 -m pip install -r requirements.txt
 script:
-  - python3 -m pylint --rcfile=pylint.rc bfxapi
-  - python3 -m pytest
+  - pylint --rcfile=pylint.rc bfxapi
+  - pytest
