@@ -97,7 +97,7 @@ class BfxWebsocket(GenericWebsocket):
         20061: 'Websocket server resync complete'
     }
 
-    def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api.bitfinex.com/ws/2',
+    def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2',
                  manageOrderBooks=False, dead_man_switch=False, logLevel='INFO', parse_float=float,
                  *args, **kwargs):
         self.API_KEY = API_KEY
