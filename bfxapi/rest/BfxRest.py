@@ -21,7 +21,7 @@ class BfxRest:
     api key.
     """
 
-    def __init__(self, API_KEY, API_SECRET, host='https://api.bitfinex.com/v2', loop=None,
+    def __init__(self, API_KEY, API_SECRET, host='https://api-pub.bitfinex.com/v2', loop=None,
                  logLevel='INFO', parse_float=float, *args, **kwargs):
         self.loop = loop or asyncio.get_event_loop()
         self.API_KEY = API_KEY

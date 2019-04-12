@@ -10,8 +10,8 @@ import asyncio
 from .websockets.BfxWebsocket import BfxWebsocket
 from .rest.BfxRest import BfxRest
 
-REST_HOST = 'https://api.bitfinex.com/v2'
-WS_HOST = 'wss://api.bitfinex.com/ws/2'
+REST_HOST = 'https://api-pub.bitfinex.com/v2'
+WS_HOST = 'wss://api-pub.bitfinex.com/ws/2'
 
 class Client:
     """
