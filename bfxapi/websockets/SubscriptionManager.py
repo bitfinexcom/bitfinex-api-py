@@ -10,6 +10,7 @@ import time
 from ..utils.CustomLogger import CustomLogger
 from ..models import Subscription
 
+MAX_CHANNEL_COUNT = 25
 
 class SubscriptionManager:
 
@@ -30,12 +31,17 @@ class SubscriptionManager:
         @param timeframe: sepecifies the data timeframe between each candle (only required
           for the candles channel)
         """
+        # make sure we dont over subscribe the connection
+        if self.channel_count() >= MAX_CHANNEL_COUNT:
+            raise Exception("Subscribe error - max channel count ({0}) reached".format(self.channel_count()))
+            return False
         # create a new subscription
         subscription = Subscription(
             self.bfxapi, channel_name, symbol, timeframe, **kwargs)
         self.logger.info("Subscribing to channel {}".format(channel_name))
         key = "{}_{}".format(channel_name, subscription.key or symbol)
         self.pending_subscriptions[key] = subscription
+
         await subscription.subscribe()
 
     async def confirm_subscription(self, raw_ws_data):
@@ -108,6 +114,12 @@ class SubscriptionManager:
         else:
             # already unsibscribed, so just subscribe
             await sub.subscribe()
+
+    def channel_count(self):
+        """
+        Returns the number of cannels
+        """
+        return len(self.pending_subscriptions) + len(self.subscriptions_chanid)
 
     def is_subscribed(self, chan_id):
         """
