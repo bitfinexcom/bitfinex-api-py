@@ -48,7 +48,10 @@ class GenericWebsocket:
         """
         Run the websocket connection indefinitely
         """
-        self.loop.run_until_complete(self._main(self.host))
+        if self.loop.is_running():
+            asyncio.ensure_future(self._main(self.host))
+        else:
+            self.loop.run_until_complete(self._main(self.host))
 
     def get_task_executable(self):
         """
@@ -74,7 +77,7 @@ class GenericWebsocket:
             try:
                 await self._connect(host)
                 retries = 0
-            except (ConnectionClosed, socket.error) as e:
+            except (Exception) as e:
                 self._emit('disconnected')
                 if (not self.attempt_retry):
                     return
