@@ -2,6 +2,7 @@
 This module is used to interact with the bitfinex api
 """
 
+from .version import __version__
 from .client import Client
 from .models import (Order, Trade, OrderBook, Subscription, Wallet,
                      Position, FundingLoan, FundingOffer, FundingCredit)
