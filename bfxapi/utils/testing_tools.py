@@ -17,9 +17,6 @@ class StubbedWebsocket(BfxWebsocket):
 	async def _main(self, host):
 		print ("Faking wesocket connection to {}".format(host))
 
-	def get_ws(self):
-		return self
-
 	async def publish(self, data, is_json=True):
 		self.published_items += [{
 		'time': get_now(),

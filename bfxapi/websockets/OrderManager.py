@@ -251,7 +251,6 @@ class OrderManager:
         key = None
         for k in callback_storage.keys():
             if k in idents:
-                print (callback_storage[k])
                 key = k
                 # call all callbacks associated with identifier
                 for callback in callback_storage[k]:
