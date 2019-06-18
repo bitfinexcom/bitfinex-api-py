@@ -21,8 +21,8 @@ class Subscription:
     such as unsibscribe and subscribe.
     """
 
-    def __init__(self, bfxapi, channel_name, symbol, timeframe=None, **kwargs):
-        self.bfxapi = bfxapi
+    def __init__(self, socket, channel_name, symbol, timeframe=None, **kwargs):
+        self.socket = socket
         self.channel_name = channel_name
         self.symbol = symbol
         self.timeframe = timeframe
@@ -33,6 +33,12 @@ class Subscription:
             self.key = 'trade:{}:{}'.format(self.timeframe, self.symbol)
         self.sub_id = generate_sub_id()
         self.send_payload = self._generate_payload(**kwargs)
+
+    def get_key(self):
+        """
+        Generates a unique key string for the subscription
+        """
+        return "{}_{}".format(self.channel_name, self.key or self.symbol)
 
     def confirm_subscription(self, chan_id):
         """
@@ -48,13 +54,13 @@ class Subscription:
         if not self.is_subscribed():
             raise Exception("Subscription is not subscribed to websocket")
         payload = {'event': 'unsubscribe', 'chanId': self.chan_id}
-        await self.bfxapi.get_ws().send(json.dumps(payload))
+        await self.socket.ws.send(json.dumps(payload))
 
     async def subscribe(self):
         """
         Send a subscription request to the bitfinex socket
         """
-        await self.bfxapi.get_ws().send(json.dumps(self._get_send_payload()))
+        await self.socket.ws.send(json.dumps(self._get_send_payload()))
 
     def confirm_unsubscribe(self):
         """

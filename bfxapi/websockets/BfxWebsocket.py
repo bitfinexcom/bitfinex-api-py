@@ -98,7 +98,7 @@ class BfxWebsocket(GenericWebsocket):
     }
 
     def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2',
-                 manageOrderBooks=False, dead_man_switch=False, logLevel='INFO', parse_float=float,
+                 manageOrderBooks=False, dead_man_switch=False, ws_capacity=25, logLevel='INFO', parse_float=float,
                  *args, **kwargs):
         self.API_KEY = API_KEY
         self.API_SECRET = API_SECRET
@@ -106,12 +106,11 @@ class BfxWebsocket(GenericWebsocket):
         self.dead_man_switch = dead_man_switch
         self.pendingOrders = {}
         self.orderBooks = {}
+        self.ws_capacity = ws_capacity
         # How should we store float values? could also be bfxapi.Decimal
         # which is slower but has higher precision.
         self.parse_float = parse_float
-
-        super(BfxWebsocket, self).__init__(
-            host, logLevel=logLevel, *args, **kwargs)
+        super(BfxWebsocket, self).__init__(host, logLevel=logLevel, *args, **kwargs)
         self.subscriptionManager = SubscriptionManager(self, logLevel=logLevel)
         self.orderManager = OrderManager(self, logLevel=logLevel)
         self.wallets = WalletManager()
@@ -145,15 +144,15 @@ class BfxWebsocket(GenericWebsocket):
             'conf': self._system_conf_handler
         }
 
-    async def _ws_system_handler(self, msg):
+    async def _ws_system_handler(self, socketId, msg):
         eType = msg.get('event')
         if eType in self._WS_SYSTEM_HANDLERS:
-            await self._WS_SYSTEM_HANDLERS[eType](msg)
+            await self._WS_SYSTEM_HANDLERS[eType](socketId, msg)
         else:
             self.logger.warn(
-                "Unknown websocket event: '{}' {}".format(eType, msg))
+                "Unknown websocket event (socketId={}): '{}' {}".format(socketId, eType, msg))
 
-    async def _ws_data_handler(self, data, raw_message_str):
+    async def _ws_data_handler(self, socketId, data, raw_message_str):
         dataEvent = data[1]
         chan_id = data[0]
 
@@ -172,13 +171,13 @@ class BfxWebsocket(GenericWebsocket):
             self.logger.warn(
                 "Unknown data event: '{}' {}".format(dataEvent, data))
 
-    async def _system_info_handler(self, data):
+    async def _system_info_handler(self, socketId, data):
         self.logger.info(data)
         if data.get('serverId', None):
             # connection has been established
-            await self.on_open()
+            await self.on_open(socketId)
 
-    async def _system_conf_handler(self, data):
+    async def _system_conf_handler(self, socketId, data):
         flag = data.get('flags')
         status = data.get('status')
         if flag not in Flags.strings:
@@ -191,19 +190,21 @@ class BfxWebsocket(GenericWebsocket):
             self.logger.error(
                 "Unable to enable config flag {}".format(flagString))
 
-    async def _system_subscribed_handler(self, data):
-        await self.subscriptionManager.confirm_subscription(data)
+    async def _system_subscribed_handler(self, socket_id, data):
+        await self.subscriptionManager.confirm_subscription(socket_id, data)
 
-    async def _system_unsubscribe_handler(self, data):
-        await self.subscriptionManager.confirm_unsubscribe(data)
+    async def _system_unsubscribe_handler(self, socket_id, data):
+        await self.subscriptionManager.confirm_unsubscribe(socket_id, data)
 
-    async def _system_error_handler(self, data):
+    async def _system_error_handler(self, socketId, data):
         err_string = self.ERRORS[data.get('code', 10000)]
-        err_string = "{} - {}".format(self.ERRORS[data.get('code', 10000)],
-                                      data.get("msg", ""))
+        err_string = "(socketId={}) {} - {}".format(
+            socketId,
+            self.ERRORS[data.get('code', 10000)],
+            data.get("msg", ""))
         self._emit('error', err_string)
 
-    async def _system_auth_handler(self, data):
+    async def _system_auth_handler(self, socketId, data):
         if data.get('status') == 'FAILED':
             raise AuthError(self.ERRORS[data.get('code')])
         else:
@@ -359,53 +360,84 @@ class BfxWebsocket(GenericWebsocket):
             self.orderBooks[symbol].update_with(obInfo, orig_raw_message)
             self._emit('order_book_update', {'symbol': symbol, 'data': obInfo})
 
-    async def on_message(self, message):
+    async def on_message(self, socketId, message):
         self.logger.debug(message)
         # convert float values to decimal
         msg = json.loads(message, parse_float=self.parse_float)
         self._emit('all', msg)
         if type(msg) is dict:
             # System messages are received as json
-            await self._ws_system_handler(msg)
+            await self._ws_system_handler(socketId, msg)
         elif type(msg) is list:
             # All data messages are received as a list
-            await self._ws_data_handler(msg, message)
+            await self._ws_data_handler(socketId, msg, message)
         else:
-            self.logger.warn('Unknown websocket response: {}'.format(msg))
+            self.logger.warn('Unknown (socketId={}) websocket response: {}'.format(socketId, msg))
 
-    async def _ws_authenticate_socket(self):
+    async def _ws_authenticate_socket(self, socketId):
+        socket = self.sockets[socketId]
+        socket.set_authenticated()
         jdata = generate_auth_payload(self.API_KEY, self.API_SECRET)
         if self.dead_man_switch:
             jdata['dms'] = 4
-        await self.get_ws().send(json.dumps(jdata))
+        await socket.ws.send(json.dumps(jdata))
 
-    async def on_open(self):
+    async def on_open(self, socket_id):
         self.logger.info("Websocket opened.")
-        self._emit('connected')
+        if len(self.sockets) == 1:
+            ## only call on first connection
+            self._emit('connected')
         # Orders are simulated in backtest mode
-        if self.API_KEY and self.API_SECRET:
-            await self._ws_authenticate_socket()
+        if self.API_KEY and self.API_SECRET and self.get_authenticated_socket() == None:
+            await self._ws_authenticate_socket(socket_id)
         # enable order book checksums
         if self.manageOrderBooks:
             await self.enable_flag(Flags.CHECKSUM)
         # set any existing subscriptions to not subscribed
-        self.subscriptionManager.set_all_unsubscribed()
+        self.subscriptionManager.set_unsubscribed_by_socket(socket_id)
         # re-subscribe to existing channels
-        await self.subscriptionManager.resubscribe_all()
+        await self.subscriptionManager.resubscribe_by_socket(socket_id)
 
     async def _send_auth_command(self, channel_name, data):
         payload = [0, channel_name, None, data]
-        await self.get_ws().send(json.dumps(payload))
+        socket = self.get_authenticated_socket()
+        if socket == None:
+            raise ValueError("authenticated socket connection not found")
+        if not socket.isConnected:
+            raise ValueError("authenticated socket not connected")
+        await socket.ws.send(json.dumps(payload))
+
+    def get_orderbook(self, symbol):
+        return self.orderBooks.get(symbol, None)
+
+    def get_socket_capacity(self, socket_id):
+        return self.ws_capacity - self.subscriptionManager.get_sub_count_by_socket(socket_id)
+
+    def get_most_available_socket(self):
+        bestId = None
+        bestCount = 0
+        for socketId in self.sockets:
+            cap = self.get_socket_capacity(socketId)
+            if bestId == None or cap > bestCount:
+                bestId = socketId
+                bestCount = cap
+        return self.sockets[socketId]
+
+    def get_total_available_capcity(self):
+        total = 0
+        for socketId in self.sockets:
+            total += self.get_socket_capacity(socketId)
+        return total
 
     async def enable_flag(self, flag):
         payload = {
             "event": 'conf',
             "flags": flag
         }
-        await self.get_ws().send(json.dumps(payload))
-
-    def get_orderbook(self, symbol):
-        return self.orderBooks.get(symbol, None)
+        # enable on all sockets
+        for socket in self.sockets.values():
+            if socket.isConnected:
+                await socket.ws.send(json.dumps(payload))
 
     async def subscribe(self, *args, **kwargs):
         return await self.subscriptionManager.subscribe(*args, **kwargs)
