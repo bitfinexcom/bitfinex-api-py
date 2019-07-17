@@ -121,6 +121,7 @@ The websocket exposes a collection of events that are triggered when certain dat
 - `funding_credit_snapshot` (array): opening funding credit balances
 - `balance_update` (array): when the state of a balance is changed
 - `new_trade` (array): a new trade on the market has been executed
+- `trade_update` (array): a trade on the market has been updated
 - `new_candle` (array): a new candle has been produced
 - `margin_info_updates` (array): new margin information has been broadcasted
 - `funding_info_updates` (array): new funding information has been broadcasted

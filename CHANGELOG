@@ -1,3 +1,9 @@
+1.0.0
+
+- Removal of camel-casing file naming and git duplicates
+  i.e bfx.client instead of bfx.Client
+
+
 0.0.1
 
 - Added change-log and PR/Issue templates

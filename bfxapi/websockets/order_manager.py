@@ -5,7 +5,7 @@ Module used to house all of the functions/classes used to handle orders
 import time
 import asyncio
 
-from ..utils.CustomLogger import CustomLogger
+from ..utils.custom_logger import CustomLogger
 from ..models import Order
 
 
