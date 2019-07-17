@@ -6,8 +6,8 @@ from .version import __version__
 from .client import Client
 from .models import (Order, Trade, OrderBook, Subscription, Wallet,
                      Position, FundingLoan, FundingOffer, FundingCredit)
-from .websockets.GenericWebsocket import GenericWebsocket, Socket
-from .websockets.BfxWebsocket import BfxWebsocket
-from .utils.Decimal import Decimal
+from .websockets.generic_websocket import GenericWebsocket, Socket
+from .websockets.bfx_websocket import BfxWebsocket
+from .utils.decimal import Decimal
 
 NAME = 'bfxapi'

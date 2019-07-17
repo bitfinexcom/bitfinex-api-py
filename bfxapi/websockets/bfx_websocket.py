@@ -7,10 +7,10 @@ import json
 import time
 import random
 
-from .GenericWebsocket import GenericWebsocket, AuthError
-from .SubscriptionManager import SubscriptionManager
-from .WalletManager import WalletManager
-from .OrderManager import OrderManager
+from .generic_websocket import GenericWebsocket, AuthError
+from .subscription_manager import SubscriptionManager
+from .wallet_manager import WalletManager
+from .order_manager import OrderManager
 from ..utils.auth import generate_auth_payload
 from ..models import Order, Trade, OrderBook
 
@@ -107,7 +107,7 @@ class BfxWebsocket(GenericWebsocket):
         self.pendingOrders = {}
         self.orderBooks = {}
         self.ws_capacity = ws_capacity
-        # How should we store float values? could also be bfxapi.Decimal
+        # How should we store float values? could also be bfxapi.decimal
         # which is slower but has higher precision.
         self.parse_float = parse_float
         super(BfxWebsocket, self).__init__(host, logLevel=logLevel, *args, **kwargs)
@@ -217,7 +217,7 @@ class BfxWebsocket(GenericWebsocket):
         if self.subscriptionManager.is_subscribed(data[0]):
             symbol = self.subscriptionManager.get(data[0]).symbol
             tradeObj = _parse_trade(tData, symbol)
-            self._emit('new_trade', tradeObj)
+            self._emit('trade_update', tradeObj)
 
     async def _trade_executed_handler(self, data):
         tData = data[2]

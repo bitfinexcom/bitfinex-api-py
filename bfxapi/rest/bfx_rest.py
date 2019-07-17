@@ -7,7 +7,7 @@ import aiohttp
 import time
 import json
 
-from ..utils.CustomLogger import CustomLogger
+from ..utils.custom_logger import CustomLogger
 from ..utils.auth import generate_auth_headers
 from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer
 from ..models import FundingCredit
@@ -27,7 +27,7 @@ class BfxRest:
         self.API_KEY = API_KEY
         self.API_SECRET = API_SECRET
         self.host = host
-        # this value can also be set to bfxapi.Decimal for much higher precision
+        # this value can also be set to bfxapi.decimal for much higher precision
         self.parse_float = parse_float
         self.logger = CustomLogger('BfxRest', logLevel=logLevel)
 

@@ -7,7 +7,7 @@ import json
 import asyncio
 import time
 
-from ..utils.CustomLogger import CustomLogger
+from ..utils.custom_logger import CustomLogger
 from ..models import Subscription
 
 MAX_CHANNEL_COUNT = 25
