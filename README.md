@@ -114,6 +114,7 @@ The websocket exposes a collection of events that are triggered when certain dat
 - `order_snapshot` (array[Order]): Initial open orders (Fired once)
 - `positions_snapshot` (array): Initial open positions (Fired once)
 - `wallet_update` (Wallet): changes to the balance of wallets
+- `status_update` (json): new platform status info
 - `seed_candle` (json): initial past candle to prime strategy
 - `seed_trade` (json): initial past trade to prime strategy
 - `funding_offer_snapshot` (array): opening funding offer balances
@@ -227,6 +228,14 @@ Get the public orderbook of a given symbol
   Get tickers for the given symbols. Tickers shows you the current best bid and ask,
   as well as the last trade price.
 
+### `get_derivative_status(symbol)`
+
+  Get derivative platform information for the given symbol.
+
+### `get_derivative_statuses(symbols)`
+
+  Get derivative platform information for the given collection of symbols.
+
 ### `get_wallets()`
 
   Get all wallets on account associated with API_KEY - Requires authentication.
@@ -276,6 +285,10 @@ Get the public orderbook of a given symbol
 ### `get_funding_credit_history(symbol, start, end, limit=25)`
 
   Get all of the funding credits between the start and end period associated with API_KEY - Requires authentication.
+
+### `set_derivative_collateral(symbol, collateral)`
+
+  Set the amount of collateral used to back a derivative position.
 
 # Examples
 

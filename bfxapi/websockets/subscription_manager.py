@@ -32,7 +32,7 @@ class SubscriptionManager:
                 count += 1
         return count
 
-    async def subscribe(self, channel_name, symbol, timeframe=None, **kwargs):
+    async def subscribe(self, channel_name, symbol, key=None, timeframe=None, **kwargs):
         """
         Subscribe to a new channel
 
@@ -51,7 +51,7 @@ class SubscriptionManager:
             socket = self.bfxapi.get_most_available_socket()
         # create a new subscription
         subscription = Subscription(
-            socket, channel_name, symbol, timeframe, **kwargs)
+            socket, channel_name, symbol, key, timeframe, **kwargs)
         self.logger.info("Subscribing to channel {}".format(channel_name))
         self.pending_subscriptions[subscription.get_key()] = subscription
 

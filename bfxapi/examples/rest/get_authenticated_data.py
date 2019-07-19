@@ -12,8 +12,7 @@ API_SECRET=os.getenv("BFX_SECRET")
 bfx = Client(
   API_KEY=API_KEY,
   API_SECRET=API_SECRET,
-  logLevel='DEBUG',
-  rest_host='https://test.bitfinex.com/v2'
+  logLevel='DEBUG'
 )
 
 now = int(round(time.time() * 1000))

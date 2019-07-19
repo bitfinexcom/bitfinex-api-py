@@ -21,13 +21,13 @@ class Subscription:
     such as unsibscribe and subscribe.
     """
 
-    def __init__(self, socket, channel_name, symbol, timeframe=None, **kwargs):
+    def __init__(self, socket, channel_name, symbol, key=None, timeframe=None, **kwargs):
         self.socket = socket
         self.channel_name = channel_name
         self.symbol = symbol
         self.timeframe = timeframe
         self.is_subscribed_bool = False
-        self.key = None
+        self.key = key
         self.chan_id = None
         if timeframe:
             self.key = 'trade:{}:{}'.format(self.timeframe, self.symbol)
@@ -79,7 +79,7 @@ class Subscription:
     def _generate_payload(self, **kwargs):
         payload = {'event': 'subscribe',
                    'channel': self.channel_name, 'symbol': self.symbol}
-        if self.timeframe:
+        if self.timeframe or self.key:
             payload['key'] = self.key
         payload.update(**kwargs)
         return payload
