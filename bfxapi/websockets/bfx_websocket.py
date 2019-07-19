@@ -65,6 +65,23 @@ def _parse_trade(tData, symbol):
         'symbol': symbol
     }
 
+def _parse_deriv_status_update(sData, symbol):
+    return {
+            'symbol': symbol,
+            'status_type': 'deriv',
+            'mts': sData[0],
+            # placeholder
+            'deriv_price': sData[2],
+            'spot_price': sData[3],
+            # placeholder
+            'insurance_fund_balance': sData[5],
+            # placeholder
+            # placeholder
+            'funding_accrued': sData[8],
+            'funding_step': sData[9],
+            # placeholder
+        }
+
 
 class BfxWebsocket(GenericWebsocket):
     """
@@ -167,6 +184,8 @@ class BfxWebsocket(GenericWebsocket):
                 await self._order_book_handler(data, raw_message_str)
             if subscription.channel_name == 'trades':
                 await self._trade_handler(data)
+            if subscription.channel_name == 'status':
+                await self._status_handler(data)
         else:
             self.logger.warn(
                 "Unknown data event: '{}' {}".format(dataEvent, data))
@@ -292,6 +311,18 @@ class BfxWebsocket(GenericWebsocket):
     async def _funding_credit_snapshot_handler(self, data):
         self._emit('funding_credit_snapshot', data[2])
         self.logger.info("Funding credit snapshot: {}".format(data))
+
+    async def _status_handler(self, data):
+        sub = self.subscriptionManager.get(data[0])
+        symbol = sub.symbol
+        status_type = sub.key.split(":")[0]
+        rstatus = data[1]
+        if status_type == "deriv":
+            status = _parse_deriv_status_update(rstatus, symbol)
+        if status:
+            self._emit('status_update', status)
+        else:
+            self.logger.warn('Unknown status data type: {}'.format(data))
 
     async def _trade_handler(self, data):
         symbol = self.subscriptionManager.get(data[0]).symbol
@@ -438,6 +469,22 @@ class BfxWebsocket(GenericWebsocket):
         for socket in self.sockets.values():
             if socket.isConnected:
                 await socket.ws.send(json.dumps(payload))
+
+    async def subscribe_order_book(self, symbol):
+        return await self.subscribe('book', symbol)
+
+    async def subscribe_candles(self, symbol, timeframe):
+        return await self.subscribe('candles', symbol, timeframe=timeframe)
+
+    async def subscribe_trades(self, symbol):
+        return await self.subscribe('trades', symbol)
+
+    async def subscribe_ticker(self, symbol):
+        return await self.subscribe('ticker', symbol)
+
+    async def subscribe_derivative_status(self, symbol):
+        key = 'deriv:{}'.format(symbol)
+        return await self.subscribe('status', symbol, key=key)
 
     async def subscribe(self, *args, **kwargs):
         return await self.subscriptionManager.subscribe(*args, **kwargs)
