@@ -38,12 +38,18 @@ async def log_mul_tickers():
   print ("Tickers:")
   print (tickers)
 
+async def log_derivative_status():
+  status = await bfx.rest.get_derivative_status('tBTCF0:USTF0')
+  print ("Deriv status:")
+  print (status)
+
 async def run():
   await log_historical_candles()
   await log_historical_trades()
   await log_books()
   await log_ticker()
   await log_mul_tickers()
+  await log_derivative_status()
   
 t = asyncio.ensure_future(run())
 asyncio.get_event_loop().run_until_complete(t)

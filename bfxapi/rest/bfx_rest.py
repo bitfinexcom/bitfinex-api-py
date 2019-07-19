@@ -33,7 +33,7 @@ class BfxRest:
 
     async def fetch(self, endpoint, params=""):
         """
-        Fetch a GET request from the bitfinex host
+        Send a GET request to the bitfinex api
 
         @return reponse
         """
@@ -49,7 +49,7 @@ class BfxRest:
 
     async def post(self, endpoint, data={}, params=""):
         """
-        Request a POST to the bitfinex host
+        Send a pre-signed POST request to the bitfinex api
 
         @return response
         """
@@ -151,7 +151,7 @@ class BfxRest:
         Get tickers for the given symbol. Tickers shows you the current best bid and ask,
         as well as the last trade price.
 
-        @parms symbols symbol string: pair symbol i.e tBTCUSD
+        @param symbols symbol string: pair symbol i.e tBTCUSD
         @return Array [ SYMBOL, BID, BID_SIZE, ASK, ASK_SIZE, DAILY_CHANGE,
           DAILY_CHANGE_PERC, LAST_PRICE, VOLUME, HIGH, LOW ]
         """
@@ -164,13 +164,38 @@ class BfxRest:
         Get tickers for the given symbols. Tickers shows you the current best bid and ask,
         as well as the last trade price.
 
-        @parms symbols Array<string>: array of symbols i.e [tBTCUSD, tETHUSD]
+        @param symbols Array<string>: array of symbols i.e [tBTCUSD, tETHUSD]
         @return Array [ SYMBOL, BID, BID_SIZE, ASK, ASK_SIZE, DAILY_CHANGE,  DAILY_CHANGE_PERC,
           LAST_PRICE, VOLUME, HIGH, LOW ]
         """
         endpoint = "tickers/?symbols={}".format(','.join(symbols))
         ticker = await self.fetch(endpoint)
         return ticker
+
+    async def get_derivative_status(self, symbol):
+        """
+        Gets platform information for derivative symbol.
+
+        @param derivativeSymbol string: i.e tBTCF0:USTF0
+        @return [KEY/SYMBOL, MTS, PLACEHOLDER, DERIV_PRICE, SPOT_PRICE, PLACEHOLDER, INSURANCE_FUND_BALANCE4,
+            PLACEHOLDER, PLACEHOLDER, FUNDING_ACCRUED, FUNDING_STEP, PLACEHOLDER]
+        """
+        statuses = await self.get_derivative_statuses([symbol])
+        if len(statuses) > 0:
+            return statuses[0]
+        return []
+
+    async def get_derivative_statuses(self, symbols):
+        """
+        Gets platform information for a collection of derivative symbols.
+
+        @param derivativeSymbols Array<string>: array of symbols i.e [tBTCF0:USTF0 ...] or ["ALL"]
+        @return [KEY/SYMBOL, MTS, PLACEHOLDER, DERIV_PRICE, SPOT_PRICE, PLACEHOLDER, INSURANCE_FUND_BALANCE4,
+            PLACEHOLDER, PLACEHOLDER, FUNDING_ACCRUED, FUNDING_STEP, PLACEHOLDER]
+        """
+        endpoint = "status/deriv?keys={}".format(','.join(symbols))
+        status = await self.fetch(endpoint)
+        return status
 
     ##################################################
     #               Authenticated Data               #
@@ -327,7 +352,7 @@ class BfxRest:
         return [FundingCredit.from_raw_credit(c) for c in credits]
 
     ##################################################
-    #                     Orders                     #
+    #                    Orders                      #
     ##################################################
 
     async def __submit_order(self, symbol, amount, price, oType=Order.Type.LIMIT,
@@ -367,4 +392,21 @@ class BfxRest:
             payload['buy_price_oco'] = stop_buy_price
             payload['sell_price_oco'] = stop_sell_price
         endpoint = 'order/new'
+        return await self.post(endpoint, data=payload)
+
+    ##################################################
+    #                   Derivatives                  #
+    ##################################################
+
+    async def set_derivative_collateral(self, symbol, collateral):
+        """
+        Update the amount of callateral used to back a derivative position.
+
+        @param symbol of the derivative i.e 'tBTCF0:USTF0'
+        @param collateral: amount of collateral/value to apply to the open position
+        """
+        endpoint = 'auth/w/deriv/collateral/set'
+        payload = {}
+        payload['symbol'] = symbol
+        payload['collateral'] = collateral
         return await self.post(endpoint, data=payload)
