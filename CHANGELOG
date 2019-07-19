@@ -1,3 +1,11 @@
+1.0.1
+
+- Added ws event `status_update`
+- Added rest function `get_derivative_status`
+- Added rest function `get_derivative_statuses`
+- Added rest function `set_derivative_collateral`
+- Added channel support `status`
+
 1.0.0
 
 - Removal of camel-casing file naming and git duplicates
