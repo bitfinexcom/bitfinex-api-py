@@ -10,4 +10,4 @@ disable=too-few-public-methods,
         too-many-instance-attributes,
         invalid-name
 
-ignore=tests
+ignore=tests,websockets,rest,utils
