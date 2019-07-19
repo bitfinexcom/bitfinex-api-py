@@ -53,7 +53,7 @@ def _start_event_worker():
         sleeping process for event emitter to schedule on
         """
         while True:
-            await asyncio.sleep(0)
+            await asyncio.sleep(.03)
     def start_loop(loop):
         asyncio.set_event_loop(loop)
         loop.run_until_complete(event_sleep_process())
