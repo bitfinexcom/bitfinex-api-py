@@ -1,6 +1,7 @@
 import time
 import json
 import asyncio
+from pyee import EventEmitter
 
 from .. import Client, BfxWebsocket, Socket
 
@@ -8,7 +9,7 @@ def get_now():
 	return int(round(time.time() * 1000))
 
 def ev_worker_override():
-		return asyncio.get_event_loop()
+		return EventEmitter()
 
 class StubbedWebsocket(BfxWebsocket):
 

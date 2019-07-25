@@ -60,7 +60,8 @@ def _start_event_worker():
     event_loop = asyncio.new_event_loop()
     worker = Thread(target=start_loop, args=(event_loop,))
     worker.start()
-    return event_loop
+    ee = EventEmitter(scheduler=asyncio.ensure_future, loop=event_loop)
+    return ee
 
 class GenericWebsocket:
     """
@@ -68,11 +69,9 @@ class GenericWebsocket:
     Inlcudes an event emitter and a standard websocket client.
     """
 
-    def __init__(self, host, logLevel='INFO', loop=None, max_retries=5,
-                 create_event_emitter=_start_event_worker):
+    def __init__(self, host, logLevel='INFO', max_retries=5, create_event_emitter=None):
         self.host = host
         self.logger = CustomLogger('BfxWebsocket', logLevel=logLevel)
-        self.loop = loop or asyncio.get_event_loop()
         # overide 'error' event to stop it raising an exception
         # self.events.on('error', self.on_error)
         self.ws = None
@@ -80,8 +79,8 @@ class GenericWebsocket:
         self.attempt_retry = True
         self.sockets = {}
         # start seperate process for the even emitter
-        eventLoop = create_event_emitter()
-        self.events = EventEmitter(scheduler=asyncio.ensure_future, loop=eventLoop)
+        create_ee = create_event_emitter or _start_event_worker
+        self.events = create_ee()
 
     def run(self):
         """
@@ -198,7 +197,8 @@ class GenericWebsocket:
         """
         self.logger.info("Websocket closed.")
         self.attempt_retry = False
-        await self.ws.close()
+        for key, socket in self.sockets.items():
+            await socket.ws.close()
         self._emit('done')
 
     async def on_open(self):

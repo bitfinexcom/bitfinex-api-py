@@ -19,11 +19,10 @@ class Client:
     """
 
     def __init__(self, API_KEY=None, API_SECRET=None, rest_host=REST_HOST,
-                 ws_host=WS_HOST, loop=None, logLevel='INFO', dead_man_switch=False,
+                 ws_host=WS_HOST, create_event_emitter=None, logLevel='INFO', dead_man_switch=False,
                  ws_capacity=25, *args, **kwargs):
-        self.loop = loop or asyncio.get_event_loop()
         self.ws = BfxWebsocket(API_KEY=API_KEY, API_SECRET=API_SECRET, host=ws_host,
-                               loop=self.loop, logLevel=logLevel, dead_man_switch=dead_man_switch,
-                               ws_capacity=ws_capacity, *args, **kwargs)
+                               logLevel=logLevel, dead_man_switch=dead_man_switch,
+                               ws_capacity=ws_capacity, create_event_emitter=create_event_emitter, *args, **kwargs)
         self.rest = BfxRest(API_KEY=API_KEY, API_SECRET=API_SECRET, host=rest_host,
-                            loop=self.loop, logLevel=logLevel, *args, **kwargs)
+                            logLevel=logLevel, *args, **kwargs)
