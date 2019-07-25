@@ -5,6 +5,8 @@
 - Added rest function `get_derivative_statuses`
 - Added rest function `set_derivative_collateral`
 - Added channel support `status`
+- Added create_event_emitter as override in generic_websocket 
+  for custom event emitters
 
 1.0.0
 
