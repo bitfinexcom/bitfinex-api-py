@@ -21,23 +21,34 @@ bfx.ws.run()
 
 
 # Bitfinex Trading API for Python. Bitcoin, Ether and Litecoin trading
-This is an official python library that is used to connect interact with the Bitfinex api. Currently it only has support for websockets but will soon have Rest functionality as well.
+This is an official python library that is used to connect interact with the Bitfinex api. Currently, it only has support for websockets but will soon have Rest functionality as well.
 
-Install dependencies
+## Installation
+
+Clone package:
+```sh
+git clone https://github.com/bitfinexcom/bitfinex-api-py.git
+cd bitfinex-api-py
+```
+Install dependencies:
 ```sh
 pip3 install -r requirements.txt
 ```
+Install package:
+```sh
+python3 setup.py install
+```
 Run the trades/candles example:
 ```sh
-cd bfxapi/examples
-python3 subsribe_trades_candles.py
+cd bfxapi/examples/ws
+python3 subscribe_trades_candles.py
 ```
 
 # Features
 - Fast websocket connection
-- Event based routing
+- Event-based routing
 - Subscribe to trade, candles and orderbook channels
-- Authenticate with api key/secret
+- Authenticate with API key/secret
 - Orderbook checksum validation
 - Create, update and close orders
 - Track wallet updates
