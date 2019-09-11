@@ -122,7 +122,7 @@ async def test_closed_callback_on_submit_order_closed():
 		client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
-	client.ws.orderManager._gen_unqiue_cid = lambda: 123
+	client.ws.orderManager._gen_unique_cid = lambda: 123
 	await client.ws.submit_order('tBTCUSD', 19000, 0.01, 'EXCHANGE MARKET', onClose=c)
 	await client.ws.publish([0,"oc",[123,None,1548262833910,"tBTCUSD",1548262833379,1548262888016,0,-1,"EXCHANGE LIMIT",None,None,None,0,"EXECUTED @ 15980.0(-0.5): was PARTIALLY FILLED @ 15980.0(-0.5)",None,None,15980,15980,0,0,None,None,None,0,0,None,None,None,"API>BFX",None,None,None]])
 	callback_wait.wait_until_complete()
@@ -139,7 +139,7 @@ async def test_confirmed_callback_on_submit_order_closed():
 		client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
-	client.ws.orderManager._gen_unqiue_cid = lambda: 123
+	client.ws.orderManager._gen_unique_cid = lambda: 123
 	await client.ws.submit_order('tBTCUSD', 19000, 0.01, 'EXCHANGE MARKET', onConfirm=c)
 	await client.ws.publish([0,"oc",[123,None,1548262833910,"tBTCUSD",1548262833379,1548262888016,0,-1,"EXCHANGE LIMIT",None,None,None,0,"EXECUTED @ 15980.0(-0.5): was PARTIALLY FILLED @ 15980.0(-0.5)",None,None,15980,15980,0,0,None,None,None,0,0,None,None,None,"API>BFX",None,None,None]])
 	callback_wait.wait_until_complete()
@@ -155,7 +155,7 @@ async def test_confirmed_callback_on_submit_new_order():
 		client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
-	client.ws.orderManager._gen_unqiue_cid = lambda: 123
+	client.ws.orderManager._gen_unique_cid = lambda: 123
 	await client.ws.submit_order('tBTCUSD', 19000, 0.01, 'EXCHANGE MARKET', onConfirm=c)
 	await client.ws.publish([0,"on",[123,None,1548262833910,"tBTCUSD",1548262833379,1548262833410,-1,-1,"EXCHANGE LIMIT",None,None,None,0,"ACTIVE",None,None,15980,0,0,0,None,None,None,0,0,None,None,None,"API>BFX",None,None,None]])
 	callback_wait.wait_until_complete()
@@ -171,7 +171,7 @@ async def test_confirmed_callback_on_submit_order_update():
 		client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
-	client.ws.orderManager._gen_unqiue_cid = lambda: 123
+	client.ws.orderManager._gen_unique_cid = lambda: 123
 	await client.ws.update_order(123, price=100, onConfirm=c)
 	await client.ws.publish([0,"ou",[123,None,1548262833910,"tBTCUSD",1548262833379,1548262846964,-0.5,-1,"EXCHANGE LIMIT",None,None,None,0,"PARTIALLY FILLED @ 15980.0(-0.5)",None,None,15980,15980,0,0,None,None,None,0,0,None,None,None,"API>BFX",None,None,None]])
 	callback_wait.wait_until_complete()
@@ -187,7 +187,7 @@ async def test_confirmed_callback_on_submit_cancel_order():
 		client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
-	client.ws.orderManager._gen_unqiue_cid = lambda: 123
+	client.ws.orderManager._gen_unique_cid = lambda: 123
 	await client.ws.cancel_order(123, onConfirm=c)
 	await client.ws.publish([0,"oc",[123,None,1548262833910,"tBTCUSD",1548262833379,1548262888016,0,-1,"EXCHANGE LIMIT",None,None,None,0,"EXECUTED @ 15980.0(-0.5): was PARTIALLY FILLED @ 15980.0(-0.5)",None,None,15980,15980,0,0,None,None,None,0,0,None,None,None,"API>BFX",None,None,None]])
 	callback_wait.wait_until_complete()
@@ -203,7 +203,7 @@ async def test_confirmed_callback_on_submit_cancel_group_order():
 		client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
-	client.ws.orderManager._gen_unqiue_cid = lambda: 123
+	client.ws.orderManager._gen_unique_cid = lambda: 123
 	await client.ws.cancel_order_group(123, onConfirm=c)
 	await client.ws.publish([0,"oc",[1548262833910,123,1548262833910,"tBTCUSD",1548262833379,1548262888016,0,-1,"EXCHANGE LIMIT",None,None,None,0,"EXECUTED @ 15980.0(-0.5): was PARTIALLY FILLED @ 15980.0(-0.5)",None,None,15980,15980,0,0,None,None,None,0,0,None,None,None,"API>BFX",None,None,None]])
 	callback_wait.wait_until_complete()
