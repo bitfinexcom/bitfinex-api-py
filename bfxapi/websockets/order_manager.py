@@ -87,7 +87,7 @@ class OrderManager:
     async def submit_order(self, symbol, price, amount, market_type=Order.Type.LIMIT,
                            hidden=False, price_trailing=None, price_aux_limit=None,
                            oco_stop_price=None, close=False, reduce_only=False,
-                           post_only=False, oco=False, time_in_force=None,
+                           post_only=False, oco=False, time_in_force=None, leverage=None,
                            onConfirm=None, onClose=None, gid=None, *args, **kwargs):
         """
         Submit a new order
@@ -111,6 +111,7 @@ class OrderManager:
           that if one order is executed fully or partially, then the other is automatically canceled
 
         @param time_in_force:	datetime for automatic order cancellation ie. 2020-01-01 10:45:23
+        @param leverage: the amount of leverage to apply to the order as an integer
         @param onConfirm: function called when the bitfinex websocket receives signal that the order
           was confirmed
         @param onClose: function called when the bitfinex websocket receives signal that the order
@@ -129,16 +130,18 @@ class OrderManager:
         flags = calculate_order_flags(hidden, close, reduce_only, post_only, oco)
         payload['flags'] = flags
         # add extra parameters
-        if (price_trailing):
+        if price_trailing is not None:
             payload['price_trailing'] = price_trailing
-        if (price_aux_limit):
+        if price_aux_limit is not None:
             payload['price_aux_limit'] = price_aux_limit
-        if (oco_stop_price):
+        if oco_stop_price is not None:
             payload['price_oco_stop'] = str(oco_stop_price)
-        if (time_in_force):
+        if time_in_force is not None:
             payload['tif'] = time_in_force
-        if (gid):
+        if gid is not None:
             payload['gid'] = gid
+        if leverage is not None:
+            payload['lev'] = str(leverage)
         # submit the order
         self.pending_orders[cid] = payload
         self._create_callback(cid, onConfirm, self.pending_order_confirm_callbacks)
@@ -149,7 +152,7 @@ class OrderManager:
 
     async def update_order(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,
                            price_trailing=None, hidden=False, close=False, reduce_only=False,
-                           post_only=False, time_in_force=None, onConfirm=None):
+                           post_only=False, time_in_force=None, leverage=None, onConfirm=None):
         """
         Update an existing order
 
@@ -165,7 +168,8 @@ class OrderManager:
         @param reduce_only: if True, ensures that the executed order does not flip the opened position
         @param post_only: if True, ensures the limit order will be added to the order book and not
           match with a pre-existing order
-        @param time_in_force:	datetime for automatic order cancellation ie. 2020-01-01 10:45:23
+        @param time_in_force: datetime for automatic order cancellation ie. 2020-01-01 10:45:23
+        @param leverage: the amount of leverage to apply to the order as an integer
         @param onConfirm: function called when the bitfinex websocket receives signal that the order
           was confirmed
         @param onClose: function called when the bitfinex websocket receives signal that the order
@@ -185,6 +189,8 @@ class OrderManager:
             payload['price_trailing'] = str(price_trailing)
         if time_in_force is not None:
             payload['time_in_force'] = str(time_in_force)
+        if leverage is not None:
+            payload['lev'] = str(leverage)
         flags = calculate_order_flags(
             hidden, close, reduce_only, post_only, False)
         payload['flags'] = flags
