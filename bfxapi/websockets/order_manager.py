@@ -7,6 +7,7 @@ import asyncio
 
 from ..utils.custom_logger import CustomLogger
 from ..models import Order
+from ..utils.auth import calculate_order_flags, gen_unique_cid
 
 
 class OrderManager:
@@ -83,9 +84,6 @@ class OrderManager:
         self.logger.info("Order new: {}".format(order))
         self.bfxapi._emit('order_new', order)
 
-    def _gen_unqiue_cid(self):
-        return int(round(time.time() * 1000))
-
     async def submit_order(self, symbol, price, amount, market_type=Order.Type.LIMIT,
                            hidden=False, price_trailing=None, price_aux_limit=None,
                            oco_stop_price=None, close=False, reduce_only=False,
@@ -94,7 +92,7 @@ class OrderManager:
         """
         Submit a new order
 
-        @param gid: assign the order to a group identitfier
+        @param gid: assign the order to a group identifier
         @param symbol: the name of the symbol i.e 'tBTCUSD
         @param price: the price you want to buy/sell at (must be positive)
         @param amount: order size: how much you want to buy/sell,
@@ -118,7 +116,7 @@ class OrderManager:
         @param onClose: function called when the bitfinex websocket receives signal that the order
           was closed due to being filled or cancelled
         """
-        cid = self._gen_unqiue_cid()
+        cid = self._gen_unique_cid()
         # create base payload with required data
         payload = {
             "cid": cid,
@@ -128,7 +126,7 @@ class OrderManager:
             "price": str(price),
         }
         # caclulate and add flags
-        flags = self._calculate_flags(hidden, close, reduce_only, post_only, oco)
+        flags = calculate_order_flags(hidden, close, reduce_only, post_only, oco)
         payload['flags'] = flags
         # add extra parameters
         if (price_trailing):
@@ -187,7 +185,7 @@ class OrderManager:
             payload['price_trailing'] = str(price_trailing)
         if time_in_force is not None:
             payload['time_in_force'] = str(time_in_force)
-        flags = self._calculate_flags(
+        flags = calculate_order_flags(
             hidden, close, reduce_only, post_only, False)
         payload['flags'] = flags
         await self.bfxapi._send_auth_command('ou', payload)
@@ -261,11 +259,5 @@ class OrderManager:
             del callback_storage[key]
         await asyncio.gather(*tasks)
 
-    def _calculate_flags(self, hidden, close, reduce_only, post_only, oco):
-        flags = 0
-        flags = flags + Order.Flags.HIDDEN if hidden else flags
-        flags = flags + Order.Flags.CLOSE if close else flags
-        flags = flags + Order.Flags.REDUUCE_ONLY if reduce_only else flags
-        flags = flags + Order.Flags.POST_ONLY if post_only else flags
-        flags = flags + Order.Flags.OCO if oco else flags
-        return flags
+    def _gen_unique_cid(self):
+        return gen_unique_cid()

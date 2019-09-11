@@ -1,5 +1,5 @@
 """
-Module used to describe all of the different data types
+Module used to describe all of the different order data types
 """
 
 import time
@@ -38,8 +38,7 @@ class OrderSide:
 
 class OrderClosedModel:
     """
-    Enum used ad an index match to locate the different values in a
-    raw order array
+    Enum used index the different values in a raw order array
     """
     ID = 0
     GID = 1
@@ -151,7 +150,7 @@ class Order:
     @staticmethod
     def from_raw_order(raw_order):
         """
-        Parse a raw order object into an Order oject
+        Parse a raw order object into an Order object
 
         @return Order
         """
@@ -177,6 +176,18 @@ class Order:
         return Order(oid, gid, cid, symbol, mts_create, mts_update, amount,
                      amount_orig, o_type, type_prev, flags, status, price, price_avg,
                      price_trailing, price_aux_limit, notfiy, place_id)
+
+    @staticmethod
+    def from_raw_order_snapshot(raw_order_snapshot):
+        """
+        Parse a raw order snapshot array into an array of order objects
+
+        @return Orders: array of order objects
+        """
+        parsed_orders = []
+        for raw_order in raw_order_snapshot:
+            parsed_orders += [Order.from_raw_order(raw_order)]
+        return parsed_orders
 
     def set_confirmed(self):
         """

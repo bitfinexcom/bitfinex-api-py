@@ -6,6 +6,7 @@ to handle the http authentication of the client
 import hashlib
 import hmac
 import time
+from ..models import Order
 
 def generate_auth_payload(API_KEY, API_SECRET):
   """
@@ -48,3 +49,15 @@ def _gen_signature(API_KEY, API_SECRET, nonce):
 
 def _gen_nonce():
   return int(round(time.time() * 1000000))
+
+def gen_unique_cid():
+  return int(round(time.time() * 1000))
+
+def calculate_order_flags(hidden, close, reduce_only, post_only, oco):
+  flags = 0
+  flags = flags + Order.Flags.HIDDEN if hidden else flags
+  flags = flags + Order.Flags.CLOSE if close else flags
+  flags = flags + Order.Flags.REDUCE_ONLY if reduce_only else flags
+  flags = flags + Order.Flags.POST_ONLY if post_only else flags
+  flags = flags + Order.Flags.OCO if oco else flags
+  return flags
