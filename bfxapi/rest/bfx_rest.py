@@ -351,6 +351,53 @@ class BfxRest:
         credits = await self.post(endpoint, params=params)
         return [FundingCredit.from_raw_credit(c) for c in credits]
 
+    async def submit_funding_offer(self, symbol, amount, rate, period,
+                                   funding_type=FundingOffer.Type.LIMIT, hidden=False):
+        """
+        Submits a new funding offer
+
+        @param symbol string: pair symbol i.e fUSD
+        @param amount float: funding size
+        @param rate float: percentage rate to charge per a day
+        @param period int: number of days for funding to remain active once accepted
+        """
+        payload = {
+            "type": funding_type,
+            "symbol": symbol,
+            "amount": str(amount),
+            "rate": str(rate),
+            "period": period,
+        }
+        # calculate and add flags
+        flags = calculate_order_flags(hidden, None, None, None, None)
+        payload['flags'] = flags
+        endpoint = "auth/w/funding/offer/submit"
+        raw_notification = await self.post(endpoint, payload)
+        return Notification.from_raw_order(raw_notification)
+
+    async def submit_cancel_funding_offer(self, fundingId):
+        """
+        Cancel a funding offer
+
+        @param fundingId int: the id of the funding offer
+        """
+        endpoint = "auth/w/funding/offer/cancel"
+        raw_notification = await self.post(endpoint,  { 'id': fundingId })
+        return Notification.from_raw_order(raw_notification)
+
+    # async def submit_close_funding(self, id, type):
+    #     """
+    #     `/v2/auth/w/funding/close` (params: `id`, `type` (credit|loan))
+    #     """
+    #     pass
+
+    # async def submit_auto_funding(self, ):
+    #     """
+    #     `/v2/auth/w/funding/auto` (params: `status` (1|0), `currency`, `amount`, `rate`, `period`)
+    #     (`rate === 0` means `FRR`)
+    #     """
+    #     pass
+
     ##################################################
     #                    Orders                      #
     ##################################################
@@ -462,7 +509,6 @@ class BfxRest:
         payload['flags'] = flags
         endpoint = "auth/w/order/update"
         raw_notification = await self.post(endpoint, payload)
-        print (raw_notification)
         return Notification.from_raw_order(raw_notification)
 
 

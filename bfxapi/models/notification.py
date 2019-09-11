@@ -2,7 +2,8 @@
 Module used to describe all of the different notification data types
 """
 
-from . import Order
+from .order import Order
+from .funding_offer import FundingOffer
 
 class NotificationModal:
     """
@@ -95,6 +96,10 @@ class Notification:
             basic.notify_info = Order.from_raw_order(basic.notify_info)
         elif basic.notify_type == NotificationTypes.ORDER_UPDATED_REQ:
             basic.notify_info = Order.from_raw_order(basic.notify_info)
+        elif basic.notify_type == NotificationTypes.FUNDING_OFFER_NEW:
+            basic.notify_info = FundingOffer.from_raw_offer(basic.notify_info)
+        elif basic.notify_type == NotificationTypes.FUNDING_OFFER_CANCEL:
+            basic.notify_info = FundingOffer.from_raw_offer(basic.notify_info)
         return basic
 
     def __str__(self):
