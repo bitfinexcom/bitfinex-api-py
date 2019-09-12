@@ -126,7 +126,7 @@ class OrderManager:
             "amount": str(amount),
             "price": str(price),
         }
-        # caclulate and add flags
+        # calculate and add flags
         flags = calculate_order_flags(hidden, close, reduce_only, post_only, oco)
         payload['flags'] = flags
         # add extra parameters
