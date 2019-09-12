@@ -1,3 +1,16 @@
+1.1.0
+
+- Adds rest.submit_funding_offer
+- Adds rest.submit_cancel_funding_offer
+- Adds rest.submit_wallet_transfer
+- Adds rest.get_wallet_deposit_address
+- Adds rest.create_wallet_deposit_address
+- Adds rest.submit_wallet_withdraw
+- Adds rest.submit_order
+- Adds rest.submit_cancel_order
+- Adds rest.submit_update_order
+- Updates websocket notification event to use Notfication model object
+
 1.0.1
 
 - Added ws event `status_update`

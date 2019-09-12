@@ -34,13 +34,12 @@ python3 subsribe_trades_candles.py
 ```
 
 # Features
-- Fast websocket connection
-- Event based routing
-- Subscribe to trade, candles and orderbook channels
+- Wbsocket support with multiplexing
+- Real-time Trade, Orderbook, Account data feeds and more
 - Authenticate with api key/secret
-- Orderbook checksum validation
+- Data checksum verifications
 - Create, update and close orders
-- Track wallet updates
+- Wallet withdraws/transfers
 
 # Quickstart
 
@@ -105,7 +104,7 @@ The websocket exposes a collection of events that are triggered when certain dat
 - `disconnected`: () called when a connection is ended (A reconnect attempt may follow)
 - `stopped`: () called when max amount of connection retries is met and the socket is closed
 - `authenticated` (): called when the websocket passes authentication
-- `notification` (array): incoming account notification
+- `notification` (Notification): incoming account notification
 - `error` (array): error from the websocket
 - `order_closed` (Order, Trade): when an order has been closed
 - `order_new` (Order, Trade): when an order has been created but not closed. Note: will not be called if order is executed and filled instantly
@@ -166,7 +165,7 @@ The websocket exposes a collection of events that are triggered when certain dat
 
 #### `submit_order(symbol, price, amount, market_type, hidden=False, onConfirm=None,   onClose=None, *args, **kwargs)`
   
-  Submits an order to the Bitfinex api. When it has been verified that bitfine xhas received the order then the `onConfirm` callback will be called followed by the `order_confirmed` event. Once it has been verified that the order has completely closed due to either being filled or canceled then the `onClose` function will be called, followed by the `order_closed` event.
+  Submits an order to the Bitfinex api. When it has been verified that bitfinex has received the order then the `onConfirm` callback will be called followed by the `order_confirmed` event. Once it has been verified that the order has completely closed due to either being filled or canceled then the `onClose` function will be called, followed by the `order_closed` event.
 
 #### `update_order(orderId, price=None, amount=None, delta=None, price_aux_limit=None, price_trailing=None, flags=None, time_in_force=None, onConfirm=None, onClose=None)`
   
@@ -289,6 +288,42 @@ Get the public orderbook of a given symbol
 ### `set_derivative_collateral(symbol, collateral)`
 
   Set the amount of collateral used to back a derivative position.
+
+#### `submit_order(symbol, price, amount, market_type, hidden=False, *args, **kwargs)`
+
+  Submits an order to the Bitfinex api.
+
+#### `update_order(orderId, price=None, amount=None, delta=None, price_aux_limit=None, price_trailing=None, flags=None, time_in_force=None)`
+
+  Attempts to update an order with the given values. If the order is no longer open then the update will be ignored.
+
+#### `close_order(self, orderId):`
+
+  Close the order with the given orderId if it still open.
+
+#### `submit_wallet_withdraw(wallet, method, amount, address):`
+
+  Withdraw funds from the given wallet to the provided address
+
+#### `create_wallet_deposit_address(wallet, method):`
+
+  Create a new deposit address for the given wallet and currency protocol.
+
+#### `get_wallet_deposit_address(wallet, method):`
+
+  Get the deposit address for the given wallet and currency protocol
+
+#### `submit_wallet_transfer(from_wallet, to_wallet, from_currency, to_currency, amount):`
+
+  Transfer funds from one internal wallet to another
+
+#### `submit_cancel_funding_offer(fundingId):`
+
+  Cancel a funding offer
+
+### `submit_funding_offer(self, symbol, amount, rate, period, funding_type, hidden=False):`
+
+  Submit a new fund offer
 
 # Examples
 

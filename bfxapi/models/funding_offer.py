@@ -2,6 +2,12 @@
 Module used to describe all of the different data types
 """
 
+class FundingOfferTypes:
+    """
+    Enum used to define the different funding offer types
+    """
+    LIMIT = 'LIMIT'
+    FRR_DELTA = 'FRRDELTAVAR'
 
 class FundingOfferModel:
     """
@@ -40,6 +46,8 @@ class FundingOffer:
     HIDDEN	int	0 if false, 1 if true
     RENEW	int	0 if false, 1 if true
     """
+
+    Type = FundingOfferTypes()
 
     def __init__(self, fid, symbol, mts_create, mts_updated, amount, amount_orig, f_type,
                  flags, status, rate, period, notify, hidden, renew):
