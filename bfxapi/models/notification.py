@@ -4,6 +4,9 @@ Module used to describe all of the different notification data types
 
 from .order import Order
 from .funding_offer import FundingOffer
+from .transfer import Transfer
+from .deposit_address import DepositAddress
+from .withdraw import Withdraw
 
 class NotificationModal:
     """
@@ -34,8 +37,10 @@ class NotificationTypes:
     ORDER_UPDATED_REQ = "ou-req"
     FUNDING_OFFER_NEW = "fon-req"
     FUNDING_OFFER_CANCEL = "foc-req"
+    ACCOUNT_TRANSFER = "acc_tf"
+    ACCOUNT_DEPOSIT = "acc_dep"
+    ACCOUNT_WITHDRAW_REQ = "acc_wd-req"
     # uca ?
-    # acc_tf ?
     # pm-req ?
 
 
@@ -70,11 +75,11 @@ class Notification:
         return False
 
     @staticmethod
-    def from_raw_order(raw_notification):
+    def from_raw_notification(raw_notification):
         """
-        Parse a raw order object into an Order object
+        Parse a raw notification object into an Order object
 
-        @return Order
+        @return Notification
         """
         mts = raw_notification[NotificationModal.MTS]
         notify_type = raw_notification[NotificationModal.TYPE]
@@ -100,6 +105,12 @@ class Notification:
             basic.notify_info = FundingOffer.from_raw_offer(basic.notify_info)
         elif basic.notify_type == NotificationTypes.FUNDING_OFFER_CANCEL:
             basic.notify_info = FundingOffer.from_raw_offer(basic.notify_info)
+        elif basic.notify_type == NotificationTypes.ACCOUNT_TRANSFER:
+            basic.notify_info = Transfer.from_raw_transfer(basic.notify_info)
+        elif basic.notify_type == NotificationTypes.ACCOUNT_DEPOSIT:
+            basic.notify_info = DepositAddress.from_raw_deposit_address(basic.notify_info)
+        elif basic.notify_type == NotificationTypes.ACCOUNT_WITHDRAW_REQ:
+            basic.notify_info = Withdraw.from_raw_withdraw(basic.notify_info)
         return basic
 
     def __str__(self):

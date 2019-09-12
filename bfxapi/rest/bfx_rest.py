@@ -373,7 +373,7 @@ class BfxRest:
         payload['flags'] = flags
         endpoint = "auth/w/funding/offer/submit"
         raw_notification = await self.post(endpoint, payload)
-        return Notification.from_raw_order(raw_notification)
+        return Notification.from_raw_notification(raw_notification)
 
     async def submit_cancel_funding_offer(self, fundingId):
         """
@@ -383,7 +383,68 @@ class BfxRest:
         """
         endpoint = "auth/w/funding/offer/cancel"
         raw_notification = await self.post(endpoint,  { 'id': fundingId })
-        return Notification.from_raw_order(raw_notification)
+        return Notification.from_raw_notification(raw_notification)
+
+    async def submit_wallet_transfer(self, from_wallet, to_wallet, from_currency, to_currency, amount):
+        """
+        Transfer funds between wallets
+
+        @param from_wallet string: wallet name to transfer from i.e margin, exchange
+        @param to_wallet string: wallet name to transfer to i.e margin, exchange
+        @param from_currency string: currency symbol to tranfer from i.e BTC, USD
+        @param to_currency string: currency symbol to transfer to i.e BTC, USD
+        @param amount float: amount of funds to transfer
+        """
+        endpoint = "auth/w/transfer"
+        payload = {
+            "from": from_wallet,
+            "to": to_wallet,
+            "currency": from_currency,
+            "currency_to": to_currency,
+            "amount": str(amount),
+        }
+        raw_transfer = await self.post(endpoint,  payload)
+        return Notification.from_raw_notification(raw_transfer)
+
+    async def get_wallet_deposit_address(self, wallet, method, renew=0):
+        """
+        Get the deposit address for the given wallet and protocol
+
+        @param wallet string: wallet name i.e margin, exchange
+        @param method string: transfer protocol i.e bitcoin
+        """
+        endpoint = "auth/w/deposit/address"
+        payload = {
+            "wallet": wallet,
+            "method": method,
+            "op_renew": renew,
+        }
+        raw_deposit = await self.post(endpoint, payload)
+        return Notification.from_raw_notification(raw_deposit)
+
+    async def create_wallet_deposit_address(self, wallet, method):
+        """
+        Creates a new deposit address for the given wallet and protocol.
+        Previously generated addresses remain linked.
+
+        @param wallet string: wallet name i.e margin, exchange
+        @param method string: transfer protocol i.e bitcoin
+        """
+        return await self.get_wallet_deposit_address(wallet, method, renew=1)
+
+    async def submit_wallet_withdraw(self, wallet, method, amount, address):
+        """
+        `/v2/auth/w/withdraw` (params: `wallet`, `method`, `amount`, `address
+        """
+        endpoint = "auth/w/withdraw"
+        payload = {
+            "wallet": wallet,
+            "method": method,
+            "amount": str(amount),
+            "address": str(address)
+        }
+        raw_deposit = await self.post(endpoint, payload)
+        return Notification.from_raw_notification(raw_deposit)
 
     # async def submit_close_funding(self, id, type):
     #     """
