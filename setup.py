@@ -20,7 +20,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='bitfinex-api-py',
-    version='1.0.1',  # Required
+    version='1.1.0',  # Required
     description='Official Bitfinex API',  # Optional
     long_description='This is an official python library that is used to connect interact with the Bitfinex api.',  # Optional
     long_description_content_type='text/markdown',  # Optional

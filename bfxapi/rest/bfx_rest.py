@@ -8,9 +8,9 @@ import time
 import json
 
 from ..utils.custom_logger import CustomLogger
-from ..utils.auth import generate_auth_headers
+from ..utils.auth import generate_auth_headers, calculate_order_flags, gen_unique_cid
 from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer
-from ..models import FundingCredit
+from ..models import FundingCredit, Notification
 
 
 class BfxRest:
@@ -61,7 +61,7 @@ class BfxRest:
         async with aiohttp.ClientSession() as session:
             async with session.post(url + params, headers=headers, data=sData) as resp:
                 text = await resp.text()
-                if resp.status is not 200:
+                if resp.status < 200 or resp.status > 299:
                     raise Exception('POST {} failed with status {} - {}'
                                     .format(url, resp.status, text))
                 parsed = json.loads(text, parse_float=self.parse_float)
@@ -351,48 +351,227 @@ class BfxRest:
         credits = await self.post(endpoint, params=params)
         return [FundingCredit.from_raw_credit(c) for c in credits]
 
+    async def submit_funding_offer(self, symbol, amount, rate, period,
+                                   funding_type=FundingOffer.Type.LIMIT, hidden=False):
+        """
+        Submits a new funding offer
+
+        @param symbol string: pair symbol i.e fUSD
+        @param amount float: funding size
+        @param rate float: percentage rate to charge per a day
+        @param period int: number of days for funding to remain active once accepted
+        """
+        payload = {
+            "type": funding_type,
+            "symbol": symbol,
+            "amount": str(amount),
+            "rate": str(rate),
+            "period": period,
+        }
+        # calculate and add flags
+        flags = calculate_order_flags(hidden, None, None, None, None)
+        payload['flags'] = flags
+        endpoint = "auth/w/funding/offer/submit"
+        raw_notification = await self.post(endpoint, payload)
+        return Notification.from_raw_notification(raw_notification)
+
+    async def submit_cancel_funding_offer(self, fundingId):
+        """
+        Cancel a funding offer
+
+        @param fundingId int: the id of the funding offer
+        """
+        endpoint = "auth/w/funding/offer/cancel"
+        raw_notification = await self.post(endpoint,  { 'id': fundingId })
+        return Notification.from_raw_notification(raw_notification)
+
+    async def submit_wallet_transfer(self, from_wallet, to_wallet, from_currency, to_currency, amount):
+        """
+        Transfer funds between wallets
+
+        @param from_wallet string: wallet name to transfer from i.e margin, exchange
+        @param to_wallet string: wallet name to transfer to i.e margin, exchange
+        @param from_currency string: currency symbol to tranfer from i.e BTC, USD
+        @param to_currency string: currency symbol to transfer to i.e BTC, USD
+        @param amount float: amount of funds to transfer
+        """
+        endpoint = "auth/w/transfer"
+        payload = {
+            "from": from_wallet,
+            "to": to_wallet,
+            "currency": from_currency,
+            "currency_to": to_currency,
+            "amount": str(amount),
+        }
+        raw_transfer = await self.post(endpoint,  payload)
+        return Notification.from_raw_notification(raw_transfer)
+
+    async def get_wallet_deposit_address(self, wallet, method, renew=0):
+        """
+        Get the deposit address for the given wallet and protocol
+
+        @param wallet string: wallet name i.e margin, exchange
+        @param method string: transfer protocol i.e bitcoin
+        """
+        endpoint = "auth/w/deposit/address"
+        payload = {
+            "wallet": wallet,
+            "method": method,
+            "op_renew": renew,
+        }
+        raw_deposit = await self.post(endpoint, payload)
+        return Notification.from_raw_notification(raw_deposit)
+
+    async def create_wallet_deposit_address(self, wallet, method):
+        """
+        Creates a new deposit address for the given wallet and protocol.
+        Previously generated addresses remain linked.
+
+        @param wallet string: wallet name i.e margin, exchange
+        @param method string: transfer protocol i.e bitcoin
+        """
+        return await self.get_wallet_deposit_address(wallet, method, renew=1)
+
+    async def submit_wallet_withdraw(self, wallet, method, amount, address):
+        """
+        `/v2/auth/w/withdraw` (params: `wallet`, `method`, `amount`, `address
+        """
+        endpoint = "auth/w/withdraw"
+        payload = {
+            "wallet": wallet,
+            "method": method,
+            "amount": str(amount),
+            "address": str(address)
+        }
+        raw_deposit = await self.post(endpoint, payload)
+        return Notification.from_raw_notification(raw_deposit)
+
+    # async def submit_close_funding(self, id, type):
+    #     """
+    #     `/v2/auth/w/funding/close` (params: `id`, `type` (credit|loan))
+    #     """
+    #     pass
+
+    # async def submit_auto_funding(self, ):
+    #     """
+    #     `/v2/auth/w/funding/auto` (params: `status` (1|0), `currency`, `amount`, `rate`, `period`)
+    #     (`rate === 0` means `FRR`)
+    #     """
+    #     pass
+
     ##################################################
     #                    Orders                      #
     ##################################################
 
-    async def __submit_order(self, symbol, amount, price, oType=Order.Type.LIMIT,
-                             is_hidden=False, is_postonly=False, use_all_available=False,
-                             stop_order=False, stop_buy_price=0, stop_sell_price=0):
+    async def submit_order(self, symbol, price, amount, market_type=Order.Type.LIMIT,
+                           hidden=False, price_trailing=None, price_aux_limit=None,
+                           oco_stop_price=None, close=False, reduce_only=False,
+                           post_only=False, oco=False, time_in_force=None, leverage=None,
+                           gid=None):
         """
         Submit a new order
 
+        @param gid: assign the order to a group identifier
         @param symbol: the name of the symbol i.e 'tBTCUSD
+        @param price: the price you want to buy/sell at (must be positive)
         @param amount: order size: how much you want to buy/sell,
           a negative amount indicates a sell order and positive a buy order
-        @param price: the price you want to buy/sell at (must be positive)
-        @param oType: order type, see Order.Type enum
-        @param is_hidden: True if order should be hidden from orderbooks
-        @param is_postonly: True if should be post only. Only relevant for limit
-        @param use_all_available: True if order should use entire balance
-        @param stop_order: True to set an additional STOP OCO order linked to the
-          current order
-        @param stop_buy_price: set the OCO stop buy price (requires stop_order True)
-        @param stop_sell_price: set the OCO stop sell price (requires stop_order True)
+        @param market_type	Order.Type: please see Order.Type enum
+          amount	decimal string	Positive for buy, Negative for sell
+        @param hidden: if True, order should be hidden from orderbooks
+        @param price_trailing:	decimal trailing price
+        @param price_aux_limit:	decimal	auxiliary Limit price (only for STOP LIMIT)
+        @param oco_stop_price: set the oco stop price (requires oco = True)
+        @param close: if True, close position if position present
+        @param reduce_only: if True, ensures that the executed order does not flip the opened position
+        @param post_only: if True, ensures the limit order will be added to the order book and not
+          match with a pre-existing order
+        @param oco: cancels other order option allows you to place a pair of orders stipulating
+          that if one order is executed fully or partially, then the other is automatically canceled
+        @param time_in_force:	datetime for automatic order cancellation ie. 2020-01-01 10:45:23
+        @param leverage: the amount of leverage to apply to the order as an integer
         """
-        raise NotImplementedError(
-            "V2 submit order has not yet been added to the bfx api. Please use bfxapi.ws")
-        side = Order.Side.SELL if amount < 0 else Order.Side.BUY
-        use_all_balance = 1 if use_all_available else 0
-        payload = {}
-        payload['symbol'] = symbol
-        payload['amount'] = abs(amount)
-        payload['price'] = price
-        payload['side'] = side
-        payload['type'] = oType
-        payload['is_hidden'] = is_hidden
-        payload['is_postonly'] = is_postonly
-        payload['use_all_available'] = use_all_balance
-        payload['ocoorder'] = stop_order
-        if stop_order:
-            payload['buy_price_oco'] = stop_buy_price
-            payload['sell_price_oco'] = stop_sell_price
-        endpoint = 'order/new'
-        return await self.post(endpoint, data=payload)
+        cid = gen_unique_cid()
+        payload = {
+            "cid": cid,
+            "type": str(market_type),
+            "symbol": symbol,
+            "amount": str(amount),
+            "price": str(price),
+        }
+        # calculate and add flags
+        flags = calculate_order_flags(hidden, close, reduce_only, post_only, oco)
+        payload['flags'] = flags
+        # add extra parameters
+        if price_trailing is not None:
+            payload['price_trailing'] = price_trailing
+        if price_aux_limit is not None:
+            payload['price_aux_limit'] = price_aux_limit
+        if oco_stop_price is not None:
+            payload['price_oco_stop'] = str(oco_stop_price)
+        if time_in_force is not None:
+            payload['tif'] = time_in_force
+        if gid is not None:
+            payload['gid'] = gid
+        if leverage is not None:
+            payload['lev'] = str(leverage)
+        endpoint = "auth/w/order/submit"
+        raw_notification = await self.post(endpoint, payload)
+        return Notification.from_raw_order(raw_notification)
+
+    async def submit_cancel_order(self, orderId):
+        """
+        Cancel an existing open order
+
+        @param orderId: the id of the order that you want to update
+        """
+        endpoint = "auth/w/order/cancel"
+        raw_notification = await self.post(endpoint, { 'id': orderId })
+        return Notification.from_raw_order(raw_notification)
+
+    async def submit_update_order(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,
+                           price_trailing=None, hidden=False, close=False, reduce_only=False, 
+                           post_only=False, time_in_force=None, leverage=None):
+        """
+        Update an existing order
+
+        @param orderId: the id of the order that you want to update
+        @param price: the price you want to buy/sell at (must be positive)
+        @param amount: order size: how much you want to buy/sell,
+          a negative amount indicates a sell order and positive a buy order
+        @param delta:	change of amount
+        @param price_trailing:	decimal trailing price
+        @param price_aux_limit:	decimal	auxiliary Limit price (only for STOP LIMIT)
+        @param hidden: if True, order should be hidden from orderbooks
+        @param close: if True, close position if position present
+        @param reduce_only: if True, ensures that the executed order does not flip the opened position
+        @param post_only: if True, ensures the limit order will be added to the order book and not
+          match with a pre-existing order
+        @param time_in_force:	datetime for automatic order cancellation ie. 2020-01-01 10:45:23
+        @param leverage: the amount of leverage to apply to the order as an integer
+        """
+        payload = {"id": orderId}
+        if price is not None:
+            payload['price'] = str(price)
+        if amount is not None:
+            payload['amount'] = str(amount)
+        if delta is not None:
+            payload['delta'] = str(delta)
+        if price_aux_limit is not None:
+            payload['price_aux_limit'] = str(price_aux_limit)
+        if price_trailing is not None:
+            payload['price_trailing'] = str(price_trailing)
+        if time_in_force is not None:
+            payload['time_in_force'] = str(time_in_force)
+        if leverage is not None:
+            payload["lev"] = str(leverage)
+        flags = calculate_order_flags(
+            hidden, close, reduce_only, post_only, False)
+        payload['flags'] = flags
+        endpoint = "auth/w/order/update"
+        raw_notification = await self.post(endpoint, payload)
+        return Notification.from_raw_order(raw_notification)
+
 
     ##################################################
     #                   Derivatives                  #
