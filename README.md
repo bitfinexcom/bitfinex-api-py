@@ -110,36 +110,36 @@ await bfx.ws.close_all_orders()
 ## `bfxapi.ws` events
 The websocket exposes a collection of events that are triggered when certain data is received. When subscribing to an event you are able to pass either a standard function or an asyncio co-routine Here is a full list of available events:
 
-- `all` (array|json): listen for all messages coming through
-- `connected:` () called when a connection is made
-- `disconnected`: () called when a connection is ended (A reconnect attempt may follow)
-- `stopped`: () called when max amount of connection retries is met and the socket is closed
-- `authenticated` (): called when the websocket passes authentication
-- `notification` (Notification): incoming account notification
-- `error` (array): error from the websocket
-- `order_closed` (Order, Trade): when an order has been closed
-- `order_new` (Order, Trade): when an order has been created but not closed. Note: will not be called if order is executed and filled instantly
+- `all` (array|json): Listen for all messages coming through
+- `connected:` () Called when a connection is made
+- `disconnected`: () Called when a connection is ended (A reconnect attempt may follow)
+- `stopped`: () Called when max amount of connection retries is met and the socket is closed
+- `authenticated` (): Called when the websocket passes authentication
+- `notification` (Notification): Incoming account notification
+- `error` (array): Error from the websocket
+- `order_closed` (Order, Trade): When an order has been closed
+- `order_new` (Order, Trade): When an order has been created but not closed. Note: will not be called if order is executed and filled instantly
 - `order_confirmed` (Order, Trade): When an order has been submitted and received
 - `wallet_snapshot` (array[Wallet]): Initial wallet balances (Fired once)
 - `order_snapshot` (array[Order]): Initial open orders (Fired once)
 - `positions_snapshot` (array): Initial open positions (Fired once)
-- `wallet_update` (Wallet): changes to the balance of wallets
-- `status_update` (json): new platform status info
-- `seed_candle` (json): initial past candle to prime strategy
-- `seed_trade` (json): initial past trade to prime strategy
-- `funding_offer_snapshot` (array): opening funding offer balances
-- `funding_loan_snapshot` (array): opening funding loan balances
-- `funding_credit_snapshot` (array): opening funding credit balances
-- `balance_update` (array): when the state of a balance is changed
-- `new_trade` (array): a new trade on the market has been executed
-- `trade_update` (array): a trade on the market has been updated
-- `new_candle` (array): a new candle has been produced
-- `margin_info_updates` (array): new margin information has been broadcasted
-- `funding_info_updates` (array): new funding information has been broadcasted
-- `order_book_snapshot` (array): initial snapshot of the order book on connection
-- `order_book_update` (array): a new order has been placed into the ordebrook
-- `subscribed` (Subscription): a new channel has been subscribed to
-- `unsubscribed` (Subscription): a channel has been un-subscribed
+- `wallet_update` (Wallet): Changes to the balance of wallets
+- `status_update` (json): New platform status info
+- `seed_candle` (json): Initial past candle to prime strategy
+- `seed_trade` (json): Initial past trade to prime strategy
+- `funding_offer_snapshot` (array): Opening funding offer balances
+- `funding_loan_snapshot` (array): Opening funding loan balances
+- `funding_credit_snapshot` (array): Opening funding credit balances
+- `balance_update` (array): When the state of a balance is changed
+- `new_trade` (array): A new trade on the market has been executed
+- `trade_update` (array): A trade on the market has been updated
+- `new_candle` (array): A new candle has been produced
+- `margin_info_updates` (array): New margin information has been broadcasted
+- `funding_info_updates` (array): New funding information has been broadcasted
+- `order_book_snapshot` (array): Initial snapshot of the order book on connection
+- `order_book_update` (array): A new order has been placed into the ordebrook
+- `subscribed` (Subscription): A new channel has been subscribed to
+- `unsubscribed` (Subscription): A channel has been un-subscribed
 
 
 
@@ -174,7 +174,7 @@ The websocket exposes a collection of events that are triggered when certain dat
     
   Unsubscribe and subscribe to all data feeds
 
-#### `submit_order(symbol, price, amount, market_type, hidden=False, onConfirm=None,   onClose=None, *args, **kwargs)`
+#### `submit_order(symbol, price, amount, market_type, hidden=False, onConfirm=None, onClose=None, *args, **kwargs)`
   
   Submits an order to the Bitfinex api. When it has been verified that bitfinex has received the order then the `onConfirm` callback will be called followed by the `order_confirmed` event. Once it has been verified that the order has completely closed due to either being filled or canceled then the `onClose` function will be called, followed by the `order_closed` event.
 
@@ -182,13 +182,13 @@ The websocket exposes a collection of events that are triggered when certain dat
   
   Attempts to update an order with the given values. If the order is no longer open then the update will be ignored.
 
-#### `close_order(self, orderId, onConfirm=None, onClose=None):`
+#### `close_order(self, orderId, onConfirm=None, onClose=None)`
   
   Close the order with the given orderId if it still open.
 
 #### `close_all_orders()`
   
-  Tells the OrderManager to close all of the open orders
+  Tells the OrderManager to close all of the open orders.
 
 #### `close_orders_multi(self, orderIds)`
   
@@ -198,35 +198,35 @@ The websocket exposes a collection of events that are triggered when certain dat
 
 ### `get_wallets()`
 
-  Returns an array of wallets that represent the users balance in the different currencies
+  Returns an array of wallets that represent the users balance in the different currencies.
 
 ## `bfx.ws.Subscription obj`
 
 ### `subscribe()`
 
-  Sends a subscribe command to start receiving data
+  Sends a subscribe command to start receiving data.
 
 ### `unsubscribe()`
 
-  Sends a unsubscribe command to stop receiving data
+  Sends a unsubscribe command to stop receiving data.
 
 ### `is_subscribed()`
 
-  Returns true if the subscription is open and receiving data
+  Returns true if the subscription is open and receiving data.
 
 # bfxapi rest interface
 
-### `get_public_candles(symbol, start, end, section='hist', tf='1m', limit="100", sort=-1 `
+### `get_public_candles(symbol, start, end, section='hist', tf='1m', limit="100", sort=-1)`
 
-  Get All of the public candles between the given start and end period
+  Get All of the public candles between the given start and end period.
 
 ### `get_public_trades(symbol, start, end, limit="100", sort=-1)`
 
-Get all of the public trades between the start and end period
+Get all of the public trades between the start and end period.
 
 ### `get_public_books(symbol, precision="P0", length=25)`
 
-Get the public orderbook of a given symbol
+Get the public orderbook of a given symbol.
 
 ### `get_public_ticker(symbol)`
 
@@ -256,8 +256,7 @@ Get the public orderbook of a given symbol
 
 ### `get_order_history(symbol, start, end, limit=25, sort=-1)`
 
-  Get all of the orders between the start and end period associated with API_KEY
-  - Requires authentication.
+  Get all of the orders between the start and end period associated with API_KEY - Requires authentication.
 
 ### `get_active_positions()`
 
@@ -269,10 +268,9 @@ Get the public orderbook of a given symbol
 
 ### `get_trades(symbol, start, end, limit=25)`
 
-  Get all of the trades between the start and end period associated with API_KEY
-  - Requires authentication.
+  Get all of the trades between the start and end period associated with API_KEY - Requires authentication.
 
-### `get_funding_offers(symbol)
+### `get_funding_offers(symbol)`
 
   Get all of the funding offers associated with API_KEY - Requires authentication.
 
@@ -308,33 +306,33 @@ Get the public orderbook of a given symbol
 
   Attempts to update an order with the given values. If the order is no longer open then the update will be ignored.
 
-#### `close_order(self, orderId):`
+#### `close_order(self, orderId)`
 
   Close the order with the given orderId if it still open.
 
-#### `submit_wallet_withdraw(wallet, method, amount, address):`
+#### `submit_wallet_withdraw(wallet, method, amount, address)`
 
   Withdraw funds from the given wallet to the provided address
 
-#### `create_wallet_deposit_address(wallet, method):`
+#### `create_wallet_deposit_address(wallet, method)`
 
   Create a new deposit address for the given wallet and currency protocol.
 
-#### `get_wallet_deposit_address(wallet, method):`
+#### `get_wallet_deposit_address(wallet, method)`
 
-  Get the deposit address for the given wallet and currency protocol
+  Get the deposit address for the given wallet and currency protocol.
 
-#### `submit_wallet_transfer(from_wallet, to_wallet, from_currency, to_currency, amount):`
+#### `submit_wallet_transfer(from_wallet, to_wallet, from_currency, to_currency, amount)`
 
-  Transfer funds from one internal wallet to another
+  Transfer funds from one internal wallet to another.
 
-#### `submit_cancel_funding_offer(fundingId):`
+#### `submit_cancel_funding_offer(fundingId)`
 
-  Cancel a funding offer
+  Cancel a funding offer.
 
-### `submit_funding_offer(self, symbol, amount, rate, period, funding_type, hidden=False):`
+### `submit_funding_offer(self, symbol, amount, rate, period, funding_type, hidden=False)`
 
-  Submit a new fund offer
+  Submit a new fund offer.
 
 # Examples
 
