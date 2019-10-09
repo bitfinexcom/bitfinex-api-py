@@ -1,4 +1,4 @@
-# Bitfinex Trading Library for Python  - Bitcoin, Ethereum, Ripple and more
+# Bitfinex Trading Library for Python - Bitcoin, Ethereum, Ripple and more
 
 ![https://api.travis-ci.org/bitfinexcom/bitfinex-api-py.svg?branch=master](https://api.travis-ci.org/bitfinexcom/bitfinex-api-py.svg?branch=master)
 
