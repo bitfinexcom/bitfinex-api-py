@@ -23,8 +23,8 @@ More complex websocket that heavily relies on the btfxwss module.
 This websocket requires authentication and is capable of handling orders.
 https://github.com/Crypto-toolbox/btfxwss
 
-### Subscribable events:
-- `all` (array|json): listen for all messages coming through
+### Emitter events:
+- `all` (array|Object): listen for all messages coming through
 - `connected:` () called when a connection is made
 - `disconnected`: () called when a connection is ended (A reconnect attempt may follow)
 - `stopped`: () called when max amount of connection retries is met and the socket is closed
@@ -38,9 +38,9 @@ https://github.com/Crypto-toolbox/btfxwss
 - `order_snapshot` (array[Order]): Initial open orders (Fired once)
 - `positions_snapshot` (array): Initial open positions (Fired once)
 - `wallet_update` (Wallet): changes to the balance of wallets
-- `status_update` (json): new platform status info
-- `seed_candle` (json): initial past candle to prime strategy
-- `seed_trade` (json): initial past trade to prime strategy
+- `status_update` (Object): new platform status info
+- `seed_candle` (Object): initial past candle to prime strategy
+- `seed_trade` (Object): initial past trade to prime strategy
 - `funding_offer_snapshot` (array): opening funding offer balances
 - `funding_loan_snapshot` (array): opening funding loan balances
 - `funding_credit_snapshot` (array): opening funding credit balances
@@ -55,16 +55,6 @@ https://github.com/Crypto-toolbox/btfxwss
 - `subscribed` (Subscription): a new channel has been subscribed to
 - `unsubscribed` (Subscription): a channel has been un-subscribed
 
-## ERRORS
-dict() -> new empty dictionary
-dict(mapping) -> new dictionary initialized from a mapping object's
-    (key, value) pairs
-dict(iterable) -> new dictionary initialized as if via:
-    d = {}
-    for k, v in iterable:
-        d[k] = v
-dict(**kwargs) -> new dictionary initialized with the name=value pairs
-    in the keyword argument list.  For example:  dict(one=1, two=2)
 ## enable_flag
 ```python
 BfxWebsocket.enable_flag(self, flag)
@@ -97,6 +87,7 @@ Subscribe to a candle data feed
 __Attributes__
 
 - `@param symbol`: the trading symbol i.e 'tBTCUSD'
+- `@param timeframe`: resolution of the candle i.e 15m, 1h
 
 ## subscribe_trades
 ```python

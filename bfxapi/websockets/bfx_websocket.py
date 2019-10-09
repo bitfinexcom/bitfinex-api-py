@@ -82,6 +82,29 @@ def _parse_deriv_status_update(sData, symbol):
             # placeholder
         }
 
+ERRORS = {
+    10000: 'Unknown event',
+    10001: 'Generic error',
+    10008: 'Concurrency error',
+    10020: 'Request parameters error',
+    10050: 'Configuration setup failed',
+    10100: 'Failed authentication',
+    10111: 'Error in authentication request payload',
+    10112: 'Error in authentication request signature',
+    10113: 'Error in authentication request encryption',
+    10114: 'Error in authentication request nonce',
+    10200: 'Error in un-authentication request',
+    10300: 'Subscription Failed (generic)',
+    10301: 'Already Subscribed',
+    10302: 'Unknown channel',
+    10400: 'Subscription Failed (generic)',
+    10401: 'Not subscribed',
+    11000: 'Not ready, try again later',
+    20000: 'User is invalid!',
+    20051: 'Websocket server stopping',
+    20060: 'Websocket server resyncing',
+    20061: 'Websocket server resync complete'
+}
 
 class BfxWebsocket(GenericWebsocket):
     """
@@ -89,8 +112,8 @@ class BfxWebsocket(GenericWebsocket):
     This websocket requires authentication and is capable of handling orders.
     https://github.com/Crypto-toolbox/btfxwss
 
-    ### Subscribable events:
-    - `all` (array|json): listen for all messages coming through
+    ### Emitter events:
+    - `all` (array|Object): listen for all messages coming through
     - `connected:` () called when a connection is made
     - `disconnected`: () called when a connection is ended (A reconnect attempt may follow)
     - `stopped`: () called when max amount of connection retries is met and the socket is closed
@@ -104,9 +127,9 @@ class BfxWebsocket(GenericWebsocket):
     - `order_snapshot` (array[Order]): Initial open orders (Fired once)
     - `positions_snapshot` (array): Initial open positions (Fired once)
     - `wallet_update` (Wallet): changes to the balance of wallets
-    - `status_update` (json): new platform status info
-    - `seed_candle` (json): initial past candle to prime strategy
-    - `seed_trade` (json): initial past trade to prime strategy
+    - `status_update` (Object): new platform status info
+    - `seed_candle` (Object): initial past candle to prime strategy
+    - `seed_trade` (Object): initial past trade to prime strategy
     - `funding_offer_snapshot` (array): opening funding offer balances
     - `funding_loan_snapshot` (array): opening funding loan balances
     - `funding_credit_snapshot` (array): opening funding credit balances
@@ -121,30 +144,6 @@ class BfxWebsocket(GenericWebsocket):
     - `subscribed` (Subscription): a new channel has been subscribed to
     - `unsubscribed` (Subscription): a channel has been un-subscribed
     """
-
-    ERRORS = {
-        10000: 'Unknown event',
-        10001: 'Generic error',
-        10008: 'Concurrency error',
-        10020: 'Request parameters error',
-        10050: 'Configuration setup failed',
-        10100: 'Failed authentication',
-        10111: 'Error in authentication request payload',
-        10112: 'Error in authentication request signature',
-        10113: 'Error in authentication request encryption',
-        10114: 'Error in authentication request nonce',
-        10200: 'Error in un-authentication request',
-        10300: 'Subscription Failed (generic)',
-        10301: 'Already Subscribed',
-        10302: 'Unknown channel',
-        10400: 'Subscription Failed (generic)',
-        10401: 'Not subscribed',
-        11000: 'Not ready, try again later',
-        20000: 'User is invalid!',
-        20051: 'Websocket server stopping',
-        20060: 'Websocket server resyncing',
-        20061: 'Websocket server resync complete'
-    }
 
     def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2',
                  manageOrderBooks=False, dead_man_switch=False, ws_capacity=25, logLevel='INFO', parse_float=float,
@@ -248,16 +247,16 @@ class BfxWebsocket(GenericWebsocket):
         await self.subscriptionManager.confirm_unsubscribe(socket_id, data)
 
     async def _system_error_handler(self, socketId, data):
-        err_string = self.ERRORS[data.get('code', 10000)]
+        err_string = ERRORS[data.get('code', 10000)]
         err_string = "(socketId={}) {} - {}".format(
             socketId,
-            self.ERRORS[data.get('code', 10000)],
+            ERRORS[data.get('code', 10000)],
             data.get("msg", ""))
         self._emit('error', err_string)
 
     async def _system_auth_handler(self, socketId, data):
         if data.get('status') == 'FAILED':
-            raise AuthError(self.ERRORS[data.get('code')])
+            raise AuthError(ERRORS[data.get('code')])
         else:
             self._emit('authenticated', data)
             self.logger.info("Authentication successful.")
@@ -523,6 +522,7 @@ class BfxWebsocket(GenericWebsocket):
 
         # Attributes
         @param symbol: the trading symbol i.e 'tBTCUSD'
+        @param timeframe: resolution of the candle i.e 15m, 1h
         """
         return await self.subscribe('candles', symbol, timeframe=timeframe)
 
