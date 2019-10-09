@@ -1,3 +1,10 @@
+1.1.1
+- Rework README with new bfx templates
+- Generate /docs/rest_v2.md
+- Generate /docs/ws_v2.md
+- Update comments for doc generation
+- Allow only python3 installs in setup.py
+
 1.1.0
 
 - Adds rest.submit_funding_offer
