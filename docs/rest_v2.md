@@ -9,14 +9,14 @@ a websocket client and a rest interface client
 
 ## Client
 ```python
-Client(self, API_KEY=None, API_SECRET=None, rest_host='https://api-pub.bitfinex.com/v2', ws_host='wss://api-pub.bitfinex.com/ws/2', create_event_emitter=None, logLevel='INFO', dead_man_switch=False, ws_capacity=25, *args, **kwargs)
+Client(self, API_KEY=None, API_SECRET=None, rest_host='https://test.bitfinex.com/v2', ws_host='wss://test.bitfinex.com/ws/2', create_event_emitter=None, logLevel='INFO', dead_man_switch=False, ws_capacity=25, *args, **kwargs)
 ```
 
 The bfx client exposes rest and websocket objects
 
 # BfxRest
 ```python
-BfxRest(self, API_KEY, API_SECRET, host='https://api-pub.bitfinex.com/v2', loop=None, logLevel='INFO', parse_float=<class 'float'>, *args, **kwargs)
+BfxRest(self, API_KEY, API_SECRET, host='https://test.bitfinex.com/v2', loop=None, logLevel='INFO', parse_float=<class 'float'>, *args, **kwargs)
 ```
 
 BFX rest interface contains functions which are used to interact with both the public
