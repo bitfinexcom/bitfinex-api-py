@@ -87,8 +87,8 @@ class OrderManager:
     async def submit_order(self, symbol, price, amount, market_type=Order.Type.LIMIT,
                            hidden=False, price_trailing=None, price_aux_limit=None,
                            oco_stop_price=None, close=False, reduce_only=False,
-                           post_only=False, oco=False, time_in_force=None, leverage=None,
-                           onConfirm=None, onClose=None, gid=None, *args, **kwargs):
+                           post_only=False, oco=False, aff_code=None, time_in_force=None,
+                           leverage=None, onConfirm=None, onClose=None, gid=None, *args, **kwargs):
         """
         Submit a new order
 
@@ -109,7 +109,7 @@ class OrderManager:
           match with a pre-existing order
         @param oco: cancels other order option allows you to place a pair of orders stipulating
           that if one order is executed fully or partially, then the other is automatically canceled
-
+        @param aff_code: bitfinex affiliate code
         @param time_in_force:	datetime for automatic order cancellation ie. 2020-01-01 10:45:23
         @param leverage: the amount of leverage to apply to the order as an integer
         @param onConfirm: function called when the bitfinex websocket receives signal that the order
@@ -125,6 +125,7 @@ class OrderManager:
             "symbol": symbol,
             "amount": str(amount),
             "price": str(price),
+            "meta": {}
         }
         # calculate and add flags
         flags = calculate_order_flags(hidden, close, reduce_only, post_only, oco)
@@ -142,6 +143,8 @@ class OrderManager:
             payload['gid'] = gid
         if leverage is not None:
             payload['lev'] = str(leverage)
+        if aff_code is not None:
+            payload['meta']['aff_code'] = str(aff_code)
         # submit the order
         self.pending_orders[cid] = payload
         self._create_callback(cid, onConfirm, self.pending_order_confirm_callbacks)

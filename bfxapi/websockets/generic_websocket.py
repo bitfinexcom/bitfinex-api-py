@@ -124,7 +124,7 @@ class GenericWebsocket:
         async with websockets.connect(self.host) as websocket:
             self.sockets[socket.id].set_websocket(websocket)
             self.sockets[socket.id].set_connected()
-            self.logger.info("Wesocket connected to {}".format(self.host))
+            self.logger.info("Websocket connected to {}".format(self.host))
             while True:
                 await asyncio.sleep(0)
                 message = await websocket.recv()
