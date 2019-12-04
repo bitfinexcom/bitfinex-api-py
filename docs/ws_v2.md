@@ -9,14 +9,14 @@ a websocket client and a rest interface client
 
 ## Client
 ```python
-Client(self, API_KEY=None, API_SECRET=None, rest_host='https://api-pub.bitfinex.com/v2', ws_host='wss://api-pub.bitfinex.com/ws/2', create_event_emitter=None, logLevel='INFO', dead_man_switch=False, ws_capacity=25, *args, **kwargs)
+Client(self, API_KEY=None, API_SECRET=None, rest_host='https://test.bitfinex.com/v2', ws_host='wss://test.bitfinex.com/ws/2', create_event_emitter=None, logLevel='INFO', dead_man_switch=False, ws_capacity=25, *args, **kwargs)
 ```
 
 The bfx client exposes rest and websocket objects
 
 # BfxWebsocket
 ```python
-BfxWebsocket(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2', manageOrderBooks=False, dead_man_switch=False, ws_capacity=25, logLevel='INFO', parse_float=<class 'float'>, *args, **kwargs)
+BfxWebsocket(self, API_KEY=None, API_SECRET=None, host='wss://test.bitfinex.com/ws/2', manageOrderBooks=False, dead_man_switch=False, ws_capacity=25, logLevel='INFO', parse_float=<class 'float'>, *args, **kwargs)
 ```
 
 More complex websocket that heavily relies on the btfxwss module.
