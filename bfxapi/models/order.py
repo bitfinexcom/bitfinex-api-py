@@ -110,7 +110,7 @@ class Order:
 
     def __init__(self, oid, gid, cid, symbol, mts_create, mts_update, amount,
                  amount_orig, o_type, typePrev, flags, status, price, price_avg,
-                 price_trailing, price_aux_limit, notfiy, place_id, meta={}):
+                 price_trailing, price_aux_limit, notfiy, place_id, meta):
         self.id = oid # pylint: disable=invalid-name
         self.gid = gid
         self.cid = cid
@@ -138,6 +138,7 @@ class Order:
         self.is_pending_bool = True
         self.is_confirmed_bool = False
         self.is_open_bool = False
+        self.meta = meta or {}
 
         self.date = datetime.datetime.fromtimestamp(mts_create/1000.0)
         # if cancelled then priceAvg wont exist
