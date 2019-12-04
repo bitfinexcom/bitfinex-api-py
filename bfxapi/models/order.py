@@ -58,6 +58,7 @@ class OrderClosedModel:
     PRICE_AUX_LIMIT = 19
     NOTIFY = 23
     PLACE_ID = 25
+    META = 31
 
 
 class OrderFlags:
@@ -109,7 +110,7 @@ class Order:
 
     def __init__(self, oid, gid, cid, symbol, mts_create, mts_update, amount,
                  amount_orig, o_type, typePrev, flags, status, price, price_avg,
-                 price_trailing, price_aux_limit, notfiy, place_id):
+                 price_trailing, price_aux_limit, notfiy, place_id, meta={}):
         self.id = oid # pylint: disable=invalid-name
         self.gid = gid
         self.cid = cid
@@ -172,10 +173,11 @@ class Order:
         price_aux_limit = raw_order[OrderClosedModel.PRICE_AUX_LIMIT]
         notfiy = raw_order[OrderClosedModel.NOTIFY]
         place_id = raw_order[OrderClosedModel.PLACE_ID]
+        meta = raw_order[OrderClosedModel.META] or {}
 
         return Order(oid, gid, cid, symbol, mts_create, mts_update, amount,
                      amount_orig, o_type, type_prev, flags, status, price, price_avg,
-                     price_trailing, price_aux_limit, notfiy, place_id)
+                     price_trailing, price_aux_limit, notfiy, place_id, meta)
 
     @staticmethod
     def from_raw_order_snapshot(raw_order_snapshot):

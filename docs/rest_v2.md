@@ -374,7 +374,7 @@ __Attributes__
 
 ## submit_order
 ```python
-BfxRest.submit_order(self, symbol, price, amount, market_type='LIMIT', hidden=False, price_trailing=None, price_aux_limit=None, oco_stop_price=None, close=False, reduce_only=False, post_only=False, oco=False, time_in_force=None, leverage=None, gid=None)
+BfxRest.submit_order(self, symbol, price, amount, market_type='LIMIT', hidden=False, price_trailing=None, price_aux_limit=None, oco_stop_price=None, close=False, reduce_only=False, post_only=False, oco=False, aff_code=None, time_in_force=None, leverage=None, gid=None)
 ```
 
 Submit a new order
@@ -398,6 +398,7 @@ __Attributes__
   match with a pre-existing order
 - `@param oco`: cancels other order option allows you to place a pair of orders stipulating
   that if one order is executed fully or partially, then the other is automatically canceled
+- `@param aff_code`: bitfinex affiliate code
 - `@param time_in_force`:	datetime for automatic order cancellation ie. 2020-01-01 10:45:23
 - `@param leverage`: the amount of leverage to apply to the order as an integer
 
