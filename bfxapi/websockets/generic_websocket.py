@@ -43,6 +43,9 @@ class Socket():
 
     def set_authenticated(self):
         self.isAuthenticated = True
+        
+    def set_unauthenticated(self):
+        self.isAuthenticated = False
 
     def set_websocket(self, ws):
         self.ws = ws
@@ -147,6 +150,8 @@ class GenericWebsocket:
                 retries = 0
             except (ConnectionClosed, socket.error) as e:
                 self.sockets[sId].set_disconnected()
+                if self.sockets[sId].isAuthenticated:
+                    self.sockets[sId].set_unauthenticated()
                 self._emit('disconnected')
                 if (not self.attempt_retry):
                     return
