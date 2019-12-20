@@ -11,7 +11,7 @@ bfx = Client(
   API_KEY=API_KEY,
   API_SECRET=API_SECRET,
   logLevel='DEBUG',
-  dead_man_switch=true, # <-- kill all orders if this connection drops
+  dead_man_switch=True, # <-- kill all orders if this connection drops
   channel_filter=['wallet'] # <-- only receive wallet updates
 )
 
