@@ -147,7 +147,7 @@ class BfxWebsocket(GenericWebsocket):
 
     def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2',
                  manageOrderBooks=False, dead_man_switch=False, ws_capacity=25, logLevel='INFO', parse_float=float,
-                 *args, **kwargs):
+                 channel_filter=[], *args, **kwargs):
         self.API_KEY = API_KEY
         self.API_SECRET = API_SECRET
         self.manageOrderBooks = manageOrderBooks
@@ -155,6 +155,7 @@ class BfxWebsocket(GenericWebsocket):
         self.pendingOrders = {}
         self.orderBooks = {}
         self.ws_capacity = ws_capacity
+        self.channel_filter = channel_filter
         # How should we store float values? could also be bfxapi.decimal
         # which is slower but has higher precision.
         self.parse_float = parse_float
@@ -442,6 +443,8 @@ class BfxWebsocket(GenericWebsocket):
         jdata = generate_auth_payload(self.API_KEY, self.API_SECRET)
         if self.dead_man_switch:
             jdata['dms'] = 4
+        if len(self.channel_filter) > 0:
+            jdata['filter'] = self.channel_filter
         await socket.ws.send(json.dumps(jdata))
 
     async def on_open(self, socket_id):
