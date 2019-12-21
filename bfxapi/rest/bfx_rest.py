@@ -558,7 +558,7 @@ class BfxRest:
         """
         endpoint = "auth/w/order/cancel"
         raw_notification = await self.post(endpoint, { 'id': orderId })
-        return Notification.from_raw_order(raw_notification)
+        return Notification.from_raw_notification(raw_notification)
 
     async def submit_update_order(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,
                            price_trailing=None, hidden=False, close=False, reduce_only=False, 
@@ -602,7 +602,7 @@ class BfxRest:
         payload['flags'] = flags
         endpoint = "auth/w/order/update"
         raw_notification = await self.post(endpoint, payload)
-        return Notification.from_raw_order(raw_notification)
+        return Notification.from_raw_notification(raw_notification)
 
 
     ##################################################
