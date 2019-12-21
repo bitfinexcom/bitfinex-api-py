@@ -547,7 +547,7 @@ class BfxRest:
             payload['meta']['aff_code'] = str(aff_code)
         endpoint = "auth/w/order/submit"
         raw_notification = await self.post(endpoint, payload)
-        return Notification.from_raw_order(raw_notification)
+        return Notification.from_raw_notification(raw_notification)
 
     async def submit_cancel_order(self, orderId):
         """
