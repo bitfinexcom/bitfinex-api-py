@@ -9,14 +9,14 @@ a websocket client and a rest interface client
 
 ## Client
 ```python
-Client(self, API_KEY=None, API_SECRET=None, rest_host='https://api-pub.bitfinex.com/v2', ws_host='wss://api-pub.bitfinex.com/ws/2', create_event_emitter=None, logLevel='INFO', dead_man_switch=False, ws_capacity=25, *args, **kwargs)
+Client(self, API_KEY=None, API_SECRET=None, rest_host='https://test.bitfinex.com/v2', ws_host='wss://test.bitfinex.com/ws/2', create_event_emitter=None, logLevel='INFO', dead_man_switch=False, ws_capacity=25, *args, **kwargs)
 ```
 
 The bfx client exposes rest and websocket objects
 
 # BfxRest
 ```python
-BfxRest(self, API_KEY, API_SECRET, host='https://api-pub.bitfinex.com/v2', loop=None, logLevel='INFO', parse_float=<class 'float'>, *args, **kwargs)
+BfxRest(self, API_KEY, API_SECRET, host='https://test.bitfinex.com/v2', loop=None, logLevel='INFO', parse_float=<class 'float'>, *args, **kwargs)
 ```
 
 BFX rest interface contains functions which are used to interact with both the public
@@ -374,7 +374,7 @@ __Attributes__
 
 ## submit_order
 ```python
-BfxRest.submit_order(self, symbol, price, amount, market_type='LIMIT', hidden=False, price_trailing=None, price_aux_limit=None, oco_stop_price=None, close=False, reduce_only=False, post_only=False, oco=False, time_in_force=None, leverage=None, gid=None)
+BfxRest.submit_order(self, symbol, price, amount, market_type='LIMIT', hidden=False, price_trailing=None, price_aux_limit=None, oco_stop_price=None, close=False, reduce_only=False, post_only=False, oco=False, aff_code=None, time_in_force=None, leverage=None, gid=None)
 ```
 
 Submit a new order
@@ -398,6 +398,7 @@ __Attributes__
   match with a pre-existing order
 - `@param oco`: cancels other order option allows you to place a pair of orders stipulating
   that if one order is executed fully or partially, then the other is automatically canceled
+- `@param aff_code`: bitfinex affiliate code
 - `@param time_in_force`:	datetime for automatic order cancellation ie. 2020-01-01 10:45:23
 - `@param leverage`: the amount of leverage to apply to the order as an integer
 

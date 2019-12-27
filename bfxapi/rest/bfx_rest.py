@@ -491,8 +491,8 @@ class BfxRest:
     async def submit_order(self, symbol, price, amount, market_type=Order.Type.LIMIT,
                            hidden=False, price_trailing=None, price_aux_limit=None,
                            oco_stop_price=None, close=False, reduce_only=False,
-                           post_only=False, oco=False, time_in_force=None, leverage=None,
-                           gid=None):
+                           post_only=False, oco=False, aff_code=None, time_in_force=None,
+                           leverage=None, gid=None):
         """
         Submit a new order
 
@@ -514,6 +514,7 @@ class BfxRest:
           match with a pre-existing order
         @param oco: cancels other order option allows you to place a pair of orders stipulating
           that if one order is executed fully or partially, then the other is automatically canceled
+        @param aff_code: bitfinex affiliate code
         @param time_in_force:	datetime for automatic order cancellation ie. 2020-01-01 10:45:23
         @param leverage: the amount of leverage to apply to the order as an integer
         """
@@ -524,6 +525,7 @@ class BfxRest:
             "symbol": symbol,
             "amount": str(amount),
             "price": str(price),
+            "meta": {}
         }
         # calculate and add flags
         flags = calculate_order_flags(hidden, close, reduce_only, post_only, oco)
@@ -541,9 +543,11 @@ class BfxRest:
             payload['gid'] = gid
         if leverage is not None:
             payload['lev'] = str(leverage)
+        if aff_code is not None:
+            payload['meta']['aff_code'] = str(aff_code)
         endpoint = "auth/w/order/submit"
         raw_notification = await self.post(endpoint, payload)
-        return Notification.from_raw_order(raw_notification)
+        return Notification.from_raw_notification(raw_notification)
 
     async def submit_cancel_order(self, orderId):
         """
@@ -554,7 +558,7 @@ class BfxRest:
         """
         endpoint = "auth/w/order/cancel"
         raw_notification = await self.post(endpoint, { 'id': orderId })
-        return Notification.from_raw_order(raw_notification)
+        return Notification.from_raw_notification(raw_notification)
 
     async def submit_update_order(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,
                            price_trailing=None, hidden=False, close=False, reduce_only=False, 
@@ -598,7 +602,7 @@ class BfxRest:
         payload['flags'] = flags
         endpoint = "auth/w/order/update"
         raw_notification = await self.post(endpoint, payload)
-        return Notification.from_raw_order(raw_notification)
+        return Notification.from_raw_notification(raw_notification)
 
 
     ##################################################

@@ -1,3 +1,9 @@
+1.1.3
+- Adds ability to specify channel_filter in client
+
+1.1.2
+- Adds aff_code to WS and Rest submit order functions
+
 1.1.1
 - Rework README with new bfx templates
 - Generate /docs/rest_v2.md
