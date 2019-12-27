@@ -10,7 +10,7 @@ import json
 from ..utils.custom_logger import CustomLogger
 from ..utils.auth import generate_auth_headers, calculate_order_flags, gen_unique_cid
 from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer
-from ..models import FundingCredit, Notification
+from ..models import FundingCredit, Notification, Movement
 
 
 class BfxRest:
@@ -229,6 +229,24 @@ class BfxRest:
         endpoint = "auth/r/orders/{}".format(symbol)
         raw_orders = await self.post(endpoint)
         return [Order.from_raw_order(ro) for ro in raw_orders]
+    
+    async def get_movements_history(self, currency, start, end, limit=25):
+        """
+        Get all of the deposits and withdraws between the start and end period associated with API_KEY
+        - Requires authentication.
+
+        # Attributes
+        @param currency string: pair symbol i.e BTC
+        @param start int: millisecond start time
+        @param end int: millisecond end time
+        @param limit int: max number of items in response
+        @return Array <models.Movement>
+        """
+        endpoint = "auth/r/movements/{}/hist".format(currency)
+        params = "?start={}&end={}&limit={}".format(
+            start, end, limit)
+        raw_movements = await self.post(endpoint, params=params)
+        return [Movement.from_raw_movement(rm) for rm in raw_movements]
 
     async def get_order_history(self, symbol, start, end, limit=25, sort=-1):
         """
