@@ -51,7 +51,7 @@ class Movement:
         
         
     @staticmethod    
-    def from_raw_movement(self, raw_movemnt):
+    def from_raw_movement(self, raw_movement):
         """
         Parse a raw movement object into a Movement object
         @return Movement
