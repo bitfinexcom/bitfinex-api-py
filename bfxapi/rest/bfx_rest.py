@@ -230,7 +230,7 @@ class BfxRest:
         raw_orders = await self.post(endpoint)
         return [Order.from_raw_order(ro) for ro in raw_orders]
     
-    async def get_movements_history(self, currency, start, end, limit=25):
+    async def get_movement_history(self, currency, start, end, limit=25):
         """
         Get all of the deposits and withdraws between the start and end period associated with API_KEY
         - Requires authentication.
