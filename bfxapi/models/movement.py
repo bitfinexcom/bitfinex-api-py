@@ -73,4 +73,4 @@ class Movement:
         ''' Allow us to print the Movement object in a pretty format '''
         text = "Movement <'{}' amount={} fees={} mts_created={} mts_updated={} status='{}' destination_address={} transaction_id={}>"
         return text.format(self.currency, self.amount, self.fees,
-                           self.mts_created, self.mts_updated, self.status, self.dest_address, self.tx_id)
+                           self.mts_started, self.mts_updated, self.status, self.dst_address, self.tx_id)
