@@ -47,7 +47,7 @@ class Movement:
         self.dst_address = dst_address
         self.tx_id = tx_id
         
-        self.date = datetime.datetime.fromtimestamp(mts_create/1000.0)
+        self.date = datetime.datetime.fromtimestamp(mts_started/1000.0)
         
         
     @staticmethod    
