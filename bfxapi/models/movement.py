@@ -36,7 +36,7 @@ class Movement:
     TRANSACTION_ID	String	Transaction identifier
     """
     
-    def __init__(self, mid, curreny, mts_started, mts_updated, status, amount, fees, dst_address, tx_id):
+    def __init__(self, mid, currency, mts_started, mts_updated, status, amount, fees, dst_address, tx_id):
         self.id = mid
         self.currency = currency
         self.mts_started = mts_started
