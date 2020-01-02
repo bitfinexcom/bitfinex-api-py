@@ -7,7 +7,7 @@ import websockets
 import socket
 import json
 import time
-from threading import Thread
+from threading import Thread, Lock
 
 from pyee import EventEmitter
 from ..utils.custom_logger import CustomLogger
@@ -34,6 +34,7 @@ class Socket():
         self.isConnected = False
         self.isAuthenticated = False
         self.id = sId
+        self.lock = Lock()
 
     def set_connected(self):
         self.isConnected = True
@@ -49,6 +50,10 @@ class Socket():
 
     def set_websocket(self, ws):
         self.ws = ws
+
+    async def send(self, data):
+        with self.lock:
+            await self.ws.send(data)
 
 def _start_event_worker():
     async def event_sleep_process():
@@ -120,16 +125,6 @@ class GenericWebsocket:
                     return
             time.sleep(0.01)
 
-    async def _connect(self, socket):
-        async with websockets.connect(self.host) as websocket:
-            self.sockets[socket.id].set_websocket(websocket)
-            self.sockets[socket.id].set_connected()
-            self.logger.info("Websocket connected to {}".format(self.host))
-            while True:
-                await asyncio.sleep(0)
-                message = await websocket.recv()
-                await self.on_message(socket.id, message)
-
     def get_socket(self, socketId):
         return self.sockets[socketId]
 
@@ -146,8 +141,15 @@ class GenericWebsocket:
         self.sockets[sId] = s
         while retries < self.max_retries and self.attempt_retry:
             try:
-                await self._connect(s)
-                retries = 0
+                async with websockets.connect(self.host) as websocket:
+                    self.sockets[sId].set_websocket(websocket)
+                    self.sockets[sId].set_connected()
+                    self.logger.info("Websocket connected to {}".format(self.host))
+                    retries = 0
+                    while True:
+                        await asyncio.sleep(0)
+                        message = await websocket.recv()
+                        await self.on_message(sId, message)
             except (ConnectionClosed, socket.error) as e:
                 self.sockets[sId].set_disconnected()
                 if self.sockets[sId].isAuthenticated:

@@ -54,13 +54,13 @@ class Subscription:
         if not self.is_subscribed():
             raise Exception("Subscription is not subscribed to websocket")
         payload = {'event': 'unsubscribe', 'chanId': self.chan_id}
-        await self.socket.ws.send(json.dumps(payload))
+        await self.socket.send(json.dumps(payload))
 
     async def subscribe(self):
         """
         Send a subscription request to the bitfinex socket
         """
-        await self.socket.ws.send(json.dumps(self._get_send_payload()))
+        await self.socket.send(json.dumps(self._get_send_payload()))
 
     def confirm_unsubscribe(self):
         """
