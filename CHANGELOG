@@ -1,5 +1,6 @@
 1.1.4
 - Locks mutex when sending websocket messages
+- Fix py3.8 stricter linting errors
 
 1.1.3
 - Adds ability to specify channel_filter in client

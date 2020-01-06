@@ -41,7 +41,7 @@ class BfxRest:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
                 text = await resp.text()
-                if resp.status is not 200:
+                if resp.status != 200:
                     raise Exception('GET {} failed with status {} - {}'
                                     .format(url, resp.status, text))
                 parsed = json.loads(text, parse_float=self.parse_float)

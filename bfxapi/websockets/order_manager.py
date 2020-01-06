@@ -131,19 +131,19 @@ class OrderManager:
         flags = calculate_order_flags(hidden, close, reduce_only, post_only, oco)
         payload['flags'] = flags
         # add extra parameters
-        if price_trailing is not None:
+        if price_trailing != None:
             payload['price_trailing'] = price_trailing
-        if price_aux_limit is not None:
+        if price_aux_limit != None:
             payload['price_aux_limit'] = price_aux_limit
-        if oco_stop_price is not None:
+        if oco_stop_price != None:
             payload['price_oco_stop'] = str(oco_stop_price)
-        if time_in_force is not None:
+        if time_in_force != None:
             payload['tif'] = time_in_force
-        if gid is not None:
+        if gid != None:
             payload['gid'] = gid
-        if leverage is not None:
+        if leverage != None:
             payload['lev'] = str(leverage)
-        if aff_code is not None:
+        if aff_code != None:
             payload['meta']['aff_code'] = str(aff_code)
         # submit the order
         self.pending_orders[cid] = payload
@@ -180,19 +180,19 @@ class OrderManager:
         """
         self._create_callback(orderId, onConfirm, self.pending_update_confirm_callbacks)
         payload = {"id": orderId}
-        if price is not None:
+        if price != None:
             payload['price'] = str(price)
-        if amount is not None:
+        if amount != None:
             payload['amount'] = str(amount)
-        if delta is not None:
+        if delta != None:
             payload['delta'] = str(delta)
-        if price_aux_limit is not None:
+        if price_aux_limit != None:
             payload['price_aux_limit'] = str(price_aux_limit)
-        if price_trailing is not None:
+        if price_trailing != None:
             payload['price_trailing'] = str(price_trailing)
-        if time_in_force is not None:
+        if time_in_force != None:
             payload['time_in_force'] = str(time_in_force)
-        if leverage is not None:
+        if leverage != None:
             payload['lev'] = str(leverage)
         flags = calculate_order_flags(
             hidden, close, reduce_only, post_only, False)
