@@ -147,6 +147,8 @@ class GenericWebsocket:
                     self.logger.info("Websocket connected to {}".format(self.host))
                     retries = 0
                     while True:
+                        # optimization - wait 0 seconds to force the async queue
+                        # to be cleared before continuing
                         await asyncio.sleep(0)
                         message = await websocket.recv()
                         await self.on_message(sId, message)
