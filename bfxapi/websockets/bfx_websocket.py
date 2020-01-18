@@ -445,7 +445,7 @@ class BfxWebsocket(GenericWebsocket):
             jdata['dms'] = 4
         if len(self.channel_filter) > 0:
             jdata['filter'] = self.channel_filter
-        await socket.ws.send(json.dumps(jdata))
+        await socket.send(json.dumps(jdata))
 
     async def on_open(self, socket_id):
         self.logger.info("Websocket opened.")
@@ -470,7 +470,7 @@ class BfxWebsocket(GenericWebsocket):
             raise ValueError("authenticated socket connection not found")
         if not socket.isConnected:
             raise ValueError("authenticated socket not connected")
-        await socket.ws.send(json.dumps(payload))
+        await socket.send(json.dumps(payload))
 
     def get_orderbook(self, symbol):
         return self.orderBooks.get(symbol, None)
@@ -508,7 +508,7 @@ class BfxWebsocket(GenericWebsocket):
         # enable on all sockets
         for socket in self.sockets.values():
             if socket.isConnected:
-                await socket.ws.send(json.dumps(payload))
+                await socket.send(json.dumps(payload))
 
     async def subscribe_order_book(self, symbol):
         """
