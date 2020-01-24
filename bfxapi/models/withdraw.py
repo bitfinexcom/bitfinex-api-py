@@ -45,7 +45,7 @@ class Withdraw:
         return Withdraw(w_id, method, wallet, amount)
 
     def __str__(self):
-        ''' Allow us to print the Transfer object in a pretty format '''
-        text = "Withdraw <id={} from {} ({}) fee={}>"
+        ''' Allow us to print the Withdraw object in a pretty format '''
+        text = "Withdraw <id={} from {} ({}) amount={} fee={}>"
         return text.format(self.id, self.wallet, self.method, self.amount,
                            self.fee)
