@@ -19,7 +19,8 @@ class Position:
     """
 
     def __init__(self, symbol, status, amount, b_price, m_funding, m_funding_type,
-                 profit_loss, profit_loss_perc, l_price, lev):
+                 profit_loss, profit_loss_perc, l_price, lev, _, position_id, mts_create, mts_update, type, collateral,
+                 collateral_min, *meta):
         self.symbol = symbol
         self.status = status
         self.amount = amount
@@ -30,6 +31,13 @@ class Position:
         self.profit_loss_percentage = profit_loss_perc
         self.liquidation_price = l_price
         self.leverage = lev
+        self.position_id = position_id
+        self.mts_create = mts_create
+        self.mts_update = mts_update
+        self.type = type
+        self.collateral = collateral
+        self.collateral_min = collateral_min
+        self.meta = meta
 
     @staticmethod
     def from_raw_rest_position(raw_position):
