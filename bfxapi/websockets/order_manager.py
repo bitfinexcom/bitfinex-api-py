@@ -43,6 +43,7 @@ class OrderManager:
         order.set_open_state(False)
         if order.id in self.open_orders:
             del self.open_orders[order.id]
+        self.closed_orders[order.id] = order
         if not order.is_confirmed():
             order.set_confirmed()
             self.bfxapi._emit('order_confirmed', order)
@@ -77,6 +78,8 @@ class OrderManager:
     async def confirm_order_new(self, raw_ws_data):
         order = Order.from_raw_order(raw_ws_data[2])
         order.set_open_state(True)
+        if order.id in self.pending_orders:
+            del self.pending_orders[order.id]
         self.open_orders[order.id] = order
         order.set_confirmed()
         self.bfxapi._emit('order_confirmed', order)
