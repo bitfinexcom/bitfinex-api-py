@@ -3,6 +3,7 @@ Module used as a interfeace to describe a generick websocket client
 """
 
 import asyncio
+import concurrent.futures
 import websockets
 import socket
 import json
@@ -56,19 +57,14 @@ class Socket():
             await self.ws.send(data)
 
 def _start_event_worker():
-    async def event_sleep_process():
-        """
-        sleeping process for event emitter to schedule on
-        """
-        while True:
-            await asyncio.sleep(0)
     def start_loop(loop):
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(event_sleep_process())
+        loop.run_forever()
     event_loop = asyncio.new_event_loop()
+    ee = EventEmitter(scheduler=asyncio.ensure_future)
     worker = Thread(target=start_loop, args=(event_loop,))
+    worker.daemon = True
     worker.start()
-    ee = EventEmitter(scheduler=asyncio.ensure_future, loop=event_loop)
     return ee
 
 class GenericWebsocket:
@@ -76,10 +72,11 @@ class GenericWebsocket:
     Websocket object used to contain the base functionality of a websocket.
     Inlcudes an event emitter and a standard websocket client.
     """
+    logger = CustomLogger('BfxWebsocket', logLevel="DEBUG")
 
     def __init__(self, host, logLevel='INFO', max_retries=5, create_event_emitter=None):
         self.host = host
-        self.logger = CustomLogger('BfxWebsocket', logLevel=logLevel)
+        self.logger.set_level(logLevel)
         # overide 'error' event to stop it raising an exception
         # self.events.on('error', self.on_error)
         self.ws = None
@@ -139,6 +136,7 @@ class GenericWebsocket:
         sId =  len(self.sockets)
         s = Socket(sId)
         self.sockets[sId] = s
+        loop = asyncio.get_event_loop()
         while retries < self.max_retries and self.attempt_retry:
             try:
                 async with websockets.connect(self.host) as websocket:

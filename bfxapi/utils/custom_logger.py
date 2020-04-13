@@ -82,6 +82,10 @@ class CustomLogger(logging.Logger):
         self.addHandler(console)
         logging.addLevelName(self.TRADE, "TRADE")
         return
+
+    def set_level(self, level):
+        logging.Logger.setLevel(self, level)
+
     
     def trade(self, message, *args, **kws):
         """
