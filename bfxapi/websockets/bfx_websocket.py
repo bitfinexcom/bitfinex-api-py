@@ -12,7 +12,7 @@ from .subscription_manager import SubscriptionManager
 from .wallet_manager import WalletManager
 from .order_manager import OrderManager
 from ..utils.auth import generate_auth_payload
-from ..models import Order, Trade, OrderBook
+from ..models import Order, Trade, OrderBook, Ticker, FundingTicker
 
 
 class Flags:
@@ -218,6 +218,8 @@ class BfxWebsocket(GenericWebsocket):
                 await self._trade_handler(data)
             if subscription.channel_name == 'status':
                 await self._status_handler(data)
+            if subscription.channel_name == 'ticker':
+                await self._ticker_handler(data)
         else:
             self.logger.warn(
                 "Unknown data event: '{}' {}".format(dataEvent, data))
@@ -355,6 +357,17 @@ class BfxWebsocket(GenericWebsocket):
             self._emit('status_update', status)
         else:
             self.logger.warn('Unknown status data type: {}'.format(data))
+
+    async def _ticker_handler(self, data):
+        symbol = self.subscriptionManager.get(data[0]).symbol
+        if type(data[1]) is list:
+            raw_ticker = data[1]
+            t = None
+            if len(raw_ticker) == 10:
+                t = Ticker.from_raw_ticker(raw_ticker, symbol)
+            else:
+                t = FundingTicker.from_raw_ticker(raw_ticker, symbol)
+            self._emit('new_ticker', t)
 
     async def _trade_handler(self, data):
         symbol = self.subscriptionManager.get(data[0]).symbol
