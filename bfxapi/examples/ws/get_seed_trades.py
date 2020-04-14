@@ -1,7 +1,7 @@
 import os
 import sys
 import asyncio
-sys.path.append('../')
+sys.path.append('../../../')
 
 from bfxapi import Client
 
