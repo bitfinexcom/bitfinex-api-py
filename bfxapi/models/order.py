@@ -38,7 +38,7 @@ class OrderSide:
 
 class OrderClosedModel:
     """
-    Enum used index the different values in a raw order array
+    Enum used to index the different values in a raw order array
     """
     ID = 0
     GID = 1
