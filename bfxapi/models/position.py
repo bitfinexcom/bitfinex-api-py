@@ -30,8 +30,10 @@ class Position:
     """
     SYMBOL	        string	Pair (tBTCUSD, …).
     STATUS	        string	Status (ACTIVE, CLOSED).
-    ±AMOUNT	        float	Size of the position. A positive value indicates a long position; a negative value indicates a short position.
-    BASE_PRICE	    float	Base price of the position. (Average traded price of the previous orders of the position)
+    ±AMOUNT	        float	Size of the position. A positive value indicates a
+                    long position; a negative value indicates a short position.
+    BASE_PRICE	    float	Base price of the position. (Average traded price
+                    of the previous orders of the position)
     MARGIN_FUNDING	float	The amount of funding being used for this position.
     MARGIN_FUNDING_TYPE	int	0 for daily, 1 for term.
     PL	            float	Profit & Loss
@@ -41,14 +43,15 @@ class Position:
     POSITION_ID	    int64	Position ID
     MTS_CREATE	    int	Millisecond timestamp of creation
     MTS_UPDATE	    int	Millisecond timestamp of update
-    TYPE	        int	Identifies the type of position, 0 = Margin position, 1 = Derivatives position
+    TYPE	        int	Identifies the type of position, 0 = Margin position,
+                    1 = Derivatives position
     COLLATERAL	    float	The amount of collateral applied to the open position
     COLLATERAL_MIN	float	The minimum amount of collateral required for the position
     META	        json string	Additional meta information about the position
     """
 
     def __init__(self, symbol, status, amount, b_price, m_funding, m_funding_type,
-                 profit_loss, profit_loss_perc, l_price, lev, id, mts_create, mts_update,
+                 profit_loss, profit_loss_perc, l_price, lev, pid, mts_create, mts_update,
                  p_type, collateral, collateral_min, meta):
         self.symbol = symbol
         self.status = status
@@ -60,7 +63,7 @@ class Position:
         self.profit_loss_percentage = profit_loss_perc
         self.liquidation_price = l_price
         self.leverage = lev
-        self.id = id
+        self.id = pid
         self.mts_create = mts_create
         self.mts_update = mts_update
         self.type = p_type
