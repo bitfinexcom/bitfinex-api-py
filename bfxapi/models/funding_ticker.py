@@ -25,7 +25,8 @@ class FundingTickerModel:
 
 class FundingTicker:
     """
-    FRR	        float	Flash Return Rate - average of all fixed rate funding over the last hour (funding tickers only)
+    FRR	        float	Flash Return Rate - average of all fixed rate funding over the last hour
+                (funding tickers only)
     BID	        float	Price of last highest bid
     BID_PERIOD	int	Bid period covered in days (funding tickers only)
     BID_SIZE	float	Sum of the 25 highest bid sizes
@@ -33,12 +34,14 @@ class FundingTicker:
     ASK_PERIOD	int	Ask period covered in days (funding tickers only)
     ASK_SIZE	float	Sum of the 25 lowest ask sizes
     DAILY_CHANGE	float	Amount that the last price has changed since yesterday
-    DAILY_CHANGE_RELATIVE	float	Relative price change since yesterday (*100 for percentage change)
+    DAILY_CHANGE_RELATIVE	float	Relative price change since yesterday
+                            (*100 for percentage change)
     LAST_PRICE	float	Price of the last trade
     VOLUME	    float	Daily volume
     HIGH	    float	Daily high
     LOW	        float	Daily low
-    FRR_AMOUNT_AVAILABLE	float	The amount of funding that is available at the Flash Return Rate (funding tickers only)
+    FRR_AMOUNT_AVAILABLE	float	The amount of funding that is available at the
+                Flash Return Rate (funding tickers only)
     """
 
     def __init__(self, pair, frr, bid, bid_period, bid_size, ask, ask_period, ask_size,
@@ -64,7 +67,8 @@ class FundingTicker:
         """
         Generate a Ticker object from a raw ticker array
         """
-        # [72128,[6914.5,28.123061460000002,6914.6,22.472037289999996,175.8,0.0261,6915.7,6167.26141685,6964.2,6710.8]]
+        # [72128,[6914.5,28.123061460000002,6914.6,22.472037289999996,175.8,0.0261,6915.7,
+        # 6167.26141685,6964.2,6710.8]]
 
         return FundingTicker(
             pair,
