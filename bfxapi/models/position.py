@@ -3,7 +3,7 @@ Module used to describe all of the different data types
 """
 class PositionModel:
     """
-    Enum used to index the different values in a raw order array
+    Enum used to index the different values in a raw position array
     """
     SYMBOL = 0
     STATUS = 1
