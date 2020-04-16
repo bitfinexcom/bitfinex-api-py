@@ -135,6 +135,9 @@ class BfxWebsocket(GenericWebsocket):
     - `funding_credit_snapshot` (array): opening funding credit balances
     - `balance_update` (array): when the state of a balance is changed
     - `new_trade` (array): a new trade on the market has been executed
+    - `new_ticker` (Ticker|FundingTicker): a new ticker update has been published
+    - `new_funding_ticker` (FundingTicker): a new funding ticker update has been published
+    - `new_trading_ticker` (Ticker): a new trading ticker update has been published
     - `trade_update` (array): a trade on the market has been updated
     - `new_candle` (array): a new candle has been produced
     - `margin_info_updates` (array): new margin information has been broadcasted
@@ -212,14 +215,16 @@ class BfxWebsocket(GenericWebsocket):
             # candles do not have an event
             if subscription.channel_name == 'candles':
                 await self._candle_handler(data)
-            if subscription.channel_name == 'book':
+            elif subscription.channel_name == 'book':
                 await self._order_book_handler(data, raw_message_str)
-            if subscription.channel_name == 'trades':
+            elif subscription.channel_name == 'trades':
                 await self._trade_handler(data)
-            if subscription.channel_name == 'status':
+            elif subscription.channel_name == 'status':
                 await self._status_handler(data)
-            if subscription.channel_name == 'ticker':
+            elif subscription.channel_name == 'ticker':
                 await self._ticker_handler(data)
+            else:
+                self.logger.warn("Unknown channel type '{}'".format(subscription.channel_name))
         else:
             self.logger.warn(
                 "Unknown data event: '{}' {}".format(dataEvent, data))
@@ -360,13 +365,17 @@ class BfxWebsocket(GenericWebsocket):
 
     async def _ticker_handler(self, data):
         symbol = self.subscriptionManager.get(data[0]).symbol
-        if type(data[1]) is list:
+        if type(data[1]) is list and len(symbol) > 0:
             raw_ticker = data[1]
             t = None
-            if len(raw_ticker) == 10:
+            if symbol[0] == 't':
                 t = Ticker.from_raw_ticker(raw_ticker, symbol)
-            else:
+                self._emit('new_trading_ticker', t)
+            elif symbol[0] == 'f':
                 t = FundingTicker.from_raw_ticker(raw_ticker, symbol)
+                self._emit('new_funding_ticker', t)
+            else:
+                self.logger.warn('Unknown ticker type: {}'.format(raw_ticker))
             self._emit('new_ticker', t)
 
     async def _trade_handler(self, data):

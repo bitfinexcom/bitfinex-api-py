@@ -12,12 +12,12 @@ bfx = Client(
 def log_error(err):
   print ("Error: {}".format(err))
 
-@bfx.ws.on('new_ticker')
-def log_candle(ticker):
+@bfx.ws.on('new_funding_ticker')
+def log_ticker(ticker):
   print ("New ticker: {}".format(ticker))
 
 async def start():
-  await bfx.ws.subscribe('ticker', 'tBTCUSD')
+  await bfx.ws.subscribe('ticker', 'fUSD')
 
 bfx.ws.on('connected', start)
 bfx.ws.run()
