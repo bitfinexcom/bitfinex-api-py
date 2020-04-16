@@ -11,7 +11,7 @@ class TickerModel:
     ASK = 2
     ASK_SIZE = 3
     DAILY_CHANGE = 4
-    DAILY_CHANGE_RELATIVE = 5
+    DAILY_CHANGE_PERCENT = 5
     LAST_PRICE = 6
     VOLUME = 7
     HIGH = 8
@@ -24,7 +24,7 @@ class Ticker:
     ASK	float	    Price of last lowest ask
     ASK_SIZE	    float	Sum of the 25 lowest ask sizes
     DAILY_CHANGE	float	Amount that the last price has changed since yesterday
-    DAILY_CHANGE_RELATIVE	float	Relative price change since yesterday (*100 for percentage change)
+    DAILY_CHANGE_PERCENT	float	Relative price change since yesterday (*100 for percentage change)
     LAST_PRICE	    float	Price of the last trade
     VOLUME	        float	Daily volume
     HIGH	        float	Daily high
@@ -60,7 +60,7 @@ class Ticker:
             raw_ticker[TickerModel.ASK],
             raw_ticker[TickerModel.ASK_SIZE],
             raw_ticker[TickerModel.DAILY_CHANGE],
-            raw_ticker[TickerModel.DAILY_CHANGE_RELATIVE],
+            raw_ticker[TickerModel.DAILY_CHANGE_PERCENT],
             raw_ticker[TickerModel.LAST_PRICE],
             raw_ticker[TickerModel.VOLUME],
             raw_ticker[TickerModel.HIGH],
