@@ -1,3 +1,11 @@
+1.1.6
+- Adds 'new_ticker' websocket event stream
+- Adds 'ws.stop' function to kill all websocket connections
+- Fixes Position modal loading from raw array
+
+1.1.5
+- Fixes 100% CPU utilization bug with the generic_websocket event emitter thread
+
 1.1.4
 - Locks mutex when sending websocket messages
 - Fix py3.8 stricter linting errors

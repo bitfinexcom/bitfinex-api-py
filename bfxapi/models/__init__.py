@@ -16,6 +16,7 @@ from .notification import Notification
 from .transfer import Transfer
 from .deposit_address import DepositAddress
 from .withdraw import Withdraw
-from .movement import Movement
+from .ticker import Ticker
+from .funding_ticker import FundingTicker
 
 NAME = 'models'

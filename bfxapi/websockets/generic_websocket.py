@@ -3,6 +3,7 @@ Module used as a interfeace to describe a generick websocket client
 """
 
 import asyncio
+import concurrent.futures
 import websockets
 import socket
 import json
@@ -56,37 +57,25 @@ class Socket():
             await self.ws.send(data)
 
 def _start_event_worker():
-    async def event_sleep_process():
-        """
-        sleeping process for event emitter to schedule on
-        """
-        while True:
-            await asyncio.sleep(0)
-    def start_loop(loop):
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(event_sleep_process())
-    event_loop = asyncio.new_event_loop()
-    worker = Thread(target=start_loop, args=(event_loop,))
-    worker.start()
-    ee = EventEmitter(scheduler=asyncio.ensure_future, loop=event_loop)
-    return ee
+    return EventEmitter(scheduler=asyncio.ensure_future)
 
 class GenericWebsocket:
     """
     Websocket object used to contain the base functionality of a websocket.
     Inlcudes an event emitter and a standard websocket client.
     """
+    logger = CustomLogger('BfxWebsocket', logLevel="DEBUG")
 
     def __init__(self, host, logLevel='INFO', max_retries=5, create_event_emitter=None):
         self.host = host
-        self.logger = CustomLogger('BfxWebsocket', logLevel=logLevel)
+        self.logger.set_level(logLevel)
         # overide 'error' event to stop it raising an exception
         # self.events.on('error', self.on_error)
         self.ws = None
         self.max_retries = max_retries
         self.attempt_retry = True
         self.sockets = {}
-        # start seperate process for the even emitter
+        # start separate process for the even emitter
         create_ee = create_event_emitter or _start_event_worker
         self.events = create_ee()
 
@@ -139,6 +128,7 @@ class GenericWebsocket:
         sId =  len(self.sockets)
         s = Socket(sId)
         self.sockets[sId] = s
+        loop = asyncio.get_event_loop()
         while retries < self.max_retries and self.attempt_retry:
             try:
                 async with websockets.connect(self.host) as websocket:
@@ -167,6 +157,15 @@ class GenericWebsocket:
                 self.logger.info("Reconnect attempt {}/{}".format(retries, self.max_retries))
         self.logger.info("Unable to connect to websocket.")
         self._emit('stopped')
+
+    async def stop(self):
+        """
+        Stop all websocket connections
+        """
+        self.attempt_retry = False
+        for key, socket in self.sockets.items():
+            await socket.ws.close()
+        self._emit('done')
 
     def remove_all_listeners(self, event):
         """
@@ -202,13 +201,9 @@ class GenericWebsocket:
 
     async def on_close(self):
         """
-        On websocket close print and fire event. This is used by the data server.
+        This is used by the HF data server.
         """
-        self.logger.info("Websocket closed.")
-        self.attempt_retry = False
-        for key, socket in self.sockets.items():
-            await socket.ws.close()
-        self._emit('done')
+        self.stop()
 
     async def on_open(self):
         """

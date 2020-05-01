@@ -1,7 +1,6 @@
 import os
 import sys
-sys.path.append('../')
-
+sys.path.append('../../../')
 from bfxapi import Client
 
 API_KEY=os.getenv("BFX_KEY")

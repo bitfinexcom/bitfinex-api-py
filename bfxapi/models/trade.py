@@ -4,6 +4,21 @@ Module used to describe all of the different data types
 
 import datetime
 
+class TradeModel:
+    """
+    Enum used to index the different values in a raw trade array
+    """
+    ID = 0
+    PAIR = 1
+    MTS_CREATE = 2
+    ORDER_ID = 3
+    EXEC_AMOUNT = 4
+    EXEC_PRICE = 5
+    ORDER_TYPE = 6
+    ORDER_PRICE = 7
+    MAKER = 8
+    FEE = 9
+    FEE_CURRENCY = 10
 
 class Trade:
     """
@@ -47,7 +62,19 @@ class Trade:
         """
         # [24224048, 'tBTCUSD', 1542800024000, 1151353484, 0.09399997, 19963, None, None,
         # -1, -0.000188, 'BTC']
-        return Trade(*raw_trade)
+        tid = raw_trade[TradeModel.ID]
+        pair = raw_trade[TradeModel.PAIR]
+        mtsc = raw_trade[TradeModel.MTS_CREATE]
+        oid = raw_trade[TradeModel.ORDER_ID]
+        amnt = raw_trade[TradeModel.EXEC_AMOUNT]
+        price = raw_trade[TradeModel.EXEC_PRICE]
+        otype = raw_trade[TradeModel.ORDER_TYPE]
+        oprice = raw_trade[TradeModel.ORDER_PRICE]
+        maker = raw_trade[TradeModel.MAKER]
+        fee = raw_trade[TradeModel.FEE]
+        feeccy = raw_trade[TradeModel.FEE_CURRENCY]
+        return Trade(tid, pair, mtsc, oid, amnt, price, otype, oprice, maker,
+                     fee, feeccy)
 
     def __str__(self):
         return "Trade '{}' x {} @ {} <direction='{}' fee={}>".format(
