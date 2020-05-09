@@ -37,6 +37,8 @@ class DepositAddress:
         return DepositAddress(method, currency, address)
 
     def __str__(self):
-        ''' Allow us to print the Transfer object in a pretty format '''
+        """
+        Allow us to print the Transfer object in a pretty format
+        """
         text = "DepositAddress <{}  method={} currency={}>"
         return text.format(self.address, self.method, self.currency)

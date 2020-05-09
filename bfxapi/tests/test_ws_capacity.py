@@ -8,7 +8,7 @@ from .helpers import (create_stubbed_client, ws_publish_connection_init, ws_publ
 async def test_ws_creates_new_socket():
   client = create_stubbed_client()
   client.ws.ws_capacity = 5
-  # publsh connection created message
+  # publish connection created message
   await ws_publish_connection_init(client.ws)
   # create a bunch of websocket subscriptions
   for symbol in ['tXRPBTC', 'tLTCUSD']:
@@ -25,12 +25,12 @@ async def test_ws_creates_new_socket():
 async def test_ws_uses_authenticated_socket():
   client = create_stubbed_client()
   client.ws.ws_capacity = 2
-  # publsh connection created message
+  # publish connection created message
   await ws_publish_connection_init(client.ws)
   # create a bunch of websocket subscriptions
   for symbol in ['tXRPBTC', 'tLTCUSD', 'tETHBTC', 'tBTCUSD', 'tETHUSD', 'tLTCBTC']:
     await client.ws.subscribe('candles', symbol, timeframe='1m')
-  # publsh connection created message on socket (0 by default)
+  # publish connection created message on socket (0 by default)
   await ws_publish_connection_init(client.ws)
   # send auth accepted (on socket by default)
   await ws_publish_auth_accepted(client.ws)

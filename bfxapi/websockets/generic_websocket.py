@@ -81,7 +81,7 @@ class GenericWebsocket:
 
     def run(self):
         """
-        Starte the websocket connection. This functions spawns the initial socket
+        Start the websocket connection. This functions spawns the initial socket
         thread and connection.
         """
         self._start_new_socket()

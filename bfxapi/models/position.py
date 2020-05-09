@@ -100,7 +100,9 @@ class Position:
                         lev, pid, mtsc, mtsu, ptype, coll, coll_min, meta)
 
     def __str__(self):
-        ''' Allow us to print the Trade object in a pretty format '''
+        """
+        Allow us to print the Trade object in a pretty format
+        """
         text = "Position '{}' {} x {} <status='{}' pl={}>"
         return text.format(self.symbol, self.base_price, self.amount,
                            self.status, self.profit_loss)
