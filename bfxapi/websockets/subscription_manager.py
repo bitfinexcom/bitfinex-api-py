@@ -146,7 +146,7 @@ class SubscriptionManager:
             # unsubscribe first and call callback to subscribe
             await self.unsubscribe(chan_id, re_sub)
         else:
-            # already unsibscribed, so just subscribe
+            # already unsubscribed, so just subscribe
             await sub.subscribe()
 
     def channel_count(self):

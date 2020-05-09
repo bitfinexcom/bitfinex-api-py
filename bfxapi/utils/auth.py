@@ -12,7 +12,7 @@ def generate_auth_payload(API_KEY, API_SECRET):
   """
   Generate a signed payload
 
-  @return json Oject headers
+  @return json Object headers
   """
   nonce = _gen_nonce()
   authMsg, sig = _gen_signature(API_KEY, API_SECRET, nonce)

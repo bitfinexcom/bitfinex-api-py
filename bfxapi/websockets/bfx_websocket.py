@@ -596,7 +596,7 @@ class BfxWebsocket(GenericWebsocket):
         Unsubscribe from the channel with the given chanId
 
         # Attributes
-        @param onComplete: function called when the bitfinex websocket resoponds with
+        @param onComplete: function called when the bitfinex websocket responds with
           a signal that confirms the subscription has been unsubscribed to
         """
         return await self.subscriptionManager.unsubscribe(*args, **kwargs)

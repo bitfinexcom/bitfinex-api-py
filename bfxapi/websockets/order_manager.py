@@ -55,9 +55,9 @@ class OrderManager:
         self.bfxapi._emit('order_closed', order)
 
     async def build_from_order_snapshot(self, raw_ws_data):
-        '''
+        """
         Rebuild the user orderbook based on an incoming snapshot
-        '''
+        """
         osData = raw_ws_data[2]
         self.open_orders = {}
         for raw_order in osData:
@@ -206,10 +206,7 @@ class OrderManager:
 
         @param orderId: the id of the order that you want to update
         @param onConfirm: function called when the bitfinex websocket receives signal that the
-                          order
-          was confirmed
-        @param onClose: function called when the bitfinex websocket receives signal that the order
-          was closed due to being filled or cancelled
+                          order was confirmed
         """
         self._create_callback(orderId, onConfirm, self.pending_cancel_confirm_callbacks)
         await self.bfxapi._send_auth_command('oc', {'id': orderId})

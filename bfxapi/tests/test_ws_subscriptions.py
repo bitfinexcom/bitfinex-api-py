@@ -7,7 +7,7 @@ from .helpers import (create_stubbed_client, ws_publish_connection_init, EventWa
 async def test_submit_subscribe():
 	client = create_stubbed_client()
 	symb = 'tXRPBTC'
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 
 	# Create new subscription to orderbook
@@ -42,7 +42,7 @@ async def test_event_subscribe():
 	client = create_stubbed_client()
 	symb = 'tXRPBTC'
 	pair = 'XRPBTC'
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	# create a new subscription
 	await client.ws.subscribe('trades', symb)
@@ -60,7 +60,7 @@ async def test_submit_unsubscribe():
 	client = create_stubbed_client()
 	symb = 'tXRPBTC'
 	pair = 'XRPBTC'
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	# create new subscription to trades
 	await client.ws.subscribe('trades', symb)

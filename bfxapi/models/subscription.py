@@ -18,7 +18,7 @@ class Subscription:
     """
     Object used to represent an individual subscription to the websocket.
     This class also exposes certain functions which helps to manage the subscription
-    such as unsibscribe and subscribe.
+    such as unsubscribe and subscribe.
     """
 
     def __init__(self, socket, channel_name, symbol, key=None, timeframe=None, **kwargs):
@@ -49,7 +49,7 @@ class Subscription:
 
     async def unsubscribe(self):
         """
-        Send an unsubscription request to the bitfinex socket
+        Send an un-subscription request to the bitfinex socket
         """
         if not self.is_subscribed():
             raise Exception("Subscription is not subscribed to websocket")

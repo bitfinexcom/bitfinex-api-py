@@ -114,6 +114,8 @@ class Notification:
         return basic
 
     def __str__(self):
-        ''' Allow us to print the Notification object in a pretty format '''
+        """
+        Allow us to print the Notification object in a pretty format
+        """
         text = "Notification <'{}' ({}) - {} notify_info={}>"
         return text.format(self.notify_type, self.status, self.text, self.notify_info)

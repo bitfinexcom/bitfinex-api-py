@@ -5,7 +5,7 @@ from .helpers import create_stubbed_client, ws_publish_connection_init, ws_publi
 async def test_checksum_generation():
     client = create_stubbed_client()
     symbol = "tXRPBTC"
-    # publsh connection created message
+    # publish connection created message
     await ws_publish_connection_init(client.ws)
     # publish checksum flag accepted
     await ws_publish_conf_accepted(client.ws, 131072)
@@ -37,7 +37,7 @@ async def test_checksum_generation():
 async def test_checksum_really_samll_numbers_generation():
     client = create_stubbed_client()
     symbol = "tVETBTC"
-    # publsh connection created message
+    # publish connection created message
     await ws_publish_connection_init(client.ws)
     # publish checksum flag accepted
     await ws_publish_conf_accepted(client.ws, 131072)

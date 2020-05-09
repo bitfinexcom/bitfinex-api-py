@@ -47,7 +47,9 @@ class Transfer:
         return Transfer(mts, wallet_from, wallet_to, currency_from, currency_to, amount)
 
     def __str__(self):
-        ''' Allow us to print the Transfer object in a pretty format '''
+        """
+        Allow us to print the Transfer object in a pretty format
+        """
         text = "Transfer <{} from {} ({}) to {} ({}) mts={}>"
         return text.format(self.amount, self.wallet_from, self.currency_from,
                            self.wallet_to, self.currency_to, self.mts)

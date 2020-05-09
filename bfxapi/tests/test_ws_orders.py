@@ -7,7 +7,7 @@ from .helpers import (create_stubbed_client, ws_publish_auth_accepted, ws_publis
 @pytest.mark.asyncio
 async def test_submit_order():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
@@ -25,7 +25,7 @@ async def test_submit_order():
 @pytest.mark.asyncio
 async def test_submit_update_order():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
@@ -44,7 +44,7 @@ async def test_submit_update_order():
 @pytest.mark.asyncio
 async def test_submit_cancel_order():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
@@ -59,7 +59,7 @@ async def test_submit_cancel_order():
 @pytest.mark.asyncio
 async def test_events_on_new_order():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
@@ -94,7 +94,7 @@ async def test_events_on_new_order():
 @pytest.mark.asyncio
 async def test_events_on_cancel_order():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
@@ -114,7 +114,7 @@ async def test_events_on_cancel_order():
 @pytest.mark.asyncio
 async def test_closed_callback_on_submit_order_closed():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
@@ -131,7 +131,7 @@ async def test_closed_callback_on_submit_order_closed():
 @pytest.mark.asyncio
 async def test_confirmed_callback_on_submit_order_closed():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
@@ -147,7 +147,7 @@ async def test_confirmed_callback_on_submit_order_closed():
 @pytest.mark.asyncio
 async def test_confirmed_callback_on_submit_new_order():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
@@ -163,7 +163,7 @@ async def test_confirmed_callback_on_submit_new_order():
 @pytest.mark.asyncio
 async def test_confirmed_callback_on_submit_order_update():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
@@ -179,7 +179,7 @@ async def test_confirmed_callback_on_submit_order_update():
 @pytest.mark.asyncio
 async def test_confirmed_callback_on_submit_cancel_order():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
@@ -195,7 +195,7 @@ async def test_confirmed_callback_on_submit_cancel_order():
 @pytest.mark.asyncio
 async def test_confirmed_callback_on_submit_cancel_group_order():
 	client = create_stubbed_client()
-	# publsh connection created message
+	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)

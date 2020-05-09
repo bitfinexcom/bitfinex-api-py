@@ -37,7 +37,7 @@ def formatter_message(message, use_color = True):
 
 def format_word(message, word, color_seq, bold=False, underline=False):
     """
-    Surround the fiven word with a sequence
+    Surround the given word with a sequence
     """
     replacer = color_seq + word + RESET_SEQ
     if underline:
@@ -47,9 +47,9 @@ def format_word(message, word, color_seq, bold=False, underline=False):
     return message.replace(word, replacer)
 
 class Formatter(logging.Formatter):
-  '''
+  """
   This Formatted simply colors in the levelname i.e 'INFO', 'DEBUG'
-  '''
+  """
   def __init__(self, msg, use_color = True):
     logging.Formatter.__init__(self, msg)
     self.use_color = use_color
@@ -66,10 +66,10 @@ class Formatter(logging.Formatter):
     return logging.Formatter.format(self, record)
 
 class CustomLogger(logging.Logger):
-    '''
+    """
     This adds extra logging functions such as logger.trade and also
     sets the logger to use the custom formatter
-    '''
+    """
     FORMAT = "[$BOLD%(name)s$RESET] [%(levelname)s] %(message)s"
     COLOR_FORMAT = formatter_message(FORMAT, True)
     TRADE = 50

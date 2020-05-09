@@ -209,7 +209,7 @@ class Order:
         """
         Check if the order is still open
 
-        @return bool: Ture if order open else False
+        @return bool: True if order open else False
         """
         return self.is_open_bool
 
@@ -230,7 +230,9 @@ class Order:
         return self.is_confirmed_bool
 
     def __str__(self):
-        ''' Allow us to print the Order object in a pretty format '''
+        """
+        Allow us to print the Order object in a pretty format
+        """
         text = "Order <'{}' amount_orig={} amount_filled={} mts_create={} status='{}' id={}>"
         return text.format(self.symbol, self.amount_orig, self.amount_filled,
                            self.mts_create, self.status, self.id)
