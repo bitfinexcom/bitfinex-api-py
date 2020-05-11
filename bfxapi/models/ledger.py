@@ -7,7 +7,7 @@ class LedgerModel:
     Enum used to index the location of each value in a raw array
     """
     ID = 0
-    CURRENCY=1
+    CURRENCY = 1
     MTS = 3
     AMOUNT = 5
     BALANCE = 6
@@ -25,8 +25,6 @@ class Ledger:
     PLACEHOLDER
     DESCRIPTION
     """
-
-    # [2794967447, 'USD', None, 1588004822000, None, -8.6166026, 4299.6846957, None, 'Trading fees for 4303.997301 UST (USTUSD) @ 1.001 on BFX (0.2%) on wallet exchange'],
 
     def __init__(self, currency, mts, amount, balance, description):
         self.currency = currency
@@ -46,7 +44,7 @@ class Ledger:
         mts = raw_ledger[LedgerModel.MTS]
         amount = raw_ledger[LedgerModel.AMOUNT]
         balance = raw_ledger[LedgerModel.BALANCE]
-        description  = raw_ledger[LedgerModel.DESCRIPTION]
+        description = raw_ledger[LedgerModel.DESCRIPTION]
         return Ledger(currency, mts, amount, balance, description)
 
     def __str__(self):
