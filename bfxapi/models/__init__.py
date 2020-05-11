@@ -18,5 +18,6 @@ from .deposit_address import DepositAddress
 from .withdraw import Withdraw
 from .ticker import Ticker
 from .funding_ticker import FundingTicker
+from .ledger import Ledger
 
 NAME = 'models'

@@ -10,7 +10,7 @@ import json
 from ..utils.custom_logger import CustomLogger
 from ..utils.auth import generate_auth_headers, calculate_order_flags, gen_unique_cid
 from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer
-from ..models import FundingCredit, Notification
+from ..models import FundingCredit, Notification, Ledger
 
 
 class BfxRest:
@@ -364,6 +364,21 @@ class BfxRest:
         params = "?start={}&end={}&limit={}".format(start, end, limit)
         credits = await self.post(endpoint, params=params)
         return [FundingCredit.from_raw_credit(c) for c in credits]
+
+    async def get_ledgers(self, symbol, start, end, limit=25, category=None):
+        """
+        Get all ledgers on account associated with API_KEY - Requires authentication.
+        See category filters here: https://docs.bitfinex.com/reference#rest-auth-ledgers
+        @return Array <models.Ledger>
+        """
+        endpoint = "auth/r/ledgers/{}/hist".format(symbol)
+        params = "?start={}&end={}&limit={}".format(start, end, limit)
+        if (category):
+            payload = { "category": category , }
+            raw_ledgers = await self.post(endpoint, payload, params=params)
+        else:
+            raw_ledgers = await self.post(endpoint, params=params)
+        return [Ledger.from_raw_ledger(rl) for rl in raw_ledgers]
 
     async def submit_funding_offer(self, symbol, amount, rate, period,
                                    funding_type=FundingOffer.Type.LIMIT, hidden=False):
