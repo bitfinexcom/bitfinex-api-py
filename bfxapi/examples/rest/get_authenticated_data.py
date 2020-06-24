@@ -50,32 +50,32 @@ async def log_order_trades():
   [ print (t) for t in trades]
 
 async def log_funding_offers():
-  offers = await bfx.rest.get_funding_offers('tBTCUSD')
+  offers = await bfx.rest.get_funding_offers('fBTC')
   print ("Offers:")
   [ print (o) for o in offers]
 
 async def log_funding_offer_history():
-  offers = await bfx.rest.get_funding_offer_history('tBTCUSD', 0, then)
+  offers = await bfx.rest.get_funding_offer_history('fBTC', 0, then)
   print ("Offers history:")
   [ print (o) for o in offers]
 
 async def log_funding_loans():
-  loans = await bfx.rest.get_funding_loans('tBTCUSD')
+  loans = await bfx.rest.get_funding_loans('fBTC')
   print ("Funding loans:")
   [ print (l) for l in loans ]
 
 async def log_funding_loans_history():
-  loans = await bfx.rest.get_funding_loan_history('tBTCUSD', 0, then)
+  loans = await bfx.rest.get_funding_loan_history('fBTC', 0, then)
   print ("Funding loan history:")
   [ print (l) for l in loans ]
 
 async def log_funding_credits():
-  credits = await bfx.rest.get_funding_credits('tBTCUSD')
+  credits = await bfx.rest.get_funding_credits('fBTC')
   print ("Funding credits:")
   [ print (c) for c in credits ]
 
 async def log_funding_credits_history():
-  credit = await bfx.rest.get_funding_credit_history('tBTCUSD', 0, then)
+  credit = await bfx.rest.get_funding_credit_history('fBTC', 0, then)
   print ("Funding credit history:")
   [ print (c) for c in credit ]
 
