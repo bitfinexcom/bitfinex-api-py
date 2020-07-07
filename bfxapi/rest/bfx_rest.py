@@ -368,7 +368,17 @@ class BfxRest:
     async def get_ledgers(self, symbol, start, end, limit=25, category=None):
         """
         Get all ledgers on account associated with API_KEY - Requires authentication.
+
+        You can emit the symbol param in order to receive ledger entries for all symbols.
         See category filters here: https://docs.bitfinex.com/reference#rest-auth-ledgers
+
+        # Attributes
+        @param symbol string: pair symbol i.e tBTCUSD - can be omitted to receive all entries
+        @param start int: start of window
+        @param end int: end of window
+        @param limit int: max number of entries
+        @param category int: filter category to receive specific ledger entries
+
         @return Array <models.Ledger>
         """
         endpoint = ("auth/r/ledgers/{}/hist".format(symbol)

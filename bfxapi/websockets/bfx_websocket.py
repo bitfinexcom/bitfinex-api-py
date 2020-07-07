@@ -126,26 +126,29 @@ class BfxWebsocket(GenericWebsocket):
     - `wallet_snapshot` (array[Wallet]): Initial wallet balances (Fired once)
     - `order_snapshot` (array[Order]): Initial open orders (Fired once)
     - `positions_snapshot` (array): Initial open positions (Fired once)
-    - `wallet_update` (Wallet): changes to the balance of wallets
-    - `status_update` (Object): new platform status info
-    - `seed_candle` (Object): initial past candle to prime strategy
-    - `seed_trade` (Object): initial past trade to prime strategy
-    - `funding_offer_snapshot` (array): opening funding offer balances
-    - `funding_loan_snapshot` (array): opening funding loan balances
-    - `funding_credit_snapshot` (array): opening funding credit balances
-    - `balance_update` (array): when the state of a balance is changed
-    - `new_trade` (array): a new trade on the market has been executed
-    - `new_ticker` (Ticker|FundingTicker): a new ticker update has been published
-    - `new_funding_ticker` (FundingTicker): a new funding ticker update has been published
-    - `new_trading_ticker` (Ticker): a new trading ticker update has been published
-    - `trade_update` (array): a trade on the market has been updated
-    - `new_candle` (array): a new candle has been produced
-    - `margin_info_updates` (array): new margin information has been broadcasted
-    - `funding_info_updates` (array): new funding information has been broadcasted
-    - `order_book_snapshot` (array): initial snapshot of the order book on connection
-    - `order_book_update` (array): a new order has been placed into the ordebrook
-    - `subscribed` (Subscription): a new channel has been subscribed to
-    - `unsubscribed` (Subscription): a channel has been un-subscribed
+    - `positions_new` (array): Initial open positions (Fired once)
+    - `positions_update` (array): An active position has been updated
+    - `positions_close` (array): An active position has closed
+    - `wallet_update` (Wallet): Changes to the balance of wallets
+    - `status_update` (Object): New platform status info
+    - `seed_candle` (Object): Initial past candle to prime strategy
+    - `seed_trade` (Object): Initial past trade to prime strategy
+    - `funding_offer_snapshot` (array): Opening funding offer balances
+    - `funding_loan_snapshot` (array): Opening funding loan balances
+    - `funding_credit_snapshot` (array): Opening funding credit balances
+    - `balance_update` (array): When the state of a balance is changed
+    - `new_trade` (array): A new trade on the market has been executed
+    - `new_ticker` (Ticker|FundingTicker): A new ticker update has been published
+    - `new_funding_ticker` (FundingTicker): A new funding ticker update has been published
+    - `new_trading_ticker` (Ticker): A new trading ticker update has been published
+    - `trade_update` (array): A trade on the market has been updated
+    - `new_candle` (array): A new candle has been produced
+    - `margin_info_updates` (array): New margin information has been broadcasted
+    - `funding_info_updates` (array): New funding information has been broadcasted
+    - `order_book_snapshot` (array): Initial snapshot of the order book on connection
+    - `order_book_update` (array): A new order has been placed into the ordebrook
+    - `subscribed` (Subscription): A new channel has been subscribed to
+    - `unsubscribed` (Subscription): A channel has been un-subscribed
     """
 
     def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2',
@@ -178,6 +181,9 @@ class BfxWebsocket(GenericWebsocket):
             'os': self._order_snapshot_handler,
             'ws': self._wallet_snapshot_handler,
             'ps': self._position_snapshot_handler,
+            'pu': self._position_update_handler,
+            'pn': self._position_new_handler,
+            'pc': self._position_close_handler,
             'fos': self._funding_offer_snapshot_handler,
             'fcs': self._funding_credit_snapshot_handler,
             'fls': self._funding_load_snapshot_handler,
@@ -338,6 +344,18 @@ class BfxWebsocket(GenericWebsocket):
     async def _position_snapshot_handler(self, data):
         self._emit('position_snapshot', data)
         self.logger.info("Position snapshot: {}".format(data))
+
+    async def _position_update_handler(self, data):
+        self._emit('position_update', data)
+        self.logger.info("Position update: {}".format(data))
+
+    async def _position_close_handler(self, data):
+        self._emit('position_close', data)
+        self.logger.info("Position close: {}".format(data))
+
+    async def _position_new_handler(self, data):
+        self._emit('position_new', data)
+        self.logger.info("Position new: {}".format(data))
 
     async def _funding_offer_snapshot_handler(self, data):
         self._emit('funding_offer_snapshot', data)

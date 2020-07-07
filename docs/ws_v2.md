@@ -50,36 +50,42 @@ This websocket requires authentication and is capable of handling orders.
 https://github.com/Crypto-toolbox/btfxwss
 
 ### Emitter events:
-- `all` (array|Object): listen for all messages coming through
-- `connected:` () called when a connection is made
-- `disconnected`: () called when a connection is ended (A reconnect attempt may follow)
-- `stopped`: () called when max amount of connection retries is met and the socket is closed
-- `authenticated` (): called when the websocket passes authentication
-- `notification` (Notification): incoming account notification
-- `error` (array): error from the websocket
-- `order_closed` (Order, Trade): when an order has been closed
-- `order_new` (Order, Trade): when an order has been created but not closed. Note: will not be called if order is executed and filled instantly
-- `order_confirmed` (Order, Trade): When an order has been submitted and received
-- `wallet_snapshot` (array[Wallet]): Initial wallet balances (Fired once)
-- `order_snapshot` (array[Order]): Initial open orders (Fired once)
-- `positions_snapshot` (array): Initial open positions (Fired once)
-- `wallet_update` (Wallet): changes to the balance of wallets
-- `status_update` (Object): new platform status info
-- `seed_candle` (Object): initial past candle to prime strategy
-- `seed_trade` (Object): initial past trade to prime strategy
-- `funding_offer_snapshot` (array): opening funding offer balances
-- `funding_loan_snapshot` (array): opening funding loan balances
-- `funding_credit_snapshot` (array): opening funding credit balances
-- `balance_update` (array): when the state of a balance is changed
-- `new_trade` (array): a new trade on the market has been executed
-- `trade_update` (array): a trade on the market has been updated
-- `new_candle` (array): a new candle has been produced
-- `margin_info_updates` (array): new margin information has been broadcasted
-- `funding_info_updates` (array): new funding information has been broadcasted
-- `order_book_snapshot` (array): initial snapshot of the order book on connection
-- `order_book_update` (array): a new order has been placed into the ordebrook
-- `subscribed` (Subscription): a new channel has been subscribed to
-- `unsubscribed` (Subscription): a channel has been un-subscribed
+  - `all` (array|Object): listen for all messages coming through
+  - `connected:` () called when a connection is made
+  - `disconnected`: () called when a connection is ended (A reconnect attempt may follow)
+  - `stopped`: () called when max amount of connection retries is met and the socket is closed
+  - `authenticated` (): called when the websocket passes authentication
+  - `notification` (Notification): incoming account notification
+  - `error` (array): error from the websocket
+  - `order_closed` (Order, Trade): when an order has been closed
+  - `order_new` (Order, Trade): when an order has been created but not closed. Note: will not be called if order is executed and filled instantly
+  - `order_confirmed` (Order, Trade): When an order has been submitted and received
+  - `wallet_snapshot` (array[Wallet]): Initial wallet balances (Fired once)
+  - `order_snapshot` (array[Order]): Initial open orders (Fired once)
+  - `positions_snapshot` (array): Initial open positions (Fired once)
+  - `positions_new` (array): Initial open positions (Fired once)
+  - `positions_update` (array): An active position has been updated
+  - `positions_close` (array): An active position has closed
+  - `wallet_update` (Wallet): Changes to the balance of wallets
+  - `status_update` (Object): New platform status info
+  - `seed_candle` (Object): Initial past candle to prime strategy
+  - `seed_trade` (Object): Initial past trade to prime strategy
+  - `funding_offer_snapshot` (array): Opening funding offer balances
+  - `funding_loan_snapshot` (array): Opening funding loan balances
+  - `funding_credit_snapshot` (array): Opening funding credit balances
+  - `balance_update` (array): When the state of a balance is changed
+  - `new_trade` (array): A new trade on the market has been executed
+  - `new_ticker` (Ticker|FundingTicker): A new ticker update has been published
+  - `new_funding_ticker` (FundingTicker): A new funding ticker update has been published
+  - `new_trading_ticker` (Ticker): A new trading ticker update has been published
+  - `trade_update` (array): A trade on the market has been updated
+  - `new_candle` (array): A new candle has been produced
+  - `margin_info_updates` (array): New margin information has been broadcasted
+  - `funding_info_updates` (array): New funding information has been broadcasted
+  - `order_book_snapshot` (array): Initial snapshot of the order book on connection
+  - `order_book_update` (array): A new order has been placed into the ordebrook
+  - `subscribed` (Subscription): A new channel has been subscribed to
+  - `unsubscribed` (Subscription): A channel has been un-subscribed
 
 
 ## enable_flag
