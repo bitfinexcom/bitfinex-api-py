@@ -371,7 +371,8 @@ class BfxRest:
         See category filters here: https://docs.bitfinex.com/reference#rest-auth-ledgers
         @return Array <models.Ledger>
         """
-        endpoint = "auth/r/ledgers/{}/hist".format(symbol)
+        endpoint = ("auth/r/ledgers/{}/hist".format(symbol)
+                    if symbol else "auth/r/ledgers/hist")
         params = "?start={}&end={}&limit={}".format(start, end, limit)
         if (category):
             payload = { "category": category , }
