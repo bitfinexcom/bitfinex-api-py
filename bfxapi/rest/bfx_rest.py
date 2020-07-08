@@ -391,6 +391,24 @@ class BfxRest:
             raw_ledgers = await self.post(endpoint, params=params)
         return [Ledger.from_raw_ledger(rl) for rl in raw_ledgers]
 
+    async def get_movement_history(self, currency, start="", end="", limit=25):
+        """
+        Get all of the deposits and withdraws between the start and end period associated with API_KEY
+        - Requires authentication.
+
+        # Attributes
+        @param currency string: pair symbol i.e BTC
+        @param start int: millisecond start time
+        @param end int: millisecond end time
+        @param limit int: max number of items in response
+        @return Array <models.Movement>
+        """
+        endpoint = "auth/r/movements/{}/hist".format(currency)
+        params = "?start={}&end={}&limit={}".format(
+            start, end, limit)
+        raw_movements = await self.post(endpoint, params=params)
+        return [Movement.from_raw_movement(rm) for rm in raw_movements]
+
     async def submit_funding_offer(self, symbol, amount, rate, period,
                                    funding_type=FundingOffer.Type.LIMIT, hidden=False):
         """
