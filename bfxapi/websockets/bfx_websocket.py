@@ -10,6 +10,7 @@ import random
 from .generic_websocket import GenericWebsocket, AuthError
 from .subscription_manager import SubscriptionManager
 from .wallet_manager import WalletManager
+from .position_manager import PositionManager
 from .order_manager import OrderManager
 from ..utils.auth import generate_auth_payload
 from ..models import Order, Trade, OrderBook, Ticker, FundingTicker
@@ -169,6 +170,7 @@ class BfxWebsocket(GenericWebsocket):
         self.subscriptionManager = SubscriptionManager(self, logLevel=logLevel)
         self.orderManager = OrderManager(self, logLevel=logLevel)
         self.wallets = WalletManager()
+        self.positions = PositionManager()
 
         self._WS_DATA_HANDLERS = {
             'tu': self._trade_update_handler,
@@ -297,6 +299,7 @@ class BfxWebsocket(GenericWebsocket):
         self._emit('wallet_update', uw)
         self.logger.info("Wallet update: {}".format(uw))
 
+
     async def _heart_beat_handler(self, data):
         self.logger.debug("Heartbeat - {}".format(self.host))
 
@@ -342,14 +345,16 @@ class BfxWebsocket(GenericWebsocket):
         self._emit('wallet_snapshot', wallets)
 
     async def _position_snapshot_handler(self, data):
-        self._emit('position_snapshot', data)
-        self.logger.info("Position snapshot: {}".format(data))
+        positions = self.positions._update_from_snapshot(data)
+        self._emit('position_snapshot', positions)
 
     async def _position_update_handler(self, data):
-        self._emit('position_update', data)
-        self.logger.info("Position update: {}".format(data))
+        up = self.positions._update_from_event(data)
+        self._emit('position_update', up)
+        self.logger.info("Position update: {}".format(up))
 
     async def _position_close_handler(self, data):
+        self.positions._close_position(data)
         self._emit('position_close', data)
         self.logger.info("Position close: {}".format(data))
 
