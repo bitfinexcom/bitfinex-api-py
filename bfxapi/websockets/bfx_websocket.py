@@ -354,13 +354,15 @@ class BfxWebsocket(GenericWebsocket):
         self.logger.info("Position update: {}".format(up))
 
     async def _position_close_handler(self, data):
+        cp = self.positions._update_from_event(data)
         self.positions._close_position(data)
         self._emit('position_close', data)
-        self.logger.info("Position close: {}".format(data))
+        self.logger.info("Position close: {}".format(cp))
 
     async def _position_new_handler(self, data):
-        self._emit('position_new', data)
-        self.logger.info("Position new: {}".format(data))
+        np = self.positions._update_from_event(data)
+        self._emit('position_new', np)
+        self.logger.info("Position new: {}".format(np))
 
     async def _funding_offer_snapshot_handler(self, data):
         self._emit('funding_offer_snapshot', data)
