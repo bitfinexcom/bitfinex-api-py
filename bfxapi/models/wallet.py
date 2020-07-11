@@ -31,4 +31,4 @@ class Wallet:
 
     def __str__(self):
         return "Wallet <'{}_{}' balance='{}' unsettled='{}' available='{}'>".format(
-            self.type, self.currency, self.balance, self.unsettled_interest, self.available))
+            self.type, self.currency, self.balance, self.unsettled_interest, self.available)
