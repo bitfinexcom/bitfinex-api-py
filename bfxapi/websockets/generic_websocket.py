@@ -3,14 +3,13 @@ Module used as a interfeace to describe a generick websocket client
 """
 
 import asyncio
-import concurrent.futures
 import websockets
 import socket
 import json
 import time
 from threading import Thread, Lock
 
-from pyee import EventEmitter
+from pyee import AsyncIOEventEmitter
 from ..utils.custom_logger import CustomLogger
 
 # websocket exceptions
@@ -57,7 +56,7 @@ class Socket():
             await self.ws.send(data)
 
 def _start_event_worker():
-    return EventEmitter(scheduler=asyncio.ensure_future)
+    return AsyncIOEventEmitter()
 
 class GenericWebsocket:
     """
