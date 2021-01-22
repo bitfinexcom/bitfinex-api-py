@@ -45,7 +45,15 @@ setup(
     # Python versions (enforced)
     python_requires='>=3.0.0, <4',
     # deps installed by pip
-    install_requires=['eventemitter', 'asyncio', 'websockets', 'pylint', 'six', 'pyee', 'aiohttp'],
+    install_requires=[
+        'eventemitter==0.2.0',
+        'asyncio==3.4.3',
+        'websockets==7.0',
+        'pylint==2.3.0',
+        'six==1.12.0',
+        'pyee==5.0.0',
+        'aiohttp==3.4.4'
+    ],
     project_urls={
         'Bug Reports': 'https://github.com/bitfinexcom/bitfinex-api-py/issues',
         'Source': 'https://github.com/bitfinexcom/bitfinex-api-py',
