@@ -1,3 +1,6 @@
+1.1.9
+- Updated pyee and changed deprecated class EventEmitter() -> AsyncIOEventEmitter() to make it work with all Python 3.X versions
+
 1.1.8
 - Adds support for websocket events pu, pn and pu
 
