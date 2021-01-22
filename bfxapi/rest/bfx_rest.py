@@ -143,7 +143,7 @@ class BfxRest:
         @param precision string: level of price aggregation (P0, P1, P2, P3, P4, R0)
         @param length int: number of price points ("25", "100")
         @return Array [ PRICE, COUNT, AMOUNT ]
- https://docs.bitfinex.com/reference#rest-public-pulse-hist       """
+        """
         endpoint = "book/{}/{}".format(symbol, precision)
         params = "?len={}".format(length)
         books = await self.fetch(endpoint, params)
