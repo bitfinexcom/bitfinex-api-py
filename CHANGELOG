@@ -1,4 +1,5 @@
 1.1.9
+- Implemented PULSE endpoints (rest)
 - Updated pyee and changed deprecated class EventEmitter() -> AsyncIOEventEmitter() to make it work with all Python 3.X versions
 
 1.1.8
