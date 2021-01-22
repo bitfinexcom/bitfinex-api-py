@@ -143,7 +143,7 @@ class BfxRest:
         @param precision string: level of price aggregation (P0, P1, P2, P3, P4, R0)
         @param length int: number of price points ("25", "100")
         @return Array [ PRICE, COUNT, AMOUNT ]
-        """
+ https://docs.bitfinex.com/reference#rest-public-pulse-hist       """
         endpoint = "book/{}/{}".format(symbol, precision)
         params = "?len={}".format(length)
         books = await self.fetch(endpoint, params)
@@ -203,6 +203,38 @@ class BfxRest:
         endpoint = "status/deriv?keys={}".format(','.join(symbols))
         status = await self.fetch(endpoint)
         return status
+
+    async def get_public_pulse_hist(self, end, limit=15):
+        """
+        View the latest pulse messages. You can specify an end timestamp to view older messages.
+
+        # Attributes
+        @param end int: millisecond end time
+        @param limit int: max number of items in response (MAX: 100)
+        @return Array [ PID, MTS, _PLACEHOLDER, PUID, _PLACEHOLDER, TITLE, CONTENT,
+            _PLACEHOLDER, _PLACEHOLDER, IS_PIN, IS_PUBLIC, COMMENTS_DISABLED, TAGS,
+            META, LIKES, _PLACEHOLDER, _PLACEHOLDER, [ PUID, MTS, _PLACEHOLDER,
+            NICKNAME, PLACEHOLDER, PICTURE, TEXT, _PLACEHOLDER, _PLACEHOLDER, TWITTER_HANDLE,
+            _PLACEHOLDER, FOLLOWERS, FOLLOWING, _PLACEHOLDER, _PLACEHOLDER, _PLACEHOLDER,
+            TIPPING_STATUS ] ], COMMENTS, _PLACEHOLDER, _PLACEHOLDER ]
+        """
+        endpoint = f"pulse/hist?limit={limit}&end={end}"
+        hist = await self.fetch(endpoint)
+        return hist
+
+    async def get_public_pulse_profile(self, nickname='Bitfinex'):
+        """
+        This endpoint shows details for a specific Pulse profile
+
+        # Attributes
+        @param nickname string
+        @return Array [ PUID, MTS, _PLACEHOLDER, NICKNAME, _PLACEHOLDER, PICTURE,
+        TEXT, _PLACEHOLDER, _PLACEHOLDER, TWITTER_HANDLE, _PLACEHOLDER, FOLLOWERS,
+        FOLLOWING, _PLACEHOLDER, _PLACEHOLDER, _PLACEHOLDER, TIPPING_STATUS]
+        """
+        endpoint = f"pulse/profile/{nickname}"
+        profile = await self.fetch(endpoint)
+        return profile
 
     ##################################################
     #               Authenticated Data               #
@@ -630,6 +662,72 @@ class BfxRest:
         raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
 
+    async def get_auth_pulse_hist(self, is_public=None):
+        """
+        Allows you to retrieve your private pulse history or the public pulse history with an additional UID_LIKED field.
+
+        # Attributes
+        @param is_public int: allows you to receive the public pulse history with the UID_LIKED field
+        @return Array [ PID, MTS, _PLACEHOLDER, PUID, _PLACEHOLDER, TITLE,
+        CONTENT, _PLACEHOLDER, _PLACEHOLDER, IS_PIN, IS_PUBLIC, COMMENTS_DISABLED,
+        TAGS, META,LIKES, UID_LIKED, _PLACEHOLDER, [ PUID, MTS, _PLACEHOLDER, NICKNAME,
+        _PLACEHOLDER, PICTURE, TEXT, _PLACEHOLDER, _PLACEHOLDER, TWITTER_HANDLE, _PLACEHOLDER,
+        FOLLOWERS, FOLLOWING, _PLACEHOLDER, _PLACEHOLDER, _PLACEHOLDER, TIPPING_STATUS ], COMMENTS,
+        _PLACEHOLDER, _PLACEHOLDER ]
+        """
+        endpoint = f"auth/r/pulse/hist"
+        if is_public:
+            endpoint += f'?isPublic={is_public}'
+        hist = await self.post(endpoint)
+        return hist
+
+    async def pulse_add(self, title, content, parent=None, is_pin=False,
+                                 attachments=[], disable_comments=False, is_public=True):
+        """
+        Allows you to write Pulse messages
+
+        # Attributes
+        @param title str: title of the message (min 16, max 120 characters)
+        @param content str: content of the message
+        @param parent str: Pulse Message ID (PID) of parent post
+        @param is_pin boolean: is message pinned?
+        @param attachments list of str: base64 format
+        @param disable_comments boolean: are comments disabled?
+        @param is_public boolean: is a public message?
+        @return Array [ PID, MTS, _PLACEHOLDER, PUID, _PLACEHOLDER, TITLE,
+        CONTENT, _PLACEHOLDER, _PLACEHOLDER, IS_PIN, IS_PUBLIC, COMMENTS_DISABLED,
+        TAGS // This inner array contains zero or more tag strings ATTACHMENTS, _PLACEHOLDER,
+        LIKES, UID_LIKED, _PLACEHOLDER, [], ... ]
+        """
+        endpoint = f"auth/w/pulse/add"
+        payload = {
+            'title': title,
+            'content': content,
+            'isPin': 1 if is_pin else 0,
+            'attachments': attachments,
+            'disableComments': 1 if disable_comments else 0,
+            'isPublic': 1 if is_public else 0
+        }
+        if parent:
+            payload['parent'] = parent
+        print(payload)
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def pulse_delete(self, pid):
+        """
+        Allows you to delete your Pulse messages
+
+        # Attributes
+        @param pid str: ID of the pulse message that you want to delete
+        @return Array [1] or [0]
+        """
+        endpoint = f"auth/w/pulse/del"
+        payload = {
+            'pid': pid
+        }
+        message = await self.post(endpoint, payload)
+        return message
 
     ##################################################
     #                   Derivatives                  #
