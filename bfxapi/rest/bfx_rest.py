@@ -204,6 +204,16 @@ class BfxRest:
         status = await self.fetch(endpoint)
         return status
 
+    async def get_conf_list_pair_exchange(self):
+        """
+        Get list of available exchange pairs.
+
+        # Attributes
+        @return Array [ SYMBOL ]
+        """
+        endpoint = "conf/pub:list:pair:exchange"
+        pairs = await self.fetch(endpoint)
+        return pairs
     ##################################################
     #               Authenticated Data               #
     ##################################################
