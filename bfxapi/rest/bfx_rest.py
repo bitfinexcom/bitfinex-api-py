@@ -236,6 +236,51 @@ class BfxRest:
         profile = await self.fetch(endpoint)
         return profile
 
+    async def get_market_average_price(self, symbol, amount=None, period=None, rate_limit=None):
+        """
+        Calculate the average execution price for Trading or rate for Margin funding.
+
+        # Attributes
+        @param symbol str: the symbol you want information about
+        @param amount str: amount. Positive for buy, negative for sell
+        @param period int: maximum period for Margin Funding
+        @param rate_limit string: limit rate/price (ex. "1000.5")
+
+        @return Array
+        For exchange trading
+        [PRICE_AVG, AMOUNT]
+
+        For funding
+        [RATE_AVG, AMOUNT]
+        """
+        endpoint = f"calc/trade/avg"
+        payload = {
+            "symbol": symbol,
+            "amount": amount,
+            "period": period,
+            "rate_limit": rate_limit
+        }
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def get_foreign_exchange_rate(self, ccy1, ccy2):
+        """
+        Calculate the average execution price for Trading or rate for Margin funding.
+
+        # Attributes
+        @param ccy1 str: base currency
+        @param ccy2 str: quote currency
+
+        @return Array [ CURRENT_RATE ]
+        """
+        endpoint = f"calc/fx"
+        payload = {
+            "ccy1": ccy1,
+            "ccy2": ccy2
+        }
+        message = await self.post(endpoint, payload)
+        return message
+
     ##################################################
     #               Authenticated Data               #
     ##################################################
@@ -417,7 +462,7 @@ class BfxRest:
                     if symbol else "auth/r/ledgers/hist")
         params = "?start={}&end={}&limit={}".format(start, end, limit)
         if (category):
-            payload = { "category": category , }
+            payload = {"category": category, }
             raw_ledgers = await self.post(endpoint, payload, params=params)
         else:
             raw_ledgers = await self.post(endpoint, params=params)
@@ -456,7 +501,23 @@ class BfxRest:
         @param fundingId int: the id of the funding offer
         """
         endpoint = "auth/w/funding/offer/cancel"
-        raw_notification = await self.post(endpoint,  { 'id': fundingId })
+        raw_notification = await self.post(endpoint, {'id': fundingId})
+        return Notification.from_raw_notification(raw_notification)
+
+    async def keep_funding(self, type, id):
+        """
+        Toggle to keep funding taken. Specify loan for unused funding and credit for used funding.
+
+        # Attributes
+        @param type string: funding type ('credit' or 'loan')
+        @param id int: loan or credit identifier
+        """
+        endpoint = "auth/w/funding/keep"
+        payload = {
+            "type": type,
+            "id": id
+        }
+        raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
 
     async def submit_wallet_transfer(self, from_wallet, to_wallet, from_currency, to_currency, amount):
@@ -478,7 +539,7 @@ class BfxRest:
             "currency_to": to_currency,
             "amount": str(amount),
         }
-        raw_transfer = await self.post(endpoint,  payload)
+        raw_transfer = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_transfer)
 
     async def get_wallet_deposit_address(self, wallet, method, renew=0):
@@ -615,12 +676,44 @@ class BfxRest:
         @param orderId: the id of the order that you want to update
         """
         endpoint = "auth/w/order/cancel"
-        raw_notification = await self.post(endpoint, { 'id': orderId })
+        raw_notification = await self.post(endpoint, {'id': orderId})
+        return Notification.from_raw_notification(raw_notification)
+
+    async def submit_cancel_order_multi(self, ids=None, cids=None, gids=None, all=None):
+        """
+        Cancel multiple orders simultaneously. Orders can be canceled based on the Order ID,
+        the combination of Client Order ID and Client Order Date, or the Group Order ID.
+        Alternatively, the body param 'all' can be used with a value of 1 to cancel all orders.
+
+        # Attributes
+        @param id array of int: orders ids
+        [1234, 1235, ...]
+
+        @param cids array of arrays: client orders ids
+        [[234, "2016-12-05"], ...]
+
+        @param gids array of int: group orders id
+        [11, ...]
+
+        @param all int: cancel all open orders if value is set to 1
+        """
+        endpoint = "auth/w/order/cancel/multi"
+        payload = {}
+        if ids != None:
+            payload["id"] = ids
+        if cids != None:
+            payload["cid"] = cids
+        if gids != None:
+            payload["gid"] = gids
+        if all != None:
+            payload["all"] = all
+        print(payload)
+        raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
 
     async def submit_update_order(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,
-                           price_trailing=None, hidden=False, close=False, reduce_only=False, 
-                           post_only=False, time_in_force=None, leverage=None):
+                                  price_trailing=None, hidden=False, close=False, reduce_only=False,
+                                  post_only=False, time_in_force=None, leverage=None):
         """
         Update an existing order
 
@@ -682,7 +775,7 @@ class BfxRest:
         return hist
 
     async def pulse_add(self, title, content, parent=None, is_pin=False,
-                                 attachments=[], disable_comments=False, is_public=True):
+                        attachments=[], disable_comments=False, is_public=True):
         """
         Allows you to write Pulse messages
 
@@ -725,6 +818,32 @@ class BfxRest:
         endpoint = f"auth/w/pulse/del"
         payload = {
             'pid': pid
+        }
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def generate_invoice(self, wallet='exchange', currency='LNX', amount='0.02'):
+        """
+        Generates a Lightning Network deposit invoice
+
+        # Attributes
+        @param wallet str: Select the wallet that will receive the invoice payment
+        Currently only 'exchange' is available
+        @param currency str: Select the currency for which you wish to generate an invoice
+        Currently only LNX (Bitcoin Lightning Network) is available.
+        @param amount str: Amount that you wish to deposit (in BTC; min 0.000001, max 0.02)
+
+        @return Array [INVOICE_HASH, INVOICE, PLACEHOLDER, PLACEHOLDER, AMOUNT]
+
+        If this is the first time you are generating an LNX invoice on your account,
+        you will first need to create a deposit address. To do this, call
+        self.get_wallet_deposit_address(method='LNX', wallet='exchange')
+        """
+        endpoint = f"auth/w/deposit/invoice"
+        payload = {
+            'wallet': wallet,
+            'currency': currency,
+            'amount': amount
         }
         message = await self.post(endpoint, payload)
         return message
