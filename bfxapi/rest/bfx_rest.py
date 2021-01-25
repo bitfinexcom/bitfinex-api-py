@@ -461,8 +461,8 @@ class BfxRest:
         endpoint = ("auth/r/ledgers/{}/hist".format(symbol)
                     if symbol else "auth/r/ledgers/hist")
         params = "?start={}&end={}&limit={}".format(start, end, limit)
-        if (category):
-            payload = {"category": category, }
+        if category:
+            payload = {"category": category}
             raw_ledgers = await self.post(endpoint, payload, params=params)
         else:
             raw_ledgers = await self.post(endpoint, params=params)
