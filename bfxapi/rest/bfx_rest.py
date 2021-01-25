@@ -707,7 +707,6 @@ class BfxRest:
             payload["gid"] = gids
         if all != None:
             payload["all"] = all
-        print(payload)
         raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
 
@@ -803,7 +802,6 @@ class BfxRest:
         }
         if parent:
             payload['parent'] = parent
-        print(payload)
         message = await self.post(endpoint, payload)
         return message
 
