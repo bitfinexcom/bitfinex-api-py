@@ -218,7 +218,9 @@ class BfxRest:
             _PLACEHOLDER, FOLLOWERS, FOLLOWING, _PLACEHOLDER, _PLACEHOLDER, _PLACEHOLDER,
             TIPPING_STATUS ] ], COMMENTS, _PLACEHOLDER, _PLACEHOLDER ]
         """
-        endpoint = f"pulse/hist?limit={limit}&end={end}"
+        endpoint = f"pulse/hist?limit={limit}"
+        if end:
+            endpoint += f'&end={end}'
         hist = await self.fetch(endpoint)
         return hist
 
