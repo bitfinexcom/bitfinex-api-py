@@ -204,7 +204,7 @@ class BfxRest:
         status = await self.fetch(endpoint)
         return status
 
-    async def get_public_pulse_hist(self, end=None, limit=100):
+    async def get_public_pulse_hist(self, end=None, limit=25):
         """
         View the latest pulse messages. You can specify an end timestamp to view older messages.
 
