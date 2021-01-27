@@ -6,6 +6,7 @@
 - Implemented Generate invoice endpoint (rest)
 - Implemented Keep funding endpoint (rest)
 - Implemented Cancel order multi endpoint (rest)
+- Implemented Public Stats endpoint (rest)
 
 1.1.8
 - Adds support for websocket events pu, pn and pu
