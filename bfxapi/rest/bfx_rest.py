@@ -283,6 +283,58 @@ class BfxRest:
         message = await self.post(endpoint, payload)
         return message
 
+    async def get_public_stats(self, key, size, symbol, section, side=None,
+                               sort=None, start=None, end=None, limit=None):
+        """
+        The Stats endpoint provides various statistics on a specified trading pair or funding currency.
+
+        # Attributes
+        @param key str
+        Available values -> "funding.size", "credits.size", "credits.size.sym",
+        "pos.size", "vol.1d", "vol.7d", "vol.30d", "vwap"
+
+        @param size str
+        Available values -> "30m", "1d", '1m'
+
+        @param symbol str: the symbol you want information about
+        (e.g. tBTCUSD, tETHUSD, fUSD, fBTC)
+
+        @param section str
+        Available values -> "last", "hist"
+
+        @param side str: only for non-funding queries
+        Available values -> "long", "short"
+
+        @param sort int: if = 1 it sorts results returned with old > new
+
+        @param start str: millisecond start time
+
+        @param end str: millisecond end time
+
+        @param limit int: number of records (max 10000)
+
+        @return
+        Array [MTS, VALUE] with Section = "last"
+        Array [[MTS, VALUE], ...] with Section = "hist"
+        """
+        if key != 'funding.size' and not side:
+            raise Exception('side is compulsory for non funding queries')
+        endpoint = f"stats1/{key}:{size}:{symbol}"
+        if side:
+            endpoint += f":{side}"
+        if section:
+            endpoint += f"/{section}"
+        endpoint += '?'
+        if sort:
+            endpoint += f"sort={sort}&"
+        if start:
+            endpoint += f"start={start}&"
+        if end:
+            endpoint += f"end={end}&"
+        if limit:
+            endpoint += f"limit={limit}"
+        message = await self.fetch(endpoint)
+        return message
     ##################################################
     #               Authenticated Data               #
     ##################################################
@@ -822,7 +874,7 @@ class BfxRest:
         message = await self.post(endpoint, payload)
         return message
 
-    async def generate_invoice(self, wallet='exchange', currency='LNX', amount='0.02'):
+    async def generate_invoice(self, wallet='exchange', currency='LNX', amount=None):
         """
         Generates a Lightning Network deposit invoice
 
@@ -841,9 +893,8 @@ class BfxRest:
         """
         endpoint = f"auth/w/deposit/invoice"
         payload = {
-            'wallet': wallet,
-            'currency': currency,
-            'amount': amount
+            "wallet": wallet,
+            "currency": currency,
         }
         message = await self.post(endpoint, payload)
         return message
