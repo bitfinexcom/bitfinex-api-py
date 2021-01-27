@@ -895,6 +895,7 @@ class BfxRest:
         payload = {
             "wallet": wallet,
             "currency": currency,
+            "amount": amount
         }
         message = await self.post(endpoint, payload)
         return message
