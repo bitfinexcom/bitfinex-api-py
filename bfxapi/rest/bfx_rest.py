@@ -874,7 +874,7 @@ class BfxRest:
         message = await self.post(endpoint, payload)
         return message
 
-    async def generate_invoice(self, wallet='exchange', currency='LNX', amount=None):
+    async def generate_invoice(self, amount, wallet='exchange', currency='LNX'):
         """
         Generates a Lightning Network deposit invoice
 
