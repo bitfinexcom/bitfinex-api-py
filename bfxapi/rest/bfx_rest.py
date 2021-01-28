@@ -337,6 +337,26 @@ class BfxRest:
         message = await self.fetch(endpoint)
         return message
 
+
+    async def get_public_funding_stats(self, symbol):
+        """
+        Get a list of the most recent funding data for the given currency
+        (FRR, average period, total amount provided, total amount used)
+
+        # Attributes
+        @param limit int: number of results (max 250)
+        @param start str: millisecond start time
+        @param end str: millisecond end time
+
+        @return Array
+        [[ TIMESTAMP,  PLACEHOLDER, PLACEHOLDER, FRR, AVG_PERIOD, PLACEHOLDER,
+        PLACEHOLDER, FUNDING_AMOUNT, FUNDING_AMOUNT_USED ], ...]
+        """
+        endpoint = f"funding/stats/{symbol}/hist"
+        stats = await self.fetch(endpoint)
+        return stats
+
+
     ##################################################
     #               Authenticated Data               #
     ##################################################

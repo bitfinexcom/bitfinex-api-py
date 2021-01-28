@@ -9,6 +9,7 @@
 - Implemented Public Stats endpoint (rest)
 - Implemented Order Multi OP endpoint (rest)
 - Implemented Public Tickers History (rest)
+- Implemented Public Funding Stats (rest)
 
 1.1.8
 - Adds support for websocket events pu, pn and pu
