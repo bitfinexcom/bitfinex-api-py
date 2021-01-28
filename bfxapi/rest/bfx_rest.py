@@ -163,19 +163,20 @@ class BfxRest:
         ticker = await self.fetch(endpoint)
         return ticker
 
-    async def get_public_tickers(self, symbols):
+    async def get_public_tickers_history(self, symbols):
         """
-        Get tickers for the given symbols. Tickers shows you the current best bid and ask,
-        as well as the last trade price.
+        History of recent tickers.
+        Provides historic data of the best bid and ask at a 10-second interval.
 
         # Attributes
         @param symbols Array<string>: array of symbols i.e [tBTCUSD, tETHUSD]
-        @return Array [ SYMBOL, BID, BID_SIZE, ASK, ASK_SIZE, DAILY_CHANGE,  DAILY_CHANGE_PERC,
-          LAST_PRICE, VOLUME, HIGH, LOW ]
+        @return Array [[ SYMBOL, BID, PLACEHOLDER, ASK, PLACEHOLDER, PLACEHOLDER,
+        PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, MTS ], ...]
         """
-        endpoint = "tickers/?symbols={}".format(','.join(symbols))
+        endpoint = "tickers/hist?symbols={}".format(','.join(symbols))
         ticker = await self.fetch(endpoint)
         return ticker
+
 
     async def get_derivative_status(self, symbol):
         """
