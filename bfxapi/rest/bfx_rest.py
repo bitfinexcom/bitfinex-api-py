@@ -889,7 +889,7 @@ class BfxRest:
         hist = await self.post(endpoint)
         return hist
 
-    async def pulse_add(self, title, content, parent=None, is_pin=False,
+    async def submit_pulse(self, title, content, parent=None, is_pin=False,
                         attachments=[], disable_comments=False, is_public=True):
         """
         Allows you to write Pulse messages
@@ -909,19 +909,50 @@ class BfxRest:
         """
         endpoint = f"auth/w/pulse/add"
         payload = {
-            'title': title,
-            'content': content,
-            'isPin': 1 if is_pin else 0,
-            'attachments': attachments,
-            'disableComments': 1 if disable_comments else 0,
-            'isPublic': 1 if is_public else 0
+            "title": title,
+            "content": content,
+            "isPin": 1 if is_pin else 0,
+            "attachments": attachments,
+            "disableComments": 1 if disable_comments else 0,
+            "isPublic": 1 if is_public else 0
         }
         if parent:
-            payload['parent'] = parent
+            payload["parent"] = parent
         message = await self.post(endpoint, payload)
         return message
 
-    async def pulse_delete(self, pid):
+    async def submit_pulse_comment(self, title, content, parent, is_pin=False,
+                        attachments=[], disable_comments=False, is_public=True):
+        """
+        Allows you to write a Pulse comment
+
+        # Attributes
+        @param title str: title of the message (min 16, max 120 characters)
+        @param content str: content of the message
+        @param parent str: Pulse Message ID (PID) of parent post
+        @param is_pin boolean: is message pinned?
+        @param attachments list of str: base64 format
+        @param disable_comments boolean: are comments disabled?
+        @param is_public boolean: is a public message?
+        @return Array [ PID, MTS, _PLACEHOLDER, PUID, _PLACEHOLDER, TITLE,
+        CONTENT, _PLACEHOLDER, _PLACEHOLDER, IS_PIN, IS_PUBLIC, COMMENTS_DISABLED,
+        TAGS // This inner array contains zero or more tag strings ATTACHMENTS, _PLACEHOLDER,
+        LIKES, UID_LIKED, _PLACEHOLDER, [], ... ]
+        """
+        endpoint = f"auth/w/pulse/add"
+        payload = {
+            "title": title,
+            "content": content,
+            "isPin": 1 if is_pin else 0,
+            "attachments": attachments,
+            "disableComments": 1 if disable_comments else 0,
+            "isPublic": 1 if is_public else 0,
+            "parent": parent
+        }
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def delete_pulse(self, pid):
         """
         Allows you to delete your Pulse messages
 
