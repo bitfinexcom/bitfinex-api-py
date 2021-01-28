@@ -335,6 +335,7 @@ class BfxRest:
             endpoint += f"limit={limit}"
         message = await self.fetch(endpoint)
         return message
+
     ##################################################
     #               Authenticated Data               #
     ##################################################
@@ -805,6 +806,67 @@ class BfxRest:
             hidden, close, reduce_only, post_only, False)
         payload['flags'] = flags
         endpoint = "auth/w/order/update"
+        raw_notification = await self.post(endpoint, payload)
+        return Notification.from_raw_notification(raw_notification)
+
+    async def submit_order_multi_op(self, orders):
+        """
+        Send Multiple order-related operations.
+        Please note the sent object has only one property with a value
+        of an array of arrays detailing each order operation.
+
+        https://docs.bitfinex.com/reference#rest-auth-order-multi
+
+        Expected orders ->
+        [
+            ["on", {  // Order Submit
+                type: "EXCHANGE LIMIT",
+                symbol: "tBTCUSD",
+                price: "123.45",
+                amount: "1.2345",
+                flags: 0
+        	}],
+        	["oc", { ... }],
+        	...
+        ]
+
+        @param type string
+        Available values -> LIMIT, EXCHANGE LIMIT, MARKET, EXCHANGE MARKET,
+        STOP, EXCHANGE STOP, STOP LIMIT, EXCHANGE STOP LIMIT, TRAILING STOP,
+        EXCHANGE TRAILING STOP, FOK, EXCHANGE FOK, IOC, EXCHANGE IOC
+
+        @param symbol string: symbol of order
+
+        @param price string: price of order
+
+        @param amount string: amount of order (positive for buy, negative for sell)
+
+        @param flags int: (optional) see https://docs.bitfinex.com/v2/docs/flag-values
+
+        @param lev int: set the leverage for a derivative order, supported
+        by derivative symbol orders only. The value should be between 1 and
+        100 inclusive. The field is optional, if omitted the default leverage value of 10 will be used.
+
+        @param price_trailing string: the trailing price for a trailing stop order
+
+        @param price_aux_limit string: auxiliary Limit price (for STOP LIMIT)
+
+        @param price_oco_stop string: OCO stop price
+
+        @param gid int: group order id
+
+        @param tif string: Time-In-Force - datetime for automatic order cancellation (YYYY-MM-DD HH:MM:SS)
+
+        @param id int: Order ID (can be retrieved by calling the Retrieve Orders endpoint)
+
+        @param cid int: Client Order ID
+
+        @param cid_date string: Client Order ID Date (YYYY-MM-DD)
+
+        @param all int: cancel all open orders if value is set to 1
+        """
+        payload = {"ops": orders}
+        endpoint = "auth/w/order/multi"
         raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
 
