@@ -1,5 +1,16 @@
 1.1.9
+- Implemented PULSE endpoints (rest)
 - Updated pyee and changed deprecated class EventEmitter() -> AsyncIOEventEmitter() to make it work with all Python 3.X versions
+- Implemented Foreign exchange rate endpoint (rest)
+- Implemented Market average price endpoint (rest)
+- Implemented Generate invoice endpoint (rest)
+- Implemented Keep funding endpoint (rest)
+- Implemented Cancel order multi endpoint (rest)
+- Implemented Public Stats endpoint (rest)
+- Implemented Order Multi OP endpoint (rest)
+- Implemented Public Tickers History (rest)
+- Implemented Public Funding Stats (rest)
+- Updated dependencies in setup.py
 
 1.1.8
 - Adds support for websocket events pu, pn and pu

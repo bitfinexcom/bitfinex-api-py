@@ -177,6 +177,20 @@ class BfxRest:
         ticker = await self.fetch(endpoint)
         return ticker
 
+    async def get_public_tickers_history(self, symbols):
+        """
+        History of recent tickers.
+        Provides historic data of the best bid and ask at a 10-second interval.
+
+        # Attributes
+        @param symbols Array<string>: array of symbols i.e [tBTCUSD, tETHUSD]
+        @return Array [[ SYMBOL, BID, PLACEHOLDER, ASK, PLACEHOLDER, PLACEHOLDER,
+        PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, MTS ], ...]
+        """
+        endpoint = "tickers/hist?symbols={}".format(','.join(symbols))
+        ticker = await self.fetch(endpoint)
+        return ticker
+
     async def get_derivative_status(self, symbol):
         """
         Gets platform information for derivative symbol.
@@ -203,6 +217,158 @@ class BfxRest:
         endpoint = "status/deriv?keys={}".format(','.join(symbols))
         status = await self.fetch(endpoint)
         return status
+
+    async def get_public_pulse_hist(self, end=None, limit=25):
+        """
+        View the latest pulse messages. You can specify an end timestamp to view older messages.
+
+        # Attributes
+        @param end int: millisecond end time
+        @param limit int: max number of items in response (MAX: 100)
+        @return Array [ PID, MTS, _PLACEHOLDER, PUID, _PLACEHOLDER, TITLE, CONTENT,
+            _PLACEHOLDER, _PLACEHOLDER, IS_PIN, IS_PUBLIC, COMMENTS_DISABLED, TAGS,
+            META, LIKES, _PLACEHOLDER, _PLACEHOLDER, [ PUID, MTS, _PLACEHOLDER,
+            NICKNAME, PLACEHOLDER, PICTURE, TEXT, _PLACEHOLDER, _PLACEHOLDER, TWITTER_HANDLE,
+            _PLACEHOLDER, FOLLOWERS, FOLLOWING, _PLACEHOLDER, _PLACEHOLDER, _PLACEHOLDER,
+            TIPPING_STATUS ] ], COMMENTS, _PLACEHOLDER, _PLACEHOLDER ]
+        """
+        endpoint = f"pulse/hist?limit={limit}"
+        if end:
+            endpoint += f'&end={end}'
+        hist = await self.fetch(endpoint)
+        return hist
+
+    async def get_public_pulse_profile(self, nickname='Bitfinex'):
+        """
+        This endpoint shows details for a specific Pulse profile
+
+        # Attributes
+        @param nickname string
+        @return Array [ PUID, MTS, _PLACEHOLDER, NICKNAME, _PLACEHOLDER, PICTURE,
+        TEXT, _PLACEHOLDER, _PLACEHOLDER, TWITTER_HANDLE, _PLACEHOLDER, FOLLOWERS,
+        FOLLOWING, _PLACEHOLDER, _PLACEHOLDER, _PLACEHOLDER, TIPPING_STATUS]
+        """
+        endpoint = f"pulse/profile/{nickname}"
+        profile = await self.fetch(endpoint)
+        return profile
+
+    async def get_market_average_price(self, symbol, amount=None, period=None, rate_limit=None):
+        """
+        Calculate the average execution price for Trading or rate for Margin funding.
+
+        # Attributes
+        @param symbol str: the symbol you want information about
+        @param amount str: amount. Positive for buy, negative for sell
+        @param period int: maximum period for Margin Funding
+        @param rate_limit string: limit rate/price (ex. "1000.5")
+
+        @return Array
+        For exchange trading
+        [PRICE_AVG, AMOUNT]
+
+        For funding
+        [RATE_AVG, AMOUNT]
+        """
+        endpoint = f"calc/trade/avg"
+        payload = {
+            "symbol": symbol,
+            "amount": amount,
+            "period": period,
+            "rate_limit": rate_limit
+        }
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def get_foreign_exchange_rate(self, ccy1, ccy2):
+        """
+        Calculate the average execution price for Trading or rate for Margin funding.
+
+        # Attributes
+        @param ccy1 str: base currency
+        @param ccy2 str: quote currency
+
+        @return Array [ CURRENT_RATE ]
+        """
+        endpoint = f"calc/fx"
+        payload = {
+            "ccy1": ccy1,
+            "ccy2": ccy2
+        }
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def get_public_stats(self, key, size, symbol, section, side=None,
+                               sort=None, start=None, end=None, limit=None):
+        """
+        The Stats endpoint provides various statistics on a specified trading pair or funding currency.
+
+        # Attributes
+        @param key str
+        Available values -> "funding.size", "credits.size", "credits.size.sym",
+        "pos.size", "vol.1d", "vol.7d", "vol.30d", "vwap"
+
+        @param size str
+        Available values -> "30m", "1d", '1m'
+
+        @param symbol str: the symbol you want information about
+        (e.g. tBTCUSD, tETHUSD, fUSD, fBTC)
+
+        @param section str
+        Available values -> "last", "hist"
+
+        @param side str: only for non-funding queries
+        Available values -> "long", "short"
+
+        @param sort int: if = 1 it sorts results returned with old > new
+
+        @param start str: millisecond start time
+
+        @param end str: millisecond end time
+
+        @param limit int: number of records (max 10000)
+
+        @return
+        Array [MTS, VALUE] with Section = "last"
+        Array [[MTS, VALUE], ...] with Section = "hist"
+        """
+        if key != 'funding.size' and not side:
+            raise Exception('side is compulsory for non funding queries')
+        endpoint = f"stats1/{key}:{size}:{symbol}"
+        if side:
+            endpoint += f":{side}"
+        if section:
+            endpoint += f"/{section}"
+        endpoint += '?'
+        if sort:
+            endpoint += f"sort={sort}&"
+        if start:
+            endpoint += f"start={start}&"
+        if end:
+            endpoint += f"end={end}&"
+        if limit:
+            endpoint += f"limit={limit}"
+        message = await self.fetch(endpoint)
+        return message
+
+
+    async def get_public_funding_stats(self, symbol):
+        """
+        Get a list of the most recent funding data for the given currency
+        (FRR, average period, total amount provided, total amount used)
+
+        # Attributes
+        @param limit int: number of results (max 250)
+        @param start str: millisecond start time
+        @param end str: millisecond end time
+
+        @return Array
+        [[ TIMESTAMP,  PLACEHOLDER, PLACEHOLDER, FRR, AVG_PERIOD, PLACEHOLDER,
+        PLACEHOLDER, FUNDING_AMOUNT, FUNDING_AMOUNT_USED ], ...]
+        """
+        endpoint = f"funding/stats/{symbol}/hist"
+        stats = await self.fetch(endpoint)
+        return stats
+
 
     ##################################################
     #               Authenticated Data               #
@@ -384,8 +550,8 @@ class BfxRest:
         endpoint = ("auth/r/ledgers/{}/hist".format(symbol)
                     if symbol else "auth/r/ledgers/hist")
         params = "?start={}&end={}&limit={}".format(start, end, limit)
-        if (category):
-            payload = { "category": category , }
+        if category:
+            payload = {"category": category}
             raw_ledgers = await self.post(endpoint, payload, params=params)
         else:
             raw_ledgers = await self.post(endpoint, params=params)
@@ -424,7 +590,23 @@ class BfxRest:
         @param fundingId int: the id of the funding offer
         """
         endpoint = "auth/w/funding/offer/cancel"
-        raw_notification = await self.post(endpoint,  { 'id': fundingId })
+        raw_notification = await self.post(endpoint, {'id': fundingId})
+        return Notification.from_raw_notification(raw_notification)
+
+    async def keep_funding(self, type, id):
+        """
+        Toggle to keep funding taken. Specify loan for unused funding and credit for used funding.
+
+        # Attributes
+        @param type string: funding type ('credit' or 'loan')
+        @param id int: loan or credit identifier
+        """
+        endpoint = "auth/w/funding/keep"
+        payload = {
+            "type": type,
+            "id": id
+        }
+        raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
 
     async def submit_wallet_transfer(self, from_wallet, to_wallet, from_currency, to_currency, amount):
@@ -446,7 +628,7 @@ class BfxRest:
             "currency_to": to_currency,
             "amount": str(amount),
         }
-        raw_transfer = await self.post(endpoint,  payload)
+        raw_transfer = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_transfer)
 
     async def get_wallet_deposit_address(self, wallet, method, renew=0):
@@ -583,12 +765,43 @@ class BfxRest:
         @param orderId: the id of the order that you want to update
         """
         endpoint = "auth/w/order/cancel"
-        raw_notification = await self.post(endpoint, { 'id': orderId })
+        raw_notification = await self.post(endpoint, {'id': orderId})
+        return Notification.from_raw_notification(raw_notification)
+
+    async def submit_cancel_order_multi(self, ids=None, cids=None, gids=None, all=None):
+        """
+        Cancel multiple orders simultaneously. Orders can be canceled based on the Order ID,
+        the combination of Client Order ID and Client Order Date, or the Group Order ID.
+        Alternatively, the body param 'all' can be used with a value of 1 to cancel all orders.
+
+        # Attributes
+        @param id array of int: orders ids
+        [1234, 1235, ...]
+
+        @param cids array of arrays: client orders ids
+        [[234, "2016-12-05"], ...]
+
+        @param gids array of int: group orders id
+        [11, ...]
+
+        @param all int: cancel all open orders if value is set to 1
+        """
+        endpoint = "auth/w/order/cancel/multi"
+        payload = {}
+        if ids != None:
+            payload["id"] = ids
+        if cids != None:
+            payload["cid"] = cids
+        if gids != None:
+            payload["gid"] = gids
+        if all != None:
+            payload["all"] = all
+        raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
 
     async def submit_update_order(self, orderId, price=None, amount=None, delta=None, price_aux_limit=None,
-                           price_trailing=None, hidden=False, close=False, reduce_only=False, 
-                           post_only=False, time_in_force=None, leverage=None):
+                                  price_trailing=None, hidden=False, close=False, reduce_only=False,
+                                  post_only=False, time_in_force=None, leverage=None):
         """
         Update an existing order
 
@@ -630,6 +843,189 @@ class BfxRest:
         raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
 
+    async def submit_order_multi_op(self, orders):
+        """
+        Send Multiple order-related operations.
+        Please note the sent object has only one property with a value
+        of an array of arrays detailing each order operation.
+
+        https://docs.bitfinex.com/reference#rest-auth-order-multi
+
+        Expected orders ->
+        [
+            ["on", {  // Order Submit
+                type: "EXCHANGE LIMIT",
+                symbol: "tBTCUSD",
+                price: "123.45",
+                amount: "1.2345",
+                flags: 0
+        	}],
+        	["oc", { ... }],
+        	...
+        ]
+
+        @param type string
+        Available values -> LIMIT, EXCHANGE LIMIT, MARKET, EXCHANGE MARKET,
+        STOP, EXCHANGE STOP, STOP LIMIT, EXCHANGE STOP LIMIT, TRAILING STOP,
+        EXCHANGE TRAILING STOP, FOK, EXCHANGE FOK, IOC, EXCHANGE IOC
+
+        @param symbol string: symbol of order
+
+        @param price string: price of order
+
+        @param amount string: amount of order (positive for buy, negative for sell)
+
+        @param flags int: (optional) see https://docs.bitfinex.com/v2/docs/flag-values
+
+        @param lev int: set the leverage for a derivative order, supported
+        by derivative symbol orders only. The value should be between 1 and
+        100 inclusive. The field is optional, if omitted the default leverage value of 10 will be used.
+
+        @param price_trailing string: the trailing price for a trailing stop order
+
+        @param price_aux_limit string: auxiliary Limit price (for STOP LIMIT)
+
+        @param price_oco_stop string: OCO stop price
+
+        @param gid int: group order id
+
+        @param tif string: Time-In-Force - datetime for automatic order cancellation (YYYY-MM-DD HH:MM:SS)
+
+        @param id int: Order ID (can be retrieved by calling the Retrieve Orders endpoint)
+
+        @param cid int: Client Order ID
+
+        @param cid_date string: Client Order ID Date (YYYY-MM-DD)
+
+        @param all int: cancel all open orders if value is set to 1
+        """
+        payload = {"ops": orders}
+        endpoint = "auth/w/order/multi"
+        raw_notification = await self.post(endpoint, payload)
+        return Notification.from_raw_notification(raw_notification)
+
+    async def get_auth_pulse_hist(self, is_public=None):
+        """
+        Allows you to retrieve your private pulse history or the public pulse history with an additional UID_LIKED field.
+
+        # Attributes
+        @param is_public int: allows you to receive the public pulse history with the UID_LIKED field
+        @return Array [ PID, MTS, _PLACEHOLDER, PUID, _PLACEHOLDER, TITLE,
+        CONTENT, _PLACEHOLDER, _PLACEHOLDER, IS_PIN, IS_PUBLIC, COMMENTS_DISABLED,
+        TAGS, META,LIKES, UID_LIKED, _PLACEHOLDER, [ PUID, MTS, _PLACEHOLDER, NICKNAME,
+        _PLACEHOLDER, PICTURE, TEXT, _PLACEHOLDER, _PLACEHOLDER, TWITTER_HANDLE, _PLACEHOLDER,
+        FOLLOWERS, FOLLOWING, _PLACEHOLDER, _PLACEHOLDER, _PLACEHOLDER, TIPPING_STATUS ], COMMENTS,
+        _PLACEHOLDER, _PLACEHOLDER ]
+        """
+        endpoint = f"auth/r/pulse/hist"
+        if is_public:
+            endpoint += f'?isPublic={is_public}'
+        hist = await self.post(endpoint)
+        return hist
+
+    async def submit_pulse(self, title, content, parent=None, is_pin=False,
+                        attachments=[], disable_comments=False, is_public=True):
+        """
+        Allows you to write Pulse messages
+
+        # Attributes
+        @param title str: title of the message (min 16, max 120 characters)
+        @param content str: content of the message
+        @param parent str: Pulse Message ID (PID) of parent post
+        @param is_pin boolean: is message pinned?
+        @param attachments list of str: base64 format
+        @param disable_comments boolean: are comments disabled?
+        @param is_public boolean: is a public message?
+        @return Array [ PID, MTS, _PLACEHOLDER, PUID, _PLACEHOLDER, TITLE,
+        CONTENT, _PLACEHOLDER, _PLACEHOLDER, IS_PIN, IS_PUBLIC, COMMENTS_DISABLED,
+        TAGS // This inner array contains zero or more tag strings ATTACHMENTS, _PLACEHOLDER,
+        LIKES, UID_LIKED, _PLACEHOLDER, [], ... ]
+        """
+        endpoint = f"auth/w/pulse/add"
+        payload = {
+            "title": title,
+            "content": content,
+            "isPin": 1 if is_pin else 0,
+            "attachments": attachments,
+            "disableComments": 1 if disable_comments else 0,
+            "isPublic": 1 if is_public else 0
+        }
+        if parent:
+            payload["parent"] = parent
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def submit_pulse_comment(self, title, content, parent, is_pin=False,
+                        attachments=[], disable_comments=False, is_public=True):
+        """
+        Allows you to write a Pulse comment
+
+        # Attributes
+        @param title str: title of the message (min 16, max 120 characters)
+        @param content str: content of the message
+        @param parent str: Pulse Message ID (PID) of parent post
+        @param is_pin boolean: is message pinned?
+        @param attachments list of str: base64 format
+        @param disable_comments boolean: are comments disabled?
+        @param is_public boolean: is a public message?
+        @return Array [ PID, MTS, _PLACEHOLDER, PUID, _PLACEHOLDER, TITLE,
+        CONTENT, _PLACEHOLDER, _PLACEHOLDER, IS_PIN, IS_PUBLIC, COMMENTS_DISABLED,
+        TAGS // This inner array contains zero or more tag strings ATTACHMENTS, _PLACEHOLDER,
+        LIKES, UID_LIKED, _PLACEHOLDER, [], ... ]
+        """
+        endpoint = f"auth/w/pulse/add"
+        payload = {
+            "title": title,
+            "content": content,
+            "isPin": 1 if is_pin else 0,
+            "attachments": attachments,
+            "disableComments": 1 if disable_comments else 0,
+            "isPublic": 1 if is_public else 0,
+            "parent": parent
+        }
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def delete_pulse(self, pid):
+        """
+        Allows you to delete your Pulse messages
+
+        # Attributes
+        @param pid str: ID of the pulse message that you want to delete
+        @return Array [1] or [0]
+        """
+        endpoint = f"auth/w/pulse/del"
+        payload = {
+            'pid': pid
+        }
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def generate_invoice(self, amount, wallet='exchange', currency='LNX'):
+        """
+        Generates a Lightning Network deposit invoice
+
+        # Attributes
+        @param wallet str: Select the wallet that will receive the invoice payment
+        Currently only 'exchange' is available
+        @param currency str: Select the currency for which you wish to generate an invoice
+        Currently only LNX (Bitcoin Lightning Network) is available.
+        @param amount str: Amount that you wish to deposit (in BTC; min 0.000001, max 0.02)
+
+        @return Array [INVOICE_HASH, INVOICE, PLACEHOLDER, PLACEHOLDER, AMOUNT]
+
+        If this is the first time you are generating an LNX invoice on your account,
+        you will first need to create a deposit address. To do this, call
+        self.get_wallet_deposit_address(method='LNX', wallet='exchange')
+        """
+        endpoint = f"auth/w/deposit/invoice"
+        payload = {
+            "wallet": wallet,
+            "currency": currency,
+            "amount": amount
+        }
+        message = await self.post(endpoint, payload)
+        return message
 
     ##################################################
     #                   Derivatives                  #
