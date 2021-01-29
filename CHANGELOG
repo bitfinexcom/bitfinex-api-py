@@ -10,6 +10,7 @@
 - Implemented Order Multi OP endpoint (rest)
 - Implemented Public Tickers History (rest)
 - Implemented Public Funding Stats (rest)
+- Updated dependencies in setup.py
 
 1.1.8
 - Adds support for websocket events pu, pn and pu
