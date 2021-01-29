@@ -167,6 +167,7 @@ class BfxRest:
         """
         Get tickers for the given symbols. Tickers shows you the current best bid and ask,
         as well as the last trade price.
+
         # Attributes
         @param symbols Array<string>: array of symbols i.e [tBTCUSD, tETHUSD]
         @return Array [ SYMBOL, BID, BID_SIZE, ASK, ASK_SIZE, DAILY_CHANGE,  DAILY_CHANGE_PERC,
