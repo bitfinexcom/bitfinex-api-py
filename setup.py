@@ -50,6 +50,7 @@ setup(
         'asyncio~=3.0',
         'websockets~=7.0',
         'aiohttp~=3.0',
+        'pyee~=7.0'
     ],
     project_urls={
         'Bug Reports': 'https://github.com/bitfinexcom/bitfinex-api-py/issues',
