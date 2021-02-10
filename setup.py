@@ -46,7 +46,6 @@ setup(
     python_requires='>=3.0.0, <4',
     # deps installed by pip
     install_requires=[
-        'eventemitter~=0.2.0',
         'asyncio~=3.0',
         'websockets~=7.0',
         'aiohttp~=3.0',
