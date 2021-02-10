@@ -6,6 +6,7 @@ import asyncio
 import aiohttp
 import time
 import json
+import datetime
 
 from ..utils.custom_logger import CustomLogger
 from ..utils.auth import generate_auth_headers, calculate_order_flags, gen_unique_cid
@@ -71,7 +72,7 @@ class BfxRest:
     #                  Public Data                   #
     ##################################################
 
-    async def get_seed_candles(self, symbol, start, end, tf='1d', limit=10000, sort=0):
+    async def get_seed_candles(self, symbol, tf='1m', start=None, end=None, limit=10000, sort=0):
         """
         Get all of the seed candles between the start and end period.
         # Attributes
@@ -84,6 +85,11 @@ class BfxRest:
         @param sort int: if = 1 it sorts results returned with old > new
         @return Array [ MTS, OPEN, CLOSE, HIGH, LOW, VOLUME ]
         """
+
+        if not start and not end:
+            start = 0
+            end = int(round((time.time() // 60 * 60) * 1000))
+
         endpoint = f'candles/trade:{tf}:{symbol}/hist?limit={limit}&start={start}&end={end}&sort={sort}'
         self.logger.info("Downloading seed candles from Bitfinex...")
         candles = await self.fetch(endpoint)
