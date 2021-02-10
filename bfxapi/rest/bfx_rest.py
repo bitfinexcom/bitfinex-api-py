@@ -71,27 +71,22 @@ class BfxRest:
     #                  Public Data                   #
     ##################################################
 
-    async def get_seed_candles(self, symbol, tf='1m'):
+    async def get_seed_candles(self, symbol, start, end, tf='1d', limit=10000, sort=0):
         """
-        Used by the honey framework, this function gets the last 4k candles.
+        Get all of the seed candles between the start and end period.
+        # Attributes
+        @param symbol symbol string: pair symbol i.e tBTCUSD
+        @param start int: millisecond start time
+        @param end int: millisecond end time
+        @param tf int: timeframe inbetween candles i.e 1m (min), ..., 1D (day),
+                      ... 1M (month)
+        @param limit int: max number of items in response (max. 10000)
+        @param sort int: if = 1 it sorts results returned with old > new
+        @return Array [ MTS, OPEN, CLOSE, HIGH, LOW, VOLUME ]
         """
-        endpoint = 'candles/trade:{}:{}/hist?limit=5000&_bfx=1'.format(tf, symbol)
-        time_difference = (1000 * 60) * 5000
-        # get now to the nearest min
-        now = int(round((time.time() // 60 * 60) * 1000))
-        task_batch = []
-        for x in range(0, 10):
-            start = x * time_difference
-            end = now - (x * time_difference) - time_difference
-            e2 = endpoint + '&start={}&end={}'.format(start, end)
-            task_batch += [asyncio.ensure_future(self.fetch(e2))]
+        endpoint = f'candles/trade:{tf}:{symbol}/hist?limit={limit}&start={start}&end={end}&sort={sort}'
         self.logger.info("Downloading seed candles from Bitfinex...")
-        # call all fetch requests async
-        done, _ = await asyncio.wait(*[task_batch])
-        candles = []
-        for task in done:
-            candles += task.result()
-        candles.sort(key=lambda x: x[0], reverse=True)
+        candles = await self.fetch(endpoint)
         self.logger.info("Downloaded {} candles.".format(len(candles)))
         return candles
 
