@@ -11,7 +11,7 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 setup(
     name='bitfinex-api-py',
-    version='1.1.8',
+    version='1.1.10',
     description='Official Bitfinex Python API',
     long_description='A Python reference implementation of the Bitfinex API for both REST and websocket interaction',
     long_description_content_type='text/markdown',
@@ -39,6 +39,8 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     keywords='bitfinex,api,trading',
     packages=find_packages(exclude=['examples', 'tests', 'docs']),
