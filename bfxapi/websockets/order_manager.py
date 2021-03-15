@@ -78,8 +78,8 @@ class OrderManager:
     async def confirm_order_new(self, raw_ws_data):
         order = Order.from_raw_order(raw_ws_data[2])
         order.set_open_state(True)
-        if order.id in self.pending_orders:
-            del self.pending_orders[order.id]
+        if order.cid in self.pending_orders:
+            del self.pending_orders[order.cid]
         self.open_orders[order.id] = order
         order.set_confirmed()
         self.bfxapi._emit('order_confirmed', order)
@@ -270,3 +270,5 @@ class OrderManager:
 
     def _gen_unique_cid(self):
         return gen_unique_cid()
+
+

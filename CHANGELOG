@@ -1,3 +1,7 @@
+1.1.11
+-) Removed pendingOrders from BfxWebsocket() (it was not used anywhere)
+-) Fixed issue in confirm_order_new() (the keys of the dict pending_orders are the cids of the orders, and not the ids)
+
 1.1.10
 - Fixed get_seed_candles() [backwards compatible]
 

@@ -158,7 +158,6 @@ class BfxWebsocket(GenericWebsocket):
         self.API_SECRET = API_SECRET
         self.manageOrderBooks = manageOrderBooks
         self.dead_man_switch = dead_man_switch
-        self.pendingOrders = {}
         self.orderBooks = {}
         self.ws_capacity = ws_capacity
         self.channel_filter = channel_filter
