@@ -270,5 +270,3 @@ class OrderManager:
 
     def _gen_unique_cid(self):
         return gen_unique_cid()
-
-
