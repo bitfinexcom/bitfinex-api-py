@@ -43,6 +43,8 @@ class OrderManager:
         order.set_open_state(False)
         if order.id in self.open_orders:
             del self.open_orders[order.id]
+        if order.cid in self.pending_orders:
+            del self.pending_orders[order.cid]
         self.closed_orders[order.id] = order
         if not order.is_confirmed():
             order.set_confirmed()
