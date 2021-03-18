@@ -24,7 +24,7 @@ async def trade_completed(order):
   ## close the order
   # await order.close()
   # or
-  # await bfx.ws.cancel_order(order.id)
+  # await bfx.ws.cancel_order(order.cid)
   # or
   # await bfx.ws.cancel_all_orders()
 

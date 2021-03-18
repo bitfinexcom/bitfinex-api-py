@@ -41,9 +41,11 @@ class OrderManager:
     async def confirm_order_closed(self, raw_ws_data):
         order = Order.from_raw_order(raw_ws_data[2])
         order.set_open_state(False)
-        if order.id in self.open_orders:
-            del self.open_orders[order.id]
-        self.closed_orders[order.id] = order
+        if order.cid in self.open_orders:
+            del self.open_orders[order.cid]
+        if order.cid in self.pending_orders:
+            del self.pending_orders[order.cid]
+        self.closed_orders[order.cid] = order
         if not order.is_confirmed():
             order.set_confirmed()
             self.bfxapi._emit('order_confirmed', order)
@@ -64,13 +66,13 @@ class OrderManager:
         for raw_order in osData:
             order = Order.from_raw_order(raw_order)
             order.set_open_state(True)
-            self.open_orders[order.id] = order
+            self.open_orders[order.cid] = order
         self.bfxapi._emit('order_snapshot', self.get_open_orders())
 
     async def confirm_order_update(self, raw_ws_data):
         order = Order.from_raw_order(raw_ws_data[2])
         order.set_open_state(True)
-        self.open_orders[order.id] = order
+        self.open_orders[order.cid] = order
         await self._execute_callback(order, self.pending_update_confirm_callbacks)
         self.logger.info("Order update: {}".format(order))
         self.bfxapi._emit('order_update', order)
@@ -80,7 +82,7 @@ class OrderManager:
         order.set_open_state(True)
         if order.cid in self.pending_orders:
             del self.pending_orders[order.cid]
-        self.open_orders[order.id] = order
+        self.open_orders[order.cid] = order
         order.set_confirmed()
         self.bfxapi._emit('order_confirmed', order)
         await self._execute_callback(order, self.pending_order_confirm_callbacks)

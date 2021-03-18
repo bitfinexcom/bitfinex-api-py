@@ -27,7 +27,7 @@ async def order_once_updated(order):
 async def trade_completed(order):
   print ("Order confirmed.")
   print (order)
-  await bfx.ws.update_order(order.id, price=100, amount=0.01)
+  await bfx.ws.update_order(order.cid, price=100, amount=0.01)
 
 @bfx.ws.on('error')
 def log_error(msg):
