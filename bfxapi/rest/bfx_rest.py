@@ -397,7 +397,7 @@ class BfxRest:
         raw_orders = await self.post(endpoint)
         return [Order.from_raw_order(ro) for ro in raw_orders]
 
-    async def get_order_history(self, symbol, start, end, limit=25, sort=-1):
+    async def get_order_history(self, symbol, start, end, limit=25, sort=-1, ids=None):
         """
         Get all of the orders between the start and end period associated with API_KEY
         - Requires authentication.
@@ -407,11 +407,14 @@ class BfxRest:
         @param start int: millisecond start time
         @param end int: millisecond end time
         @param limit int: max number of items in response
+        @param ids list of int: allows you to retrieve specific orders by order ID (ids: [ID1, ID2, ID3])
         @return Array <models.Order>
         """
         endpoint = "auth/r/orders/{}/hist".format(symbol)
         params = "?start={}&end={}&limit={}&sort={}".format(
             start, end, limit, sort)
+        if ids:
+            params += ",".join(str(id) for id in ids)
         raw_orders = await self.post(endpoint, params=params)
         return [Order.from_raw_order(ro) for ro in raw_orders]
 
