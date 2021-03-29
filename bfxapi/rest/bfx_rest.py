@@ -414,7 +414,7 @@ class BfxRest:
         params = "?start={}&end={}&limit={}&sort={}".format(
             start, end, limit, sort)
         if ids:
-            params += ",".join(str(id) for id in ids)
+            params += "&id=" + ",".join(str(id) for id in ids)
         raw_orders = await self.post(endpoint, params=params)
         return [Order.from_raw_order(ro) for ro in raw_orders]
 
