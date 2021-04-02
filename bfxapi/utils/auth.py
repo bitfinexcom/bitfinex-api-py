@@ -6,6 +6,7 @@ to handle the http authentication of the client
 import hashlib
 import hmac
 import time
+import cachetools.func
 from ..models import Order
 
 def generate_auth_payload(API_KEY, API_SECRET):
@@ -47,6 +48,7 @@ def _gen_signature(API_KEY, API_SECRET, nonce):
 
   return authMsg, sig
 
+@cachetools.func.ttl_cache(maxsize=1, ttl=5)
 def _gen_nonce():
   return int(round(time.time() * 1000000))
 
