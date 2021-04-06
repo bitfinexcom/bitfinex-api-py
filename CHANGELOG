@@ -1,5 +1,6 @@
 1.1.12
 -) Invalid orders are now removed from pending_orders
+-) FOK orders cancelled are now removed from pending_orders
 
 1.1.11
 -) Removed pendingOrders from BfxWebsocket() (it was not used anywhere)
