@@ -19,7 +19,7 @@ git clone https://github.com/bitfinexcom/bitfinex-api-py.git
 cd bitfinex-api-py
 ```
 
-Or via pip3:
+Or via pip:
 ```sh
 python3 -m pip install bitfinex-api-py
 ```
