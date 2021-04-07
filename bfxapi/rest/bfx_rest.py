@@ -133,7 +133,7 @@ class BfxRest:
         params = "?start={}&end={}&limit={}&sort={}".format(
             start, end, limit, sort)
         trades = await self.fetch(endpoint, params=params)
-        return trades
+        return sorted(trades, key=lambda x: (x[1], x[0]), reverse=True if sort == 1 else False)
 
     async def get_public_books(self, symbol, precision="P0", length=25):
         """
