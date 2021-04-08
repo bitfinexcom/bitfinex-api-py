@@ -97,7 +97,7 @@ class BfxRest:
         return candles
 
     async def get_public_candles(self, symbol, start, end, section='hist',
-                                 tf='1m', limit="100", sort=-1):
+                                 tf='1m', limit=100, sort=-1):
         """
         Get all of the public candles between the start and end period.
 
@@ -118,7 +118,7 @@ class BfxRest:
         candles = await self.fetch(endpoint, params=params)
         return candles
 
-    async def get_public_trades(self, symbol, start, end, limit="100", sort=-1):
+    async def get_public_trades(self, symbol, start, end, limit=100, sort=-1):
         """
         Get all of the public trades between the start and end period.
 
