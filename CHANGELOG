@@ -1,4 +1,5 @@
 1.1.12
+-) Applied clientside fix to get_public_trades() (in case of multiple trades at the same timestamp they should be ordered by id)
 -) Invalid orders are now removed from pending_orders
 -) FOK orders cancelled are now removed from pending_orders
 
