@@ -1,5 +1,5 @@
 asyncio==3.4.3
-websockets==7.0
+websockets==8.1
 pylint==2.3.0
 pytest-asyncio==0.10.0
 six==1.12.0

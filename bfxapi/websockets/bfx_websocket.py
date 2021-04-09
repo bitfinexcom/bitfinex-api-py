@@ -314,6 +314,7 @@ class BfxWebsocket(GenericWebsocket):
         notificationText = nInfo[7]
         if notificationType == 'ERROR':
             # self._emit('error', notificationText)
+            await self._order_error_handler(data)
             self.logger.error(
                 "Notification ERROR: {}".format(notificationText))
         else:
@@ -326,6 +327,9 @@ class BfxWebsocket(GenericWebsocket):
 
     async def _order_closed_handler(self, data):
         await self.orderManager.confirm_order_closed(data)
+
+    async def _order_error_handler(self, data):
+        await self.orderManager.confirm_order_error(data)
 
     async def _order_update_handler(self, data):
         await self.orderManager.confirm_order_update(data)
