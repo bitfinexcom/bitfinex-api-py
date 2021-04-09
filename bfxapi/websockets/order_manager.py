@@ -43,6 +43,8 @@ class OrderManager:
         order.set_open_state(False)
         if order.id in self.open_orders:
             del self.open_orders[order.id]
+        if order.cid in self.pending_orders:
+            del self.pending_orders[order.cid]
         self.closed_orders[order.id] = order
         if not order.is_confirmed():
             order.set_confirmed()
@@ -86,6 +88,12 @@ class OrderManager:
         await self._execute_callback(order, self.pending_order_confirm_callbacks)
         self.logger.info("Order new: {}".format(order))
         self.bfxapi._emit('order_new', order)
+
+    async def confirm_order_error(self, raw_ws_data):
+        cid = raw_ws_data[2][4][2]
+        if cid in self.pending_orders:
+            del self.pending_orders[cid]
+        self.logger.info("Deleted Order CID {} from pending orders".format(cid))
 
     async def submit_order(self, symbol, price, amount, market_type=Order.Type.LIMIT,
                            hidden=False, price_trailing=None, price_aux_limit=None,
