@@ -383,7 +383,7 @@ class BfxRest:
         """
         endpoint = "auth/r/wallets"
         raw_wallets = await self.post(endpoint)
-        return [Wallet(*rw[:4]) for rw in raw_wallets]
+        return [Wallet(*rw[:5]) for rw in raw_wallets]
 
     async def get_active_orders(self, symbol):
         """
