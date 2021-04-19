@@ -13,7 +13,6 @@ class FundingTradeModel:
     AMOUNT = 4
     RATE = 5
     PERIOD = 6
-    MAKER = 7
 
 class FundingTrade:
     """
@@ -24,10 +23,9 @@ class FundingTrade:
     AMOUNT	float	Amount the offer is for
     RATE	float	Rate of the offer
     PERIOD	int	Period of the offer
-    MAKER	int	1 if true, -1 if false Whether the offer took liquidity off the funding book
     """
 
-    def __init__(self, tid, symbol, mts_create, offer_id, amount, rate, period, maker):
+    def __init__(self, tid, symbol, mts_create, offer_id, amount, rate, period):
         self.tid = tid
         self.symbol = symbol
         self.mts_create = mts_create
@@ -35,7 +33,6 @@ class FundingTrade:
         self.amount = amount
         self.rate = rate
         self.period = period
-        self.maker = maker
 
     @staticmethod
     def from_raw_rest_trade(raw_trade):
@@ -50,10 +47,9 @@ class FundingTrade:
             raw_trade[FundingTradeModel.OFFER_ID],
             raw_trade[FundingTradeModel.AMOUNT],
             raw_trade[FundingTradeModel.RATE],
-            raw_trade[FundingTradeModel.PERIOD],
-            raw_trade[FundingTradeModel.MAKER]
+            raw_trade[FundingTradeModel.PERIOD]
         )
 
     def __str__(self):
-        return "FundingTrade '{}' x {} @ {} for {} days <maker='{}'>".format(
-            self.symbol, self.amount, self.rate, self.period, self.maker)
+        return "FundingTrade '{}' x {} @ {} for {} days".format(
+            self.symbol, self.amount, self.rate, self.period)
