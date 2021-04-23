@@ -96,6 +96,7 @@ ERRORS = {
     10200: 'Error in un-authentication request',
     10300: 'Subscription Failed (generic)',
     10301: 'Already Subscribed',
+    10305: 'Reached limit of open channels',
     10302: 'Unknown channel',
     10400: 'Subscription Failed (generic)',
     10401: 'Not subscribed',
