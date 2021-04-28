@@ -1,6 +1,6 @@
 """
 This is an example of how it is possible to spawn multiple
-bfx ws instances to comply to the open subscriptions number contraint (max. 25)
+bfx ws instances to comply with the open subscriptions number constraint (max. 25)
 
 (https://docs.bitfinex.com/docs/requirements-and-limitations)
 """
