@@ -1,5 +1,16 @@
-1.1.12
+1.1.15
 -) Added 'ids' parameter to get_order_history()
+
+1.1.14
+-) bfx_websockets.py ERRORS dictionary now contains a message for error number 10305
+
+1.1.13
+-) Adding balance_available to the Wallet.
+
+1.1.12
+-) Applied clientside fix to get_public_trades() (in case of multiple trades at the same timestamp they should be ordered by id)
+-) Invalid orders are now removed from pending_orders
+-) FOK orders cancelled are now removed from pending_orders
 
 1.1.11
 -) Removed pendingOrders from BfxWebsocket() (it was not used anywhere)

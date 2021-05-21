@@ -9,10 +9,11 @@ class Wallet:
     currency
     """
 
-    def __init__(self, wType, currency, balance, unsettled_interest):
+    def __init__(self, wType, currency, balance, unsettled_interest, balance_available):
         self.type = wType
         self.currency = currency
         self.balance = balance
+        self.balance_available = balance_available
         self.unsettled_interest = unsettled_interest
         self.key = "{}_{}".format(wType, currency)
 
@@ -29,5 +30,5 @@ class Wallet:
         self.unsettled_interest = data
 
     def __str__(self):
-        return "Wallet <'{}_{}' balance='{}' unsettled='{}'>".format(
-            self.type, self.currency, self.balance, self.unsettled_interest)
+        return "Wallet <'{}_{}' balance='{}' balance_available='{}' unsettled='{}'>".format(
+            self.type, self.currency, self.balance, self.balance_available, self.unsettled_interest)

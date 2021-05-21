@@ -11,7 +11,7 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 setup(
     name='bitfinex-api-py',
-    version='1.1.12',
+    version='1.1.15',
     description='Official Bitfinex Python API',
     long_description='A Python reference implementation of the Bitfinex API for both REST and websocket interaction',
     long_description_content_type='text/markdown',
@@ -49,7 +49,7 @@ setup(
     # deps installed by pip
     install_requires=[
         'asyncio~=3.0',
-        'websockets~=7.0',
+        'websockets~=8.0',
         'aiohttp~=3.0',
         'pyee~=8.0'
     ],

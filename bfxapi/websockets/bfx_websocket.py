@@ -96,6 +96,7 @@ ERRORS = {
     10200: 'Error in un-authentication request',
     10300: 'Subscription Failed (generic)',
     10301: 'Already Subscribed',
+    10305: 'Reached limit of open channels',
     10302: 'Unknown channel',
     10400: 'Subscription Failed (generic)',
     10401: 'Not subscribed',
@@ -314,6 +315,7 @@ class BfxWebsocket(GenericWebsocket):
         notificationText = nInfo[7]
         if notificationType == 'ERROR':
             # self._emit('error', notificationText)
+            await self._order_error_handler(data)
             self.logger.error(
                 "Notification ERROR: {}".format(notificationText))
         else:
@@ -326,6 +328,9 @@ class BfxWebsocket(GenericWebsocket):
 
     async def _order_closed_handler(self, data):
         await self.orderManager.confirm_order_closed(data)
+
+    async def _order_error_handler(self, data):
+        await self.orderManager.confirm_order_error(data)
 
     async def _order_update_handler(self, data):
         await self.orderManager.confirm_order_update(data)

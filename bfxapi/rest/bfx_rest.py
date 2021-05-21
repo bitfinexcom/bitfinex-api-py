@@ -97,7 +97,7 @@ class BfxRest:
         return candles
 
     async def get_public_candles(self, symbol, start, end, section='hist',
-                                 tf='1m', limit="100", sort=-1):
+                                 tf='1m', limit=100, sort=-1):
         """
         Get all of the public candles between the start and end period.
 
@@ -118,7 +118,7 @@ class BfxRest:
         candles = await self.fetch(endpoint, params=params)
         return candles
 
-    async def get_public_trades(self, symbol, start, end, limit="100", sort=-1):
+    async def get_public_trades(self, symbol, start, end, limit=100, sort=-1):
         """
         Get all of the public trades between the start and end period.
 
@@ -133,7 +133,7 @@ class BfxRest:
         params = "?start={}&end={}&limit={}&sort={}".format(
             start, end, limit, sort)
         trades = await self.fetch(endpoint, params=params)
-        return trades
+        return sorted(trades, key=lambda x: (x[1], x[0]), reverse=True if sort == 1 else False)
 
     async def get_public_books(self, symbol, precision="P0", length=25):
         """
@@ -383,7 +383,7 @@ class BfxRest:
         """
         endpoint = "auth/r/wallets"
         raw_wallets = await self.post(endpoint)
-        return [Wallet(*rw[:4]) for rw in raw_wallets]
+        return [Wallet(*rw[:5]) for rw in raw_wallets]
 
     async def get_active_orders(self, symbol):
         """
