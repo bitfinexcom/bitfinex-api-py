@@ -19,5 +19,6 @@ from .withdraw import Withdraw
 from .ticker import Ticker
 from .funding_ticker import FundingTicker
 from .ledger import Ledger
+from .funding_trade import FundingTrade
 
-NAME = 'models'
+NAME = "models"

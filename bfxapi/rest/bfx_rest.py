@@ -10,7 +10,7 @@ import datetime
 
 from ..utils.custom_logger import CustomLogger
 from ..utils.auth import generate_auth_headers, calculate_order_flags, gen_unique_cid
-from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer
+from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer, FundingTrade
 from ..models import FundingCredit, Notification, Ledger
 
 
@@ -455,6 +455,22 @@ class BfxRest:
         params = "?start={}&end={}&limit={}".format(start, end, limit)
         raw_trades = await self.post(endpoint, params=params)
         return [Trade.from_raw_rest_trade(rt) for rt in raw_trades]
+
+    async def get_funding_trades(self, symbol, start, end, limit=25):
+        """
+        Get all of the funding trades between the start and end period associated with API_KEY
+        - Requires authentication.
+
+        # Attributes
+        @param symbol string: pair symbol i.e fUSD
+        @param start int: millisecond start time
+        @param end int: millisecond end time
+        @param limit int: max number of items in response
+        @return Array <models.FundingTrade>
+        """
+        endpoint = "auth/r/funding/trades/{}/hist".format(symbol)
+        raw_trades = await self.post(endpoint)
+        return [FundingTrade.from_raw_rest_trade(rt) for rt in raw_trades]
 
     async def get_funding_offers(self, symbol):
         """
