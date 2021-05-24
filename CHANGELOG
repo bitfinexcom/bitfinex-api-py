@@ -1,5 +1,8 @@
-1.1.14
+1.1.15
 -) Implemented Funding Trades (rest)
+
+1.1.14
+-) bfx_websockets.py ERRORS dictionary now contains a message for error number 10305
 
 1.1.13
 -) Adding balance_available to the Wallet.
