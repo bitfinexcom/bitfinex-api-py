@@ -8,6 +8,7 @@ from .models import (Order, Trade, OrderBook, Subscription, Wallet,
                      Position, FundingLoan, FundingOffer, FundingCredit)
 from .websockets.generic_websocket import GenericWebsocket, Socket
 from .websockets.bfx_websocket import BfxWebsocket
+from .rest.bfx_rest import BfxRest
 from .utils.decimal import Decimal
 
 NAME = 'bfxapi'
