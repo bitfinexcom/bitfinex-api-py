@@ -1,5 +1,7 @@
 1.1.15
 -) Added 'ids' parameter to get_order_history()
+-) Added an example to show how it is possible to spawn multiple bfx ws instances to comply with the open subscriptions number constraint (max. 25)
+-) Implemented Funding Trades (rest)
 
 1.1.14
 -) bfx_websockets.py ERRORS dictionary now contains a message for error number 10305

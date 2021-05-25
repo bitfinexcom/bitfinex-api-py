@@ -58,6 +58,7 @@ https://github.com/Crypto-toolbox/btfxwss
   - `notification` (Notification): incoming account notification
   - `error` (array): error from the websocket
   - `order_closed` (Order, Trade): when an order has been closed
+  - `order_update` (Order, Trade): when an order has been updated
   - `order_new` (Order, Trade): when an order has been created but not closed. Note: will not be called if order is executed and filled instantly
   - `order_confirmed` (Order, Trade): When an order has been submitted and received
   - `wallet_snapshot` (array[Wallet]): Initial wallet balances (Fired once)
