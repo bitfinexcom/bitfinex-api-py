@@ -65,7 +65,7 @@ bfx = Client(
 )
 
 @bfx.ws.on('authenticated')
-async def do_something():
+async def do_something(auth_message):
   print ("Success!")
 
 bfx.ws.run()

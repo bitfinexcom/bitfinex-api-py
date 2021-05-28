@@ -14,23 +14,23 @@ bfx = Client(
 )
 
 @bfx.ws.on('order_update')
-def order_updated(order):
+def order_updated(order, data):
   print ("Order updated.")
   print (order)
 
 @bfx.ws.once('order_update')
-async def order_once_updated(order):
+async def order_once_updated(order, data):
   # update a second time using the object function
   await order.update(price=80, amount=0.02, flags="2nd update")
 
 @bfx.ws.once('order_confirmed')
-async def trade_completed(order):
+async def trade_completed(order, data):
   print ("Order confirmed.")
   print (order)
   await bfx.ws.update_order(order.id, price=100, amount=0.01)
 
 @bfx.ws.on('error')
-def log_error(msg):
+def log_error(msg, data):
   print ("Error: {}".format(msg))
 
 @bfx.ws.once('authenticated')

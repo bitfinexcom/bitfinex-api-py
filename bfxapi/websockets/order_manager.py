@@ -48,14 +48,14 @@ class OrderManager:
         self.closed_orders[order.id] = order
         if not order.is_confirmed():
             order.set_confirmed()
-            self.bfxapi._emit('order_confirmed', order)
+            self.bfxapi._emit('order_confirmed', order, raw_ws_data)
         await self._execute_callback(order, self.pending_order_confirm_callbacks)
         await self._execute_callback(order, self.pending_cancel_confirm_callbacks)
         await self._execute_callback(order, self.pending_update_confirm_callbacks)
         await self._execute_callback(order, self.pending_order_close_callbacks)
         self.logger.info("Order closed: {} {}".format(
             order.symbol, order.status))
-        self.bfxapi._emit('order_closed', order)
+        self.bfxapi._emit('order_closed', order, raw_ws_data)
 
     async def build_from_order_snapshot(self, raw_ws_data):
         """
@@ -67,7 +67,7 @@ class OrderManager:
             order = Order.from_raw_order(raw_order)
             order.set_open_state(True)
             self.open_orders[order.id] = order
-        self.bfxapi._emit('order_snapshot', self.get_open_orders())
+        self.bfxapi._emit('order_snapshot', self.get_open_orders(), raw_ws_data)
 
     async def confirm_order_update(self, raw_ws_data):
         order = Order.from_raw_order(raw_ws_data[2])
@@ -75,7 +75,7 @@ class OrderManager:
         self.open_orders[order.id] = order
         await self._execute_callback(order, self.pending_update_confirm_callbacks)
         self.logger.info("Order update: {}".format(order))
-        self.bfxapi._emit('order_update', order)
+        self.bfxapi._emit('order_update', order, raw_ws_data)
 
     async def confirm_order_new(self, raw_ws_data):
         order = Order.from_raw_order(raw_ws_data[2])
@@ -84,10 +84,10 @@ class OrderManager:
             del self.pending_orders[order.cid]
         self.open_orders[order.id] = order
         order.set_confirmed()
-        self.bfxapi._emit('order_confirmed', order)
+        self.bfxapi._emit('order_confirmed', order, raw_ws_data)
         await self._execute_callback(order, self.pending_order_confirm_callbacks)
         self.logger.info("Order new: {}".format(order))
-        self.bfxapi._emit('order_new', order)
+        self.bfxapi._emit('order_new', order, raw_ws_data)
 
     async def confirm_order_error(self, raw_ws_data):
         cid = raw_ws_data[2][4][2]

@@ -9,7 +9,7 @@ bfx = Client(
 )
 
 @bfx.ws.on('error')
-def log_error(msg):
+def log_error(msg, data):
   print ("Error: {}".format(msg))
 
 @bfx.ws.on('all')

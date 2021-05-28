@@ -89,7 +89,7 @@ class SubscriptionManager:
         # add to confirmed list
         self.subscriptions_chanid[chan_id] = p_sub
         self.subscriptions_subid[p_sub.sub_id] = p_sub
-        self.bfxapi._emit('subscribed', p_sub)
+        self.bfxapi._emit('subscribed', p_sub, raw_ws_data)
 
     async def confirm_unsubscribe(self, socket_id, raw_ws_data):
         chan_id = raw_ws_data.get("chanId")
@@ -99,7 +99,7 @@ class SubscriptionManager:
         if sub.sub_id in self.unsubscribe_callbacks:
             await self.unsubscribe_callbacks[sub.sub_id]()
             del self.unsubscribe_callbacks[sub.sub_id]
-        self.bfxapi._emit('unsubscribed', sub)
+        self.bfxapi._emit('unsubscribed', sub, raw_ws_data)
 
     def get(self, chan_id):
         return self.subscriptions_chanid[chan_id]
