@@ -24,13 +24,25 @@ class BfxRest:
 
     def __init__(self, API_KEY, API_SECRET, host='https://api-pub.bitfinex.com/v2', loop=None,
                  logLevel='INFO', parse_float=float, *args, **kwargs):
-        self.loop = loop or asyncio.get_event_loop()
+        if loop is not None:
+            warnings.warn(
+                "The loop argument is deprecated because it is unused",
+                DeprecationWarning,
+            )
         self.API_KEY = API_KEY
         self.API_SECRET = API_SECRET
         self.host = host
         # this value can also be set to bfxapi.decimal for much higher precision
         self.parse_float = parse_float
         self.logger = CustomLogger('BfxRest', logLevel=logLevel)
+        
+    @property
+    def loop(self):
+        warnings.warn(
+            "The BfxRest.loop attribute is deprecated use asyncio.get_running_loop",
+            DeprecationWarning,
+        )
+        return asyncio.get_running_loop()
 
     async def fetch(self, endpoint, params=""):
         """
