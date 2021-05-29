@@ -7,6 +7,7 @@ import aiohttp
 import time
 import json
 import datetime
+import warnings
 
 from ..utils.custom_logger import CustomLogger
 from ..utils.auth import generate_auth_headers, calculate_order_flags, gen_unique_cid
