@@ -13,7 +13,7 @@ def log_error(err):
   print ("Error: {}".format(err))
 
 @bfx.ws.on('status_update')
-def log_msg(msg):
+def log_msg(msg, data):
   print (msg)
 
 async def start():
