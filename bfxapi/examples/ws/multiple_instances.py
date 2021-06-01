@@ -88,7 +88,7 @@ class Routine:
         print(f'Subscribed tickers: {subbed_tickers}')
 
         # if ticker is not in subbed tickers, then we subscribe to the channel
-        to_sub = [f"t{ticker}" for ticker in get_random_list_of_tickers() if f"t{ticker}" not in subbed_tickers]
+        to_sub = [f"t{ticker}" for ticker in get_random_list_of_tickers() if ticker not in subbed_tickers]
         for ticker in to_sub:
             print(f'To subscribe: {ticker}')
             instance = get_available_instance()
@@ -100,7 +100,7 @@ class Routine:
                 create_instances(instances_to_create)
                 break
 
-        to_unsub = [f"t{ticker}" for ticker in subbed_tickers if f"t{ticker}" in get_random_list_of_tickers()]
+        to_unsub = [f"t{ticker}" for ticker in subbed_tickers if ticker in get_random_list_of_tickers()]
         if len(to_unsub) > 0:
             print(f'To unsubscribe: {to_unsub}')
             for instance in instances:
