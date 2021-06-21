@@ -940,6 +940,28 @@ class BfxRest:
         raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
 
+    async def claim_position(self, position_id, amount):
+        """
+        The claim feature allows the use of funds you have in your Margin Wallet
+        to settle a leveraged position as an exchange buy or sale
+
+        # Attributes
+        @param position_id: id of the position
+        @param amount: amount to claim
+        @return Array [ MTS, TYPE, MESSAGE_ID, null, [SYMBOL, POSITION_STATUS,
+        AMOUNT, BASE_PRICE, MARGIN_FUNDING, MARGIN_FUNDING_TYPE, PLACEHOLDER,
+        PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, POSITION_ID, MTS_CREATE,
+        MTS_UPDATE, PLACEHOLDER, POS_TYPE, PLACEHOLDER, COLLATERAL, MIN_COLLATERAL,
+        META], CODE, STATUS, TEXT]
+        """
+        payload = {
+            "id": position_id,
+            "amount": f"{amount * -1}"
+        }
+        endpoint = "auth/w/position/claim"
+        message = await self.post(endpoint, payload)
+        return message
+
     async def get_auth_pulse_hist(self, is_public=None):
         """
         Allows you to retrieve your private pulse history or the public pulse history with an additional UID_LIKED field.
