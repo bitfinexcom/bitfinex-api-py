@@ -43,4 +43,5 @@ class MarginInfo:
         return MarginInfo(symbol, tradable_balance, gross_balance, buy, sell)
 
     def __str__(self):
-        return "Margin Info {}".format(self.symbol)
+        return "Margin Info {} buy={} sell={} tradable_balance={} gross_balance={}" \
+               "".format(self.symbol, self.buy, self.sell, self. tradable_balance, self. gross_balance)

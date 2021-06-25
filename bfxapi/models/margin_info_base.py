@@ -44,4 +44,5 @@ class MarginInfoBase:
         return MarginInfoBase(user_pl, user_swaps, margin_balance, margin_net, margin_min)
 
     def __str__(self):
-        return "Margin Info Base"
+        return "Margin Info Base user_pl={} user_swaps={} margin_balance={} margin_net={} margin_min={}" \
+               "".format(self.user_pl, self.user_swaps, self.margin_balance, self.margin_net, self.margin_min)

@@ -80,12 +80,13 @@ async def log_funding_credits_history():
   [ print (c) for c in credit ]
 
 async def log_margin_info():
-  m1 = await bfx.rest.get_margin_info('tBTCUSD')
-  print (m1)
-  m2 = await bfx.rest.get_margin_info('sym_all')
-  print (m2)
-  m3 = await bfx.rest.get_margin_info('base')
-  print (m3)
+  margin_info = await bfx.rest.get_margin_info('tBTCUSD')
+  print(margin_info)
+  sym_all = await bfx.rest.get_margin_info('sym_all')  # list of Margin Info
+  for margin_info in sym_all:
+      print(margin_info)
+  base = await bfx.rest.get_margin_info('base')
+  print(base)
 
 async def run():
   await log_wallets()
