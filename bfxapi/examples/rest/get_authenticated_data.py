@@ -79,6 +79,15 @@ async def log_funding_credits_history():
   print ("Funding credit history:")
   [ print (c) for c in credit ]
 
+async def log_margin_info():
+  margin_info = await bfx.rest.get_margin_info('tBTCUSD')
+  print(margin_info)
+  sym_all = await bfx.rest.get_margin_info('sym_all')  # list of Margin Info
+  for margin_info in sym_all:
+      print(margin_info)
+  base = await bfx.rest.get_margin_info('base')
+  print(base)
+
 async def run():
   await log_wallets()
   await log_active_orders()
@@ -90,6 +99,7 @@ async def run():
   await log_funding_offer_history()
   await log_funding_credits()
   await log_funding_credits_history()
+  await log_margin_info()
   
 
 t = asyncio.ensure_future(run())

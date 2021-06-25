@@ -10,7 +10,7 @@ import datetime
 
 from ..utils.custom_logger import CustomLogger
 from ..utils.auth import generate_auth_headers, calculate_order_flags, gen_unique_cid
-from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer, FundingTrade
+from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer, FundingTrade, MarginInfoBase, MarginInfo
 from ..models import FundingCredit, Notification, Ledger
 
 
@@ -384,6 +384,22 @@ class BfxRest:
         endpoint = "auth/r/wallets"
         raw_wallets = await self.post(endpoint)
         return [Wallet(*rw[:5]) for rw in raw_wallets]
+
+    async def get_margin_info(self, symbol='base'):
+        """
+        Get account margin information (like P/L, Swaps, Margin Balance, Tradable Balance and others).
+        Use different keys (base, SYMBOL, sym_all) to retrieve different kinds of data.
+
+        @return Array
+        """
+        endpoint = f"auth/r/info/margin/{symbol}"
+        raw_margin_info = await self.post(endpoint)
+        if symbol == 'base':
+            return MarginInfoBase.from_raw_margin_info(raw_margin_info)
+        elif symbol == 'sym_all':
+            return [MarginInfo.from_raw_margin_info(record) for record in raw_margin_info]
+        else:
+            return MarginInfo.from_raw_margin_info(raw_margin_info)
 
     async def get_active_orders(self, symbol):
         """
@@ -923,6 +939,28 @@ class BfxRest:
         endpoint = "auth/w/order/multi"
         raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
+
+    async def claim_position(self, position_id, amount):
+        """
+        The claim feature allows the use of funds you have in your Margin Wallet
+        to settle a leveraged position as an exchange buy or sale
+
+        # Attributes
+        @param position_id: id of the position
+        @param amount: amount to claim
+        @return Array [ MTS, TYPE, MESSAGE_ID, null, [SYMBOL, POSITION_STATUS,
+        AMOUNT, BASE_PRICE, MARGIN_FUNDING, MARGIN_FUNDING_TYPE, PLACEHOLDER,
+        PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, POSITION_ID, MTS_CREATE,
+        MTS_UPDATE, PLACEHOLDER, POS_TYPE, PLACEHOLDER, COLLATERAL, MIN_COLLATERAL,
+        META], CODE, STATUS, TEXT]
+        """
+        payload = {
+            "id": position_id,
+            "amount": f"{amount * -1}"
+        }
+        endpoint = "auth/w/position/claim"
+        message = await self.post(endpoint, payload)
+        return message
 
     async def get_auth_pulse_hist(self, is_public=None):
         """
