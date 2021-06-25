@@ -14,18 +14,18 @@ bfx = Client(
 )
 
 @bfx.ws.on('order_closed')
-def order_cancelled(order):
+def order_cancelled(order, data):
   print ("Order cancelled.")
   print (order)
 
 @bfx.ws.on('order_confirmed')
-async def trade_completed(order):
+async def trade_completed(order, data):
   print ("Order confirmed.")
   print (order)
   await bfx.ws.cancel_order(order.id)
 
 @bfx.ws.on('error')
-def log_error(msg):
+def log_error(msg, data):
   print ("Error: {}".format(msg))
 
 @bfx.ws.once('authenticated')

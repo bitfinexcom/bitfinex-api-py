@@ -16,12 +16,12 @@ def log_error(err):
   print ("Error: {}".format(err))
 
 @bfx.ws.on('order_book_update')
-def log_update(data):
-  print ("Book update: {}".format(data))
+def log_update(order_book_update, data):
+  print ("Book update: {}".format(order_book_update))
 
 @bfx.ws.on('order_book_snapshot')
-def log_snapshot(data):
-  print ("Initial book: {}".format(data))
+def log_snapshot(order_book_snapshot, data):
+  print ("Initial book: {}".format(order_book_snapshot))
 
 async def start():
   await bfx.ws.subscribe('book', 'tBTCUSD')

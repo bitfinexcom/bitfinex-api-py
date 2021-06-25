@@ -144,20 +144,20 @@ def log_error(err):
     print("Error: {}".format(err))
 
 
-def log_trade(trade):
+def log_trade(trade, data):
     print(trade)
 
 
-def log_ticker(ticker):
+def log_ticker(ticker, data):
     print(ticker)
 
 
-async def on_subscribe(instance, subscription):
+async def on_subscribe(instance, subscription, data):
     print(f'Subscribed to {subscription.symbol} channel {subscription.channel_name}')
     instance.subscriptions[subscription.channel_name][subscription.symbol] = subscription.chan_id
 
 
-async def on_unsubscribed(instance, subscription):
+async def on_unsubscribed(instance, subscription, data):
     print(f'Unsubscribed to {subscription.symbol} channel {subscription.channel_name}')
     instance.subscriptions[subscription.channel_name][subscription.symbol] = subscription.chan_id
     del instance.subscriptions[subscription.channel_name][subscription.symbol]

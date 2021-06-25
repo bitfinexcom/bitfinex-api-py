@@ -1,3 +1,6 @@
+2.0.0
+-) Handlers now receive an additional parameter 'data' containing all raw ws data. It can be used to retrieve extra flags if enabled.
+
 1.1.15
 -) Added 'ids' parameter to get_order_history()
 -) Added an example to show how it is possible to spawn multiple bfx ws instances to comply with the open subscriptions number constraint (max. 25)

@@ -13,7 +13,7 @@ def log_error(err):
   print ("Error: {}".format(err))
 
 @bfx.ws.on('new_funding_ticker')
-def log_ticker(ticker):
+def log_ticker(ticker, data):
   print ("New ticker: {}".format(ticker))
 
 async def start():

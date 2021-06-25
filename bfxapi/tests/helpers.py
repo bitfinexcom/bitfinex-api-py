@@ -68,7 +68,7 @@ class EventWatcher():
 		self.event = event
 		ws.once(event, self._finish)
 
-	def _finish(self, value):
+	def _finish(self, value, data=None):
 		self.value = value or {}
 
 	@classmethod

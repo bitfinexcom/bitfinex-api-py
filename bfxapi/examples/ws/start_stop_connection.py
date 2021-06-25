@@ -9,8 +9,8 @@ bfx = Client(
 )
 
 @bfx.ws.on('order_book_snapshot')
-async def log_snapshot(data):
-  print ("Snapshot: {}".format(data))
+async def log_snapshot(order_book_snapshot, data):
+  print ("Snapshot: {}".format(order_book_snapshot))
   # stop the websocket once a snapshot is received
   await bfx.ws.stop()
 

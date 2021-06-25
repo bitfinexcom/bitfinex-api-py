@@ -13,11 +13,11 @@ def log_error(err):
   print ("Error: {}".format(err))
 
 @bfx.ws.on('new_candle')
-def log_candle(candle):
+def log_candle(candle, data):
   print ("New candle: {}".format(candle))
 
 @bfx.ws.on('new_trade')
-def log_trade(trade):
+def log_trade(trade, data):
   print ("New trade: {}".format(trade))
 
 async def start():
