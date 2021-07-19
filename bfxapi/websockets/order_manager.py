@@ -202,7 +202,7 @@ class OrderManager:
         if price_trailing != None:
             payload['price_trailing'] = str(price_trailing)
         if time_in_force != None:
-            payload['time_in_force'] = str(time_in_force)
+            payload['tif'] = str(time_in_force)
         if leverage != None:
             payload['lev'] = str(leverage)
         flags = calculate_order_flags(
