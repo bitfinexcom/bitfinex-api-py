@@ -128,7 +128,7 @@ class GenericWebsocket:
         s = Socket(sId)
         self.sockets[sId] = s
         loop = asyncio.get_event_loop()
-        while retries < self.max_retries and self.attempt_retry:
+        while self.max_retries == 0 or (retries < self.max_retries and self.attempt_retry):
             try:
                 async with websockets.connect(self.host) as websocket:
                     self.sockets[sId].set_websocket(websocket)
