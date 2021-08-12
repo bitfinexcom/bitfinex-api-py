@@ -1,6 +1,7 @@
-1.1.16
+1.2.0
 -) Implemented Margin Info (rest)
 -) Implemented claim position (rest)
+-) When max_retries == 0 continue forever to retry (websocket)
 
 1.1.15
 -) Added 'ids' parameter to get_order_history()
