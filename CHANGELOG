@@ -1,3 +1,6 @@
+1.2.1
+-) Added orderbook implementation example (ws)
+
 1.2.0
 -) Implemented Margin Info (rest)
 -) Implemented claim position (rest)
