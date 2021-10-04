@@ -1,5 +1,5 @@
 1.2.2
--) WS bugfix (exception InvalidStatuCode not handled)
+-) WS bugfix (exception InvalidStatusCode not handled)
 
 1.2.1
 -) Added orderbook implementation example (ws)
