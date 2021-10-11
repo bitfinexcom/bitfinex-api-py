@@ -16,7 +16,7 @@ async def run():
     print(trades)
     for trade in trades:
         orders_ids.append(trade[0])
-    assert orders_ids == [657815316, 657815314, 657815312, 657815311, 657815309]
+    assert orders_ids == [657815316, 657815314, 657815312, 657815308, 657815304]
 
     # check that strictly decreasing order id condition is always respected
     # check that not increasing timestamp condition is always respected

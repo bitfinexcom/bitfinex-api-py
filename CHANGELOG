@@ -1,3 +1,6 @@
+1.2.3
+-) Tests adjusted
+
 1.2.2
 -) WS bugfix (exception InvalidStatusCode not handled)
 
