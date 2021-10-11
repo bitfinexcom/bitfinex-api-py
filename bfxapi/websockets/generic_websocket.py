@@ -13,7 +13,7 @@ from pyee import AsyncIOEventEmitter
 from ..utils.custom_logger import CustomLogger
 
 # websocket exceptions
-from websockets.exceptions import ConnectionClosed
+from websockets.exceptions import ConnectionClosed, InvalidStatusCode
 
 class AuthError(Exception):
     """
@@ -141,7 +141,7 @@ class GenericWebsocket:
                         await asyncio.sleep(0)
                         message = await websocket.recv()
                         await self.on_message(sId, message)
-            except (ConnectionClosed, socket.error) as e:
+            except (ConnectionClosed, socket.error, InvalidStatusCode) as e:
                 self.sockets[sId].set_disconnected()
                 if self.sockets[sId].isAuthenticated:
                     self.sockets[sId].set_unauthenticated()
