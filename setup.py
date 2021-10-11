@@ -49,7 +49,7 @@ setup(
     # deps installed by pip
     install_requires=[
         'asyncio~=3.0',
-        'websockets~=8.0',
+        'websockets>=8,<10',
         'aiohttp~=3.0',
         'pyee~=8.0'
     ],
