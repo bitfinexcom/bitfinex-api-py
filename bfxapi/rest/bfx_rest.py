@@ -14,6 +14,10 @@ from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer, 
 from ..models import FundingCredit, Notification, Ledger
 
 
+BEGINNING_OF_TIME = 631180800000    # 1990-01-01
+END_OF_TIME = 4102473600000    # 2100-01-01
+
+
 class BfxRest:
     """
     BFX rest interface contains functions which are used to interact with both the public
@@ -401,7 +405,7 @@ class BfxRest:
         else:
             return MarginInfo.from_raw_margin_info(raw_margin_info)
 
-    async def get_active_orders(self, symbol):
+    async def get_active_orders(self, symbol=None):
         """
         Get all of the active orders associated with API_KEY - Requires authentication.
 
@@ -409,11 +413,14 @@ class BfxRest:
         @param symbol string: pair symbol i.e tBTCUSD
         @return Array <models.Order>
         """
-        endpoint = "auth/r/orders/{}".format(symbol)
+        if symbol is None:
+            endpoint = "auth/r/orders"
+        else:
+            endpoint = "auth/r/orders/{}".format(symbol)
         raw_orders = await self.post(endpoint)
         return [Order.from_raw_order(ro) for ro in raw_orders]
 
-    async def get_order_history(self, symbol, start, end, limit=25, sort=-1, ids=None):
+    async def get_order_history(self, symbol=None, start=BEGINNING_OF_TIME, end=END_OF_TIME, limit=2500, sort=-1, ids=None):
         """
         Get all of the orders between the start and end period associated with API_KEY
         - Requires authentication.
@@ -426,7 +433,11 @@ class BfxRest:
         @param ids list of int: allows you to retrieve specific orders by order ID (ids: [ID1, ID2, ID3])
         @return Array <models.Order>
         """
-        endpoint = "auth/r/orders/{}/hist".format(symbol)
+        if symbol is None:
+            endpoint = "auth/r/orders/hist"
+        else:
+            endpoint = "auth/r/orders/{}/hist".format(symbol)
+            
         params = "?start={}&end={}&limit={}&sort={}".format(
             start, end, limit, sort)
         if ids:
@@ -458,7 +469,7 @@ class BfxRest:
         raw_trades = await self.post(endpoint)
         return [Trade.from_raw_rest_trade(rt) for rt in raw_trades]
 
-    async def get_trades(self, symbol, start, end, limit=25):
+    async def get_trades(self, symbol=None, start=BEGINNING_OF_TIME, end=END_OF_TIME, limit=25):
         """
         Get all of the trades between the start and end period associated with API_KEY
         - Requires authentication.
@@ -470,7 +481,11 @@ class BfxRest:
         @param limit int: max number of items in response
         @return Array <models.Trade>
         """
-        endpoint = "auth/r/trades/{}/hist".format(symbol)
+        if symbol is None:
+            endpoint = "auth/r/trades/hist"
+        else:
+            endpoint = "auth/r/trades/{}/hist".format(symbol)
+        
         params = "?start={}&end={}&limit={}".format(start, end, limit)
         raw_trades = await self.post(endpoint, params=params)
         return [Trade.from_raw_rest_trade(rt) for rt in raw_trades]
