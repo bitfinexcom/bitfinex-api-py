@@ -15,7 +15,7 @@ bfx = Client(
 )
 
 async def create_order():
-  response = await bfx.rest.submit_order("tBTCUSD", 10, 0.1)
+  response = await bfx.rest.submit_order(symbol="tBTCUSD", amount=10, price=0.1)
   # response is in the form of a Notification object
   for o in response.notify_info:
     # each item is in the form of an Order object
