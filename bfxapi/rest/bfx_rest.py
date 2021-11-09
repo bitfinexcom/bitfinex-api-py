@@ -732,7 +732,7 @@ class BfxRest:
     #                    Orders                      #
     ##################################################
 
-    async def submit_order(self, symbol, price, amount, market_type=Order.Type.LIMIT,
+    async def submit_order(self, symbol, amount, price=None, market_type=Order.Type.LIMIT,
                            hidden=False, price_trailing=None, price_aux_limit=None,
                            oco_stop_price=None, close=False, reduce_only=False,
                            post_only=False, oco=False, aff_code=None, time_in_force=None,

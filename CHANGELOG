@@ -1,3 +1,6 @@
+1.2.4
+-) Price is not anymore required in submit_order() as it can be None if market_type=OrderType.MARKET
+
 1.2.3
 -) Tests adjusted
 
