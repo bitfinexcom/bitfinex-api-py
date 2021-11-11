@@ -1,3 +1,6 @@
+1.2.4
+-) Added example of MARKET order with price=None
+
 1.2.3
 -) Tests adjusted
 
