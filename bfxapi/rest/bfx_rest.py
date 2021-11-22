@@ -427,11 +427,18 @@ class BfxRest:
         @return Array <models.Order>
         """
         endpoint = "auth/r/orders/{}/hist".format(symbol)
-        params = "?start={}&end={}&limit={}&sort={}".format(
-            start, end, limit, sort)
+        payload = {}
+        if start:
+            payload['start'] = start
+        if end:
+            payload['end'] = end
+        if limit:
+            payload['limit'] = limit
+        if sort:
+            payload['sort'] = sort
         if ids:
-            params += "&id=" + ",".join(str(id) for id in ids)
-        raw_orders = await self.post(endpoint, params=params)
+            payload['id'] = ids
+        raw_orders = await self.post(endpoint, payload)
         return [Order.from_raw_order(ro) for ro in raw_orders]
 
     async def get_active_position(self):
