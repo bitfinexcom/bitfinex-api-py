@@ -7,7 +7,6 @@ import websockets
 import socket
 import json
 import time
-import nest_asyncio
 from threading import Thread, Lock
 
 from pyee import AsyncIOEventEmitter
@@ -15,7 +14,6 @@ from ..utils.custom_logger import CustomLogger
 
 # websocket exceptions
 from websockets.exceptions import ConnectionClosed, InvalidStatusCode
-nest_asyncio.apply()
 
 class AuthError(Exception):
     """
@@ -86,6 +84,8 @@ class GenericWebsocket:
         thread and connection.
         """
         self._start_new_socket()
+        while True:
+            time.sleep(1)
 
     def get_task_executable(self):
         """
@@ -93,10 +93,14 @@ class GenericWebsocket:
         """
         return self._run_socket()
 
+    def _start_new_async_socket(self):
+        asyncio.run(self._run_socket())
+
     def _start_new_socket(self, socketId=None):
         if not socketId:
             socketId = len(self.sockets)
-        asyncio.run(self._run_socket())
+        worker = Thread(target=self._start_new_async_socket)
+        worker.start()
         return socketId
 
     def _wait_for_socket(self, socket_id):
