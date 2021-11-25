@@ -94,7 +94,8 @@ class GenericWebsocket:
         return self._run_socket()
 
     def _start_new_async_socket(self):
-        asyncio.run(self._run_socket())
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(self._run_socket())
 
     def _start_new_socket(self, socketId=None):
         if not socketId:
