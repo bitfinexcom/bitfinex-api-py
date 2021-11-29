@@ -84,6 +84,8 @@ class GenericWebsocket:
         thread and connection.
         """
         self._start_new_socket()
+        while True:
+            time.sleep(1)
 
     def get_task_executable(self):
         """
