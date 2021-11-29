@@ -44,7 +44,7 @@ class Socket():
 
     def set_authenticated(self):
         self.isAuthenticated = True
-        
+
     def set_unauthenticated(self):
         self.isAuthenticated = False
 
@@ -84,8 +84,6 @@ class GenericWebsocket:
         thread and connection.
         """
         self._start_new_socket()
-        while True:
-            time.sleep(1)
 
     def get_task_executable(self):
         """
@@ -191,7 +189,9 @@ class GenericWebsocket:
             return self.events.once(event)
         self.events.once(event, func)
 
-    def _emit(self, event, *args, **kwargs):
+    async def _emit(self, event, *args, **kwargs):
+        if type(event) == Exception:
+            await self.on_error(event)
         self.events.emit(event, *args, **kwargs)
 
     async def on_error(self, error):
