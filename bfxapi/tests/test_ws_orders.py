@@ -119,7 +119,7 @@ async def test_closed_callback_on_submit_order_closed():
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
 	async def c(order):
-		client.ws._emit('c1', order)
+		await client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
 	client.ws.orderManager._gen_unique_cid = lambda: 123
@@ -136,7 +136,7 @@ async def test_confirmed_callback_on_submit_order_closed():
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
 	async def c(order):
-		client.ws._emit('c1', order)
+		await client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
 	client.ws.orderManager._gen_unique_cid = lambda: 123
@@ -152,7 +152,7 @@ async def test_confirmed_callback_on_submit_new_order():
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
 	async def c(order):
-		client.ws._emit('c1', order)
+		await client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
 	client.ws.orderManager._gen_unique_cid = lambda: 123
@@ -168,7 +168,7 @@ async def test_confirmed_callback_on_submit_order_update():
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
 	async def c(order):
-		client.ws._emit('c1', order)
+		await client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
 	client.ws.orderManager._gen_unique_cid = lambda: 123
@@ -184,7 +184,7 @@ async def test_confirmed_callback_on_submit_cancel_order():
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
 	async def c(order):
-		client.ws._emit('c1', order)
+		await client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
 	client.ws.orderManager._gen_unique_cid = lambda: 123
@@ -200,7 +200,7 @@ async def test_confirmed_callback_on_submit_cancel_group_order():
 	## send auth accepted
 	await ws_publish_auth_accepted(client.ws)
 	async def c(order):
-		client.ws._emit('c1', order)
+		await client.ws._emit('c1', order)
 	callback_wait = EventWatcher.watch(client.ws, 'c1')
 	# override cid generation
 	client.ws.orderManager._gen_unique_cid = lambda: 123
