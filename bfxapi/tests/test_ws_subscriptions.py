@@ -1,6 +1,5 @@
 import pytest
 import json
-import asyncio
 from .helpers import (create_stubbed_client, ws_publish_connection_init, EventWatcher)
 
 @pytest.mark.asyncio
