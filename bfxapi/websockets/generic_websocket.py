@@ -189,9 +189,9 @@ class GenericWebsocket:
             return self.events.once(event)
         self.events.once(event, func)
 
-    async def _emit(self, event, *args, **kwargs):
+    def _emit(self, event, *args, **kwargs):
         if type(event) == Exception:
-            await self.on_error(event)
+            self.logger.error(event)
         self.events.emit(event, *args, **kwargs)
 
     async def on_error(self, error):
