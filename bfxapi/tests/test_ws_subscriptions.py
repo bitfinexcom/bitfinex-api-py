@@ -10,7 +10,7 @@ async def test_submit_subscribe():
 	await ws_publish_connection_init(client.ws)
 
 	# Create new subscription to orderbook
-	client.ws.subscribe('book', symb)
+	await client.ws.subscribe('book', symb)
 	last_sent = client.ws.get_last_sent_item()
 	sent_sub = json.loads(last_sent['data'])
 	# {'time': 1548327054030, 'data': '{"event": "subscribe", "channel": "book", "symbol": "tXRPBTC"}'}
@@ -19,7 +19,7 @@ async def test_submit_subscribe():
 	assert sent_sub['symbol'] == symb
 
 	# create new subscription to trades
-	client.ws.subscribe('trades', symb)
+	await client.ws.subscribe('trades', symb)
 	last_sent = client.ws.get_last_sent_item()
 	sent_sub = json.loads(last_sent['data'])
 	# {'event': 'subscribe', 'channel': 'trades', 'symbol': 'tBTCUSD'}
@@ -28,7 +28,7 @@ async def test_submit_subscribe():
 	assert sent_sub['symbol'] == symb
 
 	# create new subscription to candles
-	client.ws.subscribe('candles', symb, timeframe='1m')
+	await client.ws.subscribe('candles', symb, timeframe='1m')
 	last_sent = client.ws.get_last_sent_item()
 	sent_sub = json.loads(last_sent['data'])
 	#{'event': 'subscribe', 'channel': 'candles', 'symbol': 'tBTCUSD', 'key': 'trade:1m:tBTCUSD'}
@@ -44,10 +44,10 @@ async def test_event_subscribe():
 	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	# create a new subscription
-	client.ws.subscribe('trades', symb)
+	await client.ws.subscribe('trades', symb)
 	# announce subscription was successful
 	sub_watch = EventWatcher.watch(client.ws, 'subscribed')
-	client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
+	await client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
 	s_res = sub_watch.wait_until_complete()
 	assert s_res.channel_name == 'trades'
 	assert s_res.symbol == symb
@@ -62,10 +62,10 @@ async def test_submit_unsubscribe():
 	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	# create new subscription to trades
-	client.ws.subscribe('trades', symb)
+	await client.ws.subscribe('trades', symb)
 	 # announce subscription was successful
 	sub_watch = EventWatcher.watch(client.ws, 'subscribed')
-	client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
+	await client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
 	s_res = sub_watch.wait_until_complete()
 	# unsubscribe from channel
 	await s_res.unsubscribe()
@@ -83,10 +83,10 @@ async def test_event_unsubscribe():
 	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	# create new subscription to trades
-	client.ws.subscribe('trades', symb)
+	await client.ws.subscribe('trades', symb)
 	 # announce subscription was successful
 	sub_watch = EventWatcher.watch(client.ws, 'subscribed')
-	client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
+	await client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
 	s_res = sub_watch.wait_until_complete()
 	# unsubscribe from channel
 	await s_res.unsubscribe()
@@ -95,7 +95,7 @@ async def test_event_unsubscribe():
 	
 	# publish confirmation of unsubscribe
 	unsub_watch = EventWatcher.watch(client.ws, 'unsubscribed')
-	client.ws.publish({"event":"unsubscribed","status":"OK","chanId":2})
+	await client.ws.publish({"event":"unsubscribed","status":"OK","chanId":2})
 	unsub_res = unsub_watch.wait_until_complete()
 	assert s_res.channel_name == 'trades'
 	assert s_res.symbol == symb
@@ -110,13 +110,13 @@ async def test_submit_resubscribe():
 	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	# request two new subscriptions
-	client.ws.subscribe('book', symb)
-	client.ws.subscribe('trades', symb)
+	await client.ws.subscribe('book', symb)
+	await client.ws.subscribe('trades', symb)
 	# confirm subscriptions
-	client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
-	client.ws.publish({"event":"subscribed","channel":"book","chanId":3,"symbol":symb,"prec":"P0","freq":"F0","len":"25","pair":pair})
+	await client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
+	await client.ws.publish({"event":"subscribed","channel":"book","chanId":3,"symbol":symb,"prec":"P0","freq":"F0","len":"25","pair":pair})
 	# call resubscribe all
-	client.ws.resubscribe_all()
+	await client.ws.resubscribe_all()
 	## assert that 2 unsubscribe requests were sent
 	last_sent = client.ws.get_sent_items()[-2:]
 	for i in last_sent:
@@ -124,12 +124,12 @@ async def test_submit_resubscribe():
 		assert data['event'] == 'unsubscribe'
 		assert (data['chanId'] == 2 or data['chanId'] == 3)
 	## confirm unsubscriptions
-	client.ws.publish({"event":"unsubscribed","status":"OK","chanId":2})
-	client.ws.publish({"event":"unsubscribed","status":"OK","chanId":3})
+	await client.ws.publish({"event":"unsubscribed","status":"OK","chanId":2})
+	await client.ws.publish({"event":"unsubscribed","status":"OK","chanId":3})
 
 	## confirm subscriptions
-	# client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
-	# client.ws.publish({"event":"subscribed","channel":"book","chanId":3,"symbol":symb,"prec":"P0","freq":"F0","len":"25","pair":pair})
+	# await client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
+	# await client.ws.publish({"event":"subscribed","channel":"book","chanId":3,"symbol":symb,"prec":"P0","freq":"F0","len":"25","pair":pair})
 	# wait for emit of event
 	n_last_sent = client.ws.get_sent_items()[-2:]
 	for i in n_last_sent:
