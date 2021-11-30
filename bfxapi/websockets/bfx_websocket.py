@@ -266,7 +266,7 @@ class BfxWebsocket(GenericWebsocket):
             socketId,
             ERRORS[data.get('code', 10000)],
             data.get("msg", ""))
-        self._emit('error', err_string)
+        self._emit(Exception(err_string))
 
     async def _system_auth_handler(self, socketId, data):
         if data.get('status') == 'FAILED':

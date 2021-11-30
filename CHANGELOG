@@ -1,3 +1,6 @@
+1.2.7
+-) Added ws support for Python 3.9 and 3.10
+
 1.2.6
 -) Updated websockets to 9.1
 
