@@ -1,3 +1,6 @@
+1.2.8
+-) Bugfix - It is possible to call bfx.ws.run() from an already running event loop
+
 1.2.7
 -) Added ws support for Python 3.9 and 3.10
 
