@@ -11,7 +11,7 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 setup(
     name='bitfinex-api-py',
-    version='1.2.8',
+    version='1.3.0',
     description='Official Bitfinex Python API',
     long_description='A Python reference implementation of the Bitfinex API for both REST and websocket interaction',
     long_description_content_type='text/markdown',
