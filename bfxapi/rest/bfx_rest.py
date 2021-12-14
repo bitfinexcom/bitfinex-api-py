@@ -465,7 +465,7 @@ class BfxRest:
         raw_trades = await self.post(endpoint)
         return [Trade.from_raw_rest_trade(rt) for rt in raw_trades]
 
-    async def get_trades(self, symbol, start, end, limit=25):
+    async def get_trades(self, start, end, symbol=None, limit=25):
         """
         Get all of the trades between the start and end period associated with API_KEY
         - Requires authentication.
@@ -477,7 +477,7 @@ class BfxRest:
         @param limit int: max number of items in response
         @return Array <models.Trade>
         """
-        endpoint = "auth/r/trades/{}/hist".format(symbol)
+        endpoint = "auth/r/trades/{}/hist".format(symbol) if symbol else "auth/r/trades/hist"
         params = "?start={}&end={}&limit={}".format(start, end, limit)
         raw_trades = await self.post(endpoint, params=params)
         return [Trade.from_raw_rest_trade(rt) for rt in raw_trades]
