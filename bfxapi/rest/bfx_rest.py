@@ -1109,3 +1109,133 @@ class BfxRest:
         payload['symbol'] = symbol
         payload['collateral'] = collateral
         return await self.post(endpoint, data=payload)
+
+    ##################################################
+    #                   Merchants                    #
+    ##################################################
+
+    async def submit_invoice(self, amount, currency, pay_currencies, order_id, webhook, redirect_url, customer_info_nationality,
+                             customer_info_resid_country, customer_info_resid_city, customer_info_resid_zip_code,
+                             customer_info_resid_street, customer_info_full_name, customer_info_email,
+                             customer_info_resid_state=None, customer_info_resid_building_no=None, duration=None):
+        """
+        Submit an invoice for payment
+
+        # Attributes
+        @param amount str: Invoice amount in currency (From 0.1 USD to 1000 USD)
+        @param currency str: Invoice currency, currently supported: USD
+        @param pay_currencies list of str: Currencies in which invoice accepts the payments, supported values are BTC, ETH, UST-ETH, UST-TRX, UST-LBT, LNX, LBT
+        @param order_id str: Reference order identifier in merchant's platform
+        @param webhook str: The endpoint that will be called once the payment is completed/expired
+        @param redirect_url str: Merchant redirect URL, this one is used in UI to redirect customer to merchant's site once the payment is completed/expired
+        @param customer_info_nationality str: Customer's nationality, alpha2 code or full country name (alpha2 preffered)
+        @param customer_info_resid_country str: Customer's residential country, alpha2 code or full country name (alpha2 preffered)
+        @param customer_info_resid_city str: Customer's residential city/town
+        @param customer_info_resid_zip_code str: Customer's residential zip code/postal code
+        @param customer_info_resid_street str: Customer's residential street address
+        @param customer_info_full_name str: Customer's full name
+        @param customer_info_email str: Customer's email address
+        @param customer_info_resid_state str: Optional, customer's residential state/province
+        @param customer_info_resid_building_no str: Optional, customer's residential building number/name
+        @param duration int: Optional, invoice expire time in seconds, minimal duration is 5 mins (300) and maximal duration is 24 hours (86400). Default value is 15 minutes
+        """
+        endpoint = '/auth/w/ext/pay/invoice/create'
+        payload = {
+            'amount': amount,
+            'currency': currency,
+            'payCurrencies': pay_currencies,
+            'orderId': order_id,
+            'webhook': webhook,
+            'redirectUrl': redirect_url,
+            'customerInfo': {
+                'nationality': customer_info_nationality,
+                'residCountry': customer_info_resid_country,
+                'residCity': customer_info_resid_city,
+                'residZipCode': customer_info_resid_zip_code,
+                'residStreet': customer_info_resid_street,
+                'fullName': customer_info_full_name,
+                'email': customer_info_email
+            },
+            'duration': duration
+        }
+
+        if customer_info_resid_state:
+            payload['customerInfo']['residState'] = customer_info_resid_state
+
+        if customer_info_resid_building_no:
+            payload['customerInfo']['residBuildingNo'] = customer_info_resid_building_no
+
+        return await self.post(endpoint, data=payload)
+
+    async def get_invoices(self, id=None, start=None, end=None, limit=10):
+        """
+        List submitted invoices
+
+        # Attributes
+        @param id str: Unique invoice identifier
+        @param start int: Millisecond start time
+        @param end int: Millisecond end time
+        @param limit int: Millisecond start time
+        """
+        endpoint = '/auth/w/ext/pay/invoices'
+        payload = {}
+
+        if id:
+            payload['id'] = id
+
+        if start:
+            payload['start'] = start
+
+        if end:
+            payload['end'] = end
+
+        if limit:
+            payload['limit'] = limit
+
+        return await self.post(endpoint, data=payload)
+
+    async def complete_invoice(self, id, pay_ccy, deposit_id=None, ledger_id=None):
+        """
+        Manually complete an invoice
+
+        # Attributes
+        @param id str: Unique invoice identifier
+        @param pay_ccy str: Paid invoice currency, should be one of values under payCurrencies field on invoice
+        @param deposit_id int: Movement/Deposit Id linked to invoice as payment
+        @param ledger_id int: Ledger entry Id linked to invoice as payment, use either depositId or ledgerId
+        """
+        endpoint = '/auth/w/ext/pay/invoice/complete'
+        payload = {
+            'id': id,
+            'payCcy': pay_ccy
+        }
+
+        if deposit_id:
+            payload['depositId'] = deposit_id
+
+        if ledger_id:
+            payload['ledgerId'] = ledger_id
+
+        return await self.post(endpoint, data=payload)
+
+    async def get_unlinked_deposits(self, ccy, start=None, end=None):
+        """
+        Retrieve deposits that possibly could be linked to bitfinex pay invoices
+
+        # Attributes
+        @param ccy str: Pay currency to search deposits for, supported values are: BTC, ETH, UST-ETH, UST-TRX, UST-LBT, LNX, LBT
+        @param start int: Millisecond start time
+        @param end int: Millisecond end time
+        """
+        endpoint = '/auth/w/ext/pay/deposits/unlinked'
+        payload = {
+            'ccy': ccy
+        }
+
+        if start:
+            payload['start'] = start
+
+        if end:
+            payload['end'] = end
+
+        return await self.post(endpoint, data=payload)

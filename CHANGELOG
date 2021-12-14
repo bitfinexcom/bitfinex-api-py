@@ -1,3 +1,6 @@
+1.3.2
+-) Implemented Merchants endpoints (REST)
+
 1.3.1
 -) Handle exception of asyncio.get_event_loop() | Related to v1.2.8
 
