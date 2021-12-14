@@ -84,7 +84,10 @@ class GenericWebsocket:
         thread and connection.
         """
         self._start_new_socket()
-        event_loop = asyncio.get_event_loop()
+        try:
+            event_loop = asyncio.get_event_loop()
+        except Exception:
+            event_loop = None
         if not event_loop or not event_loop.is_running():
             while True:
                 time.sleep(1)
