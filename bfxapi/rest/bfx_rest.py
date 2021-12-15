@@ -1139,7 +1139,7 @@ class BfxRest:
         @param customer_info_resid_building_no str: Optional, customer's residential building number/name
         @param duration int: Optional, invoice expire time in seconds, minimal duration is 5 mins (300) and maximal duration is 24 hours (86400). Default value is 15 minutes
         """
-        endpoint = '/auth/w/ext/pay/invoice/create'
+        endpoint = 'auth/w/ext/pay/invoice/create'
         payload = {
             'amount': amount,
             'currency': currency,
@@ -1177,7 +1177,7 @@ class BfxRest:
         @param end int: Millisecond end time
         @param limit int: Millisecond start time
         """
-        endpoint = '/auth/w/ext/pay/invoices'
+        endpoint = 'auth/r/ext/pay/invoices'
         payload = {}
 
         if id:
@@ -1204,7 +1204,7 @@ class BfxRest:
         @param deposit_id int: Movement/Deposit Id linked to invoice as payment
         @param ledger_id int: Ledger entry Id linked to invoice as payment, use either depositId or ledgerId
         """
-        endpoint = '/auth/w/ext/pay/invoice/complete'
+        endpoint = 'auth/w/ext/pay/invoice/complete'
         payload = {
             'id': id,
             'payCcy': pay_ccy
@@ -1227,7 +1227,7 @@ class BfxRest:
         @param start int: Millisecond start time
         @param end int: Millisecond end time
         """
-        endpoint = '/auth/w/ext/pay/deposits/unlinked'
+        endpoint = 'auth/r/ext/pay/deposits/unlinked'
         payload = {
             'ccy': ccy
         }
