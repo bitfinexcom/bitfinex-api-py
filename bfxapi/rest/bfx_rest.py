@@ -370,6 +370,15 @@ class BfxRest:
         stats = await self.fetch(endpoint)
         return stats
 
+    async def get_conf_list_pair_exchange(self):
+        """
+        Get list of available exchange pairs
+        # Attributes
+        @return Array [ SYMBOL ]
+        """
+        endpoint = "conf/pub:list:pair:exchange"
+        pairs = await self.fetch(endpoint)
+        return pairs
 
     ##################################################
     #               Authenticated Data               #
@@ -634,6 +643,17 @@ class BfxRest:
         """
         endpoint = "auth/w/funding/offer/cancel"
         raw_notification = await self.post(endpoint, {'id': fundingId})
+        return Notification.from_raw_notification(raw_notification)
+
+    async def submit_cancel_all_funding_offer(self, currency):
+        """
+        Cancel all funding offers at once
+
+        # Attributes
+        @param currency str: currency for which to cancel all offers (USD, BTC, UST ...)
+        """
+        endpoint = "auth/w/funding/offer/cancel/all"
+        raw_notification = await self.post(endpoint, {'currency': currency})
         return Notification.from_raw_notification(raw_notification)
 
     async def keep_funding(self, type, id):
