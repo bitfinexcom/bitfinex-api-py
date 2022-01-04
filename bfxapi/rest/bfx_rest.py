@@ -636,6 +636,17 @@ class BfxRest:
         raw_notification = await self.post(endpoint, {'id': fundingId})
         return Notification.from_raw_notification(raw_notification)
 
+    async def submit_cancel_all_funding_offer(self, currency):
+        """
+        Cancel all funding offers at once
+
+        # Attributes
+        @param currency str: currency for which to cancel all offers (USD, BTC, UST ...)
+        """
+        endpoint = "auth/w/funding/offer/cancel/all"
+        raw_notification = await self.post(endpoint, {'currency': currency})
+        return Notification.from_raw_notification(raw_notification)
+
     async def keep_funding(self, type, id):
         """
         Toggle to keep funding taken. Specify loan for unused funding and credit for used funding.
