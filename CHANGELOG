@@ -1,6 +1,7 @@
 1.3.4
 -) Fixed undefined p_sub issue in subscription_manager.py
 -) Added submit cancel all funding orders endpoint (REST)
+-) Added get all exchange pairs endpoint (REST)
 
 1.3.3
 -) Fixed socket.send() issue (IndexError: deque index out of range)
