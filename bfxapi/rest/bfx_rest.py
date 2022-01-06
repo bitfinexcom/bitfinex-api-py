@@ -14,10 +14,6 @@ from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer, 
 from ..models import FundingCredit, Notification, Ledger
 
 
-BEGINNING_OF_TIME = 631180800000    # 1990-01-01
-END_OF_TIME = 4102473600000    # 2100-01-01
-
-
 class BfxRest:
     """
     BFX rest interface contains functions which are used to interact with both the public
@@ -374,6 +370,15 @@ class BfxRest:
         stats = await self.fetch(endpoint)
         return stats
 
+    async def get_conf_list_pair_exchange(self):
+        """
+        Get list of available exchange pairs
+        # Attributes
+        @return Array [ SYMBOL ]
+        """
+        endpoint = "conf/pub:list:pair:exchange"
+        pairs = await self.fetch(endpoint)
+        return pairs
 
     ##################################################
     #               Authenticated Data               #
@@ -420,7 +425,7 @@ class BfxRest:
         raw_orders = await self.post(endpoint)
         return [Order.from_raw_order(ro) for ro in raw_orders]
 
-    async def get_order_history(self, symbol=None, start=BEGINNING_OF_TIME, end=END_OF_TIME, limit=2500, sort=-1, ids=None):
+    async def get_order_history(self, symbol=None, start=None, end=None, limit=2500, sort=-1, ids=None):
         """
         Get all of the orders between the start and end period associated with API_KEY
         - Requires authentication.
@@ -433,16 +438,19 @@ class BfxRest:
         @param ids list of int: allows you to retrieve specific orders by order ID (ids: [ID1, ID2, ID3])
         @return Array <models.Order>
         """
-        if symbol is None:
-            endpoint = "auth/r/orders/hist"
-        else:
-            endpoint = "auth/r/orders/{}/hist".format(symbol)
-            
-        params = "?start={}&end={}&limit={}&sort={}".format(
-            start, end, limit, sort)
+        endpoint = "auth/r/orders/{}/hist".format(symbol) if symbol else "auth/r/orders/hist"
+        payload = {}
+        if start:
+            payload['start'] = start
+        if end:
+            payload['end'] = end
+        if limit:
+            payload['limit'] = limit
+        if sort:
+            payload['sort'] = sort
         if ids:
-            params += "&id=" + ",".join(str(id) for id in ids)
-        raw_orders = await self.post(endpoint, params=params)
+            payload['id'] = ids
+        raw_orders = await self.post(endpoint, payload)
         return [Order.from_raw_order(ro) for ro in raw_orders]
 
     async def get_active_position(self):
@@ -469,7 +477,7 @@ class BfxRest:
         raw_trades = await self.post(endpoint)
         return [Trade.from_raw_rest_trade(rt) for rt in raw_trades]
 
-    async def get_trades(self, symbol=None, start=BEGINNING_OF_TIME, end=END_OF_TIME, limit=25):
+    async def get_trades(self, symbol=None, start=None, end=None, limit=25):
         """
         Get all of the trades between the start and end period associated with API_KEY
         - Requires authentication.
@@ -481,11 +489,7 @@ class BfxRest:
         @param limit int: max number of items in response
         @return Array <models.Trade>
         """
-        if symbol is None:
-            endpoint = "auth/r/trades/hist"
-        else:
-            endpoint = "auth/r/trades/{}/hist".format(symbol)
-        
+        endpoint = "auth/r/trades/{}/hist".format(symbol) if symbol else "auth/r/trades/hist"
         params = "?start={}&end={}&limit={}".format(start, end, limit)
         raw_trades = await self.post(endpoint, params=params)
         return [Trade.from_raw_rest_trade(rt) for rt in raw_trades]
@@ -642,6 +646,17 @@ class BfxRest:
         """
         endpoint = "auth/w/funding/offer/cancel"
         raw_notification = await self.post(endpoint, {'id': fundingId})
+        return Notification.from_raw_notification(raw_notification)
+
+    async def submit_cancel_all_funding_offer(self, currency):
+        """
+        Cancel all funding offers at once
+
+        # Attributes
+        @param currency str: currency for which to cancel all offers (USD, BTC, UST ...)
+        """
+        endpoint = "auth/w/funding/offer/cancel/all"
+        raw_notification = await self.post(endpoint, {'currency': currency})
         return Notification.from_raw_notification(raw_notification)
 
     async def keep_funding(self, type, id):
@@ -1116,4 +1131,134 @@ class BfxRest:
         payload = {}
         payload['symbol'] = symbol
         payload['collateral'] = collateral
+        return await self.post(endpoint, data=payload)
+
+    ##################################################
+    #                   Merchants                    #
+    ##################################################
+
+    async def submit_invoice(self, amount, currency, pay_currencies, order_id, webhook, redirect_url, customer_info_nationality,
+                             customer_info_resid_country, customer_info_resid_city, customer_info_resid_zip_code,
+                             customer_info_resid_street, customer_info_full_name, customer_info_email,
+                             customer_info_resid_state=None, customer_info_resid_building_no=None, duration=None):
+        """
+        Submit an invoice for payment
+
+        # Attributes
+        @param amount str: Invoice amount in currency (From 0.1 USD to 1000 USD)
+        @param currency str: Invoice currency, currently supported: USD
+        @param pay_currencies list of str: Currencies in which invoice accepts the payments, supported values are BTC, ETH, UST-ETH, UST-TRX, UST-LBT, LNX, LBT
+        @param order_id str: Reference order identifier in merchant's platform
+        @param webhook str: The endpoint that will be called once the payment is completed/expired
+        @param redirect_url str: Merchant redirect URL, this one is used in UI to redirect customer to merchant's site once the payment is completed/expired
+        @param customer_info_nationality str: Customer's nationality, alpha2 code or full country name (alpha2 preffered)
+        @param customer_info_resid_country str: Customer's residential country, alpha2 code or full country name (alpha2 preffered)
+        @param customer_info_resid_city str: Customer's residential city/town
+        @param customer_info_resid_zip_code str: Customer's residential zip code/postal code
+        @param customer_info_resid_street str: Customer's residential street address
+        @param customer_info_full_name str: Customer's full name
+        @param customer_info_email str: Customer's email address
+        @param customer_info_resid_state str: Optional, customer's residential state/province
+        @param customer_info_resid_building_no str: Optional, customer's residential building number/name
+        @param duration int: Optional, invoice expire time in seconds, minimal duration is 5 mins (300) and maximal duration is 24 hours (86400). Default value is 15 minutes
+        """
+        endpoint = 'auth/w/ext/pay/invoice/create'
+        payload = {
+            'amount': amount,
+            'currency': currency,
+            'payCurrencies': pay_currencies,
+            'orderId': order_id,
+            'webhook': webhook,
+            'redirectUrl': redirect_url,
+            'customerInfo': {
+                'nationality': customer_info_nationality,
+                'residCountry': customer_info_resid_country,
+                'residCity': customer_info_resid_city,
+                'residZipCode': customer_info_resid_zip_code,
+                'residStreet': customer_info_resid_street,
+                'fullName': customer_info_full_name,
+                'email': customer_info_email
+            },
+            'duration': duration
+        }
+
+        if customer_info_resid_state:
+            payload['customerInfo']['residState'] = customer_info_resid_state
+
+        if customer_info_resid_building_no:
+            payload['customerInfo']['residBuildingNo'] = customer_info_resid_building_no
+
+        return await self.post(endpoint, data=payload)
+
+    async def get_invoices(self, id=None, start=None, end=None, limit=10):
+        """
+        List submitted invoices
+
+        # Attributes
+        @param id str: Unique invoice identifier
+        @param start int: Millisecond start time
+        @param end int: Millisecond end time
+        @param limit int: Millisecond start time
+        """
+        endpoint = 'auth/r/ext/pay/invoices'
+        payload = {}
+
+        if id:
+            payload['id'] = id
+
+        if start:
+            payload['start'] = start
+
+        if end:
+            payload['end'] = end
+
+        if limit:
+            payload['limit'] = limit
+
+        return await self.post(endpoint, data=payload)
+
+    async def complete_invoice(self, id, pay_ccy, deposit_id=None, ledger_id=None):
+        """
+        Manually complete an invoice
+
+        # Attributes
+        @param id str: Unique invoice identifier
+        @param pay_ccy str: Paid invoice currency, should be one of values under payCurrencies field on invoice
+        @param deposit_id int: Movement/Deposit Id linked to invoice as payment
+        @param ledger_id int: Ledger entry Id linked to invoice as payment, use either depositId or ledgerId
+        """
+        endpoint = 'auth/w/ext/pay/invoice/complete'
+        payload = {
+            'id': id,
+            'payCcy': pay_ccy
+        }
+
+        if deposit_id:
+            payload['depositId'] = deposit_id
+
+        if ledger_id:
+            payload['ledgerId'] = ledger_id
+
+        return await self.post(endpoint, data=payload)
+
+    async def get_unlinked_deposits(self, ccy, start=None, end=None):
+        """
+        Retrieve deposits that possibly could be linked to bitfinex pay invoices
+
+        # Attributes
+        @param ccy str: Pay currency to search deposits for, supported values are: BTC, ETH, UST-ETH, UST-TRX, UST-LBT, LNX, LBT
+        @param start int: Millisecond start time
+        @param end int: Millisecond end time
+        """
+        endpoint = 'auth/r/ext/pay/deposits/unlinked'
+        payload = {
+            'ccy': ccy
+        }
+
+        if start:
+            payload['start'] = start
+
+        if end:
+            payload['end'] = end
+
         return await self.post(endpoint, data=payload)

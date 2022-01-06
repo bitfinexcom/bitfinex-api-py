@@ -12,6 +12,7 @@ from .subscription_manager import SubscriptionManager
 from .wallet_manager import WalletManager
 from .order_manager import OrderManager
 from ..utils.auth import generate_auth_payload
+from ..utils.decorators import handle_failure
 from ..models import Order, Trade, OrderBook, Ticker, FundingTicker
 
 
@@ -266,7 +267,7 @@ class BfxWebsocket(GenericWebsocket):
             socketId,
             ERRORS[data.get('code', 10000)],
             data.get("msg", ""))
-        self._emit('error', err_string)
+        self._emit(Exception(err_string))
 
     async def _system_auth_handler(self, socketId, data):
         if data.get('status') == 'FAILED':
@@ -481,6 +482,7 @@ class BfxWebsocket(GenericWebsocket):
         else:
             self.logger.warn('Unknown (socketId={}) websocket response: {}'.format(socketId, msg))
 
+    @handle_failure
     async def _ws_authenticate_socket(self, socketId):
         socket = self.sockets[socketId]
         socket.set_authenticated()
@@ -507,6 +509,7 @@ class BfxWebsocket(GenericWebsocket):
         # re-subscribe to existing channels
         await self.subscriptionManager.resubscribe_by_socket(socket_id)
 
+    @handle_failure
     async def _send_auth_command(self, channel_name, data):
         payload = [0, channel_name, None, data]
         socket = self.get_authenticated_socket()
@@ -538,6 +541,7 @@ class BfxWebsocket(GenericWebsocket):
             total += self.get_socket_capacity(socketId)
         return total
 
+    @handle_failure
     async def enable_flag(self, flag):
         """
         Enable flag on websocket connection

@@ -34,7 +34,7 @@ def log_error(msg):
 
 @bfx.ws.on('authenticated')
 async def submit_order(auth_message):
-  await bfx.ws.submit_order('tBTCUSD', 19000, 0.01, Order.Type.EXCHANGE_MARKET)
+  await bfx.ws.submit_order(symbol='tBTCUSD', price=None, amount=0.01, market_type=Order.Type.EXCHANGE_MARKET)
 
 # If you dont want to use a decorator
 # ws.on('authenticated', submit_order)
