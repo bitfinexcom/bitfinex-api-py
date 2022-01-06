@@ -39,7 +39,7 @@ async def log_active_positions():
   [ print (p) for p in positions ]
 
 async def log_trades():
-  trades = await bfx.rest.get_trades('tBTCUSD', 0, then)
+  trades = await bfx.rest.get_trades(symbol='tBTCUSD', start=0, end=then)
   print ("Trades:")
   [ print (t) for t in trades]
 

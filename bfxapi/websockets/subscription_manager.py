@@ -62,6 +62,7 @@ class SubscriptionManager:
         channel = raw_ws_data.get("channel")
         chan_id = raw_ws_data.get("chanId")
         key = raw_ws_data.get("key", None)
+        p_sub = None
         get_key = "{}_{}".format(channel, key or symbol)
         if chan_id in self.subscriptions_chanid:
             # subscription has already existed in the past
