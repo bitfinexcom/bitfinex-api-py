@@ -438,12 +438,7 @@ class BfxRest:
         @param ids list of int: allows you to retrieve specific orders by order ID (ids: [ID1, ID2, ID3])
         @return Array <models.Order>
         """
-        
-        if symbol is None:
-            endpoint = "auth/r/orders/hist"
-        else:
-            endpoint = "auth/r/orders/{}/hist".format(symbol)
-            
+        endpoint = "auth/r/orders/{}/hist".format(symbol) if symbol else "auth/r/orders/hist"
         payload = {}
         if start:
             payload['start'] = start
