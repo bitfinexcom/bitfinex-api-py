@@ -352,7 +352,7 @@ class BfxRest:
         return message
 
 
-    async def get_public_funding_stats(self, symbol):
+    async def get_public_funding_stats(self, symbol, start=None, end=None, limit=100):
         """
         Get a list of the most recent funding data for the given currency
         (FRR, average period, total amount provided, total amount used)
@@ -366,7 +366,7 @@ class BfxRest:
         [[ TIMESTAMP,  PLACEHOLDER, PLACEHOLDER, FRR, AVG_PERIOD, PLACEHOLDER,
         PLACEHOLDER, FUNDING_AMOUNT, FUNDING_AMOUNT_USED ], ...]
         """
-        endpoint = f"funding/stats/{symbol}/hist"
+        endpoint = f"funding/stats/{symbol}/hist?start={start}&end={end}&limit={limit}"
         stats = await self.fetch(endpoint)
         return stats
 
