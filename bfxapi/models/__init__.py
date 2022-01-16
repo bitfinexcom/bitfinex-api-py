@@ -22,5 +22,6 @@ from .ledger import Ledger
 from .funding_trade import FundingTrade
 from .margin_info import MarginInfo
 from .margin_info_base import MarginInfoBase
+from .movement import Movement
 
 NAME = "models"
