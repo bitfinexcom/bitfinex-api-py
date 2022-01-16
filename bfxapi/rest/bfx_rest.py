@@ -11,7 +11,7 @@ import datetime
 from ..utils.custom_logger import CustomLogger
 from ..utils.auth import generate_auth_headers, calculate_order_flags, gen_unique_cid
 from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer, FundingTrade, MarginInfoBase, MarginInfo
-from ..models import FundingCredit, Notification, Ledger
+from ..models import FundingCredit, Notification, Ledger, Movement
 
 
 class BfxRest:
