@@ -3,9 +3,6 @@
 -) Fixed unawaited stop
 -) Changed account's trade execution (te) and trade update (tu) handling
 
-1.3.5
--) Implemented Movement endpoints (REST)
-
 1.3.4
 -) Fixed undefined p_sub issue in subscription_manager.py
 -) Added submit cancel all funding orders endpoint (REST)
