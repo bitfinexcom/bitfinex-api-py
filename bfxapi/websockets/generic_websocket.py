@@ -208,7 +208,7 @@ class GenericWebsocket:
         """
         This is used by the HF data server.
         """
-        self.stop()
+        await self.stop()
 
     async def on_open(self):
         """
