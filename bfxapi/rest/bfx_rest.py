@@ -1005,6 +1005,78 @@ class BfxRest:
         message = await self.post(endpoint, payload)
         return message
 
+    async def calc_order_avail(self, symbol, type, lev, dir=None, rate=None):
+        """
+        Calculate the balance available for orders/offers
+
+        # Attributes
+        @param symbol str: Symbol (tBTCUSD, tBTCUST, fUSD, .... )
+        @param dir int: Direction of the order (1 for by, -1 for sell) (Mandator for EXCHANGE and MARGIN type, not used for FUNDING)
+        @param rate str: Order price (Mandator for EXCHANGE and MARGIN type, not used for FUNDING)
+        @param type str: Type of the order/offer EXCHANGE, MARGIN, DERIV, or FUNDING
+        @param lev str: Leverage that you want to use in calculating the max order amount (DERIV only)
+        """
+        endpoint = f"auth/calc/order/avail"
+        payload = {
+            "symbol": symbol,
+            "type": type,
+            "lev": lev
+        }
+
+        if dir:
+            payload["dir"] = dir
+
+        if rate:
+            payload["rate"] = rate
+
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def write_user_settings(self, settings):
+        """
+        Allows you to create custom settings by creating key: value pairs
+
+        # Attributes
+        @param Settings object: object of keys and values to be set. Must follow regex pattern /^api:[A-Za-z0-9_-]*$/
+        """
+        endpoint = f"auth/w/settings/set"
+        payload = {
+            "Settings": settings
+        }
+
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def read_user_settings(self, keys):
+        """
+        Allows you to read custom settings by providing a key
+
+        # Attributes
+        @param Keys array: the keys for which you wish to retrieve the values
+        """
+        endpoint = f"auth/w/settings"
+        payload = {
+            "Keys": keys
+        }
+
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def delete_user_settings(self, settings):
+        """
+        Allows you to delete custom settings
+
+        # Attributes
+        @param settings object: object of keys to be deleted followed by value 1. Must follow regex pattern /^api:[A-Za-z0-9_-]*$/
+        """
+        endpoint = f"auth/w/settings/del"
+        payload = {
+            "Settings": settings
+        }
+
+        message = await self.post(endpoint, payload)
+        return message
+
     async def get_auth_pulse_hist(self, is_public=None):
         """
         Allows you to retrieve your private pulse history or the public pulse history with an additional UID_LIKED field.
