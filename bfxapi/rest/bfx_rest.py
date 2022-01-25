@@ -1025,7 +1025,9 @@ class BfxRest:
         """
         endpoint = f"auth/w/alert/set"
         payload = {
-            "Settings": settings
+            "type": type,
+            "symbol": symbol,
+            "price": price
         }
 
         message = await self.post(endpoint, payload)
@@ -1041,7 +1043,8 @@ class BfxRest:
         """
         endpoint = f"auth/w/alert/price:{symbol}:{price}/del"
         payload = {
-            "Settings": settings
+            "symbol": symbol,
+            "price": price
         }
 
         message = await self.post(endpoint, payload)
