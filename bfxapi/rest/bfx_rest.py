@@ -1005,6 +1005,48 @@ class BfxRest:
         message = await self.post(endpoint, payload)
         return message
 
+    async def get_alerts(self):
+        """
+        Retrieve a list of active price alerts
+        """
+        endpoint = f"auth/r/alerts"
+
+        message = await self.post(endpoint, {})
+        return message
+
+    async def set_alert(self, type, symbol, price):
+        """
+        Sets up a price alert at the given value
+
+        # Attributes
+        @param type string
+        @param symbol string
+        @param price float
+        """
+        endpoint = f"auth/w/alert/set"
+        payload = {
+            "Settings": settings
+        }
+
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def delete_alert(self, symbol, price):
+        """
+        Delete an active alert
+
+        # Attributes
+        @param symbol string
+        @param price float
+        """
+        endpoint = f"auth/w/alert/price:{symbol}:{price}/del"
+        payload = {
+            "Settings": settings
+        }
+
+        message = await self.post(endpoint, payload)
+        return message
+
     async def calc_order_avail(self, symbol, type, lev, dir=None, rate=None):
         """
         Calculate the balance available for orders/offers
