@@ -76,10 +76,12 @@ https://github.com/Crypto-toolbox/btfxwss
   - `funding_credit_snapshot` (array): Opening funding credit balances
   - `balance_update` (array): When the state of a balance is changed
   - `new_trade` (array): A new trade on the market has been executed
+  - `new_user_trade` (array): A new - your - trade has been executed
   - `new_ticker` (Ticker|FundingTicker): A new ticker update has been published
   - `new_funding_ticker` (FundingTicker): A new funding ticker update has been published
   - `new_trading_ticker` (Ticker): A new trading ticker update has been published
   - `trade_update` (array): A trade on the market has been updated
+  - `user_trade_update` (array): A - your - trade has been updated
   - `new_candle` (array): A new candle has been produced
   - `margin_info_updates` (array): New margin information has been broadcasted
   - `funding_info_updates` (array): New funding information has been broadcasted

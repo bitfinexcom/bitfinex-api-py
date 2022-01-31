@@ -66,7 +66,8 @@ def _parse_trade(tData, symbol):
         'symbol': symbol
     }
 
-def _parse_account_trade(tData):
+
+def _parse_user_trade(tData):
     return {
         'id': tData[0],
         'symbol': tData[1],
@@ -81,7 +82,7 @@ def _parse_account_trade(tData):
     }
 
 
-def _parse_account_trade_update(tData):
+def _parse_user_trade_update(tData):
     return {
         'id': tData[0],
         'symbol': tData[1],
@@ -96,6 +97,7 @@ def _parse_account_trade_update(tData):
         'fee_currency': tData[10],
         'cid': tData[11],
     }
+
 
 def _parse_deriv_status_update(sData, symbol):
     return {
@@ -171,6 +173,7 @@ class BfxWebsocket(GenericWebsocket):
     - `funding_credit_snapshot` (array): Opening funding credit balances
     - `balance_update` (array): When the state of a balance is changed
     - `new_trade` (array): A new trade on the market has been executed
+    - `new_user_trade` (array): A new - your - trade has been executed
     - `new_ticker` (Ticker|FundingTicker): A new ticker update has been published
     - `new_funding_ticker` (FundingTicker): A new funding ticker update has been published
     - `new_trading_ticker` (Ticker): A new trading ticker update has been published
@@ -309,15 +312,29 @@ class BfxWebsocket(GenericWebsocket):
 
     async def _trade_update_handler(self, data):
         tData = data[2]
-        # [0,"tu",[738045455,"tTESTBTC:TESTUSD",1622169615771,66635385225,0.001,38175,"EXCHANGE LIMIT",39000,-1,-0.000002,"TESTBTC",1622169615685]]
-        tradeObj = _parse_account_trade_update(tData)
-        self._emit('trade_update', tradeObj)
+        # [209, 'tu', [312372989, 1542303108930, 0.35, 5688.61834032]]
+        if self.subscriptionManager.is_subscribed(data[0]):
+            symbol = self.subscriptionManager.get(data[0]).symbol
+            tradeObj = _parse_trade(tData, symbol)
+            self._emit('trade_update', tradeObj)
+        else:
+            # user trade
+            # [0,"tu",[738045455,"tTESTBTC:TESTUSD",1622169615771,66635385225,0.001,38175,"EXCHANGE LIMIT",39000,-1,-0.000002,"TESTBTC",1622169615685]]
+            tradeObj = _parse_user_trade_update(tData)
+            self._emit('user_trade_update', tradeObj)
 
     async def _trade_executed_handler(self, data):
         tData = data[2]
-        # [0,"te",[738045455,"tTESTBTC:TESTUSD",1622169615771,66635385225,0.001,38175,"EXCHANGE LIMIT",39000,-1,null,null,1622169615685]]
-        tradeObj = _parse_account_trade(tData)
-        self._emit('new_trade', tradeObj)
+        # [209, 'te', [312372989, 1542303108930, 0.35, 5688.61834032]]
+        if self.subscriptionManager.is_subscribed(data[0]):
+            symbol = self.subscriptionManager.get(data[0]).symbol
+            tradeObj = _parse_trade(tData, symbol)
+            self._emit('new_trade', tradeObj)
+        else:
+            # user trade
+            # [0, 'te', [37558151, 'tBTCUSD', 1643542688513, 1512164914, 0.0001, 30363, 'EXCHANGE MARKET', 100000, -1, None, None, 1643542688390]]
+            tradeObj = _parse_user_trade(tData)
+            self._emit('new_user_trade', tradeObj)
 
     async def _wallet_update_handler(self, data):
         # [0,"wu",["exchange","USD",89134.66933283,0]]
@@ -436,7 +453,12 @@ class BfxWebsocket(GenericWebsocket):
             # connection
             data.reverse()
             for t in data:
-                trade = _parse_trade(t, symbol)
+                trade = {
+                    'mts': t[1],
+                    'amount': t[2],
+                    'price': t[3],
+                    'symbol': symbol
+                }
                 self._emit('seed_trade', trade)
 
     async def _candle_handler(self, data):

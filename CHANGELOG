@@ -1,3 +1,9 @@
+2.0.1
+-) Added User Settings Write/Read/Delete endpoints (REST)
+-) Added Balance Available for Orders/Offers endpoint (REST)
+-) Added Alerts endpoints (REST)
+-) Fixed trades handling error
+
 2.0.0
 -) Implemented Movement endpoints (REST)
 -) Fixed unawaited stop
