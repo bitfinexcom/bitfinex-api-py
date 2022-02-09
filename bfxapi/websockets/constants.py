@@ -55,7 +55,7 @@ class WSEvents:
     NEW_USER_TRADE = 'new_user_trade'
     NOTIFICATION = 'notification'
     ORDER_BOOK_SNAPSHOT = 'order_book_snapshot'
-    ORDER_BOOK_UPDATED = 'order_book_update'
+    ORDER_BOOK_UPDATE = 'order_book_update'
     ORDER_CLOSED = 'order_closed'
     ORDER_CONFIRMED = 'order_confirmed'
     ORDER_NEW = 'order_new'

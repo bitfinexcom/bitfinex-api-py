@@ -1,8 +1,10 @@
 import os
 import sys
+
+from bfxapi.websockets.constants import WSEvents
 sys.path.append('../../../')
 
-from bfxapi import Client, Order
+from bfxapi import Client, Order, WSEvents
 
 API_KEY=os.getenv("BFX_KEY")
 API_SECRET=os.getenv("BFX_SECRET")
@@ -15,10 +17,10 @@ bfx = Client(
   channel_filter=['wallet'] # <-- only receive wallet updates
 )
 
-@bfx.ws.on('error')
+@bfx.ws.on(WSEvents.ERROR)
 def log_error(msg):
   print ("Error: {}".format(msg))
 
-@bfx.ws.on('authenticated')
+@bfx.ws.on(WSEvents.AUTHENTICATED)
 async def submit_order(auth_message):
   print ("Authenticated!!")

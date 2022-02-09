@@ -71,7 +71,7 @@ class GenericWebsocket:
         self.host = host
         self.logger.set_level(logLevel)
         # overide 'error' event to stop it raising an exception
-        # self.events.on('error', self.on_error)
+        # self.events.on(WSEvents.ERROR, self.on_error)
         self.ws = None
         self.max_retries = max_retries
         self.attempt_retry = True

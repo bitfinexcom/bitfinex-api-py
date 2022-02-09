@@ -58,18 +58,18 @@ obs = {}
 def log_error(err):
   print ("Error: {}".format(err))
 
-@bfx.ws.on('order_book_update')
+@bfx.ws.on(WSEvents.ORDER_BOOK_UPDATE)
 def log_update(data):
   obs[data['symbol']].update(data['data'])
 
-@bfx.ws.on('order_book_snapshot')
+@bfx.ws.on(WSEvents.ORDER_BOOK_SNAPSHOT)
 def log_snapshot(data):
   obs[data['symbol']] = OrderBook(data['data'])
 
 async def start():
   await bfx.ws.subscribe(WSChannels.BOOK, 'tBTCUSD')
 
-bfx.ws.on('connected', start)
+bfx.ws.on(WSEvents.CONNECTED, start)
 bfx.ws.run()
 
 for n in range(0, 10):
