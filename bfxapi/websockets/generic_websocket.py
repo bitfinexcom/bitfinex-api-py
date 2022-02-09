@@ -10,6 +10,8 @@ import time
 from threading import Thread, Lock
 
 from pyee import AsyncIOEventEmitter
+
+from bfxapi.websockets.constants import WSEvents
 from ..utils.custom_logger import CustomLogger
 
 # websocket exceptions
@@ -149,7 +151,7 @@ class GenericWebsocket:
                 self.sockets[sId].set_disconnected()
                 if self.sockets[sId].isAuthenticated:
                     self.sockets[sId].set_unauthenticated()
-                self._emit('disconnected')
+                self._emit(WSEvents.DISCONNECTED)
                 if (not self.attempt_retry):
                     return
                 self.logger.error(str(e))
@@ -159,7 +161,7 @@ class GenericWebsocket:
                 await asyncio.sleep(5)
                 self.logger.info("Reconnect attempt {}/{}".format(retries, self.max_retries))
         self.logger.info("Unable to connect to websocket.")
-        self._emit('stopped')
+        self._emit(WSEvents.STOPPED)
 
     async def stop(self):
         """
@@ -168,7 +170,7 @@ class GenericWebsocket:
         self.attempt_retry = False
         for key, socket in self.sockets.items():
             await socket.ws.close()
-        self._emit('done')
+        self._emit(WSEvents.DONE)
 
     def remove_all_listeners(self, event):
         """

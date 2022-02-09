@@ -4,7 +4,7 @@ import time
 from collections import OrderedDict
 sys.path.append('../../../')
 
-from bfxapi import Client
+from bfxapi import Client, WSChannels, WSEvents
 
 bfx = Client(
   manageOrderBooks=True
@@ -54,7 +54,7 @@ class OrderBook:
 
 obs = {}
 
-@bfx.ws.on('error')
+@bfx.ws.on(WSEvents.ERROR)
 def log_error(err):
   print ("Error: {}".format(err))
 
@@ -67,7 +67,7 @@ def log_snapshot(data):
   obs[data['symbol']] = OrderBook(data['data'])
 
 async def start():
-  await bfx.ws.subscribe('book', 'tBTCUSD')
+  await bfx.ws.subscribe(WSChannels.BOOK, 'tBTCUSD')
 
 bfx.ws.on('connected', start)
 bfx.ws.run()

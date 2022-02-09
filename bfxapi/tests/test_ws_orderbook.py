@@ -1,5 +1,5 @@
 import pytest
-from .helpers import create_stubbed_client, ws_publish_connection_init, ws_publish_conf_accepted
+from .helpers import create_stubbed_client, ws_publish_connection_init, ws_publish_conf_accepted, WSChannels
 
 @pytest.mark.asyncio
 async def test_checksum_generation():
@@ -10,7 +10,7 @@ async def test_checksum_generation():
     # publish checksum flag accepted
     await ws_publish_conf_accepted(client.ws, 131072)
     # subscribe to order book
-    await client.ws.subscribe('book', symbol)
+    await client.ws.subscribe(WSChannels.BOOK, symbol)
     ## send subscription accepted
     chanId = 123
     await client.ws.publish({"event":"subscribed","channel":"book","chanId": chanId,"symbol": symbol,"prec":"P0","freq":"F0","len":"25","pair": symbol})
@@ -42,7 +42,7 @@ async def test_checksum_really_samll_numbers_generation():
     # publish checksum flag accepted
     await ws_publish_conf_accepted(client.ws, 131072)
     # subscribe to order book
-    await client.ws.subscribe('book', symbol)
+    await client.ws.subscribe(WSChannels.BOOK, symbol)
     ## send subscription accepted
     chanId = 123
     await client.ws.publish({"event":"subscribed","channel":"book","chanId": chanId,"symbol": symbol,"prec":"P0","freq":"F0","len":"25","pair": symbol})

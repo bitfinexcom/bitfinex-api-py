@@ -1,6 +1,6 @@
 import pytest
 import json
-from .helpers import (create_stubbed_client, ws_publish_connection_init, EventWatcher)
+from .helpers import (create_stubbed_client, ws_publish_connection_init, EventWatcher, WSChannels)
 
 @pytest.mark.asyncio
 async def test_submit_subscribe():
@@ -10,7 +10,7 @@ async def test_submit_subscribe():
 	await ws_publish_connection_init(client.ws)
 
 	# Create new subscription to orderbook
-	await client.ws.subscribe('book', symb)
+	await client.ws.subscribe(WSChannels.BOOK, symb)
 	last_sent = client.ws.get_last_sent_item()
 	sent_sub = json.loads(last_sent['data'])
 	# {'time': 1548327054030, 'data': '{"event": "subscribe", "channel": "book", "symbol": "tXRPBTC"}'}
@@ -19,7 +19,7 @@ async def test_submit_subscribe():
 	assert sent_sub['symbol'] == symb
 
 	# create new subscription to trades
-	await client.ws.subscribe('trades', symb)
+	await client.ws.subscribe(WSChannels.TRADES, symb)
 	last_sent = client.ws.get_last_sent_item()
 	sent_sub = json.loads(last_sent['data'])
 	# {'event': 'subscribe', 'channel': 'trades', 'symbol': 'tBTCUSD'}
@@ -28,7 +28,7 @@ async def test_submit_subscribe():
 	assert sent_sub['symbol'] == symb
 
 	# create new subscription to candles
-	await client.ws.subscribe('candles', symb, timeframe='1m')
+	await client.ws.subscribe(WSChannels.CANDLES, symb, timeframe='1m')
 	last_sent = client.ws.get_last_sent_item()
 	sent_sub = json.loads(last_sent['data'])
 	#{'event': 'subscribe', 'channel': 'candles', 'symbol': 'tBTCUSD', 'key': 'trade:1m:tBTCUSD'}
@@ -44,7 +44,7 @@ async def test_event_subscribe():
 	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	# create a new subscription
-	await client.ws.subscribe('trades', symb)
+	await client.ws.subscribe(WSChannels.TRADES, symb)
 	# announce subscription was successful
 	sub_watch = EventWatcher.watch(client.ws, 'subscribed')
 	await client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
@@ -62,7 +62,7 @@ async def test_submit_unsubscribe():
 	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	# create new subscription to trades
-	await client.ws.subscribe('trades', symb)
+	await client.ws.subscribe(WSChannels.TRADES, symb)
 	 # announce subscription was successful
 	sub_watch = EventWatcher.watch(client.ws, 'subscribed')
 	await client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
@@ -83,7 +83,7 @@ async def test_event_unsubscribe():
 	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	# create new subscription to trades
-	await client.ws.subscribe('trades', symb)
+	await client.ws.subscribe(WSChannels.TRADES, symb)
 	 # announce subscription was successful
 	sub_watch = EventWatcher.watch(client.ws, 'subscribed')
 	await client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
@@ -110,8 +110,8 @@ async def test_submit_resubscribe():
 	# publish connection created message
 	await ws_publish_connection_init(client.ws)
 	# request two new subscriptions
-	await client.ws.subscribe('book', symb)
-	await client.ws.subscribe('trades', symb)
+	await client.ws.subscribe(WSChannels.BOOK, symb)
+	await client.ws.subscribe(WSChannels.TRADES, symb)
 	# confirm subscriptions
 	await client.ws.publish({"event":"subscribed","channel":"trades","chanId":2,"symbol":symb,"pair":pair})
 	await client.ws.publish({"event":"subscribed","channel":"book","chanId":3,"symbol":symb,"prec":"P0","freq":"F0","len":"25","pair":pair})

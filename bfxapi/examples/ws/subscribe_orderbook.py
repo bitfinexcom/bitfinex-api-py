@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append('../../../')
 
-from bfxapi import Client
+from bfxapi import Client, WSEvents, WSChannels
 
 bfx = Client(
   logLevel='DEBUG',
@@ -11,21 +11,21 @@ bfx = Client(
   manageOrderBooks=True
 )
 
-@bfx.ws.on('error')
+@bfx.ws.on(WSEvents.ERROR)
 def log_error(err):
   print ("Error: {}".format(err))
 
-@bfx.ws.on('order_book_update')
+@bfx.ws.on(WSEvents.ORDER_BOOK_UPDATE)
 def log_update(data):
   print ("Book update: {}".format(data))
 
-@bfx.ws.on('order_book_snapshot')
+@bfx.ws.on(WSEvents.ORDER_BOOK_SNAPSHOT)
 def log_snapshot(data):
   print ("Initial book: {}".format(data))
 
 async def start():
-  await bfx.ws.subscribe('book', 'tBTCUSD')
-  # bfx.ws.subscribe('book', 'tETHUSD')
+  await bfx.ws.subscribe(WSChannels.BOOK, 'tBTCUSD')
+  # bfx.ws.subscribe(WSChannels.BOOK, 'tETHUSD')
 
-bfx.ws.on('connected', start)
+bfx.ws.on(WSEvents.CONNECTED, start)
 bfx.ws.run()

@@ -3,7 +3,7 @@ import json
 import asyncio
 from pyee import EventEmitter
 
-from .. import Client, BfxWebsocket, Socket
+from .. import Client, BfxWebsocket, Socket, WSEvents, WSChannels
 
 def get_now():
 	return int(round(time.time() * 1000))

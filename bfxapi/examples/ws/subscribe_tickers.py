@@ -2,22 +2,22 @@ import os
 import sys
 sys.path.append('../../../')
 
-from bfxapi import Client
+from bfxapi import Client, WSEvents, WSChannels
 
 bfx = Client(
   logLevel='DEBUG'
 )
 
-@bfx.ws.on('error')
+@bfx.ws.on(WSEvents.ERROR)
 def log_error(err):
   print ("Error: {}".format(err))
 
-@bfx.ws.on('new_funding_ticker')
+@bfx.ws.on(WSEvents.NEW_FUNDING_TICKER)
 def log_ticker(ticker):
   print ("New ticker: {}".format(ticker))
 
 async def start():
-  await bfx.ws.subscribe('ticker', 'fUSD')
+  await bfx.ws.subscribe(WSChannels.TICKER, 'fUSD')
 
-bfx.ws.on('connected', start)
+bfx.ws.on(WSEvents.CONNECTED, start)
 bfx.ws.run()

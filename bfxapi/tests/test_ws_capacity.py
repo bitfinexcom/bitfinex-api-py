@@ -2,7 +2,7 @@ import pytest
 import json
 import time
 import asyncio
-from .helpers import (create_stubbed_client, ws_publish_connection_init, ws_publish_auth_accepted)
+from .helpers import (create_stubbed_client, ws_publish_connection_init, ws_publish_auth_accepted, WSChannels)
 
 @pytest.mark.asyncio
 async def test_ws_creates_new_socket():
@@ -12,12 +12,12 @@ async def test_ws_creates_new_socket():
   await ws_publish_connection_init(client.ws)
   # create a bunch of websocket subscriptions
   for symbol in ['tXRPBTC', 'tLTCUSD']:
-    await client.ws.subscribe('candles', symbol, timeframe='1m')
+    await client.ws.subscribe(WSChannels.CANDLES, symbol, timeframe='1m')
     assert len(client.ws.sockets) == 1
   assert client.ws.get_total_available_capcity() == 3
   # subscribe to a few more to force the lib to create a new ws conenction
   for symbol in ['tETHBTC', 'tBTCUSD', 'tETHUSD', 'tLTCBTC']:
-    await client.ws.subscribe('candles', symbol, timeframe='1m')
+    await client.ws.subscribe(WSChannels.CANDLES, symbol, timeframe='1m')
   assert len(client.ws.sockets) == 2
   assert client.ws.get_total_available_capcity() == 4
 
@@ -29,7 +29,7 @@ async def test_ws_uses_authenticated_socket():
   await ws_publish_connection_init(client.ws)
   # create a bunch of websocket subscriptions
   for symbol in ['tXRPBTC', 'tLTCUSD', 'tETHBTC', 'tBTCUSD', 'tETHUSD', 'tLTCBTC']:
-    await client.ws.subscribe('candles', symbol, timeframe='1m')
+    await client.ws.subscribe(WSChannels.CANDLES, symbol, timeframe='1m')
   # publish connection created message on socket (0 by default)
   await ws_publish_connection_init(client.ws)
   # send auth accepted (on socket by default)
