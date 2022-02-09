@@ -1,5 +1,5 @@
 """
-Module used to house the bitfine websocket client
+Module used to house the bitfinex websocket client
 """
 
 import asyncio
@@ -14,132 +14,11 @@ from .order_manager import OrderManager
 from ..utils.auth import generate_auth_payload
 from ..utils.decorators import handle_failure
 from ..models import Order, Trade, OrderBook, Ticker, FundingTicker
+from .constants import ERRORS, Flags, WSEvents, WSChannels
+from .data_parsers import _parse_candle, _parse_deriv_status_update, _parse_trade, _parse_user_trade, _parse_user_trade_update 
 
 
-class Flags:
-    """
-    Enum used to index the available flags used in the authentication
-    websocket packet
-    """
-    DEC_S = 9
-    TIME_S = 32
-    TIMESTAMP = 32768
-    SEQ_ALL = 65536
-    CHECKSUM = 131072
 
-    strings = {
-        9: 'DEC_S',
-        32: 'TIME_S',
-        32768: 'TIMESTAMP',
-        65536: 'SEQ_ALL',
-        131072: 'CHECKSUM'
-    }
-
-
-def _parse_candle(cData, symbol, tf):
-    return {
-        'mts': cData[0],
-        'open': cData[1],
-        'close': cData[2],
-        'high': cData[3],
-        'low': cData[4],
-        'volume': cData[5],
-        'symbol': symbol,
-        'tf': tf
-    }
-
-
-def _parse_trade_snapshot_item(tData, symbol):
-    return {
-        'mts': tData[3],
-        'price': tData[4],
-        'amount': tData[5],
-        'symbol': symbol
-    }
-
-
-def _parse_trade(tData, symbol):
-    return {
-        'mts': tData[1],
-        'price': tData[3],
-        'amount': tData[2],
-        'symbol': symbol
-    }
-
-
-def _parse_user_trade(tData):
-    return {
-        'id': tData[0],
-        'symbol': tData[1],
-        'mts_create': tData[2],
-        'order_id': tData[3],
-        'exec_amount': tData[4],
-        'exec_price': tData[5],
-        'order_type': tData[6],
-        'order_price': tData[7],
-        'maker': tData[8],
-        'cid': tData[11],
-    }
-
-
-def _parse_user_trade_update(tData):
-    return {
-        'id': tData[0],
-        'symbol': tData[1],
-        'mts_create': tData[2],
-        'order_id': tData[3],
-        'exec_amount': tData[4],
-        'exec_price': tData[5],
-        'order_type': tData[6],
-        'order_price': tData[7],
-        'maker': tData[8],
-        'fee': tData[9],
-        'fee_currency': tData[10],
-        'cid': tData[11],
-    }
-
-
-def _parse_deriv_status_update(sData, symbol):
-    return {
-            'symbol': symbol,
-            'status_type': 'deriv',
-            'mts': sData[0],
-            # placeholder
-            'deriv_price': sData[2],
-            'spot_price': sData[3],
-            # placeholder
-            'insurance_fund_balance': sData[5],
-            # placeholder
-            # placeholder
-            'funding_accrued': sData[8],
-            'funding_step': sData[9],
-            # placeholder
-        }
-
-ERRORS = {
-    10000: 'Unknown event',
-    10001: 'Generic error',
-    10008: 'Concurrency error',
-    10020: 'Request parameters error',
-    10050: 'Configuration setup failed',
-    10100: 'Failed authentication',
-    10111: 'Error in authentication request payload',
-    10112: 'Error in authentication request signature',
-    10113: 'Error in authentication request encryption',
-    10114: 'Error in authentication request nonce',
-    10200: 'Error in un-authentication request',
-    10300: 'Subscription Failed (generic)',
-    10301: 'Already Subscribed',
-    10305: 'Reached limit of open channels',
-    10302: 'Unknown channel',
-    10400: 'Subscription Failed (generic)',
-    10401: 'Not subscribed',
-    11000: 'Not ready, try again later',
-    20000: 'User is invalid!',
-    20051: 'Websocket server stopping',
-    20060: 'Websocket server resyncing',
-    20061: 'Websocket server resync complete'
-}
 
 class BfxWebsocket(GenericWebsocket):
     """
@@ -160,10 +39,10 @@ class BfxWebsocket(GenericWebsocket):
     - `order_confirmed` (Order, Trade): When an order has been submitted and received
     - `wallet_snapshot` (array[Wallet]): Initial wallet balances (Fired once)
     - `order_snapshot` (array[Order]): Initial open orders (Fired once)
-    - `positions_snapshot` (array): Initial open positions (Fired once)
-    - `positions_new` (array): Initial open positions (Fired once)
-    - `positions_update` (array): An active position has been updated
-    - `positions_close` (array): An active position has closed
+    - `position_snapshot` (array): Initial open positions (Fired once)
+    - `position_new` (array): Initial open positions (Fired once)
+    - `position_update` (array): An active position has been updated
+    - `position_close` (array): An active position has closed
     - `wallet_update` (Wallet): Changes to the balance of wallets
     - `status_update` (Object): New platform status info
     - `seed_candle` (Object): Initial past candle to prime strategy
@@ -179,8 +58,8 @@ class BfxWebsocket(GenericWebsocket):
     - `new_trading_ticker` (Ticker): A new trading ticker update has been published
     - `trade_update` (array): A trade on the market has been updated
     - `new_candle` (array): A new candle has been produced
-    - `margin_info_updates` (array): New margin information has been broadcasted
-    - `funding_info_updates` (array): New funding information has been broadcasted
+    - `margin_info_update` (array): New margin information has been broadcasted
+    - `funding_info_update` (array): New funding information has been broadcasted
     - `order_book_snapshot` (array): Initial snapshot of the order book on connection
     - `order_book_update` (array): A new order has been placed into the ordebrook
     - `subscribed` (Subscription): A new channel has been subscribed to
@@ -254,15 +133,15 @@ class BfxWebsocket(GenericWebsocket):
         elif self.subscriptionManager.is_subscribed(chan_id):
             subscription = self.subscriptionManager.get(chan_id)
             # candles do not have an event
-            if subscription.channel_name == 'candles':
+            if subscription.channel_name == WSChannels.CANDLES:
                 await self._candle_handler(data)
-            elif subscription.channel_name == 'book':
+            elif subscription.channel_name == WSChannels.BOOK:
                 await self._order_book_handler(data, raw_message_str)
-            elif subscription.channel_name == 'trades':
+            elif subscription.channel_name == WSChannels.TRADES:
                 await self._trade_handler(data)
-            elif subscription.channel_name == 'status':
+            elif subscription.channel_name == WSChannels.STATUS:
                 await self._status_handler(data)
-            elif subscription.channel_name == 'ticker':
+            elif subscription.channel_name == WSChannels.TICKER:
                 await self._ticker_handler(data)
             else:
                 self.logger.warn("Unknown channel type '{}'".format(subscription.channel_name))
@@ -307,7 +186,7 @@ class BfxWebsocket(GenericWebsocket):
         if data.get('status') == 'FAILED':
             raise AuthError(ERRORS[data.get('code')])
         else:
-            self._emit('authenticated', data)
+            self._emit(WSEvents.AUTHENTICATED, data)
             self.logger.info("Authentication successful.")
 
     async def _trade_update_handler(self, data):
@@ -316,12 +195,12 @@ class BfxWebsocket(GenericWebsocket):
         if self.subscriptionManager.is_subscribed(data[0]):
             symbol = self.subscriptionManager.get(data[0]).symbol
             tradeObj = _parse_trade(tData, symbol)
-            self._emit('trade_update', tradeObj)
+            self._emit(WSEvents.TRADE_UPDATE, tradeObj)
         else:
             # user trade
             # [0,"tu",[738045455,"tTESTBTC:TESTUSD",1622169615771,66635385225,0.001,38175,"EXCHANGE LIMIT",39000,-1,-0.000002,"TESTBTC",1622169615685]]
             tradeObj = _parse_user_trade_update(tData)
-            self._emit('user_trade_update', tradeObj)
+            self._emit(WSEvents.USER_TRADE_UPDATE, tradeObj)
 
     async def _trade_executed_handler(self, data):
         tData = data[2]
@@ -329,37 +208,37 @@ class BfxWebsocket(GenericWebsocket):
         if self.subscriptionManager.is_subscribed(data[0]):
             symbol = self.subscriptionManager.get(data[0]).symbol
             tradeObj = _parse_trade(tData, symbol)
-            self._emit('new_trade', tradeObj)
+            self._emit(WSEvents.NEW_TRADE, tradeObj)
         else:
             # user trade
             # [0, 'te', [37558151, 'tBTCUSD', 1643542688513, 1512164914, 0.0001, 30363, 'EXCHANGE MARKET', 100000, -1, None, None, 1643542688390]]
             tradeObj = _parse_user_trade(tData)
-            self._emit('new_user_trade', tradeObj)
+            self._emit(WSEvents.NEW_USER_TRADE, tradeObj)
 
     async def _wallet_update_handler(self, data):
         # [0,"wu",["exchange","USD",89134.66933283,0]]
         uw = self.wallets._update_from_event(data)
-        self._emit('wallet_update', uw)
+        self._emit(WSEvents.WALLET_UPDATE, uw)
         self.logger.info("Wallet update: {}".format(uw))
 
     async def _heart_beat_handler(self, data):
         self.logger.debug("Heartbeat - {}".format(self.host))
 
     async def _margin_info_update_handler(self, data):
-        self._emit('margin_info_update', data)
+        self._emit(WSEvents.MARGIN_INFO_UPDATE, data)
         self.logger.info("Margin info update: {}".format(data))
 
     async def _funding_info_update_handler(self, data):
-        self._emit('funding_info_update', data)
+        self._emit(WSEvents.FUNDING_INFO_UPDATE, data)
         self.logger.info("Funding info update: {}".format(data))
 
     async def _notification_handler(self, data):
         nInfo = data[2]
-        self._emit('notification', nInfo)
+        self._emit(WSEvents.NOTIFICATION, nInfo)
         notificationType = nInfo[6]
         notificationText = nInfo[7]
         if notificationType == 'ERROR':
-            # self._emit('error', notificationText)
+            # self._emit(WSEvents.ERROR, notificationText)
             await self._order_error_handler(data)
             self.logger.error(
                 "Notification ERROR: {}".format(notificationText))
@@ -369,7 +248,7 @@ class BfxWebsocket(GenericWebsocket):
 
     async def _balance_update_handler(self, data):
         self.logger.info('Balance update: {}'.format(data[2]))
-        self._emit('balance_update', data[2])
+        self._emit(WSEvents.BALANCE_UPDATE, data[2])
 
     async def _order_closed_handler(self, data):
         await self.orderManager.confirm_order_closed(data)
@@ -388,34 +267,34 @@ class BfxWebsocket(GenericWebsocket):
 
     async def _wallet_snapshot_handler(self, data):
         wallets = self.wallets._update_from_snapshot(data)
-        self._emit('wallet_snapshot', wallets)
+        self._emit(WSEvents.WALLET_SNAPSHOT, wallets)
 
     async def _position_snapshot_handler(self, data):
-        self._emit('position_snapshot', data)
+        self._emit(WSEvents.POSITION_SNAPSHOT, data)
         self.logger.info("Position snapshot: {}".format(data))
 
     async def _position_update_handler(self, data):
-        self._emit('position_update', data)
+        self._emit(WSEvents.POSITION_UPDATE, data)
         self.logger.info("Position update: {}".format(data))
 
     async def _position_close_handler(self, data):
-        self._emit('position_close', data)
+        self._emit(WSEvents.POSITION_CLOSE, data)
         self.logger.info("Position close: {}".format(data))
 
     async def _position_new_handler(self, data):
-        self._emit('position_new', data)
+        self._emit(WSEvents.POSITION_NEW, data)
         self.logger.info("Position new: {}".format(data))
 
     async def _funding_offer_snapshot_handler(self, data):
-        self._emit('funding_offer_snapshot', data)
+        self._emit(WSEvents.FUNDING_OFFER_SNAPSHOT, data)
         self.logger.info("Funding offer snapshot: {}".format(data))
 
     async def _funding_load_snapshot_handler(self, data):
-        self._emit('funding_loan_snapshot', data[2])
+        self._emit(WSEvents.FUNDING_LOAN_SNAPSHOT, data[2])
         self.logger.info("Funding loan snapshot: {}".format(data))
 
     async def _funding_credit_snapshot_handler(self, data):
-        self._emit('funding_credit_snapshot', data[2])
+        self._emit(WSEvents.FUNDING_CREDIT_SNAPSHOT, data[2])
         self.logger.info("Funding credit snapshot: {}".format(data))
 
     async def _status_handler(self, data):
@@ -426,7 +305,7 @@ class BfxWebsocket(GenericWebsocket):
         if status_type == "deriv":
             status = _parse_deriv_status_update(rstatus, symbol)
         if status:
-            self._emit('status_update', status)
+            self._emit(WSEvents.STATUS_UPDATE, status)
         else:
             self.logger.warn('Unknown status data type: {}'.format(data))
 
@@ -437,13 +316,13 @@ class BfxWebsocket(GenericWebsocket):
             t = None
             if symbol[0] == 't':
                 t = Ticker.from_raw_ticker(raw_ticker, symbol)
-                self._emit('new_trading_ticker', t)
+                self._emit(WSEvents.NEW_TRADING_TICKER, t)
             elif symbol[0] == 'f':
                 t = FundingTicker.from_raw_ticker(raw_ticker, symbol)
-                self._emit('new_funding_ticker', t)
+                self._emit(WSEvents.NEW_FUNDING_TICKER, t)
             else:
                 self.logger.warn('Unknown ticker type: {}'.format(raw_ticker))
-            self._emit('new_ticker', t)
+            self._emit(WSEvents.NEW_TICKER, t)
 
     async def _trade_handler(self, data):
         symbol = self.subscriptionManager.get(data[0]).symbol
@@ -459,7 +338,7 @@ class BfxWebsocket(GenericWebsocket):
                     'price': t[3],
                     'symbol': symbol
                 }
-                self._emit('seed_trade', trade)
+                self._emit(WSEvents.SEED_TRADE, trade)
 
     async def _candle_handler(self, data):
         subscription = self.subscriptionManager.get(data[0])
@@ -474,11 +353,11 @@ class BfxWebsocket(GenericWebsocket):
             for c in candlesSnapshot:
                 candle = _parse_candle(
                     c, subscription.symbol, subscription.timeframe)
-                self._emit('seed_candle', candle)
+                self._emit(WSEvents.SEED_CANDLE, candle)
         else:
             candle = _parse_candle(
                 data[1], subscription.symbol, subscription.timeframe)
-            self._emit('new_candle', candle)
+            self._emit(WSEvents.NEW_CANDLE, candle)
 
     async def _order_book_handler(self, data, orig_raw_message):
         obInfo = data[1]
@@ -506,17 +385,17 @@ class BfxWebsocket(GenericWebsocket):
         if isSnapshot:
             self.orderBooks[symbol] = OrderBook()
             self.orderBooks[symbol].update_from_snapshot(obInfo, orig_raw_message)
-            self._emit('order_book_snapshot', {
+            self._emit(WSEvents.ORDER_BOOK_SNAPSHOT, {
                        'symbol': symbol, 'data': obInfo})
         else:
             self.orderBooks[symbol].update_with(obInfo, orig_raw_message)
-            self._emit('order_book_update', {'symbol': symbol, 'data': obInfo})
+            self._emit(WSEvents.ORDER_BOOK_UPDATE, {'symbol': symbol, 'data': obInfo})
 
     async def on_message(self, socketId, message):
         self.logger.debug(message)
         # convert float values to decimal
         msg = json.loads(message, parse_float=self.parse_float)
-        self._emit('all', msg)
+        self._emit(WSEvents.ALL, msg)
         if type(msg) is dict:
             # System messages are received as json
             await self._ws_system_handler(socketId, msg)
@@ -541,7 +420,7 @@ class BfxWebsocket(GenericWebsocket):
         self.logger.info("Websocket opened.")
         if len(self.sockets) == 1:
             ## only call on first connection
-            self._emit('connected')
+            self._emit(WSEvents.CONNECTED)
         # Orders are simulated in backtest mode
         if self.API_KEY and self.API_SECRET and self.get_authenticated_socket() == None:
             await self._ws_authenticate_socket(socket_id)
@@ -609,7 +488,7 @@ class BfxWebsocket(GenericWebsocket):
         # Attributes
         @param symbol: the trading symbol i.e 'tBTCUSD'
         """
-        return await self.subscribe('book', symbol)
+        return await self.subscribe(WSChannels.BOOK, symbol)
 
     async def subscribe_candles(self, symbol, timeframe):
         """
@@ -619,7 +498,7 @@ class BfxWebsocket(GenericWebsocket):
         @param symbol: the trading symbol i.e 'tBTCUSD'
         @param timeframe: resolution of the candle i.e 15m, 1h
         """
-        return await self.subscribe('candles', symbol, timeframe=timeframe)
+        return await self.subscribe(WSChannels.CANDLES, symbol, timeframe=timeframe)
 
     async def subscribe_trades(self, symbol):
         """
@@ -628,7 +507,7 @@ class BfxWebsocket(GenericWebsocket):
         # Attributes
         @param symbol: the trading symbol i.e 'tBTCUSD'
         """
-        return await self.subscribe('trades', symbol)
+        return await self.subscribe(WSChannels.TRADES, symbol)
 
     async def subscribe_ticker(self, symbol):
         """
@@ -637,7 +516,7 @@ class BfxWebsocket(GenericWebsocket):
         # Attributes
         @param symbol: the trading symbol i.e 'tBTCUSD'
         """
-        return await self.subscribe('ticker', symbol)
+        return await self.subscribe(WSChannels.TICKER, symbol)
 
     async def subscribe_derivative_status(self, symbol):
         """
@@ -647,7 +526,7 @@ class BfxWebsocket(GenericWebsocket):
         @param symbol: the trading symbol i.e 'tBTCUSD'
         """
         key = 'deriv:{}'.format(symbol)
-        return await self.subscribe('status', symbol, key=key)
+        return await self.subscribe(WSChannels.STATUS, symbol, key=key)
 
     async def subscribe(self, *args, **kwargs):
         """
