@@ -5,6 +5,7 @@
 A Python reference implementation of the Bitfinex API for both REST and websocket interaction.
 
 # Features
+
 - Official implementation
 - Websocket V2 and Rest V2
 - Connection multiplexing
@@ -14,17 +15,20 @@ A Python reference implementation of the Bitfinex API for both REST and websocke
 ## Installation
 
 Clone package into PYTHONPATH:
+
 ```sh
 git clone https://github.com/bitfinexcom/bitfinex-api-py.git
 cd bitfinex-api-py
 ```
 
 Or via pip:
+
 ```sh
 python3 -m pip install bitfinex-api-py
 ```
 
 Run the trades/candles example:
+
 ```sh
 cd bfxapi/examples/ws
 python3 subscribe_trades_candles.py
@@ -51,8 +55,8 @@ bfx.ws.run()
 
 ## Docs
 
-* <b>[V2 Rest](docs/rest_v2.md)</b> - Documentation
-* <b>[V2 Websocket](docs/ws_v2.md)</b> - Documentation
+- <b>[V2 Rest](docs/rest_v2.md)</b> - Documentation
+- <b>[V2 Websocket](docs/ws_v2.md)</b> - Documentation
 
 ## Examples
 
@@ -103,6 +107,7 @@ bfx = Client(
 response = await bfx.rest.submit_wallet_withdraw("exchange", "tetheruse", 5, "0xc5bbb852f82c24327693937d4012f496cff7eddf")
 print ("Address: ", response.notify_info)
 ```
+
 See the <b>[examples](https://github.com/bitfinexcom/bitfinex-api-py/tree/master/examples)</b> directory for more, like:
 
 - [Creating/updating an order](https://github.com/bitfinexcom/bitfinex-api-py/blob/master/bfxapi/examples/ws/send_order.py)
@@ -114,6 +119,32 @@ For more info on how to use this library please see the example scripts in the `
 
 Also please see [this medium article](https://medium.com/@Bitfinex/15f201ad20d4) for a tutorial.
 
+## Local Development
+
+Create a virtual environment to install the requirements into using the Makefile commands.
+
+```bash
+make setup
+```
+
+Ensure that everything is correctly set up by running the tests:
+
+```bash
+make test
+```
+
+Activate the virtual environment in you terminal:
+
+```bash
+source .venv/bin/activate
+```
+
+When done deactivate the virtual environment:
+
+```bash
+deactivate
+```
+
 ## FAQ
 
 ### Is there any rate limiting?
@@ -122,7 +153,7 @@ For a Websocket connection there is no limit to the number of requests sent down
 
 For rest the base limit per-user is 1,000 orders per 5 minute interval, and is shared between all account API connections. It increases proportionally to your trade volume based on the following formula:
 
-1000 + (TOTAL_PAIRS_PLATFORM * 60 * 5) / (250000000 / USER_VOL_LAST_30d)
+1000 + (TOTAL*PAIRS_PLATFORM * 60 \_ 5) / (250000000 / USER_VOL_LAST_30d)
 
 Where TOTAL_PAIRS_PLATFORM is the number of pairs on the Bitfinex platform (currently ~101) and USER_VOL_LAST_30d is in USD.
 
@@ -157,7 +188,6 @@ If you enable sequencing on v2 of the WS API, each incoming packet will have a p
 ### What is the difference between R* and P* order books?
 
 Order books with precision `R0` are considered 'raw' and contain entries for each order submitted to the book, whereas `P*` books contain entries for each price level (which aggregate orders).
-
 
 ## Contributing
 
