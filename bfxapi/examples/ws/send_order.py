@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append('../../../')
 
-from bfxapi import Client, Order
+from bfxapi import Client, Order, WSEvents
 
 API_KEY=os.getenv("BFX_KEY")
 API_SECRET=os.getenv("BFX_SECRET")
@@ -13,11 +13,11 @@ bfx = Client(
   logLevel='DEBUG'
 )
 
-@bfx.ws.on('order_snapshot')
+@bfx.ws.on(WSEvents.ORDER_SNAPSHOT)
 async def cancel_all(data):
   await bfx.ws.cancel_all_orders()
 
-@bfx.ws.on('order_confirmed')
+@bfx.ws.on(WSEvents.ORDER_CONFIRMED)
 async def trade_completed(order):
   print ("Order confirmed.")
   print (order)
@@ -28,17 +28,17 @@ async def trade_completed(order):
   # or
   # await bfx.ws.cancel_all_orders()
 
-@bfx.ws.on('error')
+@bfx.ws.on(WSEvents.ERROR)
 def log_error(msg):
   print ("Error: {}".format(msg))
 
-@bfx.ws.on('authenticated')
+@bfx.ws.on(WSEvents.AUTHENTICATED)
 async def submit_order(auth_message):
   await bfx.ws.submit_order(symbol='tBTCUSD', price=None, amount=0.01, market_type=Order.Type.EXCHANGE_MARKET)
 
 # If you dont want to use a decorator
-# ws.on('authenticated', submit_order)
-# ws.on('error', log_error)
+# ws.on(WSEvents.AUTHENTICATED, submit_order)
+# ws.on(WSEvents.ERROR, log_error)
 
 # You can also provide a callback
 # await ws.submit_order('tBTCUSD', 0, 0.01,

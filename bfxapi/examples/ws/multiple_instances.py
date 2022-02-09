@@ -12,7 +12,7 @@ import json
 from datetime import datetime
 from functools import partial
 import websockets as ws
-from bfxapi import Client
+from bfxapi import Client, WSEvents
 import math
 import random
 
@@ -33,13 +33,13 @@ class Instance:
 
     def run(self):
         self.bfx.ws.run()
-        self.bfx.ws.on('error', log_error)
-        self.bfx.ws.on('new_trade', log_trade)
-        self.bfx.ws.on('new_ticker', log_ticker)
-        self.bfx.ws.on('subscribed', partial(on_subscribe, self))
-        self.bfx.ws.on('unsubscribed', partial(on_unsubscribed, self))
-        self.bfx.ws.on('connected', partial(on_connected, self))
-        self.bfx.ws.on('stopped', partial(on_stopped, self))
+        self.bfx.ws.on(WSEvents.ERROR, log_error)
+        self.bfx.ws.on(WSEvents.NEW_TRADE, log_trade)
+        self.bfx.ws.on(WSEvents.NEW_TICKER, log_ticker)
+        self.bfx.ws.on(WSEvents.SUBSCRIBED, partial(on_subscribe, self))
+        self.bfx.ws.on(WSEvents.UNSUBSCRIBED, partial(on_unsubscribed, self))
+        self.bfx.ws.on(WSEvents.CONNECTED, partial(on_connected, self))
+        self.bfx.ws.on(WSEvents.STOPPED, partial(on_stopped, self))
 
     async def subscribe(self, symbols):
         for symbol in symbols:

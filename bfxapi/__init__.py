@@ -9,6 +9,7 @@ from .models import (Order, Trade, OrderBook, Subscription, Wallet,
                      Movement)
 from .websockets.generic_websocket import GenericWebsocket, Socket
 from .websockets.bfx_websocket import BfxWebsocket
+from .websockets.constants import WSChannels, WSEvents
 from .utils.decimal import Decimal
 
 NAME = 'bfxapi'
