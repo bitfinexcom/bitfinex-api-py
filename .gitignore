@@ -4,3 +4,4 @@ __pycache__
 *.log
 dist
 bitfinex_api_py.egg-info
+.venv
