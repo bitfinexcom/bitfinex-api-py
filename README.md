@@ -121,6 +121,7 @@ Also please see [this medium article](https://medium.com/@Bitfinex/15f201ad20d4)
 
 ## Local Development
 
+
 Create a virtual environment to install the requirements into using the Makefile commands.
 
 ```bash
@@ -153,7 +154,7 @@ For a Websocket connection there is no limit to the number of requests sent down
 
 For rest the base limit per-user is 1,000 orders per 5 minute interval, and is shared between all account API connections. It increases proportionally to your trade volume based on the following formula:
 
-1000 + (TOTAL*PAIRS_PLATFORM * 60 \_ 5) / (250000000 / USER_VOL_LAST_30d)
+1000 + (TOTAL_PAIRS_PLATFORM * 60 * 5) / (250000000 / USER_VOL_LAST_30d)
 
 Where TOTAL_PAIRS_PLATFORM is the number of pairs on the Bitfinex platform (currently ~101) and USER_VOL_LAST_30d is in USD.
 
