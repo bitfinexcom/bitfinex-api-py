@@ -1,3 +1,6 @@
+2.0.2
+-) Added Makefile to streamline local development, testing and linting
+
 2.0.1
 -) Added User Settings Write/Read/Delete endpoints (REST)
 -) Added Balance Available for Orders/Offers endpoint (REST)
@@ -76,9 +79,11 @@
 -) Fixed issue in confirm_order_new() (the keys of the dict pending_orders are the cids of the orders, and not the ids)
 
 1.1.10
+
 - Fixed get_seed_candles() [backwards compatible]
 
-1.1.9
+  1.1.9
+
 - Implemented PULSE endpoints (rest)
 - Updated pyee and changed deprecated class EventEmitter() -> AsyncIOEventEmitter() to make it work with all Python 3.X versions
 - Implemented Foreign exchange rate endpoint (rest)
@@ -92,38 +97,46 @@
 - Implemented Public Funding Stats (rest)
 - Updated dependencies in setup.py
 
-1.1.8
+  1.1.8
+
 - Adds support for websocket events pu, pn and pu
 
-1.1.7
+  1.1.7
+
 - Adds rest.get_ledgers
 
-1.1.6
+  1.1.6
+
 - Adds 'new_ticker' websocket event stream
 - Adds 'ws.stop' function to kill all websocket connections
 - Fixes Position modal loading from raw array
 
-1.1.5
+  1.1.5
+
 - Fixes 100% CPU utilization bug with the generic_websocket event emitter thread
 
-1.1.4
+  1.1.4
+
 - Locks mutex when sending websocket messages
 - Fix py3.8 stricter linting errors
 
-1.1.3
+  1.1.3
+
 - Adds ability to specify channel_filter in client
 
-1.1.2
+  1.1.2
+
 - Adds aff_code to WS and Rest submit order functions
 
-1.1.1
+  1.1.1
+
 - Rework README with new bfx templates
 - Generate /docs/rest_v2.md
 - Generate /docs/ws_v2.md
 - Update comments for doc generation
 - Allow only python3 installs in setup.py
 
-1.1.0
+  1.1.0
 
 - Adds rest.submit_funding_offer
 - Adds rest.submit_cancel_funding_offer
@@ -136,22 +149,21 @@
 - Adds rest.submit_update_order
 - Updates websocket notification event to use Notfication model object
 
-1.0.1
+  1.0.1
 
 - Added ws event `status_update`
 - Added rest function `get_derivative_status`
 - Added rest function `get_derivative_statuses`
 - Added rest function `set_derivative_collateral`
 - Added channel support `status`
-- Added create_event_emitter as override in generic_websocket 
+- Added create_event_emitter as override in generic_websocket
   for custom event emitters
 
-1.0.0
+  1.0.0
 
 - Removal of camel-casing file naming and git duplicates
   i.e bfx.client instead of bfx.Client
 
-
-0.0.1
+  0.0.1
 
 - Added change-log and PR/Issue templates
