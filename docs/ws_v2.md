@@ -21,7 +21,7 @@ Client(self,
        logLevel='INFO',
        dead_man_switch=False,
        ws_capacity=25,
-       channel_filter=[],
+       channel_filter=None,
        *args,
        **kwargs)
 ```
@@ -76,6 +76,7 @@ https://github.com/Crypto-toolbox/btfxwss
   - `funding_credit_snapshot` (array): Opening funding credit balances
   - `balance_update` (array): When the state of a balance is changed
   - `new_trade` (array): A new trade on the market has been executed
+  - `new_funding_trade` (array): A new funding trade on the market has been executed
   - `new_user_trade` (array): A new - your - trade has been executed
   - `new_ticker` (Ticker|FundingTicker): A new ticker update has been published
   - `new_funding_ticker` (FundingTicker): A new funding ticker update has been published
