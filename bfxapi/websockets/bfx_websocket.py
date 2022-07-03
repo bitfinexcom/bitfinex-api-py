@@ -1,19 +1,16 @@
 """
-Module used to house the bitfine websocket client
+Module used to house the bitfinex websocket client
 """
 
-import asyncio
 import json
-import time
-import random
 
 from .generic_websocket import GenericWebsocket, AuthError
+from .order_manager import OrderManager
 from .subscription_manager import SubscriptionManager
 from .wallet_manager import WalletManager
-from .order_manager import OrderManager
+from ..models import OrderBook, Ticker, FundingTicker
 from ..utils.auth import generate_auth_payload
 from ..utils.decorators import handle_failure
-from ..models import Order, Trade, OrderBook, Ticker, FundingTicker
 
 
 class Flags:
@@ -193,7 +190,7 @@ class BfxWebsocket(GenericWebsocket):
     - `margin_info_updates` (array): New margin information has been broadcasted
     - `funding_info_updates` (array): New funding information has been broadcasted
     - `order_book_snapshot` (array): Initial snapshot of the order book on connection
-    - `order_book_update` (array): A new order has been placed into the ordebrook
+    - `order_book_update` (array): A new order has been placed into the orderbook
     - `subscribed` (Subscription): A new channel has been subscribed to
     - `unsubscribed` (Subscription): A channel has been un-subscribed
     """
@@ -676,7 +673,7 @@ class BfxWebsocket(GenericWebsocket):
         # Attributes
         @param channel_name: the name of the channel i.e 'books', 'candles'
         @param symbol: the trading symbol i.e 'tBTCUSD'
-        @param timeframe: sepecifies the data timeframe between each candle (only required
+        @param timeframe: specifies the data timeframe between each candle (only required
           for the candles channel)
         """
         return await self.subscriptionManager.subscribe(*args, **kwargs)
