@@ -1,3 +1,6 @@
+2.0.2
+-) Added Funding Trade handler and emitter (WS)
+
 2.0.1
 -) Added User Settings Write/Read/Delete endpoints (REST)
 -) Added Balance Available for Orders/Offers endpoint (REST)
@@ -143,7 +146,7 @@
 - Added rest function `get_derivative_statuses`
 - Added rest function `set_derivative_collateral`
 - Added channel support `status`
-- Added create_event_emitter as override in generic_websocket 
+- Added create_event_emitter as override in generic_websocket
   for custom event emitters
 
 1.0.0
