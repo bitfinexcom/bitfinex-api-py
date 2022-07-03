@@ -108,20 +108,21 @@ def _parse_user_trade_update(tData):
 
 def _parse_deriv_status_update(sData, symbol):
     return {
-            'symbol': symbol,
-            'status_type': 'deriv',
-            'mts': sData[0],
-            # placeholder
-            'deriv_price': sData[2],
-            'spot_price': sData[3],
-            # placeholder
-            'insurance_fund_balance': sData[5],
-            # placeholder
-            # placeholder
-            'funding_accrued': sData[8],
-            'funding_step': sData[9],
-            # placeholder
-        }
+        'symbol': symbol,
+        'status_type': 'deriv',
+        'mts': sData[0],
+        # placeholder
+        'deriv_price': sData[2],
+        'spot_price': sData[3],
+        # placeholder
+        'insurance_fund_balance': sData[5],
+        # placeholder
+        # placeholder
+        'funding_accrued': sData[8],
+        'funding_step': sData[9],
+        # placeholder
+    }
+
 
 ERRORS = {
     10000: 'Unknown event',
@@ -147,6 +148,7 @@ ERRORS = {
     20060: 'Websocket server resyncing',
     20061: 'Websocket server resync complete'
 }
+
 
 class BfxWebsocket(GenericWebsocket):
     """
@@ -197,14 +199,14 @@ class BfxWebsocket(GenericWebsocket):
 
     def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2',
                  manageOrderBooks=False, dead_man_switch=False, ws_capacity=25, logLevel='INFO', parse_float=float,
-                 channel_filter=[], *args, **kwargs):
+                 channel_filter=None, *args, **kwargs):
         self.API_KEY = API_KEY
         self.API_SECRET = API_SECRET
         self.manageOrderBooks = manageOrderBooks
         self.dead_man_switch = dead_man_switch
         self.orderBooks = {}
         self.ws_capacity = ws_capacity
-        self.channel_filter = channel_filter
+        self.channel_filter = channel_filter if channel_filter is not None else []
         # How should we store float values? could also be bfxapi.decimal
         # which is slower but has higher precision.
         self.parse_float = parse_float
@@ -481,7 +483,7 @@ class BfxWebsocket(GenericWebsocket):
     async def _candle_handler(self, data):
         subscription = self.subscriptionManager.get(data[0])
         # if candle data is empty
-        if data[1] == []:
+        if not data[1]:
             return
         if type(data[1][0]) is list:
             # Process the batch of seed candles on
@@ -516,7 +518,7 @@ class BfxWebsocket(GenericWebsocket):
                 # re-build orderbook with snapshot
                 await self.subscriptionManager.resubscribe(chan_id)
             return
-        if obInfo == []:
+        if not obInfo:
             self.orderBooks[symbol] = OrderBook()
             return
         isSnapshot = type(obInfo[0]) is list
@@ -574,7 +576,7 @@ class BfxWebsocket(GenericWebsocket):
     async def _send_auth_command(self, channel_name, data):
         payload = [0, channel_name, None, data]
         socket = self.get_authenticated_socket()
-        if socket == None:
+        if socket is None:
             raise ValueError("authenticated socket connection not found")
         if not socket.isConnected:
             raise ValueError("authenticated socket not connected")
@@ -591,12 +593,12 @@ class BfxWebsocket(GenericWebsocket):
         bestCount = 0
         for socketId in self.sockets:
             cap = self.get_socket_capacity(socketId)
-            if bestId == None or cap > bestCount:
+            if bestId is None or cap > bestCount:
                 bestId = socketId
                 bestCount = cap
         return self.sockets[socketId]
 
-    def get_total_available_capcity(self):
+    def get_total_available_capacity(self):
         total = 0
         for socketId in self.sockets:
             total += self.get_socket_capacity(socketId)

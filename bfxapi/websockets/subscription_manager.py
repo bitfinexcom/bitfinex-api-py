@@ -41,7 +41,7 @@ class SubscriptionManager:
         @param timeframe: sepecifies the data timeframe between each candle (only required
           for the candles channel)
         """
-        if self.bfxapi.get_total_available_capcity() < 2:
+        if self.bfxapi.get_total_available_capacity() < 2:
             sId = self.bfxapi._start_new_socket()
             self.bfxapi._wait_for_socket(sId)
             soc = self.bfxapi.sockets[sId]
