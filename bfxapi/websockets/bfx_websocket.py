@@ -67,6 +67,16 @@ def _parse_trade(tData, symbol):
     }
 
 
+def _parse_funding_trade(tData, symbol):
+    return {
+        'mts': tData[1],
+        'amount': tData[2],
+        'rate': tData[3],
+        'period': tData[4],
+        'symbol': symbol
+    }
+
+
 def _parse_user_trade(tData):
     return {
         'id': tData[0],
@@ -173,6 +183,7 @@ class BfxWebsocket(GenericWebsocket):
     - `funding_credit_snapshot` (array): Opening funding credit balances
     - `balance_update` (array): When the state of a balance is changed
     - `new_trade` (array): A new trade on the market has been executed
+    - `new_funding_trade` (array): A new funding trade on the market has been executed
     - `new_user_trade` (array): A new - your - trade has been executed
     - `new_ticker` (Ticker|FundingTicker): A new ticker update has been published
     - `new_funding_ticker` (FundingTicker): A new funding ticker update has been published
@@ -222,6 +233,7 @@ class BfxWebsocket(GenericWebsocket):
             'fos': self._funding_offer_snapshot_handler,
             'fcs': self._funding_credit_snapshot_handler,
             'fls': self._funding_load_snapshot_handler,
+            'fte': self._funding_trade_executed_handler,
             'bu': self._balance_update_handler,
             'n': self._notification_handler,
             'miu': self._margin_info_update_handler,
@@ -335,6 +347,14 @@ class BfxWebsocket(GenericWebsocket):
             # [0, 'te', [37558151, 'tBTCUSD', 1643542688513, 1512164914, 0.0001, 30363, 'EXCHANGE MARKET', 100000, -1, None, None, 1643542688390]]
             tradeObj = _parse_user_trade(tData)
             self._emit('new_user_trade', tradeObj)
+
+    async def _funding_trade_executed_handler(self, data):
+        # data: [185446, 'fte', [278903158, 1656841841000, -227.18426131, 4.641e-05, 3]]
+        tData = data[2]
+        if self.subscriptionManager.is_subscribed(data[0]):
+            symbol = self.subscriptionManager.get(data[0]).symbol
+            tradeObj = _parse_funding_trade(tData, symbol)
+            self._emit('new_funding_trade', tradeObj)
 
     async def _wallet_update_handler(self, data):
         # [0,"wu",["exchange","USD",89134.66933283,0]]
