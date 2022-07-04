@@ -1,5 +1,6 @@
 2.0.2
 -) Added Funding Trade handler and emitter (WS)
+-) Fixed confirm_order_error parse null exception (WS)
 
 2.0.1
 -) Added User Settings Write/Read/Delete endpoints (REST)

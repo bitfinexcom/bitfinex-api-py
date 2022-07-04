@@ -206,7 +206,7 @@ class BfxWebsocket(GenericWebsocket):
         self.dead_man_switch = dead_man_switch
         self.orderBooks = {}
         self.ws_capacity = ws_capacity
-        self.channel_filter = channel_filter if channel_filter is not None else []
+        self.channel_filter = channel_filter or []
         # How should we store float values? could also be bfxapi.decimal
         # which is slower but has higher precision.
         self.parse_float = parse_float
