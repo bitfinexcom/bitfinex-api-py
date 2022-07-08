@@ -158,9 +158,10 @@ class BfxWebsocket(GenericWebsocket):
 
     ### Emitter events:
     - `all` (array|Object): listen for all messages coming through
-    - `connected:` () called when a connection is made
-    - `disconnected`: () called when a connection is ended (A reconnect attempt may follow)
-    - `stopped`: () called when max amount of connection retries is met and the socket is closed
+    - `connected` (): called when a connection is made
+    - `disconnected` (): called when a connection is ended (A reconnect attempt may follow)
+    - `stopped` (): called when max amount of connection retries is met and the socket is closed
+    - `heart_beat` (): called when a heart beat is received
     - `authenticated` (): called when the websocket passes authentication
     - `notification` (Notification): incoming account notification
     - `error` (array): error from the websocket
@@ -362,6 +363,7 @@ class BfxWebsocket(GenericWebsocket):
         self.logger.info("Wallet update: {}".format(uw))
 
     async def _heart_beat_handler(self, data):
+        self._emit('heart_beat')
         self.logger.debug("Heartbeat - {}".format(self.host))
 
     async def _margin_info_update_handler(self, data):
