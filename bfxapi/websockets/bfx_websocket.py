@@ -1,5 +1,5 @@
 """
-Module used to house the bitfine websocket client
+Module used to house the bitfinex websocket client
 """
 
 import asyncio
