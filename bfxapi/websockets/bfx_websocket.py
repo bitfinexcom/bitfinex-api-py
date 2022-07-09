@@ -1,19 +1,16 @@
 """
-Module used to house the bitfine websocket client
+Module used to house the bitfinex websocket client
 """
 
-import asyncio
 import json
-import time
-import random
 
 from .generic_websocket import GenericWebsocket, AuthError
+from .order_manager import OrderManager
 from .subscription_manager import SubscriptionManager
 from .wallet_manager import WalletManager
-from .order_manager import OrderManager
+from ..models import OrderBook, Ticker, FundingTicker
 from ..utils.auth import generate_auth_payload
 from ..utils.decorators import handle_failure
-from ..models import Order, Trade, OrderBook, Ticker, FundingTicker
 
 
 class Flags:
@@ -67,6 +64,16 @@ def _parse_trade(tData, symbol):
     }
 
 
+def _parse_funding_trade(tData, symbol):
+    return {
+        'mts': tData[1],
+        'amount': tData[2],
+        'rate': tData[3],
+        'period': tData[4],
+        'symbol': symbol
+    }
+
+
 def _parse_user_trade(tData):
     return {
         'id': tData[0],
@@ -101,20 +108,85 @@ def _parse_user_trade_update(tData):
 
 def _parse_deriv_status_update(sData, symbol):
     return {
-            'symbol': symbol,
-            'status_type': 'deriv',
-            'mts': sData[0],
-            # placeholder
-            'deriv_price': sData[2],
-            'spot_price': sData[3],
-            # placeholder
-            'insurance_fund_balance': sData[5],
-            # placeholder
-            # placeholder
-            'funding_accrued': sData[8],
-            'funding_step': sData[9],
-            # placeholder
-        }
+        'symbol': symbol,
+        'status_type': 'deriv',
+        'mts': sData[0],
+        # placeholder
+        'deriv_price': sData[2],
+        'spot_price': sData[3],
+        # placeholder
+        'insurance_fund_balance': sData[5],
+        # placeholder
+        # placeholder
+        'funding_accrued': sData[8],
+        'funding_step': sData[9],
+        # placeholder
+    }
+
+
+def _parse_funding_offer_update(fData):
+    return {
+        'id': fData[0],
+        'symbol': fData[1],
+        'mts_created': fData[2],
+        'mts_updated': fData[3],
+        'amount': fData[4],
+        'amount_orig': fData[5],
+        'type': fData[6],
+        'flags': fData[9],
+        'status': fData[10],
+        'rate': fData[14],
+        'period': fData[15],
+        'notify': fData[16],
+        'hidden': fData[17],
+        'renew': fData[19],
+        'rate_real': fData[20],
+    }
+
+
+def _parse_funding_credit_update(fData):
+    return {
+        'id': fData[0],
+        'symbol': fData[1],
+        'side': fData[2],
+        'mts_create': fData[3],
+        'mts_update': fData[4],
+        'amount': fData[5],
+        'flags': fData[6],
+        'status': fData[7],
+        'rate': fData[11],
+        'period': fData[12],
+        'mts_opening': fData[13],
+        'mts_last_payout': fData[14],
+        'notify': fData[15],
+        'hidden': fData[16],
+        'renew': fData[18],
+        'rate_real': fData[19],
+        'no_close': fData[20],
+        'position_pair': fData[21],
+    }
+
+
+def _parse_funding_loan_update(fData):
+    return {
+        'id': fData[0],
+        'currency': fData[1],
+        'side': fData[2],
+        'mts_create': fData[3],
+        'mts_update': fData[4],
+        'amount': fData[5],
+        'flags': fData[6],
+        'status': fData[7],
+        'rate': fData[11],
+        'period': fData[12],
+        'mts_opening': fData[13],
+        'mts_last_payout': fData[14],
+        'notify': fData[15],
+        'hidden': fData[16],
+        'renew': fData[18],
+        'rate_real': fData[19],
+        'no_close': fData[20],
+    }
 
 ERRORS = {
     10000: 'Unknown event',
@@ -141,6 +213,7 @@ ERRORS = {
     20061: 'Websocket server resync complete'
 }
 
+
 class BfxWebsocket(GenericWebsocket):
     """
     More complex websocket that heavily relies on the btfxwss module.
@@ -149,9 +222,10 @@ class BfxWebsocket(GenericWebsocket):
 
     ### Emitter events:
     - `all` (array|Object): listen for all messages coming through
-    - `connected:` () called when a connection is made
-    - `disconnected`: () called when a connection is ended (A reconnect attempt may follow)
-    - `stopped`: () called when max amount of connection retries is met and the socket is closed
+    - `connected` (): called when a connection is made
+    - `disconnected` (): called when a connection is ended (A reconnect attempt may follow)
+    - `stopped` (): called when max amount of connection retries is met and the socket is closed
+    - `heart_beat` (): called when a heart beat is received
     - `authenticated` (): called when the websocket passes authentication
     - `notification` (Notification): incoming account notification
     - `error` (array): error from the websocket
@@ -169,10 +243,20 @@ class BfxWebsocket(GenericWebsocket):
     - `seed_candle` (Object): Initial past candle to prime strategy
     - `seed_trade` (Object): Initial past trade to prime strategy
     - `funding_offer_snapshot` (array): Opening funding offer balances
-    - `funding_loan_snapshot` (array): Opening funding loan balances
+    - `funding_offer_new` (array): New funding offer
+    - `funding_offer_update` (array): Update funding offer
+    - `funding_offer_cancel` (array): Cancel funding offer
     - `funding_credit_snapshot` (array): Opening funding credit balances
+    - `funding_credit_new` (array): New funding credit
+    - `funding_credit_update` (array): Update funding credit
+    - `funding_credit_close` (array): Close funding credit
+    - `funding_loan_snapshot` (array): Opening funding loan balances
+    - `funding_loan_new` (array): New funding loan
+    - `funding_loan_update` (array): Update funding loan
+    - `funding_loan_close` (array): Close funding loan
     - `balance_update` (array): When the state of a balance is changed
     - `new_trade` (array): A new trade on the market has been executed
+    - `new_funding_trade` (array): A new funding trade on the market has been executed
     - `new_user_trade` (array): A new - your - trade has been executed
     - `new_ticker` (Ticker|FundingTicker): A new ticker update has been published
     - `new_funding_ticker` (FundingTicker): A new funding ticker update has been published
@@ -182,21 +266,21 @@ class BfxWebsocket(GenericWebsocket):
     - `margin_info_updates` (array): New margin information has been broadcasted
     - `funding_info_updates` (array): New funding information has been broadcasted
     - `order_book_snapshot` (array): Initial snapshot of the order book on connection
-    - `order_book_update` (array): A new order has been placed into the ordebrook
+    - `order_book_update` (array): A new order has been placed into the orderbook
     - `subscribed` (Subscription): A new channel has been subscribed to
     - `unsubscribed` (Subscription): A channel has been un-subscribed
     """
 
     def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2',
                  manageOrderBooks=False, dead_man_switch=False, ws_capacity=25, logLevel='INFO', parse_float=float,
-                 channel_filter=[], *args, **kwargs):
+                 channel_filter=None, *args, **kwargs):
         self.API_KEY = API_KEY
         self.API_SECRET = API_SECRET
         self.manageOrderBooks = manageOrderBooks
         self.dead_man_switch = dead_man_switch
         self.orderBooks = {}
         self.ws_capacity = ws_capacity
-        self.channel_filter = channel_filter
+        self.channel_filter = channel_filter or []
         # How should we store float values? could also be bfxapi.decimal
         # which is slower but has higher precision.
         self.parse_float = parse_float
@@ -220,8 +304,18 @@ class BfxWebsocket(GenericWebsocket):
             'pn': self._position_new_handler,
             'pc': self._position_close_handler,
             'fos': self._funding_offer_snapshot_handler,
+            'fon': self._funding_offer_update_handler,
+            'fou': self._funding_offer_update_handler,
+            'foc': self._funding_offer_update_handler,
             'fcs': self._funding_credit_snapshot_handler,
-            'fls': self._funding_load_snapshot_handler,
+            'fcn': self._funding_credit_update_handler,
+            'fcu': self._funding_credit_update_handler,
+            'fcc': self._funding_credit_update_handler,
+            'fls': self._funding_loan_snapshot_handler,
+            'fln': self._funding_loan_update_handler,
+            'flu': self._funding_loan_update_handler,
+            'flc': self._funding_loan_update_handler,
+            'fte': self._funding_trade_executed_handler,
             'bu': self._balance_update_handler,
             'n': self._notification_handler,
             'miu': self._margin_info_update_handler,
@@ -336,6 +430,14 @@ class BfxWebsocket(GenericWebsocket):
             tradeObj = _parse_user_trade(tData)
             self._emit('new_user_trade', tradeObj)
 
+    async def _funding_trade_executed_handler(self, data):
+        # data: [185446, 'fte', [278903158, 1656841841000, -227.18426131, 4.641e-05, 3]]
+        tData = data[2]
+        if self.subscriptionManager.is_subscribed(data[0]):
+            symbol = self.subscriptionManager.get(data[0]).symbol
+            tradeObj = _parse_funding_trade(tData, symbol)
+            self._emit('new_funding_trade', tradeObj)
+
     async def _wallet_update_handler(self, data):
         # [0,"wu",["exchange","USD",89134.66933283,0]]
         uw = self.wallets._update_from_event(data)
@@ -343,6 +445,7 @@ class BfxWebsocket(GenericWebsocket):
         self.logger.info("Wallet update: {}".format(uw))
 
     async def _heart_beat_handler(self, data):
+        self._emit('heart_beat')
         self.logger.debug("Heartbeat - {}".format(self.host))
 
     async def _margin_info_update_handler(self, data):
@@ -409,14 +512,44 @@ class BfxWebsocket(GenericWebsocket):
     async def _funding_offer_snapshot_handler(self, data):
         self._emit('funding_offer_snapshot', data)
         self.logger.info("Funding offer snapshot: {}".format(data))
-
-    async def _funding_load_snapshot_handler(self, data):
-        self._emit('funding_loan_snapshot', data[2])
-        self.logger.info("Funding loan snapshot: {}".format(data))
+    
+    async def _funding_offer_update_handler(self, data):
+        if self.subscriptionManager.is_subscribed(data[0]):
+            fundingObj = _parse_funding_offer_update(data[2])
+            if data[1] == 'fon':
+                self._emit('funding_offer_new', fundingObj)
+            if data[1] == 'fou':
+                self._emit('funding_offer_update', fundingObj)
+            if data[1] == 'foc':
+                self._emit('funding_offer_cancel', fundingObj)
 
     async def _funding_credit_snapshot_handler(self, data):
         self._emit('funding_credit_snapshot', data[2])
         self.logger.info("Funding credit snapshot: {}".format(data))
+    
+    async def _funding_credit_update_handler(self, data):
+        if self.subscriptionManager.is_subscribed(data[0]):
+            fundingObj = _parse_funding_credit_update(data[2])
+            if data[1] == 'fcn':
+                self._emit('funding_credit_new', fundingObj)
+            if data[1] == 'fcu':
+                self._emit('funding_credit_update', fundingObj)
+            if data[1] == 'fcc':
+                self._emit('funding_credit_close', fundingObj)
+    
+    async def _funding_loan_snapshot_handler(self, data):
+        self._emit('funding_loan_snapshot', data[2])
+        self.logger.info("Funding loan snapshot: {}".format(data))
+
+    async def _funding_loan_update_handler(self, data):
+        if self.subscriptionManager.is_subscribed(data[0]):
+            fundingObj = _parse_funding_loan_update(data[2])
+            if data[1] == 'fln':
+                self._emit('funding_loan_new', fundingObj)
+            if data[1] == 'flu':
+                self._emit('funding_loan_update', fundingObj)
+            if data[1] == 'flc':
+                self._emit('funding_loan_close', fundingObj)
 
     async def _status_handler(self, data):
         sub = self.subscriptionManager.get(data[0])
@@ -464,7 +597,7 @@ class BfxWebsocket(GenericWebsocket):
     async def _candle_handler(self, data):
         subscription = self.subscriptionManager.get(data[0])
         # if candle data is empty
-        if data[1] == []:
+        if not data[1]:
             return
         if type(data[1][0]) is list:
             # Process the batch of seed candles on
@@ -499,7 +632,7 @@ class BfxWebsocket(GenericWebsocket):
                 # re-build orderbook with snapshot
                 await self.subscriptionManager.resubscribe(chan_id)
             return
-        if obInfo == []:
+        if not obInfo:
             self.orderBooks[symbol] = OrderBook()
             return
         isSnapshot = type(obInfo[0]) is list
@@ -557,7 +690,7 @@ class BfxWebsocket(GenericWebsocket):
     async def _send_auth_command(self, channel_name, data):
         payload = [0, channel_name, None, data]
         socket = self.get_authenticated_socket()
-        if socket == None:
+        if socket is None:
             raise ValueError("authenticated socket connection not found")
         if not socket.isConnected:
             raise ValueError("authenticated socket not connected")
@@ -574,12 +707,12 @@ class BfxWebsocket(GenericWebsocket):
         bestCount = 0
         for socketId in self.sockets:
             cap = self.get_socket_capacity(socketId)
-            if bestId == None or cap > bestCount:
+            if bestId is None or cap > bestCount:
                 bestId = socketId
                 bestCount = cap
         return self.sockets[socketId]
 
-    def get_total_available_capcity(self):
+    def get_total_available_capacity(self):
         total = 0
         for socketId in self.sockets:
             total += self.get_socket_capacity(socketId)
@@ -656,7 +789,7 @@ class BfxWebsocket(GenericWebsocket):
         # Attributes
         @param channel_name: the name of the channel i.e 'books', 'candles'
         @param symbol: the trading symbol i.e 'tBTCUSD'
-        @param timeframe: sepecifies the data timeframe between each candle (only required
+        @param timeframe: specifies the data timeframe between each candle (only required
           for the candles channel)
         """
         return await self.subscriptionManager.subscribe(*args, **kwargs)

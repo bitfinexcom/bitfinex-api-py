@@ -90,10 +90,12 @@ class OrderManager:
         self.bfxapi._emit('order_new', order)
 
     async def confirm_order_error(self, raw_ws_data):
-        cid = raw_ws_data[2][4][2]
-        if cid in self.pending_orders:
-            del self.pending_orders[cid]
-        self.logger.info("Deleted Order CID {} from pending orders".format(cid))
+        # raw_ws_data[2] can be [1646904204288,"wallet_transfer",null,null,null,null,"ERROR","Cannot complete transfer. Exchange balance insufficient."]
+        if raw_ws_data[2][4] is not None:  # Avoid null
+            cid = raw_ws_data[2][4][2]
+            if cid in self.pending_orders:
+                del self.pending_orders[cid]
+            self.logger.info("Deleted Order CID {} from pending orders".format(cid))
 
     async def submit_order(self, symbol, price, amount, market_type=Order.Type.LIMIT,
                            hidden=False, price_trailing=None, price_aux_limit=None,

@@ -21,7 +21,7 @@ Client(self,
        logLevel='INFO',
        dead_man_switch=False,
        ws_capacity=25,
-       channel_filter=[],
+       channel_filter=None,
        *args,
        **kwargs)
 ```
@@ -51,9 +51,10 @@ https://github.com/Crypto-toolbox/btfxwss
 
 ### Emitter events:
   - `all` (array|Object): listen for all messages coming through
-  - `connected:` () called when a connection is made
-  - `disconnected`: () called when a connection is ended (A reconnect attempt may follow)
-  - `stopped`: () called when max amount of connection retries is met and the socket is closed
+  - `connected` (): called when a connection is made
+  - `disconnected` (): called when a connection is ended (A reconnect attempt may follow)
+  - `stopped` (): called when max amount of connection retries is met and the socket is closed
+  - `heart_beat` (): called when a heart beat is received
   - `authenticated` (): called when the websocket passes authentication
   - `notification` (Notification): incoming account notification
   - `error` (array): error from the websocket
@@ -72,10 +73,20 @@ https://github.com/Crypto-toolbox/btfxwss
   - `seed_candle` (Object): Initial past candle to prime strategy
   - `seed_trade` (Object): Initial past trade to prime strategy
   - `funding_offer_snapshot` (array): Opening funding offer balances
-  - `funding_loan_snapshot` (array): Opening funding loan balances
+  - `funding_offer_new` (array): New funding offer
+  - `funding_offer_update` (array): Update funding offer
+  - `funding_offer_cancel` (array): Cancel funding offer
   - `funding_credit_snapshot` (array): Opening funding credit balances
+  - `funding_credit_new` (array): New funding credit
+  - `funding_credit_update` (array): Update funding credit
+  - `funding_credit_close` (array): Close funding credit
+  - `funding_loan_snapshot` (array): Opening funding loan balances
+  - `funding_loan_new` (array): New funding loan
+  - `funding_loan_update` (array): Update funding loan
+  - `funding_loan_close` (array): Close funding loan
   - `balance_update` (array): When the state of a balance is changed
   - `new_trade` (array): A new trade on the market has been executed
+  - `new_funding_trade` (array): A new funding trade on the market has been executed
   - `new_user_trade` (array): A new - your - trade has been executed
   - `new_ticker` (Ticker|FundingTicker): A new ticker update has been published
   - `new_funding_ticker` (FundingTicker): A new funding ticker update has been published
