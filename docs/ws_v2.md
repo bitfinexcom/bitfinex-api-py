@@ -73,8 +73,17 @@ https://github.com/Crypto-toolbox/btfxwss
   - `seed_candle` (Object): Initial past candle to prime strategy
   - `seed_trade` (Object): Initial past trade to prime strategy
   - `funding_offer_snapshot` (array): Opening funding offer balances
-  - `funding_loan_snapshot` (array): Opening funding loan balances
+  - `funding_offer_new` (array): New funding offer
+  - `funding_offer_update` (array): Update funding offer
+  - `funding_offer_cancel` (array): Cancel funding offer
   - `funding_credit_snapshot` (array): Opening funding credit balances
+  - `funding_credit_new` (array): New funding credit
+  - `funding_credit_update` (array): Update funding credit
+  - `funding_credit_close` (array): Close funding credit
+  - `funding_loan_snapshot` (array): Opening funding loan balances
+  - `funding_loan_new` (array): New funding loan
+  - `funding_loan_update` (array): Update funding loan
+  - `funding_loan_close` (array): Close funding loan
   - `balance_update` (array): When the state of a balance is changed
   - `new_trade` (array): A new trade on the market has been executed
   - `new_funding_trade` (array): A new funding trade on the market has been executed

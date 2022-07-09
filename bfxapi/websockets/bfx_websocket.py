@@ -124,6 +124,70 @@ def _parse_deriv_status_update(sData, symbol):
     }
 
 
+def _parse_funding_offer_update(fData):
+    return {
+        'id': fData[0],
+        'symbol': fData[1],
+        'mts_created': fData[2],
+        'mts_updated': fData[3],
+        'amount': fData[4],
+        'amount_orig': fData[5],
+        'type': fData[6],
+        'flags': fData[9],
+        'status': fData[10],
+        'rate': fData[14],
+        'period': fData[15],
+        'notify': fData[16],
+        'hidden': fData[17],
+        'renew': fData[19],
+        'rate_real': fData[20],
+    }
+
+
+def _parse_funding_credit_update(fData):
+    return {
+        'id': fData[0],
+        'symbol': fData[1],
+        'side': fData[2],
+        'mts_create': fData[3],
+        'mts_update': fData[4],
+        'amount': fData[5],
+        'flags': fData[6],
+        'status': fData[7],
+        'rate': fData[11],
+        'period': fData[12],
+        'mts_opening': fData[13],
+        'mts_last_payout': fData[14],
+        'notify': fData[15],
+        'hidden': fData[16],
+        'renew': fData[18],
+        'rate_real': fData[19],
+        'no_close': fData[20],
+        'position_pair': fData[21],
+    }
+
+
+def _parse_funding_loan_update(fData):
+    return {
+        'id': fData[0],
+        'currency': fData[1],
+        'side': fData[2],
+        'mts_create': fData[3],
+        'mts_update': fData[4],
+        'amount': fData[5],
+        'flags': fData[6],
+        'status': fData[7],
+        'rate': fData[11],
+        'period': fData[12],
+        'mts_opening': fData[13],
+        'mts_last_payout': fData[14],
+        'notify': fData[15],
+        'hidden': fData[16],
+        'renew': fData[18],
+        'rate_real': fData[19],
+        'no_close': fData[20],
+    }
+
 ERRORS = {
     10000: 'Unknown event',
     10001: 'Generic error',
@@ -179,8 +243,17 @@ class BfxWebsocket(GenericWebsocket):
     - `seed_candle` (Object): Initial past candle to prime strategy
     - `seed_trade` (Object): Initial past trade to prime strategy
     - `funding_offer_snapshot` (array): Opening funding offer balances
-    - `funding_loan_snapshot` (array): Opening funding loan balances
+    - `funding_offer_new` (array): New funding offer
+    - `funding_offer_update` (array): Update funding offer
+    - `funding_offer_cancel` (array): Cancel funding offer
     - `funding_credit_snapshot` (array): Opening funding credit balances
+    - `funding_credit_new` (array): New funding credit
+    - `funding_credit_update` (array): Update funding credit
+    - `funding_credit_close` (array): Close funding credit
+    - `funding_loan_snapshot` (array): Opening funding loan balances
+    - `funding_loan_new` (array): New funding loan
+    - `funding_loan_update` (array): Update funding loan
+    - `funding_loan_close` (array): Close funding loan
     - `balance_update` (array): When the state of a balance is changed
     - `new_trade` (array): A new trade on the market has been executed
     - `new_funding_trade` (array): A new funding trade on the market has been executed
@@ -231,8 +304,17 @@ class BfxWebsocket(GenericWebsocket):
             'pn': self._position_new_handler,
             'pc': self._position_close_handler,
             'fos': self._funding_offer_snapshot_handler,
+            'fon': self._funding_offer_update_handler,
+            'fou': self._funding_offer_update_handler,
+            'foc': self._funding_offer_update_handler,
             'fcs': self._funding_credit_snapshot_handler,
-            'fls': self._funding_load_snapshot_handler,
+            'fcn': self._funding_credit_update_handler,
+            'fcu': self._funding_credit_update_handler,
+            'fcc': self._funding_credit_update_handler,
+            'fls': self._funding_loan_snapshot_handler,
+            'fln': self._funding_loan_update_handler,
+            'flu': self._funding_loan_update_handler,
+            'flc': self._funding_loan_update_handler,
             'fte': self._funding_trade_executed_handler,
             'bu': self._balance_update_handler,
             'n': self._notification_handler,
@@ -430,14 +512,44 @@ class BfxWebsocket(GenericWebsocket):
     async def _funding_offer_snapshot_handler(self, data):
         self._emit('funding_offer_snapshot', data)
         self.logger.info("Funding offer snapshot: {}".format(data))
-
-    async def _funding_load_snapshot_handler(self, data):
-        self._emit('funding_loan_snapshot', data[2])
-        self.logger.info("Funding loan snapshot: {}".format(data))
+    
+    async def _funding_offer_update_handler(self, data):
+        if self.subscriptionManager.is_subscribed(data[0]):
+            fundingObj = _parse_funding_offer_update(data[2])
+            if data[1] == 'fon':
+                self._emit('funding_offer_new', fundingObj)
+            if data[1] == 'fou':
+                self._emit('funding_offer_update', fundingObj)
+            if data[1] == 'foc':
+                self._emit('funding_offer_cancel', fundingObj)
 
     async def _funding_credit_snapshot_handler(self, data):
         self._emit('funding_credit_snapshot', data[2])
         self.logger.info("Funding credit snapshot: {}".format(data))
+    
+    async def _funding_credit_update_handler(self, data):
+        if self.subscriptionManager.is_subscribed(data[0]):
+            fundingObj = _parse_funding_credit_update(data[2])
+            if data[1] == 'fcn':
+                self._emit('funding_credit_new', fundingObj)
+            if data[1] == 'fcu':
+                self._emit('funding_credit_update', fundingObj)
+            if data[1] == 'fcc':
+                self._emit('funding_credit_close', fundingObj)
+    
+    async def _funding_loan_snapshot_handler(self, data):
+        self._emit('funding_loan_snapshot', data[2])
+        self.logger.info("Funding loan snapshot: {}".format(data))
+
+    async def _funding_loan_update_handler(self, data):
+        if self.subscriptionManager.is_subscribed(data[0]):
+            fundingObj = _parse_funding_loan_update(data[2])
+            if data[1] == 'fln':
+                self._emit('funding_loan_new', fundingObj)
+            if data[1] == 'flu':
+                self._emit('funding_loan_update', fundingObj)
+            if data[1] == 'flc':
+                self._emit('funding_loan_close', fundingObj)
 
     async def _status_handler(self, data):
         sub = self.subscriptionManager.get(data[0])
