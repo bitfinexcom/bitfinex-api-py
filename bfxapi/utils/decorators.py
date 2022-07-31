@@ -8,5 +8,6 @@ def handle_failure(func):
             await func(*args, **kwargs)
         except Exception as exception_message:
             logger.error(exception_message)
+            raise Exception(exception_message)
 
     return inner_function
