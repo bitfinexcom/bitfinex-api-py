@@ -4,15 +4,18 @@ import asyncio
 import time
 sys.path.append('../../../')
 
-from bfxapi import Client
+from bfxapi import Client, WS_HOST, REST_HOST
 
 API_KEY=os.getenv("BFX_KEY")
 API_SECRET=os.getenv("BFX_SECRET")
 
+# Retrieving authenticated data requires private hosts
 bfx = Client(
   API_KEY=API_KEY,
   API_SECRET=API_SECRET,
-  logLevel='DEBUG'
+  logLevel='DEBUG',
+  ws_host=WS_HOST,
+  rest_host=REST_HOST
 )
 
 now = int(round(time.time() * 1000))

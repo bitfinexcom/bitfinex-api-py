@@ -3,10 +3,13 @@ import sys
 import asyncio
 sys.path.append('../../../')
 
-from bfxapi import Client
+from bfxapi import Client, PUB_WS_HOST, PUB_REST_HOST
 
+# Retrieving seed trades requires public hosts
 bfx = Client(
-  logLevel='INFO'
+  logLevel='INFO',
+  ws_host=PUB_WS_HOST,
+  rest_host=PUB_REST_HOST
 )
 
 async def get_seeds():

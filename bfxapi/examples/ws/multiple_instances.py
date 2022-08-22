@@ -8,11 +8,9 @@ bfx ws instances to comply with the open subscriptions number constraint (max. 2
 import sys
 sys.path.append('../../../')
 import asyncio
-import json
-from datetime import datetime
 from functools import partial
 import websockets as ws
-from bfxapi import Client
+from bfxapi import Client, PUB_WS_HOST, PUB_REST_HOST
 import math
 import random
 
@@ -27,7 +25,7 @@ def get_random_list_of_tickers():
 class Instance:
     def __init__(self, _id):
         self.id = _id
-        self.bfx = Client(logLevel='INFO')
+        self.bfx = Client(logLevel='INFO', ws_host=PUB_WS_HOST, rest_host=PUB_REST_HOST)
         self.subscriptions = {'trades': {}, 'ticker': {}}
         self.is_ready = False
 

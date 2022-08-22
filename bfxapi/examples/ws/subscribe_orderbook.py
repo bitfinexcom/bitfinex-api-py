@@ -2,10 +2,13 @@ import os
 import sys
 sys.path.append('../../../')
 
-from bfxapi import Client
+from bfxapi import Client, PUB_WS_HOST, PUB_REST_HOST
 
+# Retrieving trades/candles requires public hosts
 bfx = Client(
   logLevel='DEBUG',
+  ws_host=PUB_WS_HOST,
+  rest_host=PUB_REST_HOST,
   # Verifies that the local orderbook is up to date
   # with the bitfinex servers
   manageOrderBooks=True

@@ -4,10 +4,13 @@ import asyncio
 import time
 sys.path.append('../../../')
 
-from bfxapi import Client
+from bfxapi import Client, PUB_WS_HOST, PUB_REST_HOST
 
+# Retrieving public data requires public hosts
 bfx = Client(
   logLevel='DEBUG',
+  ws_host=PUB_WS_HOST,
+  rest_host=PUB_REST_HOST
 )
 
 now = int(round(time.time() * 1000))

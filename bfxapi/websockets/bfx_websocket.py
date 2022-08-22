@@ -187,7 +187,7 @@ class BfxWebsocket(GenericWebsocket):
     - `unsubscribed` (Subscription): A channel has been un-subscribed
     """
 
-    def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2',
+    def __init__(self, host, API_KEY=None, API_SECRET=None,
                  manageOrderBooks=False, dead_man_switch=False, ws_capacity=25, logLevel='INFO', parse_float=float,
                  channel_filter=[], *args, **kwargs):
         self.API_KEY = API_KEY

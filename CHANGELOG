@@ -1,3 +1,6 @@
+2.0.2
+-) Use private host for auth-based requests
+
 2.0.1
 -) Added User Settings Write/Read/Delete endpoints (REST)
 -) Added Balance Available for Orders/Offers endpoint (REST)
