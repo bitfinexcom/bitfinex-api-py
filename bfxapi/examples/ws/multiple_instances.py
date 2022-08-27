@@ -10,7 +10,8 @@ sys.path.append('../../../')
 import asyncio
 from functools import partial
 import websockets as ws
-from bfxapi import Client, PUB_WS_HOST, PUB_REST_HOST
+from bfxapi import Client
+from bfxapi.constants import PUB_WS_HOST, PUB_REST_HOST
 import math
 import random
 

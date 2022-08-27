@@ -3,7 +3,8 @@ import sys
 import asyncio
 sys.path.append('../../../')
 
-from bfxapi import Client, WS_HOST, REST_HOST
+from bfxapi import Client
+from bfxapi.constants import WS_HOST, REST_HOST
 
 API_KEY=os.getenv("BFX_KEY")
 API_SECRET=os.getenv("BFX_SECRET")

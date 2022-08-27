@@ -4,7 +4,8 @@ import asyncio
 import time
 sys.path.append('../../../')
 
-from bfxapi import Client, PUB_WS_HOST, PUB_REST_HOST
+from bfxapi import Client
+from bfxapi.constants import PUB_WS_HOST, PUB_REST_HOST
 
 # Retrieving public data requires public hosts
 bfx = Client(

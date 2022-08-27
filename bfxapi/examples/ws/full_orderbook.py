@@ -3,7 +3,8 @@ import time
 from collections import OrderedDict
 sys.path.append('../../../')
 
-from bfxapi import Client, PUB_WS_HOST, PUB_REST_HOST
+from bfxapi import Client
+from bfxapi.constants import PUB_WS_HOST, PUB_REST_HOST
 
 # Retrieving orderbook requires public hosts
 bfx = Client(
