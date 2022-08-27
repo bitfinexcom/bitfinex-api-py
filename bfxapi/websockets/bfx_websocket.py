@@ -14,6 +14,7 @@ from .order_manager import OrderManager
 from ..utils.auth import generate_auth_payload
 from ..utils.decorators import handle_failure
 from ..models import Order, Trade, OrderBook, Ticker, FundingTicker
+from ..constants import PUB_WS_HOST
 
 
 class Flags:
@@ -187,7 +188,7 @@ class BfxWebsocket(GenericWebsocket):
     - `unsubscribed` (Subscription): A channel has been un-subscribed
     """
 
-    def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2',
+    def __init__(self, API_KEY=None, API_SECRET=None, host=PUB_WS_HOST,
                  manageOrderBooks=False, dead_man_switch=False, ws_capacity=25, logLevel='INFO', parse_float=float,
                  channel_filter=[], *args, **kwargs):
         self.API_KEY = API_KEY
