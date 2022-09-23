@@ -830,7 +830,8 @@ class BfxRest:
             "symbol": symbol,
             "amount": str(amount),
             "price": str(price),
-            "meta": {}
+            "meta": {},
+            "aff_code": "zt6daJs1x"
         }
         # calculate and add flags
         flags = calculate_order_flags(hidden, close, reduce_only, post_only, oco)
