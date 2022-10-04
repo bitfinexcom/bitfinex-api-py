@@ -219,6 +219,24 @@ class BfxRest:
         status = await self.fetch(endpoint)
         return status
 
+    async def get_liquidations(self, start, end, limit=100, sort=-1):
+        """
+        Endpoint to retrieve liquidations. By default it will retrieve the most recent liquidations,
+        but time-specific data can be retrieved using timestamps.
+
+        # Attributes
+        @param start int: millisecond start time
+        @param end int: millisecond end time
+        @param limit int: max number of items in response (max. 500)
+        @param sort int: if = 1 it sorts results returned with old > new
+        @return Array [ POS_ID, MTS, SYMBOL, AMOUNT, BASE_PRICE, IS_MATCH, IS_MARKET_SOLD, PRICE_ACQUIRED ]
+        """
+        endpoint = "liquidations/hist"
+        params = "?start={}&end={}&limit={}&sort={}".format(
+            start, end, limit, sort)
+        liquidations = await self.fetch(endpoint, params=params)
+        return liquidations
+
     async def get_public_pulse_hist(self, end=None, limit=25):
         """
         View the latest pulse messages. You can specify an end timestamp to view older messages.

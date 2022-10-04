@@ -1,3 +1,6 @@
+2.0.3
+-) Implemented Liquidations endpoint (REST)
+
 2.0.2
 -) Use private host for auth-based requests
 
