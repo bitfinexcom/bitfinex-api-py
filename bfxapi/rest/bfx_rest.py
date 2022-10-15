@@ -380,6 +380,25 @@ class BfxRest:
         pairs = await self.fetch(endpoint)
         return pairs
 
+    async def get_conf_list_margin_exchange(self):
+        """
+        Get list of available exchange pairs
+        # Attributes
+        @return Array [ SYMBOL ]
+        """
+        endpoint = "conf/pub:list:pair:margin"
+        pairs = await self.fetch(endpoint)
+        return pairs
+
+    async def get_conf_list_funding_exchange(self):
+        """
+        Get list of available exchange pairs
+        # Attributes
+        @return Array [ SYMBOL ]
+        """
+        endpoint = "conf/pub:list:currency"
+        pairs = await self.fetch(endpoint)
+        return pairs
     ##################################################
     #               Authenticated Data               #
     ##################################################
