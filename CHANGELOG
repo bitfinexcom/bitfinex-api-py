@@ -1,3 +1,6 @@
+2.0.4
+-) Added missing ID to ledgers.py
+
 2.0.3
 -) Implemented Liquidations endpoint (REST)
 
