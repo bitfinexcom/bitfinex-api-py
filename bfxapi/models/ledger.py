@@ -26,7 +26,8 @@ class Ledger:
     DESCRIPTION
     """
 
-    def __init__(self, currency, mts, amount, balance, description):
+    def __init__(self, lid, currency, mts, amount, balance, description):
+        self.id = lid
         self.currency = currency
         self.mts = mts
         self.amount = amount
@@ -40,15 +41,16 @@ class Ledger:
 
         @return Ledger
         """
+        lid = raw_ledger[LedgerModel.ID]
         currency = raw_ledger[LedgerModel.CURRENCY]
         mts = raw_ledger[LedgerModel.MTS]
         amount = raw_ledger[LedgerModel.AMOUNT]
         balance = raw_ledger[LedgerModel.BALANCE]
         description = raw_ledger[LedgerModel.DESCRIPTION]
-        return Ledger(currency, mts, amount, balance, description)
+        return Ledger(lid, currency, mts, amount, balance, description)
 
     def __str__(self):
         ''' Allow us to print the Ledger object in a pretty format '''
-        text = "Ledger <{} {} balance:{} '{}' mts={}>"
-        return text.format(self.amount, self.currency, self.balance,
+        text = "Ledger <{} {} {} balance:{} '{}' mts={}>"
+        return text.format(self.id, self.amount, self.currency, self.balance,
                            self.description, self.mts)
