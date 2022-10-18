@@ -10,8 +10,8 @@ import datetime
 
 from ..utils.custom_logger import CustomLogger
 from ..utils.auth import generate_auth_headers, calculate_order_flags, gen_unique_cid
-from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer
-from ..models import FundingCredit, Notification, Ledger
+from ..models import Wallet, Order, Position, Trade, FundingLoan, FundingOffer, FundingTrade, MarginInfoBase, MarginInfo
+from ..models import FundingCredit, Notification, Ledger, Movement
 
 
 class BfxRest:
@@ -219,6 +219,24 @@ class BfxRest:
         status = await self.fetch(endpoint)
         return status
 
+    async def get_liquidations(self, start, end, limit=100, sort=-1):
+        """
+        Endpoint to retrieve liquidations. By default it will retrieve the most recent liquidations,
+        but time-specific data can be retrieved using timestamps.
+
+        # Attributes
+        @param start int: millisecond start time
+        @param end int: millisecond end time
+        @param limit int: max number of items in response (max. 500)
+        @param sort int: if = 1 it sorts results returned with old > new
+        @return Array [ POS_ID, MTS, SYMBOL, AMOUNT, BASE_PRICE, IS_MATCH, IS_MARKET_SOLD, PRICE_ACQUIRED ]
+        """
+        endpoint = "liquidations/hist"
+        params = "?start={}&end={}&limit={}&sort={}".format(
+            start, end, limit, sort)
+        liquidations = await self.fetch(endpoint, params=params)
+        return liquidations
+
     async def get_public_pulse_hist(self, end=None, limit=25):
         """
         View the latest pulse messages. You can specify an end timestamp to view older messages.
@@ -370,6 +388,15 @@ class BfxRest:
         stats = await self.fetch(endpoint)
         return stats
 
+    async def get_conf_list_pair_exchange(self):
+        """
+        Get list of available exchange pairs
+        # Attributes
+        @return Array [ SYMBOL ]
+        """
+        endpoint = "conf/pub:list:pair:exchange"
+        pairs = await self.fetch(endpoint)
+        return pairs
 
     ##################################################
     #               Authenticated Data               #
@@ -385,6 +412,22 @@ class BfxRest:
         raw_wallets = await self.post(endpoint)
         return [Wallet(*rw[:5]) for rw in raw_wallets]
 
+    async def get_margin_info(self, symbol='base'):
+        """
+        Get account margin information (like P/L, Swaps, Margin Balance, Tradable Balance and others).
+        Use different keys (base, SYMBOL, sym_all) to retrieve different kinds of data.
+
+        @return Array
+        """
+        endpoint = f"auth/r/info/margin/{symbol}"
+        raw_margin_info = await self.post(endpoint)
+        if symbol == 'base':
+            return MarginInfoBase.from_raw_margin_info(raw_margin_info)
+        elif symbol == 'sym_all':
+            return [MarginInfo.from_raw_margin_info(record) for record in raw_margin_info]
+        else:
+            return MarginInfo.from_raw_margin_info(raw_margin_info)
+
     async def get_active_orders(self, symbol):
         """
         Get all of the active orders associated with API_KEY - Requires authentication.
@@ -397,7 +440,7 @@ class BfxRest:
         raw_orders = await self.post(endpoint)
         return [Order.from_raw_order(ro) for ro in raw_orders]
 
-    async def get_order_history(self, symbol, start, end, limit=25, sort=-1):
+    async def get_order_history(self, symbol, start, end, limit=25, sort=-1, ids=None):
         """
         Get all of the orders between the start and end period associated with API_KEY
         - Requires authentication.
@@ -407,12 +450,22 @@ class BfxRest:
         @param start int: millisecond start time
         @param end int: millisecond end time
         @param limit int: max number of items in response
+        @param ids list of int: allows you to retrieve specific orders by order ID (ids: [ID1, ID2, ID3])
         @return Array <models.Order>
         """
         endpoint = "auth/r/orders/{}/hist".format(symbol)
-        params = "?start={}&end={}&limit={}&sort={}".format(
-            start, end, limit, sort)
-        raw_orders = await self.post(endpoint, params=params)
+        payload = {}
+        if start:
+            payload['start'] = start
+        if end:
+            payload['end'] = end
+        if limit:
+            payload['limit'] = limit
+        if sort:
+            payload['sort'] = sort
+        if ids:
+            payload['id'] = ids
+        raw_orders = await self.post(endpoint, payload)
         return [Order.from_raw_order(ro) for ro in raw_orders]
 
     async def get_active_position(self):
@@ -439,7 +492,7 @@ class BfxRest:
         raw_trades = await self.post(endpoint)
         return [Trade.from_raw_rest_trade(rt) for rt in raw_trades]
 
-    async def get_trades(self, symbol, start, end, limit=25):
+    async def get_trades(self, start, end, symbol=None, limit=25):
         """
         Get all of the trades between the start and end period associated with API_KEY
         - Requires authentication.
@@ -451,10 +504,26 @@ class BfxRest:
         @param limit int: max number of items in response
         @return Array <models.Trade>
         """
-        endpoint = "auth/r/trades/{}/hist".format(symbol)
+        endpoint = "auth/r/trades/{}/hist".format(symbol) if symbol else "auth/r/trades/hist"
         params = "?start={}&end={}&limit={}".format(start, end, limit)
         raw_trades = await self.post(endpoint, params=params)
         return [Trade.from_raw_rest_trade(rt) for rt in raw_trades]
+
+    async def get_funding_trades(self, symbol, start, end, limit=25):
+        """
+        Get all of the funding trades between the start and end period associated with API_KEY
+        - Requires authentication.
+
+        # Attributes
+        @param symbol string: pair symbol i.e fUSD
+        @param start int: millisecond start time
+        @param end int: millisecond end time
+        @param limit int: max number of items in response
+        @return Array <models.FundingTrade>
+        """
+        endpoint = "auth/r/funding/trades/{}/hist".format(symbol)
+        raw_trades = await self.post(endpoint)
+        return [FundingTrade.from_raw_rest_trade(rt) for rt in raw_trades]
 
     async def get_funding_offers(self, symbol):
         """
@@ -558,6 +627,22 @@ class BfxRest:
             raw_ledgers = await self.post(endpoint, params=params)
         return [Ledger.from_raw_ledger(rl) for rl in raw_ledgers]
 
+    async def get_movement_history(self, currency, start="", end="", limit=25):
+        """
+        Get all of the deposits and withdraws between the start and end period associated with API_KEY
+        - Requires authentication.
+        # Attributes
+        @param currency string: pair symbol i.e BTC
+        @param start int: millisecond start time
+        @param end int: millisecond end time
+        @param limit int: max number of items in response
+        @return Array <models.Movement>
+        """
+        endpoint = "auth/r/movements/{}/hist".format(currency)
+        params = "?start={}&end={}&limit={}".format(start, end, limit)
+        raw_movements = await self.post(endpoint, params=params)
+        return [Movement.from_raw_movement(rm) for rm in raw_movements]
+
     async def submit_funding_offer(self, symbol, amount, rate, period,
                                    funding_type=FundingOffer.Type.LIMIT, hidden=False):
         """
@@ -592,6 +677,17 @@ class BfxRest:
         """
         endpoint = "auth/w/funding/offer/cancel"
         raw_notification = await self.post(endpoint, {'id': fundingId})
+        return Notification.from_raw_notification(raw_notification)
+
+    async def submit_cancel_all_funding_offer(self, currency):
+        """
+        Cancel all funding offers at once
+
+        # Attributes
+        @param currency str: currency for which to cancel all offers (USD, BTC, UST ...)
+        """
+        endpoint = "auth/w/funding/offer/cancel/all"
+        raw_notification = await self.post(endpoint, {'currency': currency})
         return Notification.from_raw_notification(raw_notification)
 
     async def keep_funding(self, type, id):
@@ -834,7 +930,7 @@ class BfxRest:
         if price_trailing != None:
             payload['price_trailing'] = str(price_trailing)
         if time_in_force != None:
-            payload['time_in_force'] = str(time_in_force)
+            payload['tif'] = str(time_in_force)
         if leverage != None:
             payload["lev"] = str(leverage)
         flags = calculate_order_flags(
@@ -904,6 +1000,145 @@ class BfxRest:
         endpoint = "auth/w/order/multi"
         raw_notification = await self.post(endpoint, payload)
         return Notification.from_raw_notification(raw_notification)
+
+    async def claim_position(self, position_id, amount):
+        """
+        The claim feature allows the use of funds you have in your Margin Wallet
+        to settle a leveraged position as an exchange buy or sale
+
+        # Attributes
+        @param position_id: id of the position
+        @param amount: amount to claim
+        @return Array [ MTS, TYPE, MESSAGE_ID, null, [SYMBOL, POSITION_STATUS,
+        AMOUNT, BASE_PRICE, MARGIN_FUNDING, MARGIN_FUNDING_TYPE, PLACEHOLDER,
+        PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, POSITION_ID, MTS_CREATE,
+        MTS_UPDATE, PLACEHOLDER, POS_TYPE, PLACEHOLDER, COLLATERAL, MIN_COLLATERAL,
+        META], CODE, STATUS, TEXT]
+        """
+        payload = {
+            "id": position_id,
+            "amount": f"{amount * -1}"
+        }
+        endpoint = "auth/w/position/claim"
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def get_alerts(self):
+        """
+        Retrieve a list of active price alerts
+        """
+        endpoint = f"auth/r/alerts"
+
+        message = await self.post(endpoint, {})
+        return message
+
+    async def set_alert(self, type, symbol, price):
+        """
+        Sets up a price alert at the given value
+
+        # Attributes
+        @param type string
+        @param symbol string
+        @param price float
+        """
+        endpoint = f"auth/w/alert/set"
+        payload = {
+            "type": type,
+            "symbol": symbol,
+            "price": price
+        }
+
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def delete_alert(self, symbol, price):
+        """
+        Delete an active alert
+
+        # Attributes
+        @param symbol string
+        @param price float
+        """
+        endpoint = f"auth/w/alert/price:{symbol}:{price}/del"
+        payload = {
+            "symbol": symbol,
+            "price": price
+        }
+
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def calc_order_avail(self, symbol, type, lev, dir=None, rate=None):
+        """
+        Calculate the balance available for orders/offers
+
+        # Attributes
+        @param symbol str: Symbol (tBTCUSD, tBTCUST, fUSD, .... )
+        @param dir int: Direction of the order (1 for by, -1 for sell) (Mandator for EXCHANGE and MARGIN type, not used for FUNDING)
+        @param rate str: Order price (Mandator for EXCHANGE and MARGIN type, not used for FUNDING)
+        @param type str: Type of the order/offer EXCHANGE, MARGIN, DERIV, or FUNDING
+        @param lev str: Leverage that you want to use in calculating the max order amount (DERIV only)
+        """
+        endpoint = f"auth/calc/order/avail"
+        payload = {
+            "symbol": symbol,
+            "type": type,
+            "lev": lev
+        }
+
+        if dir:
+            payload["dir"] = dir
+
+        if rate:
+            payload["rate"] = rate
+
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def write_user_settings(self, settings):
+        """
+        Allows you to create custom settings by creating key: value pairs
+
+        # Attributes
+        @param Settings object: object of keys and values to be set. Must follow regex pattern /^api:[A-Za-z0-9_-]*$/
+        """
+        endpoint = f"auth/w/settings/set"
+        payload = {
+            "Settings": settings
+        }
+
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def read_user_settings(self, keys):
+        """
+        Allows you to read custom settings by providing a key
+
+        # Attributes
+        @param Keys array: the keys for which you wish to retrieve the values
+        """
+        endpoint = f"auth/w/settings"
+        payload = {
+            "Keys": keys
+        }
+
+        message = await self.post(endpoint, payload)
+        return message
+
+    async def delete_user_settings(self, settings):
+        """
+        Allows you to delete custom settings
+
+        # Attributes
+        @param settings object: object of keys to be deleted followed by value 1. Must follow regex pattern /^api:[A-Za-z0-9_-]*$/
+        """
+        endpoint = f"auth/w/settings/del"
+        payload = {
+            "Settings": settings
+        }
+
+        message = await self.post(endpoint, payload)
+        return message
 
     async def get_auth_pulse_hist(self, is_public=None):
         """
@@ -1044,4 +1279,134 @@ class BfxRest:
         payload = {}
         payload['symbol'] = symbol
         payload['collateral'] = collateral
+        return await self.post(endpoint, data=payload)
+
+    ##################################################
+    #                   Merchants                    #
+    ##################################################
+
+    async def submit_invoice(self, amount, currency, pay_currencies, order_id, webhook, redirect_url, customer_info_nationality,
+                             customer_info_resid_country, customer_info_resid_city, customer_info_resid_zip_code,
+                             customer_info_resid_street, customer_info_full_name, customer_info_email,
+                             customer_info_resid_state=None, customer_info_resid_building_no=None, duration=None):
+        """
+        Submit an invoice for payment
+
+        # Attributes
+        @param amount str: Invoice amount in currency (From 0.1 USD to 1000 USD)
+        @param currency str: Invoice currency, currently supported: USD
+        @param pay_currencies list of str: Currencies in which invoice accepts the payments, supported values are BTC, ETH, UST-ETH, UST-TRX, UST-LBT, LNX, LBT
+        @param order_id str: Reference order identifier in merchant's platform
+        @param webhook str: The endpoint that will be called once the payment is completed/expired
+        @param redirect_url str: Merchant redirect URL, this one is used in UI to redirect customer to merchant's site once the payment is completed/expired
+        @param customer_info_nationality str: Customer's nationality, alpha2 code or full country name (alpha2 preffered)
+        @param customer_info_resid_country str: Customer's residential country, alpha2 code or full country name (alpha2 preffered)
+        @param customer_info_resid_city str: Customer's residential city/town
+        @param customer_info_resid_zip_code str: Customer's residential zip code/postal code
+        @param customer_info_resid_street str: Customer's residential street address
+        @param customer_info_full_name str: Customer's full name
+        @param customer_info_email str: Customer's email address
+        @param customer_info_resid_state str: Optional, customer's residential state/province
+        @param customer_info_resid_building_no str: Optional, customer's residential building number/name
+        @param duration int: Optional, invoice expire time in seconds, minimal duration is 5 mins (300) and maximal duration is 24 hours (86400). Default value is 15 minutes
+        """
+        endpoint = 'auth/w/ext/pay/invoice/create'
+        payload = {
+            'amount': amount,
+            'currency': currency,
+            'payCurrencies': pay_currencies,
+            'orderId': order_id,
+            'webhook': webhook,
+            'redirectUrl': redirect_url,
+            'customerInfo': {
+                'nationality': customer_info_nationality,
+                'residCountry': customer_info_resid_country,
+                'residCity': customer_info_resid_city,
+                'residZipCode': customer_info_resid_zip_code,
+                'residStreet': customer_info_resid_street,
+                'fullName': customer_info_full_name,
+                'email': customer_info_email
+            },
+            'duration': duration
+        }
+
+        if customer_info_resid_state:
+            payload['customerInfo']['residState'] = customer_info_resid_state
+
+        if customer_info_resid_building_no:
+            payload['customerInfo']['residBuildingNo'] = customer_info_resid_building_no
+
+        return await self.post(endpoint, data=payload)
+
+    async def get_invoices(self, id=None, start=None, end=None, limit=10):
+        """
+        List submitted invoices
+
+        # Attributes
+        @param id str: Unique invoice identifier
+        @param start int: Millisecond start time
+        @param end int: Millisecond end time
+        @param limit int: Millisecond start time
+        """
+        endpoint = 'auth/r/ext/pay/invoices'
+        payload = {}
+
+        if id:
+            payload['id'] = id
+
+        if start:
+            payload['start'] = start
+
+        if end:
+            payload['end'] = end
+
+        if limit:
+            payload['limit'] = limit
+
+        return await self.post(endpoint, data=payload)
+
+    async def complete_invoice(self, id, pay_ccy, deposit_id=None, ledger_id=None):
+        """
+        Manually complete an invoice
+
+        # Attributes
+        @param id str: Unique invoice identifier
+        @param pay_ccy str: Paid invoice currency, should be one of values under payCurrencies field on invoice
+        @param deposit_id int: Movement/Deposit Id linked to invoice as payment
+        @param ledger_id int: Ledger entry Id linked to invoice as payment, use either depositId or ledgerId
+        """
+        endpoint = 'auth/w/ext/pay/invoice/complete'
+        payload = {
+            'id': id,
+            'payCcy': pay_ccy
+        }
+
+        if deposit_id:
+            payload['depositId'] = deposit_id
+
+        if ledger_id:
+            payload['ledgerId'] = ledger_id
+
+        return await self.post(endpoint, data=payload)
+
+    async def get_unlinked_deposits(self, ccy, start=None, end=None):
+        """
+        Retrieve deposits that possibly could be linked to bitfinex pay invoices
+
+        # Attributes
+        @param ccy str: Pay currency to search deposits for, supported values are: BTC, ETH, UST-ETH, UST-TRX, UST-LBT, LNX, LBT
+        @param start int: Millisecond start time
+        @param end int: Millisecond end time
+        """
+        endpoint = 'auth/r/ext/pay/deposits/unlinked'
+        payload = {
+            'ccy': ccy
+        }
+
+        if start:
+            payload['start'] = start
+
+        if end:
+            payload['end'] = end
+
         return await self.post(endpoint, data=payload)

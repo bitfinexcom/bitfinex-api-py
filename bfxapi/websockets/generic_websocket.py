@@ -13,7 +13,7 @@ from pyee import AsyncIOEventEmitter
 from ..utils.custom_logger import CustomLogger
 
 # websocket exceptions
-from websockets.exceptions import ConnectionClosed
+from websockets.exceptions import ConnectionClosed, InvalidStatusCode
 
 class AuthError(Exception):
     """
@@ -44,7 +44,7 @@ class Socket():
 
     def set_authenticated(self):
         self.isAuthenticated = True
-        
+
     def set_unauthenticated(self):
         self.isAuthenticated = False
 
@@ -84,6 +84,10 @@ class GenericWebsocket:
         thread and connection.
         """
         self._start_new_socket()
+        event_loop = asyncio.get_event_loop()
+        if not event_loop or not event_loop.is_running():
+            while True:
+                time.sleep(1)
 
     def get_task_executable(self):
         """
@@ -91,14 +95,14 @@ class GenericWebsocket:
         """
         return self._run_socket()
 
+    def _start_new_async_socket(self):
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(self._run_socket())
+
     def _start_new_socket(self, socketId=None):
         if not socketId:
             socketId = len(self.sockets)
-        def start_loop(loop):
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(self._run_socket())
-        worker_loop = asyncio.new_event_loop()
-        worker = Thread(target=start_loop, args=(worker_loop,))
+        worker = Thread(target=self._start_new_async_socket)
         worker.start()
         return socketId
 
@@ -128,7 +132,7 @@ class GenericWebsocket:
         s = Socket(sId)
         self.sockets[sId] = s
         loop = asyncio.get_event_loop()
-        while retries < self.max_retries and self.attempt_retry:
+        while self.max_retries == 0 or (retries < self.max_retries and self.attempt_retry):
             try:
                 async with websockets.connect(self.host) as websocket:
                     self.sockets[sId].set_websocket(websocket)
@@ -141,7 +145,7 @@ class GenericWebsocket:
                         await asyncio.sleep(0)
                         message = await websocket.recv()
                         await self.on_message(sId, message)
-            except (ConnectionClosed, socket.error) as e:
+            except (ConnectionClosed, socket.error, InvalidStatusCode) as e:
                 self.sockets[sId].set_disconnected()
                 if self.sockets[sId].isAuthenticated:
                     self.sockets[sId].set_unauthenticated()
@@ -190,6 +194,8 @@ class GenericWebsocket:
         self.events.once(event, func)
 
     def _emit(self, event, *args, **kwargs):
+        if type(event) == Exception:
+            self.logger.error(event)
         self.events.emit(event, *args, **kwargs)
 
     async def on_error(self, error):
@@ -202,7 +208,7 @@ class GenericWebsocket:
         """
         This is used by the HF data server.
         """
-        self.stop()
+        await self.stop()
 
     async def on_open(self):
         """

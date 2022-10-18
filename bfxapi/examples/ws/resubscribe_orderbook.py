@@ -1,11 +1,14 @@
-import os
 import sys
 sys.path.append('../../../')
 
 from bfxapi import Client
+from bfxapi.constants import PUB_WS_HOST, PUB_REST_HOST
 
+# Retrieving orderbook requires public hosts
 bfx = Client(
-  logLevel='INFO'
+  manageOrderBooks=True,
+  ws_host=PUB_WS_HOST,
+  rest_host=PUB_REST_HOST
 )
 
 @bfx.ws.on('error')

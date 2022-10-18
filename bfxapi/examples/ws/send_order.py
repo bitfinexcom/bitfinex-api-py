@@ -3,14 +3,18 @@ import sys
 sys.path.append('../../../')
 
 from bfxapi import Client, Order
+from bfxapi.constants import WS_HOST, REST_HOST
 
 API_KEY=os.getenv("BFX_KEY")
 API_SECRET=os.getenv("BFX_SECRET")
 
+# Sending order requires private hosts
 bfx = Client(
   API_KEY=API_KEY,
   API_SECRET=API_SECRET,
-  logLevel='DEBUG'
+  logLevel='DEBUG',
+  ws_host=WS_HOST,
+  rest_host=REST_HOST
 )
 
 @bfx.ws.on('order_snapshot')
@@ -34,7 +38,7 @@ def log_error(msg):
 
 @bfx.ws.on('authenticated')
 async def submit_order(auth_message):
-  await bfx.ws.submit_order('tBTCUSD', 19000, 0.01, Order.Type.EXCHANGE_MARKET)
+  await bfx.ws.submit_order(symbol='tBTCUSD', price=None, amount=0.01, market_type=Order.Type.EXCHANGE_MARKET)
 
 # If you dont want to use a decorator
 # ws.on('authenticated', submit_order)

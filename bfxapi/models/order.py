@@ -67,7 +67,7 @@ class OrderFlags:
     as flags
     """
     HIDDEN = 64
-    CLOSE = 12
+    CLOSE = 512
     REDUCE_ONLY = 1024
     POST_ONLY = 4096
     OCO = 16384

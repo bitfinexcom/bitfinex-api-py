@@ -1,3 +1,71 @@
+2.0.3
+-) Implemented Liquidations endpoint (REST)
+
+2.0.2
+-) Use private host for auth-based requests
+
+2.0.1
+-) Added User Settings Write/Read/Delete endpoints (REST)
+-) Added Balance Available for Orders/Offers endpoint (REST)
+-) Added Alerts endpoints (REST)
+-) Fixed trades handling error
+
+2.0.0
+-) Implemented Movement endpoints (REST)
+-) Fixed unawaited stop
+-) Changed account's trade execution (te) and trade update (tu) handling
+
+1.3.4
+-) Fixed undefined p_sub issue in subscription_manager.py
+-) Added submit cancel all funding orders endpoint (REST)
+-) Added get all exchange pairs endpoint (REST)
+
+1.3.3
+-) Fixed socket.send() issue (IndexError: deque index out of range)
+
+1.3.2
+-) Implemented Merchants endpoints (REST)
+
+1.3.1
+-) Handle exception of asyncio.get_event_loop() | Related to v1.2.8
+
+1.3.0
+-) Adjusted get_trades() to allow symbol to be None and get trades for all symbols
+
+1.2.8
+-) Bugfix - It is possible to call bfx.ws.run() from an already running event loop
+
+1.2.7
+-) Added ws support for Python 3.9 and 3.10
+
+1.2.6
+-) Updated websockets to 9.1
+
+1.2.5
+-) Adjusted get_order_history() rest endpoint
+
+1.2.4
+-) Added example of MARKET order with price=None
+
+1.2.3
+-) Tests adjusted
+
+1.2.2
+-) WS bugfix (exception InvalidStatusCode not handled)
+
+1.2.1
+-) Added orderbook implementation example (ws)
+
+1.2.0
+-) Implemented Margin Info (rest)
+-) Implemented claim position (rest)
+-) When max_retries == 0 continue forever to retry (websocket)
+
+1.1.15
+-) Added 'ids' parameter to get_order_history()
+-) Added an example to show how it is possible to spawn multiple bfx ws instances to comply with the open subscriptions number constraint (max. 25)
+-) Implemented Funding Trades (rest)
+
 1.1.14
 -) bfx_websockets.py ERRORS dictionary now contains a message for error number 10305
 

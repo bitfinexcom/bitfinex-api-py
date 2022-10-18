@@ -12,7 +12,9 @@ from .subscription_manager import SubscriptionManager
 from .wallet_manager import WalletManager
 from .order_manager import OrderManager
 from ..utils.auth import generate_auth_payload
+from ..utils.decorators import handle_failure
 from ..models import Order, Trade, OrderBook, Ticker, FundingTicker
+from ..constants import PUB_WS_HOST
 
 
 class Flags:
@@ -64,6 +66,39 @@ def _parse_trade(tData, symbol):
         'amount': tData[2],
         'symbol': symbol
     }
+
+
+def _parse_user_trade(tData):
+    return {
+        'id': tData[0],
+        'symbol': tData[1],
+        'mts_create': tData[2],
+        'order_id': tData[3],
+        'exec_amount': tData[4],
+        'exec_price': tData[5],
+        'order_type': tData[6],
+        'order_price': tData[7],
+        'maker': tData[8],
+        'cid': tData[11],
+    }
+
+
+def _parse_user_trade_update(tData):
+    return {
+        'id': tData[0],
+        'symbol': tData[1],
+        'mts_create': tData[2],
+        'order_id': tData[3],
+        'exec_amount': tData[4],
+        'exec_price': tData[5],
+        'order_type': tData[6],
+        'order_price': tData[7],
+        'maker': tData[8],
+        'fee': tData[9],
+        'fee_currency': tData[10],
+        'cid': tData[11],
+    }
+
 
 def _parse_deriv_status_update(sData, symbol):
     return {
@@ -139,6 +174,7 @@ class BfxWebsocket(GenericWebsocket):
     - `funding_credit_snapshot` (array): Opening funding credit balances
     - `balance_update` (array): When the state of a balance is changed
     - `new_trade` (array): A new trade on the market has been executed
+    - `new_user_trade` (array): A new - your - trade has been executed
     - `new_ticker` (Ticker|FundingTicker): A new ticker update has been published
     - `new_funding_ticker` (FundingTicker): A new funding ticker update has been published
     - `new_trading_ticker` (Ticker): A new trading ticker update has been published
@@ -152,7 +188,7 @@ class BfxWebsocket(GenericWebsocket):
     - `unsubscribed` (Subscription): A channel has been un-subscribed
     """
 
-    def __init__(self, API_KEY=None, API_SECRET=None, host='wss://api-pub.bitfinex.com/ws/2',
+    def __init__(self, API_KEY=None, API_SECRET=None, host=PUB_WS_HOST,
                  manageOrderBooks=False, dead_man_switch=False, ws_capacity=25, logLevel='INFO', parse_float=float,
                  channel_filter=[], *args, **kwargs):
         self.API_KEY = API_KEY
@@ -266,7 +302,7 @@ class BfxWebsocket(GenericWebsocket):
             socketId,
             ERRORS[data.get('code', 10000)],
             data.get("msg", ""))
-        self._emit('error', err_string)
+        self._emit(Exception(err_string))
 
     async def _system_auth_handler(self, socketId, data):
         if data.get('status') == 'FAILED':
@@ -282,6 +318,11 @@ class BfxWebsocket(GenericWebsocket):
             symbol = self.subscriptionManager.get(data[0]).symbol
             tradeObj = _parse_trade(tData, symbol)
             self._emit('trade_update', tradeObj)
+        else:
+            # user trade
+            # [0,"tu",[738045455,"tTESTBTC:TESTUSD",1622169615771,66635385225,0.001,38175,"EXCHANGE LIMIT",39000,-1,-0.000002,"TESTBTC",1622169615685]]
+            tradeObj = _parse_user_trade_update(tData)
+            self._emit('user_trade_update', tradeObj)
 
     async def _trade_executed_handler(self, data):
         tData = data[2]
@@ -290,6 +331,11 @@ class BfxWebsocket(GenericWebsocket):
             symbol = self.subscriptionManager.get(data[0]).symbol
             tradeObj = _parse_trade(tData, symbol)
             self._emit('new_trade', tradeObj)
+        else:
+            # user trade
+            # [0, 'te', [37558151, 'tBTCUSD', 1643542688513, 1512164914, 0.0001, 30363, 'EXCHANGE MARKET', 100000, -1, None, None, 1643542688390]]
+            tradeObj = _parse_user_trade(tData)
+            self._emit('new_user_trade', tradeObj)
 
     async def _wallet_update_handler(self, data):
         # [0,"wu",["exchange","USD",89134.66933283,0]]
@@ -481,6 +527,7 @@ class BfxWebsocket(GenericWebsocket):
         else:
             self.logger.warn('Unknown (socketId={}) websocket response: {}'.format(socketId, msg))
 
+    @handle_failure
     async def _ws_authenticate_socket(self, socketId):
         socket = self.sockets[socketId]
         socket.set_authenticated()
@@ -507,6 +554,7 @@ class BfxWebsocket(GenericWebsocket):
         # re-subscribe to existing channels
         await self.subscriptionManager.resubscribe_by_socket(socket_id)
 
+    @handle_failure
     async def _send_auth_command(self, channel_name, data):
         payload = [0, channel_name, None, data]
         socket = self.get_authenticated_socket()
@@ -538,6 +586,7 @@ class BfxWebsocket(GenericWebsocket):
             total += self.get_socket_capacity(socketId)
         return total
 
+    @handle_failure
     async def enable_flag(self, flag):
         """
         Enable flag on websocket connection

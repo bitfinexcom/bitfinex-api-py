@@ -5,14 +5,18 @@ import time
 sys.path.append('../../../')
 
 from bfxapi import Client
+from bfxapi.constants import WS_HOST, REST_HOST
 
 API_KEY=os.getenv("BFX_KEY")
 API_SECRET=os.getenv("BFX_SECRET")
 
+# Retrieving authenticated data requires private hosts
 bfx = Client(
   API_KEY=API_KEY,
   API_SECRET=API_SECRET,
-  logLevel='DEBUG'
+  logLevel='DEBUG',
+  ws_host=WS_HOST,
+  rest_host=REST_HOST
 )
 
 now = int(round(time.time() * 1000))
@@ -39,7 +43,7 @@ async def log_active_positions():
   [ print (p) for p in positions ]
 
 async def log_trades():
-  trades = await bfx.rest.get_trades('tBTCUSD', 0, then)
+  trades = await bfx.rest.get_trades(symbol='tBTCUSD', start=0, end=then)
   print ("Trades:")
   [ print (t) for t in trades]
 
@@ -79,6 +83,15 @@ async def log_funding_credits_history():
   print ("Funding credit history:")
   [ print (c) for c in credit ]
 
+async def log_margin_info():
+  margin_info = await bfx.rest.get_margin_info('tBTCUSD')
+  print(margin_info)
+  sym_all = await bfx.rest.get_margin_info('sym_all')  # list of Margin Info
+  for margin_info in sym_all:
+      print(margin_info)
+  base = await bfx.rest.get_margin_info('base')
+  print(base)
+
 async def run():
   await log_wallets()
   await log_active_orders()
@@ -90,6 +103,7 @@ async def run():
   await log_funding_offer_history()
   await log_funding_credits()
   await log_funding_credits_history()
+  await log_margin_info()
   
 
 t = asyncio.ensure_future(run())
