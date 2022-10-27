@@ -161,10 +161,10 @@ class BfxWebsocket(GenericWebsocket):
     - `order_confirmed` (Order, Trade): When an order has been submitted and received
     - `wallet_snapshot` (array[Wallet]): Initial wallet balances (Fired once)
     - `order_snapshot` (array[Order]): Initial open orders (Fired once)
-    - `positions_snapshot` (array): Initial open positions (Fired once)
-    - `positions_new` (array): Initial open positions (Fired once)
-    - `positions_update` (array): An active position has been updated
-    - `positions_close` (array): An active position has closed
+    - `position_snapshot` (array): Initial open positions (Fired once)
+    - `position_new` (array): Initial open positions (Fired once)
+    - `position_update` (array): An active position has been updated
+    - `position_close` (array): An active position has closed
     - `wallet_update` (Wallet): Changes to the balance of wallets
     - `status_update` (Object): New platform status info
     - `seed_candle` (Object): Initial past candle to prime strategy
