@@ -1,5 +1,7 @@
 from .channels import Channels
 
+HEARTBEAT = "hb"
+
 class Manager(object):
     def __init__(self, event_emitter):
         self.event_emitter = event_emitter
@@ -7,11 +9,14 @@ class Manager(object):
         self.__handlers = {
             Channels.TICKER: self.__ticker_channel_handler,
             Channels.TRADES: self.__trades_channel_handler,
-            Channels.BOOK: self.__book_channel_handler
+            Channels.BOOK: self.__book_channel_handler,
+            Channels.CANDLES: self.__candles_channel_handler,
+            Channels.STATUS: self.__status_channel_handler,
         }
 
     def handle(self, subscription, *parameters):
-        return self.__handlers[subscription["channel"]](subscription, *parameters)
+        if parameters[0] != HEARTBEAT:
+            self.__handlers[subscription["channel"]](subscription, *parameters)
 
     def __ticker_channel_handler(self, subscription, *parameters):
         self.event_emitter.emit("ticker", subscription, parameters[0])
@@ -27,3 +32,11 @@ class Manager(object):
         if all(isinstance(element, list) for element in parameters[0]):
             self.event_emitter.emit("book_snapshot", subscription, parameters[0])
         else: self.event_emitter.emit("book_update", subscription, parameters[0])
+
+    def __candles_channel_handler(self, subscription, *parameters):
+        if all(isinstance(element, list) for element in parameters[0]):
+            self.event_emitter.emit("candles_snapshot", subscription, parameters[0])
+        else: self.event_emitter.emit("candles_update", subscription, parameters[0])
+
+    def __status_channel_handler(self, subscription, *parameters):
+        self.event_emitter.emit("status", subscription, parameters[0])
