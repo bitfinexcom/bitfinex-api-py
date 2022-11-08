@@ -3,8 +3,8 @@ import json, asyncio, websockets
 from pyee.asyncio import AsyncIOEventEmitter
 
 from .manager import Manager
-
 from .channels import Channels
+from .errors import ConnectionNotOpen
 
 class BfxWebsocketClient(object):
     def __init__(self, host, channels=None):
@@ -34,22 +34,43 @@ class BfxWebsocketClient(object):
                         self.chanIds[message["chanId"]] = message
                         self.event_emitter.emit("subscribed", message)
 
-                    if isinstance(message, list):
+                    elif isinstance(message, dict) and message["event"] == "unsubscribed":
+                        if message["status"] == "OK":
+                            del self.chanIds[message["chanId"]]
+
+                    elif isinstance(message, list):
                         chanId, parameters = message[0], message[1:]
-                        subscription = self.chanIds[chanId]
-                        self.manager.handle(subscription, *parameters)
+                        self.manager.handle(self.chanIds[chanId], *parameters)
             except websockets.ConnectionClosed:
                 continue
         
-    async def subscribe(self, channel, **kwargs):
-        if self.websocket == None:
-            return self.channels.append((channel, kwargs))
+    def __require_websocket_connection(function):
+        async def wrapper(self, *args, **kwargs):
+            if self.websocket == None or self.websocket.open == False:
+                raise ConnectionNotOpen("No open connection with the server.")
+        
+            await function(self, *args, **kwargs)
 
+        return wrapper
+
+    @__require_websocket_connection
+    async def subscribe(self, channel, **kwargs):
         await self.websocket.send(json.dumps({
             "event": "subscribe",
             "channel": channel,
             **kwargs
         }))
+
+    @__require_websocket_connection
+    async def unsubscribe(self, chanId):
+        await self.websocket.send(json.dumps({
+            "event": "unsubscribe",
+            "chanId": chanId
+        }))
+
+    async def clear(self):
+        for chanId in self.chanIds.keys():
+            await self.unsubscribe(chanId)
 
     def on(self, event):
         def handler(function):
