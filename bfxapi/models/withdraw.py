@@ -42,7 +42,8 @@ class Withdraw:
         method = raw_withdraw[WithdrawModel.METHOD]
         wallet = raw_withdraw[WithdrawModel.WALLET]
         amount = raw_withdraw[WithdrawModel.AMOUNT]
-        return Withdraw(w_id, method, wallet, amount)
+        fee = raw_withdraw[WithdrawModel.FEE]
+        return Withdraw(w_id, method, wallet, amount, fee)
 
     def __str__(self):
         """
