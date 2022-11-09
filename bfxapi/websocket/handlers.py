@@ -1,8 +1,13 @@
-from .channels import Channels
+from enum import Enum
 
-HEARTBEAT = "hb"
+class Channels(str, Enum):
+    TICKER = "ticker"
+    TRADES = "trades"
+    BOOK = "book"
+    CANDLES = "candles"
+    STATUS = "status"
 
-class Manager(object):
+class PublicChannelsHandler(object):
     def __init__(self, event_emitter):
         self.event_emitter = event_emitter
 
@@ -15,8 +20,7 @@ class Manager(object):
         }
 
     def handle(self, subscription, *parameters):
-        if parameters[0] != HEARTBEAT:
-            self.__handlers[subscription["channel"]](subscription, *parameters)
+        self.__handlers[subscription["channel"]](subscription, *parameters)
 
     def __ticker_channel_handler(self, subscription, *parameters):
         self.event_emitter.emit("ticker", subscription, parameters[0])
@@ -40,3 +44,17 @@ class Manager(object):
 
     def __status_channel_handler(self, subscription, *parameters):
         self.event_emitter.emit("status", subscription, parameters[0])
+
+class AuthenticatedEventsHandler(object):
+    def __init__(self, event_emitter):
+        self.event_emitter = event_emitter
+
+        self.__handlers = {
+            "bu": self.__bu_event_handler
+        }
+
+    def handle(self, type, *parameters):
+        self.__handlers[type](*parameters)
+
+    def __bu_event_handler(self, AUM, AUM_NET):
+        self.event_emitter.emit("balance_update", AUM, AUM_NET)

@@ -2,20 +2,22 @@ import json, asyncio, hmac, hashlib, time, websockets
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from .manager import Manager
+from .handlers import Channels, PublicChannelsHandler, AuthenticatedEventsHandler
 
 from .errors import ConnectionNotOpen, AuthenticationCredentialsError
+
+HEARTBEAT = "hb"
 
 class BfxWebsocketClient(object):
     def __init__(self, host, API_KEY=None, API_SECRET=None):
         self.host, self.chanIds, self.event_emitter = host, dict(), AsyncIOEventEmitter()
 
-        self.manager, self.websocket = Manager(event_emitter=self.event_emitter), None
+        self.websocket, self.API_KEY, self.API_SECRET = None, API_KEY, API_SECRET
 
-        self.API_KEY, self.API_SECRET = API_KEY, API_SECRET
-
-    def run_forever(self):
-        asyncio.run(self.connect())
+        self.handlers = {
+            "public": PublicChannelsHandler(event_emitter=self.event_emitter),
+            "authenticated": AuthenticatedEventsHandler(event_emitter=self.event_emitter)
+        }
 
     async def connect(self):
         async for websocket in websockets.connect(self.host):
@@ -25,31 +27,26 @@ class BfxWebsocketClient(object):
                 self.event_emitter.emit("open")
 
                 if self.API_KEY != None and self.API_SECRET != None:
-                    self.authenticate(self.API_KEY, self.API_SECRET)
+                    await self.authenticate(self.API_KEY, self.API_SECRET)
 
                 async for message in websocket:
                     message = json.loads(message)
 
                     if isinstance(message, dict) and message["event"] == "subscribed":
-                        del message["event"]
                         self.chanIds[message["chanId"]] = message
-                        self.event_emitter.emit("subscribed", message)
 
+                        self.event_emitter.emit("subscribed", message)
                     elif isinstance(message, dict) and message["event"] == "unsubscribed":
                         if message["status"] == "OK":
                             del self.chanIds[message["chanId"]]
-
                     elif isinstance(message, dict) and message["event"] == "auth":
                         if message["status"] == "OK":
-                            self.chanIds[message["chanId"]] = message
-
                             self.event_emitter.emit("authenticated", message)
                         else: raise AuthenticationCredentialsError("Cannot authenticate with given API-KEY and API-SECRET.")
-
-                    elif isinstance(message, list):
-                        chanId, parameters = message[0], message[1:]
-                        
-                        self.manager.handle(self.chanIds[chanId], *parameters)
+                    elif isinstance(message, list) and (chanId := message[0]) and message[1] != HEARTBEAT:
+                        if chanId == 0:
+                            self.handlers["authenticated"].handle(message[1], *message[2:])
+                        else: self.handlers["public"].handle(self.chanIds[chanId], *message[1:])
             except websockets.ConnectionClosed:
                 continue
         
@@ -109,3 +106,6 @@ class BfxWebsocketClient(object):
             self.event_emitter.once(event, function)
 
         return handler 
+
+    def run(self): 
+        asyncio.run(self.connect())
