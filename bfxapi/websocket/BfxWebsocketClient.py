@@ -43,9 +43,9 @@ class BfxWebsocketClient(object):
                         if message["status"] == "OK":
                             self.event_emitter.emit("authenticated", message)
                         else: raise AuthenticationCredentialsError("Cannot authenticate with given API-KEY and API-SECRET.")
-                    elif isinstance(message, list) and (chanId := message[0]) and message[1] != HEARTBEAT:
+                    elif isinstance(message, list) and ((chanId := message[0]) or True) and message[1] != HEARTBEAT:
                         if chanId == 0:
-                            self.handlers["authenticated"].handle(message[1], *message[2:])
+                            self.handlers["authenticated"].handle(message[1], message[2])
                         else: self.handlers["public"].handle(self.chanIds[chanId], *message[1:])
             except websockets.ConnectionClosed:
                 continue
