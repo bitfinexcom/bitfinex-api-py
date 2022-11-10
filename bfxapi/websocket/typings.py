@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional
+from typing import TypedDict, List, Optional
 
 class BalanceUpdateStream(TypedDict):
     AUM: float
@@ -13,4 +13,4 @@ class WalletUpdateStream(TypedDict):
     DESCRIPTION: str
     META: dict
 
-WalletSnapshotStream = list[WalletUpdateStream]
+WalletSnapshotStream = List[WalletUpdateStream]
