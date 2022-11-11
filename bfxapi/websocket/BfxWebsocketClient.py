@@ -4,7 +4,7 @@ from pyee.asyncio import AsyncIOEventEmitter
 
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedEventsHandler
 
-from .errors import ConnectionNotOpen, AuthenticationCredentialsError
+from .errors import BfxWebsocketException, ConnectionNotOpen, InvalidAuthenticationCredentials
 
 HEARTBEAT = "hb"
 
@@ -42,7 +42,7 @@ class BfxWebsocketClient(object):
                     elif isinstance(message, dict) and message["event"] == "auth":
                         if message["status"] == "OK":
                             self.event_emitter.emit("authenticated", message)
-                        else: raise AuthenticationCredentialsError("Cannot authenticate with given API-KEY and API-SECRET.")
+                        else: raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
                     elif isinstance(message, list) and ((chanId := message[0]) or True) and message[1] != HEARTBEAT:
                         if chanId == 0:
                             self.handlers["authenticated"].handle(message[1], message[2])
