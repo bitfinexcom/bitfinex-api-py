@@ -2,7 +2,7 @@ import json, asyncio, hmac, hashlib, time, websockets
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from .handlers import Channels, PublicChannelsHandler, AuthenticatedEventsHandler
+from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
 
 from .errors import BfxWebsocketException, ConnectionNotOpen, InvalidAuthenticationCredentials
 
@@ -16,7 +16,7 @@ class BfxWebsocketClient(object):
 
         self.handlers = {
             "public": PublicChannelsHandler(event_emitter=self.event_emitter),
-            "authenticated": AuthenticatedEventsHandler(event_emitter=self.event_emitter)
+            "authenticated": AuthenticatedChannelsHandler(event_emitter=self.event_emitter)
         }
 
     async def connect(self):
