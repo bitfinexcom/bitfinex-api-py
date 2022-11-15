@@ -14,39 +14,32 @@ class PublicChannelsHandler(object):
         self.event_emitter = event_emitter
 
         self.__handlers = {
-            Channels.TICKER: self.__ticker_channel_handler,
-            Channels.TRADES: self.__trades_channel_handler,
             Channels.BOOK: self.__book_channel_handler,
-            Channels.CANDLES: self.__candles_channel_handler,
-            Channels.STATUS: self.__status_channel_handler,
         }
 
-    def handle(self, subscription, *parameters):
-        self.__handlers[subscription["channel"]](subscription, *parameters)
+    def handle(self, subscription, *stream):
+        return self.__handlers[subscription["channel"]](subscription, *stream)
 
-    def __ticker_channel_handler(self, subscription, *parameters):
-        self.event_emitter.emit("ticker", subscription, parameters[0])
+    def __book_channel_handler(self, subscription, *stream):
+        subscription = _filter_dictionary_keys(subscription, [ "chanId", "symbol", "prec", "freq", "len", "subId", "pair" ])
 
-    def __trades_channel_handler(self, subscription, *parameters):
-        if len(parameters) == 1:
-            self.event_emitter.emit("trades_snapshot", subscription, parameters[0])
+        if subscription["prec"] == "R0":
+            _trading_pairs_labels, _funding_currencies_labels, IS_RAW_BOOK = [ "ORDER_ID", "PRICE", "AMOUNT" ], [ "OFFER_ID", "PERIOD", "RATE", "AMOUNT" ], True
+        else: _trading_pairs_labels, _funding_currencies_labels, IS_RAW_BOOK = [ "PRICE", "COUNT", "AMOUNT" ], [ "RATE", "PERIOD", "COUNT", "AMOUNT" ], False
 
-        if len(parameters) == 2:
-            self.event_emitter.emit("trades_update", subscription, parameters[0], parameters[1])
+        if all(isinstance(substream, list) for substream in stream[0]):
+            return self.event_emitter.emit(
+                IS_RAW_BOOK and "raw_book_snapshot" or "book_snapshot",
+                subscription, 
+                [ _label_stream_data({ 3: _trading_pairs_labels, 4: _funding_currencies_labels }[len(substream)], *substream) for substream in stream[0] ]
+            )
 
-    def __book_channel_handler(self, subscription, *parameters):
-        if all(isinstance(element, list) for element in parameters[0]):
-            self.event_emitter.emit("book_snapshot", subscription, parameters[0])
-        else: self.event_emitter.emit("book_update", subscription, parameters[0])
-
-    def __candles_channel_handler(self, subscription, *parameters):
-        if all(isinstance(element, list) for element in parameters[0]):
-            self.event_emitter.emit("candles_snapshot", subscription, parameters[0])
-        else: self.event_emitter.emit("candles_update", subscription, parameters[0])
-
-    def __status_channel_handler(self, subscription, *parameters):
-        self.event_emitter.emit("status", subscription, parameters[0])
-
+        return self.event_emitter.emit(
+            IS_RAW_BOOK and "raw_book_update" or "book_update",
+            subscription, 
+            _label_stream_data({ 3: _trading_pairs_labels, 4: _funding_currencies_labels }[len(stream[0])], *stream[0])
+        )
+        
 class AuthenticatedChannelsHandler(object):
     def __init__(self, event_emitter, strict = False):
         self.event_emitter, self.strict = event_emitter, strict
@@ -318,3 +311,6 @@ def _label_stream_data(labels, *args, IGNORE = [ "_PLACEHOLDER" ]):
         raise BfxWebsocketException("<labels> and <*args> arguments should contain the same amount of elements.")
 
     return { label: args[index] for index, label in enumerate(labels) if label not in IGNORE }
+
+def _filter_dictionary_keys(dictionary, keys):
+    return { key: dictionary[key] for key in dictionary if key in keys }

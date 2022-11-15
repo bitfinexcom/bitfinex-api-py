@@ -2,6 +2,36 @@ from typing import Type, List, Dict, TypedDict, Union, Optional
 
 JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
+#region Type hinting for Websocket Public Channels
+
+BookSubscription = TypedDict("BookSubscription", {
+    "chanId": int,
+    "symbol": str,
+    "prec": str,
+    "freq": str,
+    "len": str,
+    "subId": int,
+    "pair": str
+})
+
+Book = Union[
+    TypedDict("TradingPairBook", { "PRICE": float, "COUNT": int, "AMOUNT": float }),
+    TypedDict("FundingCurrencyBook", { "RATE": float, "PERIOD": int, "COUNT": int, "AMOUNT": float }),
+]
+
+Books = List[Book]
+
+RawBook = Union[
+    TypedDict("TradingPairRawBook", { "ORDER_ID": int, "PRICE": float, "AMOUNT": float }),
+    TypedDict("FundingCurrencyRawBook", { "OFFER_ID": int, "PERIOD": int, "RATE": float, "AMOUNT": float }),
+]
+
+RawBooks = List[RawBook]
+
+#endregion
+
+#region Type hinting for Websocket Authenticated Channels
+
 Order = TypedDict("Order", {
     "ID": int,
     "GID": int,
@@ -146,3 +176,5 @@ BalanceInfo = TypedDict("BalanceInfo", {
     "AUM": float,
     "AUM_NET": float
 })
+
+#endregion
