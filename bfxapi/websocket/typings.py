@@ -14,19 +14,27 @@ BookSubscription = TypedDict("BookSubscription", {
     "pair": str
 })
 
-Book = Union[
+(TradingPairBook, FundingCurrencyBook) = (
     TypedDict("TradingPairBook", { "PRICE": float, "COUNT": int, "AMOUNT": float }),
-    TypedDict("FundingCurrencyBook", { "RATE": float, "PERIOD": int, "COUNT": int, "AMOUNT": float }),
-]
+    TypedDict("FundingCurrencyBook", { "RATE": float, "PERIOD": int, "COUNT": int, "AMOUNT": float })
+)
 
-Books = List[Book]
+(TradingPairBooks, FundingCurrencyBooks) = (List[TradingPairBook], List[FundingCurrencyBook])
 
-RawBook = Union[
+Book = Union[TradingPairBook, FundingCurrencyBook]
+
+Books = Union[TradingPairBooks, FundingCurrencyBooks]
+
+(TradingPairRawBook, FundingCurrencyRawBook) = (
     TypedDict("TradingPairRawBook", { "ORDER_ID": int, "PRICE": float, "AMOUNT": float }),
     TypedDict("FundingCurrencyRawBook", { "OFFER_ID": int, "PERIOD": int, "RATE": float, "AMOUNT": float }),
-]
+)
 
-RawBooks = List[RawBook]
+(TradingPairRawBooks, FundingCurrencyRawBooks) = (List[TradingPairRawBook], List[FundingCurrencyRawBook])
+
+RawBook = Union[TradingPairRawBook, FundingCurrencyRawBook]
+
+RawBooks = Union[TradingPairRawBooks, FundingCurrencyRawBooks]
 
 #endregion
 
