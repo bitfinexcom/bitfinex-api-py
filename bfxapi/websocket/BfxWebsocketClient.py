@@ -9,7 +9,7 @@ from .errors import BfxWebsocketException, ConnectionNotOpen, InvalidAuthenticat
 HEARTBEAT = "hb"
 
 class BfxWebsocketClient(object):
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self, host, API_KEY=None, API_SECRET=None):
         self.host, self.chanIds, self.event_emitter = host, dict(), AsyncIOEventEmitter()
