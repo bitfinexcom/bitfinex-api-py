@@ -2,7 +2,31 @@ from typing import Type, List, Dict, TypedDict, Union, Optional
 
 JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
-#region Type hinting for Websocket Public Channels
+#region Type hinting for subscription objects
+
+TradingPairsTickerSubscription = TypedDict("TradingPairsTickerSubscription", {
+    "chanId": int,
+    "symbol": str,
+    "pair": str
+})
+
+FundingCurrenciesTickerSubscription = TypedDict("FundingCurrenciesTickerSubscription", {
+    "chanId": int,
+    "symbol": str,
+    "currency": str
+})
+
+TradingPairsTradesSubscription = TypedDict("TradingPairsTradesSubscription", {
+    "chanId": int,
+    "symbol": str,
+    "pair": str
+})
+
+FundingCurrenciesTradesSubscription = TypedDict("FundingCurrenciesTradesSubscription", {
+    "chanId": int,
+    "symbol": str,
+    "currency": str
+})
 
 BookSubscription = TypedDict("BookSubscription", {
     "chanId": int,
@@ -13,6 +37,52 @@ BookSubscription = TypedDict("BookSubscription", {
     "subId": int,
     "pair": str
 })
+
+CandlesSubscription = TypedDict("CandlesSubscription", {
+    "chanId": int,
+    "key": str
+})
+
+#endregion
+
+#region Type hinting for Websocket Public Channels
+
+TradingPairTicker = TypedDict("TradingPairTicker", {
+    "BID": float,
+    "BID_SIZE": float,
+    "ASK": float,
+    "ASK_SIZE": float,
+    "DAILY_CHANGE": float,
+    "DAILY_CHANGE_RELATIVE": float,
+    "LAST_PRICE": float,
+    "VOLUME": float,
+    "HIGH": float,
+    "LOW": float
+})
+
+FundingCurrencyTicker = TypedDict("FundingCurrencyTicker", {
+    "FRR": float,
+    "BID": float,
+    "BID_PERIOD": int,
+    "BID_SIZE": float,
+    "ASK": float,
+    "ASK_PERIOD": int,
+    "ASK_SIZE": float,
+    "DAILY_CHANGE": float,
+    "DAILY_CHANGE_RELATIVE": float,
+    "LAST_PRICE": float,
+    "VOLUME": float,
+    "HIGH": float,
+    "LOW": float,
+    "FRR_AMOUNT_AVAILABLE": float
+})
+
+(TradingPairTrade, FundingCurrencyTrade) = (
+    TypedDict("TradingPairTrade", { "ID": int, "MTS": int, "AMOUNT": float, "PRICE": float }),
+    TypedDict("FundingCurrencyTrade", { "ID": int, "MTS": int, "AMOUNT": float, "RATE": float, "PERIOD": int })
+)
+
+(TradingPairTrades, FundingCurrencyTrades) = (List[TradingPairTrade], List[FundingCurrencyTrade])
 
 (TradingPairBook, FundingCurrencyBook) = (
     TypedDict("TradingPairBook", { "PRICE": float, "COUNT": int, "AMOUNT": float }),
@@ -35,6 +105,17 @@ Books = Union[TradingPairBooks, FundingCurrencyBooks]
 RawBook = Union[TradingPairRawBook, FundingCurrencyRawBook]
 
 RawBooks = Union[TradingPairRawBooks, FundingCurrencyRawBooks]
+
+Candle = TypedDict("Candle", {
+    "MTS": int,
+    "OPEN": float,
+    "CLOSE": float,
+    "HIGH": float,
+    "LOW": float,
+    "VOLUME": float
+})
+
+Candles = List[Candle]
 
 #endregion
 
