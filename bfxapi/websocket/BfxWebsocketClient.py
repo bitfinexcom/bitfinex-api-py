@@ -4,11 +4,13 @@ from pyee.asyncio import AsyncIOEventEmitter
 
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
 
-from .errors import BfxWebsocketException, ConnectionNotOpen, InvalidAuthenticationCredentials
+from .errors import BfxWebsocketException, ConnectionNotOpen, InvalidAuthenticationCredentials, OutdatedClientVersion
 
 HEARTBEAT = "hb"
 
 class BfxWebsocketClient(object):
+    VERSION = 1
+
     def __init__(self, host, API_KEY=None, API_SECRET=None):
         self.host, self.chanIds, self.event_emitter = host, dict(), AsyncIOEventEmitter()
 
@@ -32,7 +34,10 @@ class BfxWebsocketClient(object):
                 async for message in websocket:
                     message = json.loads(message)
 
-                    if isinstance(message, dict) and message["event"] == "subscribed":
+                    if isinstance(message, dict) and message["event"] == "info" and "version" in message:
+                        if BfxWebsocketClient.VERSION != message["version"]:
+                            raise OutdatedClientVersion(f"Mismatch between the client version and the server version. Update the library to the latest version to continue (client version: {BfxWebsocketClient.VERSION}, server version: {message['version']}).")
+                    elif isinstance(message, dict) and message["event"] == "subscribed":
                         self.chanIds[message["chanId"]] = message
 
                         self.event_emitter.emit("subscribed", message)
@@ -43,14 +48,15 @@ class BfxWebsocketClient(object):
                         if message["status"] == "OK":
                             self.event_emitter.emit("authenticated", message)
                         else: raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
+                    elif isinstance(message, dict) and message["event"] == "error":
+                        self.event_emitter.emit("error", message["code"], message["msg"])
                     elif isinstance(message, list) and ((chanId := message[0]) or True) and message[1] != HEARTBEAT:
                         if chanId == 0:
                             self.handlers["authenticated"].handle(message[1], message[2])
                         else: self.handlers["public"].handle(self.chanIds[chanId], *message[1:])
             except websockets.ConnectionClosed:
                 continue
-        
-    @staticmethod
+
     def __require_websocket_connection(function):
         async def wrapper(self, *args, **kwargs):
             if self.websocket == None or self.websocket.open == False:

@@ -24,3 +24,10 @@ class InvalidAuthenticationCredentials(BfxWebsocketException):
     """
 
     pass
+
+class OutdatedClientVersion(BfxWebsocketException):
+    """
+    This error indicates a mismatch between the client version and the server WSS version.
+    """
+
+    pass
