@@ -15,6 +15,8 @@ class _Serializer(object):
     def __call__(self, *values):
         return dict(self.__serialize(*values))
 
+#region Serializers definition for Websocket Public Channels
+
 TradingPairTicker = _Serializer("TradingPairTicker", labels=[
     "BID",
     "BID_SIZE",
@@ -122,3 +124,5 @@ DerivativesStatus = _Serializer("DerivativesStatus", labels=[
     "CLAMP_MIN",
     "CLAMP_MAX"
 ])
+
+#endregion

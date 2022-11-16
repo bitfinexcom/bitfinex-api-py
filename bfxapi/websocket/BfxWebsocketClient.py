@@ -4,12 +4,18 @@ from pyee.asyncio import AsyncIOEventEmitter
 
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
 
-from .errors import BfxWebsocketException, ConnectionNotOpen, InvalidAuthenticationCredentials, OutdatedClientVersion
+from .errors import BfxWebsocketException, ConnectionNotOpen, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
 HEARTBEAT = "hb"
 
 class BfxWebsocketClient(object):
     VERSION = 2
+
+    EVENTS = [
+        "open", "subscribed", "authenticated", "error",
+        *PublicChannelsHandler.EVENTS,
+        *AuthenticatedChannelsHandler.EVENTS
+    ]
 
     def __init__(self, host, API_KEY=None, API_SECRET=None):
         self.host, self.chanIds, self.event_emitter = host, dict(), AsyncIOEventEmitter()
@@ -102,12 +108,18 @@ class BfxWebsocketClient(object):
             await self.unsubscribe(chanId)
 
     def on(self, event):
+        if event not in BfxWebsocketClient.EVENTS:
+            raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events use BfxWebsocketClient.EVENTS.")
+
         def handler(function):
             self.event_emitter.on(event, function)
 
         return handler 
 
     def once(self, event):
+        if event not in BfxWebsocketClient.EVENTS:
+            raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events use BfxWebsocketClient.EVENTS.")
+
         def handler(function):
             self.event_emitter.once(event, function)
 

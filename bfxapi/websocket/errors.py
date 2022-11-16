@@ -25,6 +25,13 @@ class InvalidAuthenticationCredentials(BfxWebsocketException):
 
     pass
 
+class EventNotSupported(BfxWebsocketException):
+    """
+    This error indicates a failed attempt to subscribe to an event not supported by the BfxWebsocketClient.
+    """
+
+    pass
+
 class OutdatedClientVersion(BfxWebsocketException):
     """
     This error indicates a mismatch between the client version and the server WSS version.

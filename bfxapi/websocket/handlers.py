@@ -21,6 +21,14 @@ class Channels(str, Enum):
     STATUS = "status"
 
 class PublicChannelsHandler(object):
+    EVENTS = [
+        "tp_ticker_update", "fc_ticker_update",
+        "tp_trade_executed", "tp_trade_execution_update", "fc_trade_executed", "fc_trade_execution_update", "tp_trades_snapshot", "fc_trades_snapshot",
+        "book_snapshot", "raw_book_snapshot", "book_update", "raw_book_update",
+        "candles_snapshot", "candles_update",
+        "derivatives_status_update"
+    ]
+
     def __init__(self, event_emitter):
         self.event_emitter = event_emitter
 
@@ -126,8 +134,19 @@ class PublicChannelsHandler(object):
                 subscription,
                 serializers.DerivativesStatus(*stream[0])
             )
-            
+
 class AuthenticatedChannelsHandler(object):
+    EVENTS = [
+        "order_snapshot", "new_order", "order_update", "order_cancel",
+        "position_snapshot", "new_position", "position_update", "position_close",
+        "trade_executed", "trade_execution_update",
+        "funding_offer_snapshot", "funding_offer_new", "funding_offer_update", "funding_offer_cancel",
+        "funding_credit_snapshot", "funding_credit_new", "funding_credit_update", "funding_credit_close",
+        "funding_loan_snapshot", "funding_loan_new", "funding_loan_update", "funding_loan_close",
+        "wallet_snapshot", "wallet_update",
+        "balance_update"
+    ]
+
     def __init__(self, event_emitter, strict = False):
         self.event_emitter, self.strict = event_emitter, strict
 
