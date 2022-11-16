@@ -96,3 +96,29 @@ Candle = _Serializer("Candle", labels=[
     "LOW", 
     "VOLUME"
 ])
+
+DerivativesStatus = _Serializer("DerivativesStatus", labels=[
+    "TIME_MS",
+    "_PLACEHOLDER", 
+    "DERIV_PRICE",
+    "SPOT_PRICE",
+    "_PLACEHOLDER",
+    "INSURANCE_FUND_BALANCE",
+    "_PLACEHOLDER",
+    "NEXT_FUNDING_EVT_TIMESTAMP_MS",
+    "NEXT_FUNDING_ACCRUED",
+    "NEXT_FUNDING_STEP",
+    "_PLACEHOLDER",
+    "CURRENT_FUNDING"
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "MARK_PRICE",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "OPEN_INTEREST",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "CLAMP_MIN",
+    "CLAMP_MAX"
+])

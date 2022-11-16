@@ -117,6 +117,21 @@ Candle = TypedDict("Candle", {
 
 Candles = List[Candle]
 
+DerivativesStatus = TypedDict("DerivativesStatus", {
+    "TIME_MS": int,
+    "DERIV_PRICE": float,
+    "SPOT_PRICE": float,
+    "INSURANCE_FUND_BALANCE": float,
+    "NEXT_FUNDING_EVT_TIMESTAMP_MS": int,
+    "NEXT_FUNDING_ACCRUED": float,
+    "NEXT_FUNDING_STEP": int,
+    "CURRENT_FUNDING": float,
+    "MARK_PRICE": float,
+    "OPEN_INTEREST": float,
+    "CLAMP_MIN": float,
+    "CLAMP_MAX": float
+})
+
 #endregion
 
 #region Type hinting for Websocket Authenticated Channels

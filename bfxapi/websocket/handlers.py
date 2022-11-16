@@ -29,6 +29,7 @@ class PublicChannelsHandler(object):
             Channels.TRADES: self.__trades_channel_handler,
             Channels.BOOK: self.__book_channel_handler,
             Channels.CANDLES: self.__candles_channel_handler,
+            Channels.STATUS: self.__status_channel_handler
         }
 
     def handle(self, subscription, *stream):
@@ -116,6 +117,16 @@ class PublicChannelsHandler(object):
             serializers.Candle(*stream[0])
         )
 
+    def __status_channel_handler(self, subscription, *stream):
+        subscription = _get_sub_dictionary(subscription, [ "chanId", "key" ])
+
+        if subscription["key"].startswith("deriv:"):
+            return self.event_emitter.emit(
+                "derivatives_status_update",
+                subscription,
+                serializers.DerivativesStatus(*stream[0])
+            )
+            
 class AuthenticatedChannelsHandler(object):
     def __init__(self, event_emitter, strict = False):
         self.event_emitter, self.strict = event_emitter, strict
