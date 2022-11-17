@@ -4,9 +4,28 @@ from pyee.asyncio import AsyncIOEventEmitter
 
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
 
-from .errors import BfxWebsocketException, ConnectionNotOpen, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
+from .errors import ConnectionNotOpen, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
 HEARTBEAT = "hb"
+
+def _require_websocket_connection(function):
+    async def wrapper(self, *args, **kwargs):
+        if self.websocket == None or self.websocket.open == False:
+            raise ConnectionNotOpen("No open connection with the server.")
+    
+        await function(self, *args, **kwargs)
+
+    return wrapper
+
+def _require_websocket_authentication(function):
+    @_require_websocket_connection
+    async def wrapper(self, *args, **kwargs):
+        if self.authentication == False:
+            raise WebsocketAuthenticationRequired("To perform this action you need to authenticate using your API_KEY and API_SECRET.")
+    
+        await function(self, *args, **kwargs)
+
+    return wrapper
 
 class BfxWebsocketClient(object):
     VERSION = 2
@@ -21,6 +40,8 @@ class BfxWebsocketClient(object):
         self.host, self.chanIds, self.event_emitter = host, dict(), AsyncIOEventEmitter()
 
         self.websocket, self.API_KEY, self.API_SECRET = None, API_KEY, API_SECRET
+
+        self.authentication = False
 
         self.handlers = {
             "public": PublicChannelsHandler(event_emitter=self.event_emitter),
@@ -53,26 +74,19 @@ class BfxWebsocketClient(object):
                     elif isinstance(message, dict) and message["event"] == "auth":
                         if message["status"] == "OK":
                             self.event_emitter.emit("authenticated", message)
+                            
+                            self.authentication = True
                         else: raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
                     elif isinstance(message, dict) and message["event"] == "error":
                         self.event_emitter.emit("error", message["code"], message["msg"])
-                    elif isinstance(message, list) and ((chanId := message[0]) or True) and message[1] != HEARTBEAT:
-                        if chanId == 0:
+                    elif isinstance(message, list) and message[1] != HEARTBEAT:
+                        if ((chanId := message[0]) or True) and chanId == 0:
                             self.handlers["authenticated"].handle(message[1], message[2])
                         else: self.handlers["public"].handle(self.chanIds[chanId], *message[1:])
             except websockets.ConnectionClosed:
                 continue
 
-    def __require_websocket_connection(function):
-        async def wrapper(self, *args, **kwargs):
-            if self.websocket == None or self.websocket.open == False:
-                raise ConnectionNotOpen("No open connection with the server.")
-        
-            await function(self, *args, **kwargs)
-
-        return wrapper
-
-    @__require_websocket_connection
+    @_require_websocket_connection
     async def subscribe(self, channel, **kwargs):
         await self.websocket.send(json.dumps({
             "event": "subscribe",
@@ -80,14 +94,14 @@ class BfxWebsocketClient(object):
             **kwargs
         }))
 
-    @__require_websocket_connection
+    @_require_websocket_connection
     async def unsubscribe(self, chanId):
         await self.websocket.send(json.dumps({
             "event": "unsubscribe",
             "chanId": chanId
         }))
 
-    @__require_websocket_connection
+    @_require_websocket_connection
     async def authenticate(self, API_KEY, API_SECRET, filter=None):
         data = { "event": "auth", "filter": filter, "apiKey": API_KEY }
 
@@ -102,6 +116,10 @@ class BfxWebsocketClient(object):
         ).hexdigest()
 
         await self.websocket.send(json.dumps(data))
+
+    @_require_websocket_authentication
+    async def notify(self, MESSAGE_ID, info):
+        await self.websocket.send(json.dumps([ 0, "n", MESSAGE_ID, { "type": "ucm-test", "info": info } ]))
 
     async def clear(self):
         for chanId in self.chanIds.keys():

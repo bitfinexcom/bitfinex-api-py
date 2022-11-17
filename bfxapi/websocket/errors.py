@@ -18,6 +18,13 @@ class ConnectionNotOpen(BfxWebsocketException):
 
     pass
 
+class WebsocketAuthenticationRequired(BfxWebsocketException):
+    """
+    This error indicates an attempt to access a protected resource without logging in first.
+    """
+
+    pass
+
 class InvalidAuthenticationCredentials(BfxWebsocketException):
     """
     This error indicates that the user has provided incorrect credentials (API-KEY and API-SECRET) for authentication.
