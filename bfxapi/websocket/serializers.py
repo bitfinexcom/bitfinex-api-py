@@ -12,7 +12,7 @@ class _Serializer(object):
             if label not in IGNORE:
                 yield label, args[index]
 
-    def __call__(self, *values):
+    def parse(self, *values):
         return dict(self.__serialize(*values))
 
 #region Serializers definition for Websocket Public Channels

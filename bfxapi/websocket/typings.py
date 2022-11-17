@@ -4,44 +4,50 @@ JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
 #region Type hinting for subscription objects
 
-TradingPairsTickerSubscription = TypedDict("TradingPairsTickerSubscription", {
-    "chanId": int,
-    "symbol": str,
-    "pair": str
-})
+class Subscriptions:
+    TradingPairsTicker = TypedDict("Subscriptions.TradingPairsTicker", {
+        "chanId": int,
+        "symbol": str,
+        "pair": str
+    })
 
-FundingCurrenciesTickerSubscription = TypedDict("FundingCurrenciesTickerSubscription", {
-    "chanId": int,
-    "symbol": str,
-    "currency": str
-})
+    FundingCurrenciesTicker = TypedDict("Subscriptions.FundingCurrenciesTicker", {
+        "chanId": int,
+        "symbol": str,
+        "currency": str
+    })
 
-TradingPairsTradesSubscription = TypedDict("TradingPairsTradesSubscription", {
-    "chanId": int,
-    "symbol": str,
-    "pair": str
-})
+    TradingPairsTrades = TypedDict("Subscriptions.TradingPairsTrades", {
+        "chanId": int,
+        "symbol": str,
+        "pair": str
+    })
 
-FundingCurrenciesTradesSubscription = TypedDict("FundingCurrenciesTradesSubscription", {
-    "chanId": int,
-    "symbol": str,
-    "currency": str
-})
+    FundingCurrenciesTrades = TypedDict("Subscriptions.FundingCurrenciesTrades", {
+        "chanId": int,
+        "symbol": str,
+        "currency": str
+    })
 
-BookSubscription = TypedDict("BookSubscription", {
-    "chanId": int,
-    "symbol": str,
-    "prec": str,
-    "freq": str,
-    "len": str,
-    "subId": int,
-    "pair": str
-})
+    Book = TypedDict("Subscriptions.Book", {
+        "chanId": int,
+        "symbol": str,
+        "prec": str,
+        "freq": str,
+        "len": str,
+        "subId": int,
+        "pair": str
+    })
 
-CandlesSubscription = TypedDict("CandlesSubscription", {
-    "chanId": int,
-    "key": str
-})
+    Candles = TypedDict("Subscriptions.Candles", {
+        "chanId": int,
+        "key": str
+    })
+
+    DerivativesStatus = TypedDict("Subscriptions.DerivativesStatus", {
+        "chanId": int,
+        "key": str
+    })
 
 #endregion
 
@@ -91,20 +97,12 @@ FundingCurrencyTicker = TypedDict("FundingCurrencyTicker", {
 
 (TradingPairBooks, FundingCurrencyBooks) = (List[TradingPairBook], List[FundingCurrencyBook])
 
-Book = Union[TradingPairBook, FundingCurrencyBook]
-
-Books = Union[TradingPairBooks, FundingCurrencyBooks]
-
 (TradingPairRawBook, FundingCurrencyRawBook) = (
     TypedDict("TradingPairRawBook", { "ORDER_ID": int, "PRICE": float, "AMOUNT": float }),
     TypedDict("FundingCurrencyRawBook", { "OFFER_ID": int, "PERIOD": int, "RATE": float, "AMOUNT": float }),
 )
 
 (TradingPairRawBooks, FundingCurrencyRawBooks) = (List[TradingPairRawBook], List[FundingCurrencyRawBook])
-
-RawBook = Union[TradingPairRawBook, FundingCurrencyRawBook]
-
-RawBooks = Union[TradingPairRawBooks, FundingCurrencyRawBooks]
 
 Candle = TypedDict("Candle", {
     "MTS": int,

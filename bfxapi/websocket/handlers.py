@@ -24,9 +24,9 @@ class PublicChannelsHandler(object):
     EVENTS = [
         "tp_ticker_update", "fc_ticker_update",
         "tp_trade_executed", "tp_trade_execution_update", "fc_trade_executed", "fc_trade_execution_update", "tp_trades_snapshot", "fc_trades_snapshot",
-        "book_snapshot", "raw_book_snapshot", "book_update", "raw_book_update",
+        "tp_book_snapshot", "fc_book_snapshot", "tp_raw_book_snapshot", "fc_raw_book_snapshot", "tp_book_update", "fc_book_update", "tp_raw_book_update", "fc_raw_book_update",
         "candles_snapshot", "candles_update",
-        "derivatives_status_update"
+        "derivatives_status_update",
     ]
 
     def __init__(self, event_emitter):
@@ -49,14 +49,14 @@ class PublicChannelsHandler(object):
             return self.event_emitter.emit(
                 "tp_ticker_update",
                 _get_sub_dictionary(subscription, [ "chanId", "symbol", "pair" ]),
-                serializers.TradingPairTicker(*stream[0])
+                serializers.TradingPairTicker.parse(*stream[0])
             )
 
         if subscription["symbol"].startswith("f"):
             return self.event_emitter.emit(
                 "fc_ticker_update",
                 _get_sub_dictionary(subscription, [ "chanId", "symbol", "currency" ]),
-                serializers.FundingCurrencyTicker(*stream[0])
+                serializers.FundingCurrencyTicker.parse(*stream[0])
             )
 
     def __trades_channel_handler(self, subscription, *stream):
@@ -65,48 +65,50 @@ class PublicChannelsHandler(object):
                 return self.event_emitter.emit(
                     { "te": "tp_trade_executed", "tu": "tp_trade_execution_update" }[type],
                     _get_sub_dictionary(subscription, [ "chanId", "symbol", "pair" ]),
-                    serializers.TradingPairTrade(*stream[1])
+                    serializers.TradingPairTrade.parse(*stream[1])
                 )
 
             if subscription["symbol"].startswith("f"):
                 return self.event_emitter.emit(
                     { "fte": "fc_trade_executed", "ftu": "fc_trade_execution_update" }[type],
                     _get_sub_dictionary(subscription, [ "chanId", "symbol", "currency" ]),
-                    serializers.FundingCurrencyTrade(*stream[1])
+                    serializers.FundingCurrencyTrade.parse(*stream[1])
                 )
 
         if subscription["symbol"].startswith("t"):
             return self.event_emitter.emit(
                 "tp_trades_snapshot",
                 _get_sub_dictionary(subscription, [ "chanId", "symbol", "pair" ]),
-                [ serializers.TradingPairTrade(*substream) for substream in stream[0] ]
+                [ serializers.TradingPairTrade.parse(*substream) for substream in stream[0] ]
             )
 
         if subscription["symbol"].startswith("f"):
             return self.event_emitter.emit(
                 "fc_trades_snapshot",
                 _get_sub_dictionary(subscription, [ "chanId", "symbol", "currency" ]),
-                [ serializers.FundingCurrencyTrade(*substream)  for substream in stream[0] ]
+                [ serializers.FundingCurrencyTrade.parse(*substream)  for substream in stream[0] ]
             )
 
     def __book_channel_handler(self, subscription, *stream):
         subscription = _get_sub_dictionary(subscription, [ "chanId", "symbol", "prec", "freq", "len", "subId", "pair" ])
+
+        type = subscription["symbol"][0]
 
         if subscription["prec"] == "R0":
             _trading_pair_serializer, _funding_currency_serializer, IS_RAW_BOOK = serializers.TradingPairRawBook, serializers.FundingCurrencyRawBook, True
         else: _trading_pair_serializer, _funding_currency_serializer, IS_RAW_BOOK = serializers.TradingPairBook, serializers.FundingCurrencyBook, False
 
         if all(isinstance(substream, list) for substream in stream[0]):
-            return self.event_emitter.emit(
-                IS_RAW_BOOK and "raw_book_snapshot" or "book_snapshot",
+            return self.event_emitter.emit(               
+                { "t": "tp_", "f": "fc_" }[type] + (IS_RAW_BOOK and "raw_book" or "book") + "_snapshot",
                 subscription, 
-                [ { "t": _trading_pair_serializer, "f": _funding_currency_serializer }[subscription["symbol"][0]](*substream) for substream in stream[0] ]
+                [ { "t": _trading_pair_serializer, "f": _funding_currency_serializer }[type].parse(*substream) for substream in stream[0] ]
             )
 
         return self.event_emitter.emit(
-            IS_RAW_BOOK and "raw_book_update" or "book_update",
+            { "t": "tp_", "f": "fc_" }[type] + (IS_RAW_BOOK and "raw_book" or "book") + "_update",
             subscription, 
-            { "t": _trading_pair_serializer, "f": _funding_currency_serializer }[subscription["symbol"][0]](*stream[0])
+            { "t": _trading_pair_serializer, "f": _funding_currency_serializer }[type].parse(*stream[0])
         )
         
     def __candles_channel_handler(self, subscription, *stream):
@@ -116,13 +118,13 @@ class PublicChannelsHandler(object):
             return self.event_emitter.emit(
                 "candles_snapshot", 
                 subscription, 
-                [ serializers.Candle(*substream) for substream in stream[0] ]
+                [ serializers.Candle.parse(*substream) for substream in stream[0] ]
             )
 
         return self.event_emitter.emit(
             "candles_update", 
             subscription, 
-            serializers.Candle(*stream[0])
+            serializers.Candle.parse(*stream[0])
         )
 
     def __status_channel_handler(self, subscription, *stream):
@@ -132,7 +134,7 @@ class PublicChannelsHandler(object):
             return self.event_emitter.emit(
                 "derivatives_status_update",
                 subscription,
-                serializers.DerivativesStatus(*stream[0])
+                serializers.DerivativesStatus.parse(*stream[0])
             )
 
 class AuthenticatedChannelsHandler(object):
@@ -144,7 +146,7 @@ class AuthenticatedChannelsHandler(object):
         "funding_credit_snapshot", "funding_credit_new", "funding_credit_update", "funding_credit_close",
         "funding_loan_snapshot", "funding_loan_new", "funding_loan_update", "funding_loan_close",
         "wallet_snapshot", "wallet_update",
-        "balance_update"
+        "balance_update",
     ]
 
     def __init__(self, event_emitter, strict = False):
