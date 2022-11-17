@@ -172,244 +172,86 @@ class AuthenticatedChannelsHandler(object):
             raise BfxWebsocketException(f"Event of type <{type}> not found in self.__handlers.")
 
     def __orders_channel_handler(self, type, stream):
-        _labels = [
-            "ID",
-            "GID",
-            "CID",
-            "SYMBOL",
-            "MTS_CREATE", 
-            "MTS_UPDATE", 
-            "AMOUNT", 
-            "AMOUNT_ORIG", 
-            "ORDER_TYPE",
-            "TYPE_PREV",
-            "MTS_TIF",
-            "_PLACEHOLDER",
-            "FLAGS",
-            "ORDER_STATUS",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "PRICE",
-            "PRICE_AVG",
-            "PRICE_TRAILING",
-            "PRICE_AUX_LIMIT",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "NOTIFY",
-            "HIDDEN", 
-            "PLACED_ID",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "ROUTING",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "META"
-        ]
-
         if type == "os":
-            self.event_emitter.emit("order_snapshot", [ _label_stream_data(_labels, *substream) for substream in stream ])
+            return self.event_emitter.emit("order_snapshot", [ 
+                serializers.Order.parse(*substream) for substream in stream 
+            ])
 
-        if type == "on" or type == "ou" or type == "oc":
-            self.event_emitter.emit({
+        if type in [ "on", "ou", "oc" ]:
+            return self.event_emitter.emit({
                 "on": "new_order",
                 "ou": "order_update",
                 "oc": "order_cancel"
-            }[type], _label_stream_data(_labels, *stream))
+            }[type], serializers.Order.parse(*stream))
 
     def __positions_channel_handler(self, type, stream):
-        _labels = [
-            "SYMBOL", 
-            "STATUS", 
-            "AMOUNT", 
-            "BASE_PRICE", 
-            "MARGIN_FUNDING", 
-            "MARGIN_FUNDING_TYPE",
-            "PL",
-            "PL_PERC",
-            "PRICE_LIQ",
-            "LEVERAGE",
-            "FLAG",
-            "POSITION_ID",
-            "MTS_CREATE",
-            "MTS_UPDATE",
-            "_PLACEHOLDER",
-            "TYPE",
-            "_PLACEHOLDER",
-            "COLLATERAL",
-            "COLLATERAL_MIN",
-            "META"
-        ]
-
         if type == "ps":
-            self.event_emitter.emit("position_snapshot", [ _label_stream_data(_labels, *substream) for substream in stream ])
+            return self.event_emitter.emit("position_snapshot", [ 
+                serializers.Position.parse(*substream) for substream in stream 
+            ])
 
-        if type == "pn" or type == "pu" or type == "pc":
-            self.event_emitter.emit({
+        if type in [ "pn", "pu", "pc" ]:
+            return self.event_emitter.emit({
                 "pn": "new_position",
                 "pu": "position_update",
                 "pc": "position_close"
-            }[type], _label_stream_data(_labels, *stream))
+            }[type], serializers.Position.parse(*stream))
 
     def __trades_channel_handler(self, type, stream):
         if type == "te":
-            self.event_emitter.emit("trade_executed", _label_stream_data([
-                "ID", 
-                "SYMBOL", 
-                "MTS_CREATE",
-                "ORDER_ID", 
-                "EXEC_AMOUNT", 
-                "EXEC_PRICE", 
-                "ORDER_TYPE", 
-                "ORDER_PRICE", 
-                "MAKER",
-                "_PLACEHOLDER",
-                "_PLACEHOLDER",
-                "CID"
-            ], *stream))
+            self.event_emitter.emit("trade_executed", serializers.TradeExecuted.parse(*stream))
 
         if type == "tu":
-            self.event_emitter.emit("trade_execution_update", _label_stream_data([
-                "ID", 
-                "SYMBOL", 
-                "MTS_CREATE",
-                "ORDER_ID", 
-                "EXEC_AMOUNT", 
-                "EXEC_PRICE", 
-                "ORDER_TYPE", 
-                "ORDER_PRICE", 
-                "MAKER",
-                "FEE",
-                "FEE_CURRENCY",
-                "CID"
-            ], *stream))
+            self.event_emitter.emit("trade_execution_update", serializers.TradeExecutionUpdate.parse(*stream))
 
     def __funding_offers_channel_handler(self, type, stream):
-        _labels = [
-            "ID",
-            "SYMBOL",
-            "MTS_CREATED",
-            "MTS_UPDATED",
-            "AMOUNT",
-            "AMOUNT_ORIG",
-            "OFFER_TYPE",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "FLAGS",
-            "STATUS",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "RATE",
-            "PERIOD",
-            "NOTIFY",
-            "HIDDEN",
-            "_PLACEHOLDER",
-            "RENEW",
-            "_PLACEHOLDER",
-        ]
-
         if type == "fos":
-            self.event_emitter.emit("funding_offer_snapshot", [ _label_stream_data(_labels, *substream) for substream in stream ])
+            return self.event_emitter.emit("funding_offer_snapshot", [ 
+                serializers.FundingOffer.parse(*substream) for substream in stream 
+            ])
 
-        if type == "fon" or type == "fou" or type == "foc":
-            self.event_emitter.emit({
+        if type in [ "fon", "fou", "foc" ]:
+            return self.event_emitter.emit({
                 "fon": "funding_offer_new",
                 "fou": "funding_offer_update",
                 "foc": "funding_offer_cancel"
-            }[type], _label_stream_data(_labels, *stream))
+            }[type], serializers.FundingOffer.parse(*stream))
 
     def __funding_credits_channel_handler(self, type, stream):
-        _labels = [
-            "ID",
-            "SYMBOL",
-            "SIDE",
-            "MTS_CREATE",
-            "MTS_UPDATE",
-            "AMOUNT",
-            "FLAGS",
-            "STATUS",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "RATE",
-            "PERIOD",
-            "MTS_OPENING",
-            "MTS_LAST_PAYOUT",
-            "NOTIFY",
-            "HIDDEN",
-            "_PLACEHOLDER",
-            "RENEW",
-            "RATE_REAL",
-            "NO_CLOSE",
-            "POSITION_PAIR"
-        ]
-
         if type == "fcs":
-            self.event_emitter.emit("funding_credit_snapshot", [ _label_stream_data(_labels, *substream) for substream in stream ])
+            return self.event_emitter.emit("funding_credit_snapshot", [ 
+                serializers.FundingCredit.parse(*substream) for substream in stream 
+            ])
 
-        if type == "fcn" or type == "fcu" or type == "fcc":
-            self.event_emitter.emit({
+        if type in [ "fcn", "fcu", "fcc" ]:
+            return self.event_emitter.emit({
                 "fcn": "funding_credit_new",
                 "fcu": "funding_credit_update",
                 "fcc": "funding_credit_close"
-            }[type], _label_stream_data(_labels, *stream))
+            }[type], serializers.FundingCredit.parse(*stream))
 
     def __funding_loans_channel_handler(self, type, stream):
-        _labels = [
-            "ID",
-            "SYMBOL",
-            "SIDE",
-            "MTS_CREATE",
-            "MTS_UPDATE",
-            "AMOUNT",
-            "FLAGS",
-            "STATUS",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "_PLACEHOLDER",
-            "RATE",
-            "PERIOD",
-            "MTS_OPENING",
-            "MTS_LAST_PAYOUT",
-            "NOTIFY",
-            "HIDDEN",
-            "_PLACEHOLDER",
-            "RENEW",
-            "RATE_REAL",
-            "NO_CLOSE"
-        ]
-
         if type == "fls":
-            self.event_emitter.emit("funding_loan_snapshot", [ _label_stream_data(_labels, *substream) for substream in stream ])
+            return self.event_emitter.emit("funding_loan_snapshot", [ 
+                serializers.FundingLoan.parse(*substream) for substream in stream 
+            ])
 
-        if type == "fln" or type == "flu" or type == "flc":
-            self.event_emitter.emit({
+        if type in [ "fln", "flu", "flc" ]:
+            return self.event_emitter.emit({
                 "fln": "funding_loan_new",
                 "flu": "funding_loan_update",
                 "flc": "funding_loan_close"
-            }[type], _label_stream_data(_labels, *stream))
+            }[type], serializers.FundingLoan.parse(*stream))
 
     def __wallets_channel_handler(self, type, stream):
-        _labels = [
-            "WALLET_TYPE", 
-            "CURRENCY", 
-            "BALANCE", 
-            "UNSETTLED_INTEREST",
-            "BALANCE_AVAILABLE",
-            "DESCRIPTION",
-            "META"
-        ]
-
         if type == "ws":
-            self.event_emitter.emit("wallet_snapshot", [ _label_stream_data(_labels, *substream) for substream in stream ])
+            return self.event_emitter.emit("wallet_snapshot", [ 
+                serializers.Wallet.parse(*substream) for substream in stream 
+            ])
 
         if type == "wu":
-            self.event_emitter.emit("wallet_update", _label_stream_data(_labels, *stream))
+            return self.event_emitter.emit("wallet_update", serializers.Wallet.parse(*stream))
 
     def __balance_info_channel_handler(self, type, stream):
         if type == "bu":
-            self.event_emitter.emit("balance_update", _label_stream_data([
-                "AUM",
-                "AUM_NET"
-            ], *stream))
+            return self.event_emitter.emit("balance_update", serializers.BalanceInfo.parse(*stream))

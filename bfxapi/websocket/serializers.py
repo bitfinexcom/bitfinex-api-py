@@ -126,3 +126,183 @@ DerivativesStatus = _Serializer("DerivativesStatus", labels=[
 ])
 
 #endregion
+
+#region Serializers definition for Websocket Authenticated Channels
+
+Order = _Serializer("Order", labels=[
+    "ID",
+    "GID",
+    "CID",
+    "SYMBOL",
+    "MTS_CREATE", 
+    "MTS_UPDATE", 
+    "AMOUNT", 
+    "AMOUNT_ORIG", 
+    "ORDER_TYPE",
+    "TYPE_PREV",
+    "MTS_TIF",
+    "_PLACEHOLDER",
+    "FLAGS",
+    "ORDER_STATUS",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "PRICE",
+    "PRICE_AVG",
+    "PRICE_TRAILING",
+    "PRICE_AUX_LIMIT",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "NOTIFY",
+    "HIDDEN", 
+    "PLACED_ID",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "ROUTING",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "META"
+])
+
+Position = _Serializer("Position", labels=[
+    "SYMBOL", 
+    "STATUS", 
+    "AMOUNT", 
+    "BASE_PRICE", 
+    "MARGIN_FUNDING", 
+    "MARGIN_FUNDING_TYPE",
+    "PL",
+    "PL_PERC",
+    "PRICE_LIQ",
+    "LEVERAGE",
+    "FLAG",
+    "POSITION_ID",
+    "MTS_CREATE",
+    "MTS_UPDATE",
+    "_PLACEHOLDER",
+    "TYPE",
+    "_PLACEHOLDER",
+    "COLLATERAL",
+    "COLLATERAL_MIN",
+    "META"
+])
+
+TradeExecuted = _Serializer("TradeExecuted", labels=[
+    "ID", 
+    "SYMBOL", 
+    "MTS_CREATE",
+    "ORDER_ID", 
+    "EXEC_AMOUNT", 
+    "EXEC_PRICE", 
+    "ORDER_TYPE", 
+    "ORDER_PRICE", 
+    "MAKER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "CID"
+])
+
+TradeExecutionUpdate = _Serializer("TradeExecutionUpdate", labels=[
+    "ID", 
+    "SYMBOL", 
+    "MTS_CREATE",
+    "ORDER_ID", 
+    "EXEC_AMOUNT", 
+    "EXEC_PRICE", 
+    "ORDER_TYPE", 
+    "ORDER_PRICE", 
+    "MAKER",
+    "FEE",
+    "FEE_CURRENCY",
+    "CID"
+])
+
+FundingOffer = _Serializer("FundingOffer", labels=[
+    "ID",
+    "SYMBOL",
+    "MTS_CREATED",
+    "MTS_UPDATED",
+    "AMOUNT",
+    "AMOUNT_ORIG",
+    "OFFER_TYPE",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "FLAGS",
+    "STATUS",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "RATE",
+    "PERIOD",
+    "NOTIFY",
+    "HIDDEN",
+    "_PLACEHOLDER",
+    "RENEW",
+    "_PLACEHOLDER"
+])
+
+FundingCredit = _Serializer("FundingCredit", labels=[
+    "ID",
+    "SYMBOL",
+    "SIDE",
+    "MTS_CREATE",
+    "MTS_UPDATE",
+    "AMOUNT",
+    "FLAGS",
+    "STATUS",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "RATE",
+    "PERIOD",
+    "MTS_OPENING",
+    "MTS_LAST_PAYOUT",
+    "NOTIFY",
+    "HIDDEN",
+    "_PLACEHOLDER",
+    "RENEW",
+    "RATE_REAL",
+    "NO_CLOSE",
+    "POSITION_PAIR"
+])
+
+FundingLoan = _Serializer("FundingLoan", labels=[
+    "ID",
+    "SYMBOL",
+    "SIDE",
+    "MTS_CREATE",
+    "MTS_UPDATE",
+    "AMOUNT",
+    "FLAGS",
+    "STATUS",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "RATE",
+    "PERIOD",
+    "MTS_OPENING",
+    "MTS_LAST_PAYOUT",
+    "NOTIFY",
+    "HIDDEN",
+    "_PLACEHOLDER",
+    "RENEW",
+    "RATE_REAL",
+    "NO_CLOSE"
+])
+
+Wallet = _Serializer("Wallet", labels=[
+    "WALLET_TYPE", 
+    "CURRENCY", 
+    "BALANCE", 
+    "UNSETTLED_INTEREST",
+    "BALANCE_AVAILABLE",
+    "DESCRIPTION",
+    "META"
+])
+
+BalanceInfo = _Serializer("BalanceInfo", labels=[
+    "AUM", 
+    "AUM_NET", 
+])
+
+#endregion

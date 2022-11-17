@@ -184,18 +184,18 @@ Position = TypedDict("Position", {
 Positions = List[Position]
 
 Trade = TypedDict("Trade", {
-    "ID": int,
-    "CID": int,
-    "SYMBOL": str,
+    "ID": int, 
+    "SYMBOL": str, 
     "MTS_CREATE": int,
-    "ORDER_ID": int,
-    "EXEC_AMOUNT": float,
-    "EXEC_PRICE": float,
-    "ORDER_TYPE": str,
-    "ORDER_PRICE": float,
-    "MAKER": int,
-    "FEE": float,
-    "FEE_CURRENCY": str
+    "ORDER_ID": int, 
+    "EXEC_AMOUNT": float, 
+    "EXEC_PRICE": float, 
+    "ORDER_TYPE": str, 
+    "ORDER_PRICE": float, 
+    "MAKER":int,
+    "FEE": Optional[float],
+    "FEE_CURRENCY": Optional[str],
+    "CID": int
 })
 
 FundingOffer = TypedDict("FundingOffer", {
