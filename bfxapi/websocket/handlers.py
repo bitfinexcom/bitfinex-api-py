@@ -22,9 +22,9 @@ class Channels(str, Enum):
 
 class PublicChannelsHandler(object):
     EVENTS = [
-        "tp_ticker_update", "fc_ticker_update",
-        "tp_trade_executed", "tp_trade_execution_update", "fc_trade_executed", "fc_trade_execution_update", "tp_trades_snapshot", "fc_trades_snapshot",
-        "tp_book_snapshot", "fc_book_snapshot", "tp_raw_book_snapshot", "fc_raw_book_snapshot", "tp_book_update", "fc_book_update", "tp_raw_book_update", "fc_raw_book_update",
+        "t_ticker_update", "f_ticker_update",
+        "t_trade_executed", "t_trade_execution_update", "f_trade_executed", "f_trade_execution_update", "t_trades_snapshot", "f_trades_snapshot",
+        "t_book_snapshot", "f_book_snapshot", "t_raw_book_snapshot", "f_raw_book_snapshot", "t_book_update", "f_book_update", "t_raw_book_update", "f_raw_book_update",
         "candles_snapshot", "candles_update",
         "derivatives_status_update",
     ]
@@ -47,14 +47,14 @@ class PublicChannelsHandler(object):
     def __ticker_channel_handler(self, subscription, *stream):
         if subscription["symbol"].startswith("t"):
             return self.event_emitter.emit(
-                "tp_ticker_update",
+                "t_ticker_update",
                 _get_sub_dictionary(subscription, [ "chanId", "symbol", "pair" ]),
                 serializers.TradingPairTicker.parse(*stream[0])
             )
 
         if subscription["symbol"].startswith("f"):
             return self.event_emitter.emit(
-                "fc_ticker_update",
+                "f_ticker_update",
                 _get_sub_dictionary(subscription, [ "chanId", "symbol", "currency" ]),
                 serializers.FundingCurrencyTicker.parse(*stream[0])
             )
@@ -63,28 +63,28 @@ class PublicChannelsHandler(object):
         if type := stream[0] or type in [ "te", "tu", "fte", "ftu" ]:
             if subscription["symbol"].startswith("t"):
                 return self.event_emitter.emit(
-                    { "te": "tp_trade_executed", "tu": "tp_trade_execution_update" }[type],
+                    { "te": "t_trade_executed", "tu": "t_trade_execution_update" }[type],
                     _get_sub_dictionary(subscription, [ "chanId", "symbol", "pair" ]),
                     serializers.TradingPairTrade.parse(*stream[1])
                 )
 
             if subscription["symbol"].startswith("f"):
                 return self.event_emitter.emit(
-                    { "fte": "fc_trade_executed", "ftu": "fc_trade_execution_update" }[type],
+                    { "fte": "f_trade_executed", "ftu": "f_trade_execution_update" }[type],
                     _get_sub_dictionary(subscription, [ "chanId", "symbol", "currency" ]),
                     serializers.FundingCurrencyTrade.parse(*stream[1])
                 )
 
         if subscription["symbol"].startswith("t"):
             return self.event_emitter.emit(
-                "tp_trades_snapshot",
+                "t_trades_snapshot",
                 _get_sub_dictionary(subscription, [ "chanId", "symbol", "pair" ]),
                 [ serializers.TradingPairTrade.parse(*substream) for substream in stream[0] ]
             )
 
         if subscription["symbol"].startswith("f"):
             return self.event_emitter.emit(
-                "fc_trades_snapshot",
+                "f_trades_snapshot",
                 _get_sub_dictionary(subscription, [ "chanId", "symbol", "currency" ]),
                 [ serializers.FundingCurrencyTrade.parse(*substream)  for substream in stream[0] ]
             )
@@ -100,13 +100,13 @@ class PublicChannelsHandler(object):
 
         if all(isinstance(substream, list) for substream in stream[0]):
             return self.event_emitter.emit(               
-                { "t": "tp_", "f": "fc_" }[type] + (IS_RAW_BOOK and "raw_book" or "book") + "_snapshot",
+                type + "_" + (IS_RAW_BOOK and "raw_book" or "book") + "_snapshot",
                 subscription, 
                 [ { "t": _trading_pair_serializer, "f": _funding_currency_serializer }[type].parse(*substream) for substream in stream[0] ]
             )
 
         return self.event_emitter.emit(
-            { "t": "tp_", "f": "fc_" }[type] + (IS_RAW_BOOK and "raw_book" or "book") + "_update",
+            type + "_" + (IS_RAW_BOOK and "raw_book" or "book") + "_update",
             subscription, 
             { "t": _trading_pair_serializer, "f": _funding_currency_serializer }[type].parse(*stream[0])
         )
