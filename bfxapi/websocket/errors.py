@@ -1,7 +1,9 @@
 __all__ = [
-    "BfxWebsocketException",
     "ConnectionNotOpen",
-    "InvalidAuthenticationCredentials"
+    "WebsocketAuthenticationRequired",
+    "InvalidAuthenticationCredentials",
+    "EventNotSupported",
+    "OutdatedClientVersion"
 ]
 
 class BfxWebsocketException(Exception):
