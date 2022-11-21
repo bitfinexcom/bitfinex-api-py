@@ -31,7 +31,7 @@ class BfxWebsocketClient(object):
     VERSION = 2
 
     EVENTS = [
-        "open", "subscribed", "authenticated", "error",
+        "open", "subscribed", "authenticated", "wss-error",
         *PublicChannelsHandler.EVENTS,
         *AuthenticatedChannelsHandler.EVENTS
     ]
@@ -78,7 +78,7 @@ class BfxWebsocketClient(object):
                             self.authentication = True
                         else: raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
                     elif isinstance(message, dict) and message["event"] == "error":
-                        self.event_emitter.emit("error", message["code"], message["msg"])
+                        self.event_emitter.emit("wss-error", message["code"], message["msg"])
                     elif isinstance(message, list) and message[1] != HEARTBEAT:
                         if ((chanId := message[0]) or True) and chanId == 0:
                             self.handlers["authenticated"].handle(message[1], message[2])
