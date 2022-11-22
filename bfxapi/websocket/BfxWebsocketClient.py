@@ -44,22 +44,24 @@ class BfxWebsocketClient(object):
         await asyncio.gather(*tasks)
 
     async def __connect(self, API_KEY, API_SECRET, filter=None):
-        async with websockets.connect(self.host) as websocket:
+        async for websocket in websockets.connect(self.host):
             self.websocket = websocket
-
+            
             await self.__authenticate(API_KEY, API_SECRET, filter)
 
-            async for message in websocket:
-                message = json.loads(message)
+            try:
+                async for message in websocket:
+                    message = json.loads(message)
 
-                if isinstance(message, dict) and message["event"] == "auth":
-                    if message["status"] == "OK":
-                        self.event_emitter.emit("authenticated", message); self.authentication = True
-                    else: raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
-                elif isinstance(message, dict) and message["event"] == "error":
-                    self.event_emitter.emit("wss-error", message["code"], message["msg"])
-                elif isinstance(message, list) and (chanId := message[0]) == 0 and message[1] != HEARTBEAT:
-                    self.handler.handle(message[1], message[2])
+                    if isinstance(message, dict) and message["event"] == "auth":
+                        if message["status"] == "OK":
+                            self.event_emitter.emit("authenticated", message); self.authentication = True
+                        else: raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
+                    elif isinstance(message, dict) and message["event"] == "error":
+                        self.event_emitter.emit("wss-error", message["code"], message["msg"])
+                    elif isinstance(message, list) and (chanId := message[0]) == 0 and message[1] != HEARTBEAT:
+                        self.handler.handle(message[1], message[2])
+            except websockets.ConnectionClosedError: continue
 
     async def __authenticate(self, API_KEY, API_SECRET, filter=None):
         data = { "event": "auth", "filter": filter, "apiKey": API_KEY }
@@ -87,6 +89,13 @@ class BfxWebsocketClient(object):
         for bucket in self.buckets:
             if chanId in bucket.chanIds.keys():
                 await bucket._unsubscribe(chanId=chanId)
+
+    async def close(self, code=1000, reason=str()):
+        if self.websocket != None and self.websocket.open == True:
+            await self.websocket.close(code=code, reason=reason)
+
+        for bucket in self.buckets:
+            await bucket.close(code=code, reason=reason)
 
     def __require_websocket_authentication(function):
         @_require_websocket_connection
@@ -131,28 +140,30 @@ class _BfxWebsocketBucket(object):
         self.handler = PublicChannelsHandler(event_emitter=self.event_emitter)
 
     async def _connect(self, index):
-        async with websockets.connect(self.host) as websocket:
+        async for websocket in websockets.connect(self.host):
             self.websocket = websocket
 
             self.__bucket_open_signal(index)
 
-            async for message in websocket:
-                message = json.loads(message)
+            try:
+                async for message in websocket:
+                    message = json.loads(message)
 
-                if isinstance(message, dict) and message["event"] == "info" and "version" in message:
-                    if BfxWebsocketClient.VERSION != message["version"]:
-                        raise OutdatedClientVersion(f"Mismatch between the client version and the server version. Update the library to the latest version to continue (client version: {BfxWebsocketClient.VERSION}, server version: {message['version']}).")
-                elif isinstance(message, dict) and message["event"] == "subscribed" and (chanId := message["chanId"]):
-                    self.pendings = [ pending for pending in self.pendings if pending["subId"] != message["subId"] ]
-                    self.chanIds[chanId] = message
-                    self.event_emitter.emit("subscribed", message)
-                elif isinstance(message, dict) and message["event"] == "unsubscribed" and (chanId := message["chanId"]):
-                    if message["status"] == "OK":
-                        del self.chanIds[chanId]
-                elif isinstance(message, dict) and message["event"] == "error":
-                    self.event_emitter.emit("wss-error", message["code"], message["msg"])
-                elif isinstance(message, list) and (chanId := message[0]) and message[1] != HEARTBEAT:
-                    self.handler.handle(self.chanIds[chanId], *message[1:])
+                    if isinstance(message, dict) and message["event"] == "info" and "version" in message:
+                        if BfxWebsocketClient.VERSION != message["version"]:
+                            raise OutdatedClientVersion(f"Mismatch between the client version and the server version. Update the library to the latest version to continue (client version: {BfxWebsocketClient.VERSION}, server version: {message['version']}).")
+                    elif isinstance(message, dict) and message["event"] == "subscribed" and (chanId := message["chanId"]):
+                        self.pendings = [ pending for pending in self.pendings if pending["subId"] != message["subId"] ]
+                        self.chanIds[chanId] = message
+                        self.event_emitter.emit("subscribed", message)
+                    elif isinstance(message, dict) and message["event"] == "unsubscribed" and (chanId := message["chanId"]):
+                        if message["status"] == "OK":
+                            del self.chanIds[chanId]
+                    elif isinstance(message, dict) and message["event"] == "error":
+                        self.event_emitter.emit("wss-error", message["code"], message["msg"])
+                    elif isinstance(message, list) and (chanId := message[0]) and message[1] != HEARTBEAT:
+                        self.handler.handle(self.chanIds[chanId], *message[1:])
+            except websockets.ConnectionClosedError: continue
 
     @_require_websocket_connection
     async def _subscribe(self, channel, subId=None, **kwargs):
@@ -177,3 +188,7 @@ class _BfxWebsocketBucket(object):
             "event": "unsubscribe",
             "chanId": chanId
         }))
+
+    @_require_websocket_connection
+    async def close(self, code=1000, reason=str()):
+        await self.websocket.close(code=code, reason=reason)
