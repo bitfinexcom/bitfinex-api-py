@@ -8,6 +8,8 @@ from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHand
 
 from .exceptions import ConnectionNotOpen, TooManySubscriptions, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
+from ..utils.logger import CustomLogger
+
 HEARTBEAT = "hb"
 
 def _require_websocket_connection(function):
@@ -115,7 +117,7 @@ class BfxWebsocketClient(object):
 
     def on(self, event):
         if event not in BfxWebsocketClient.EVENTS:
-            raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events use BfxWebsocketClient.EVENTS.")
+            raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events print BfxWebsocketClient.EVENTS")
 
         def handler(function):
             self.event_emitter.on(event, function)
@@ -124,7 +126,7 @@ class BfxWebsocketClient(object):
 
     def once(self, event):
         if event not in BfxWebsocketClient.EVENTS:
-            raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events use BfxWebsocketClient.EVENTS.")
+            raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events print BfxWebsocketClient.EVENTS")
 
         def handler(function):
             self.event_emitter.once(event, function)
