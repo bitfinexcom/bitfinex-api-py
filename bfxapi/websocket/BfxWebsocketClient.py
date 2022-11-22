@@ -8,7 +8,7 @@ from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHand
 
 from .exceptions import ConnectionNotOpen, TooManySubscriptions, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
-from ..utils.logger import CustomLogger
+from ..utils.logger import Formatter, CustomLogger
 
 HEARTBEAT = "hb"
 
@@ -30,7 +30,7 @@ class BfxWebsocketClient(object):
         *AuthenticatedChannelsHandler.EVENTS
     ]
 
-    def __init__(self, host, buckets=5, API_KEY=None, API_SECRET=None):
+    def __init__(self, host, buckets=5, log_level = "INFO", API_KEY=None, API_SECRET=None):
         self.host, self.websocket, self.event_emitter = host, None, AsyncIOEventEmitter()
 
         self.API_KEY, self.API_SECRET, self.authentication = API_KEY, API_SECRET, False
@@ -38,6 +38,8 @@ class BfxWebsocketClient(object):
         self.handler = AuthenticatedChannelsHandler(event_emitter=self.event_emitter)
 
         self.buckets = [ _BfxWebsocketBucket(self.host, self.event_emitter, self.__bucket_open_signal) for _ in range(buckets) ]
+
+        self.logger = CustomLogger("BfxWebsocketClient", logLevel=log_level)
 
     async def start(self):
         tasks = [ bucket._connect(index) for index, bucket in enumerate(self.buckets) ]
