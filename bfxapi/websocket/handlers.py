@@ -2,7 +2,7 @@ from enum import Enum
 
 from . import serializers
 
-from .errors import BfxWebsocketException
+from .exceptions import BfxWebsocketException
 
 def _get_sub_dictionary(dictionary, keys):
     return { key: dictionary[key] for key in dictionary if key in keys }
