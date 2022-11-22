@@ -1,5 +1,6 @@
 __all__ = [
     "ConnectionNotOpen",
+    "TooManySubscriptions",
     "WebsocketAuthenticationRequired",
     "InvalidAuthenticationCredentials",
     "EventNotSupported",
@@ -16,6 +17,13 @@ class BfxWebsocketException(Exception):
 class ConnectionNotOpen(BfxWebsocketException):
     """
     This error indicates an attempt to communicate via websocket before starting the connection with the servers.
+    """
+
+    pass
+
+class TooManySubscriptions(BfxWebsocketException):
+    """
+    This error indicates an attempt to subscribe to a public channel after reaching the limit of simultaneous connections.
     """
 
     pass

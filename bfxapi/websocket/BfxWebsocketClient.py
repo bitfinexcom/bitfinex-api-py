@@ -1,10 +1,10 @@
-import json, asyncio, hmac, hashlib, time, websockets
+import json, asyncio, hmac, hashlib, time, uuid, websockets
 
 from pyee.asyncio import AsyncIOEventEmitter
 
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
 
-from .errors import ConnectionNotOpen, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
+from .errors import ConnectionNotOpen, TooManySubscriptions, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
 HEARTBEAT = "hb"
 
@@ -77,11 +77,16 @@ class BfxWebsocketClient(object):
         await self.websocket.send(json.dumps(data))
 
     async def subscribe(self, channel, **kwargs):
-        counters = [ bucket.count for bucket in self.buckets ]
+        counters = [ len(bucket.pendings) + len(bucket.chanIds) for bucket in self.buckets ]
 
         index = counters.index(min(counters))
 
         await self.buckets[index]._subscribe(channel, **kwargs)
+
+    async def unsubscribe(self, chanId):
+        for bucket in self.buckets:
+            if chanId in bucket.chanIds.keys():
+                await bucket._unsubscribe(chanId=chanId)
 
     def __require_websocket_authentication(function):
         @_require_websocket_connection
@@ -116,10 +121,12 @@ class BfxWebsocketClient(object):
         return handler 
 
 class _BfxWebsocketBucket(object):
+    MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
+
     def __init__(self, host, event_emitter, __bucket_open_signal):
         self.host, self.event_emitter, self.__bucket_open_signal = host, event_emitter, __bucket_open_signal
 
-        self.websocket, self.chanIds, self.count = None, dict(), 0
+        self.websocket, self.chanIds, self.pendings = None, dict(), list()
 
         self.handler = PublicChannelsHandler(event_emitter=self.event_emitter)
 
@@ -136,8 +143,8 @@ class _BfxWebsocketBucket(object):
                     if BfxWebsocketClient.VERSION != message["version"]:
                         raise OutdatedClientVersion(f"Mismatch between the client version and the server version. Update the library to the latest version to continue (client version: {BfxWebsocketClient.VERSION}, server version: {message['version']}).")
                 elif isinstance(message, dict) and message["event"] == "subscribed" and (chanId := message["chanId"]):
+                    self.pendings = [ pending for pending in self.pendings if pending["subId"] != message["subId"] ]
                     self.chanIds[chanId] = message
-
                     self.event_emitter.emit("subscribed", message)
                 elif isinstance(message, dict) and message["event"] == "unsubscribed" and (chanId := message["chanId"]):
                     if message["status"] == "OK":
@@ -148,11 +155,25 @@ class _BfxWebsocketBucket(object):
                     self.handler.handle(self.chanIds[chanId], *message[1:])
 
     @_require_websocket_connection
-    async def _subscribe(self, channel, **kwargs):
-        self.count += 1
+    async def _subscribe(self, channel, subId=None, **kwargs):
+        if len(self.chanIds) + len(self.pendings) == _BfxWebsocketBucket.MAXIMUM_SUBSCRIPTIONS_AMOUNT:
+            raise TooManySubscriptions("The client has reached the maximum number of subscriptions.")
 
-        await self.websocket.send(json.dumps({
+        subscription = {
             "event": "subscribe",
             "channel": channel,
+            "subId": subId or str(uuid.uuid4()),
+
             **kwargs
+        }
+
+        self.pendings.append(subscription)
+
+        await self.websocket.send(json.dumps(subscription))
+
+    @_require_websocket_connection
+    async def _unsubscribe(self, chanId):
+        await self.websocket.send(json.dumps({
+            "event": "unsubscribe",
+            "chanId": chanId
         }))
