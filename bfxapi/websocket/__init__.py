@@ -1,3 +1,3 @@
-from .BfxWebsocketClient import BfxWebsocketClient
+from .BfxWebsocketClient import BfxWebsocketClient, Errors
 from .handlers import Channels
-from .errors import BfxWebsocketException, ConnectionNotOpen, TooManySubscriptions, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
+from .exceptions import BfxWebsocketException, ConnectionNotOpen, TooManySubscriptions, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion

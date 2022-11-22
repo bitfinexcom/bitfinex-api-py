@@ -1,4 +1,4 @@
-from .errors import BfxWebsocketException
+from .exceptions import BfxWebsocketException
 
 class _Serializer(object):
     def __init__(self, name, labels):
