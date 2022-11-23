@@ -105,14 +105,17 @@ class BfxWebsocketClient(object):
             await bucket.close(code=code, reason=reason)
 
     def __require_websocket_authentication(function):
-        @_require_websocket_connection
         async def wrapper(self, *args, **kwargs):
             if self.authentication == False:
                 raise WebsocketAuthenticationRequired("To perform this action you need to authenticate using your API_KEY and API_SECRET.")
         
-            await function(self, *args, **kwargs)
+            await _require_websocket_connection(function)(self, *args, **kwargs)
 
         return wrapper
+
+    @__require_websocket_authentication
+    async def new_order(self, data):
+        await self.websocket.send(json.dumps([ 0, "on", None, data ]))
 
     def __bucket_open_signal(self, index):
         if all(bucket.websocket != None and bucket.websocket.open == True for bucket in self.buckets):
