@@ -1,25 +1,10 @@
-from enum import Enum
-
 from . import serializers
-
+from .enums import Channels
 from .exceptions import BfxWebsocketException
 
 def _get_sub_dictionary(dictionary, keys):
     return { key: dictionary[key] for key in dictionary if key in keys }
-
-def _label_stream_data(labels, *args, IGNORE = [ "_PLACEHOLDER" ]):
-    if len(labels) != len(args):
-        raise BfxWebsocketException("<labels> and <*args> arguments should contain the same amount of elements.")
-
-    return { label: args[index] for index, label in enumerate(labels) if label not in IGNORE }
-
-class Channels(str, Enum):
-    TICKER = "ticker"
-    TRADES = "trades"
-    BOOK = "book"
-    CANDLES = "candles"
-    STATUS = "status"
-
+    
 class PublicChannelsHandler(object):
     EVENTS = [
         "t_ticker_update", "f_ticker_update",

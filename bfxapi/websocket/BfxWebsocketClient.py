@@ -10,7 +10,7 @@ from .exceptions import ConnectionNotOpen, TooManySubscriptions, WebsocketAuthen
 
 from ..utils.logger import Formatter, CustomLogger
 
-HEARTBEAT = "hb"
+_HEARTBEAT = "hb"
 
 def _require_websocket_connection(function):
     async def wrapper(self, *args, **kwargs):
@@ -65,7 +65,7 @@ class BfxWebsocketClient(object):
                         else: raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
                     elif isinstance(message, dict) and message["event"] == "error":
                         self.event_emitter.emit("wss-error", message["code"], message["msg"])
-                    elif isinstance(message, list) and (chanId := message[0]) == 0 and message[1] != HEARTBEAT:
+                    elif isinstance(message, list) and (chanId := message[0]) == 0 and message[1] != _HEARTBEAT:
                         self.handler.handle(message[1], message[2])
             except websockets.ConnectionClosedError: continue
             finally: await self.websocket.wait_closed(); break
@@ -171,7 +171,7 @@ class _BfxWebsocketBucket(object):
                             del self.chanIds[chanId]
                     elif isinstance(message, dict) and message["event"] == "error":
                         self.event_emitter.emit("wss-error", message["code"], message["msg"])
-                    elif isinstance(message, list) and (chanId := message[0]) and message[1] != HEARTBEAT:
+                    elif isinstance(message, list) and (chanId := message[0]) and message[1] != _HEARTBEAT:
                         self.handler.handle(self.chanIds[chanId], *message[1:])
             except websockets.ConnectionClosedError: continue
             finally: await self.websocket.wait_closed(); break
@@ -203,20 +203,3 @@ class _BfxWebsocketBucket(object):
     @_require_websocket_connection
     async def close(self, code=1000, reason=str()):
         await self.websocket.close(code=code, reason=reason)
-
-class Errors(int, Enum):
-    ERR_UNK = 10000
-    ERR_GENERIC = 10001
-    ERR_CONCURRENCY = 10008
-    ERR_PARAMS = 10020
-    ERR_CONF_FAIL = 10050
-    ERR_AUTH_FAIL = 10100
-    ERR_AUTH_PAYLOAD = 10111
-    ERR_AUTH_SIG = 10112
-    ERR_AUTH_HMAC = 10113
-    ERR_AUTH_NONCE = 10114
-    ERR_UNAUTH_FAIL = 10200
-    ERR_SUB_FAIL = 10300
-    ERR_SUB_MULTI = 10301
-    ERR_UNSUB_FAIL = 10400
-    ERR_READY = 11000
