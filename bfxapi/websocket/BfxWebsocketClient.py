@@ -30,10 +30,10 @@ class BfxWebsocketClient(object):
         *AuthenticatedChannelsHandler.EVENTS
     ]
 
-    def __init__(self, host, buckets=5, log_level = "INFO", API_KEY=None, API_SECRET=None):
+    def __init__(self, host, buckets=5, log_level = "INFO", API_KEY=None, API_SECRET=None, filter=None):
         self.host, self.websocket, self.event_emitter = host, None, AsyncIOEventEmitter()
 
-        self.API_KEY, self.API_SECRET, self.authentication = API_KEY, API_SECRET, False
+        self.API_KEY, self.API_SECRET, self.filter, self.authentication = API_KEY, API_SECRET, filter, False
 
         self.handler = AuthenticatedChannelsHandler(event_emitter=self.event_emitter)
 
@@ -45,7 +45,7 @@ class BfxWebsocketClient(object):
         tasks = [ bucket._connect(index) for index, bucket in enumerate(self.buckets) ]
         
         if self.API_KEY != None and self.API_SECRET != None:
-            tasks.append(self.__connect(self.API_KEY, self.API_SECRET))
+            tasks.append(self.__connect(self.API_KEY, self.API_SECRET, self.filter))
 
         await asyncio.gather(*tasks)
 
@@ -112,6 +112,10 @@ class BfxWebsocketClient(object):
             await _require_websocket_connection(function)(self, *args, **kwargs)
 
         return wrapper
+
+    @__require_websocket_authentication
+    async def notify(self, info, MESSAGE_ID=None, **kwargs):
+        await self.websocket.send(json.dumps([ 0, "n", MESSAGE_ID, { "type": "ucm-test", "info": info, **kwargs } ]))
 
     @__require_websocket_authentication
     async def new_order(self, data):

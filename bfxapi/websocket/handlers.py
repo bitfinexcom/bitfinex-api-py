@@ -146,12 +146,15 @@ class AuthenticatedChannelsHandler(object):
         ("bu",): serializers.BalanceInfo
     }
 
-    EVENTS = list(__abbreviations.values())
+    EVENTS = [ "notification", *list(__abbreviations.values()) ]
 
     def __init__(self, event_emitter, strict = False):
         self.event_emitter, self.strict = event_emitter, strict
 
     def handle(self, type, stream):
+        if type == "n":
+            return self.__notification(stream)
+
         for types, serializer in AuthenticatedChannelsHandler.__serializers.items():
             if type in types:
                 event = AuthenticatedChannelsHandler.__abbreviations[type]
@@ -163,3 +166,6 @@ class AuthenticatedChannelsHandler(object):
         
         if self.strict == True:
             raise BfxWebsocketException(f"Event of type <{type}> not found in self.__handlers.")
+    
+    def __notification(self, stream):
+        return self.event_emitter.emit("notification", serializers.Notification.parse(*stream))

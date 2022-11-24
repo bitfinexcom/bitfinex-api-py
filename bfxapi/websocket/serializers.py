@@ -306,3 +306,18 @@ BalanceInfo = _Serializer("BalanceInfo", labels=[
 ])
 
 #endregion
+
+#region Serializers definition for Notifications channel
+
+Notification = _Serializer("Notification", labels=[
+    "MTS",
+    "TYPE",
+    "MESSAGE_ID",
+    "_PLACEHOLDER",
+    "NOTIFY_INFO",
+    "CODE",
+    "STATUS",
+    "TEXT"
+])
+
+#endregion
