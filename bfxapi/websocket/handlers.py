@@ -123,120 +123,43 @@ class PublicChannelsHandler(object):
             )
 
 class AuthenticatedChannelsHandler(object):
-    EVENTS = [
-        "order_snapshot", "new_order", "order_update", "order_cancel",
-        "position_snapshot", "new_position", "position_update", "position_close",
-        "trade_executed", "trade_execution_update",
-        "funding_offer_snapshot", "funding_offer_new", "funding_offer_update", "funding_offer_cancel",
-        "funding_credit_snapshot", "funding_credit_new", "funding_credit_update", "funding_credit_close",
-        "funding_loan_snapshot", "funding_loan_new", "funding_loan_update", "funding_loan_close",
-        "wallet_snapshot", "wallet_update",
-        "balance_update",
-    ]
+    __abbreviations = {
+        "os": "order_snapshot", "on": "new_order", "ou": "order_update", "oc": "order_cancel",
+        "ps": "position_snapshot", "pn": "new_position", "pu": "position_update", "pc": "position_close",
+        "te": "trade_executed", "tu": "trade_execution_update",
+        "fos": "funding_offer_snapshot", "fon": "funding_offer_new", "fou": "funding_offer_update", "foc": "funding_offer_cancel",
+        "fcs": "funding_credit_snapshot", "fcn": "funding_credit_new", "fcu": "funding_credit_update", "fcc": "funding_credit_close",
+        "fls": "funding_loan_snapshot", "fln": "funding_loan_new", "flu": "funding_loan_update", "flc": "funding_loan_close",
+        "ws": "wallet_snapshot", "wu": "wallet_update",
+        "bu": "balance_update",
+    }
+
+    __serializers = {
+        ("os", "on", "ou", "oc",): serializers.Order,
+        ("ps", "pn", "pu", "pc",): serializers.Position,
+        ("te",): serializers.TradeExecuted,
+        ("tu",): serializers.TradeExecutionUpdate,
+        ("fos", "fon", "fou", "foc",): serializers.FundingOffer,
+        ("fcs", "fcn", "fcu", "fcc",): serializers.FundingCredit,
+        ("fls", "fln", "flu", "flc",): serializers.FundingLoan,
+        ("ws", "wu",): serializers.Wallet,
+        ("bu",): serializers.BalanceInfo
+    }
+
+    EVENTS = list(__abbreviations.values())
 
     def __init__(self, event_emitter, strict = False):
         self.event_emitter, self.strict = event_emitter, strict
 
-        self.__handlers = {
-            ("os", "on", "ou", "oc",): self.__orders_channel_handler,
-            ("ps", "pn", "pu", "pc",): self.__positions_channel_handler,
-            ("te", "tu",): self.__trades_channel_handler,
-            ("fos", "fon", "fou", "foc",): self.__funding_offers_channel_handler,
-            ("fcs", "fcn", "fcu", "fcc",): self.__funding_credits_channel_handler,
-            ("fls", "fln", "flu", "flc",): self.__funding_loans_channel_handler,
-            ("ws", "wu",): self.__wallets_channel_handler,
-            ("bu",): self.__balance_info_channel_handler
-        }
-
     def handle(self, type, stream):
-        for abbreviations in self.__handlers.keys():
-            if type in abbreviations:
-                return self.__handlers[abbreviations](type, stream)
+        for types, serializer in AuthenticatedChannelsHandler.__serializers.items():
+            if type in types:
+                event = AuthenticatedChannelsHandler.__abbreviations[type]
+
+                if all(isinstance(substream, list) for substream in stream):
+                    return self.event_emitter.emit(event, [ serializer.parse(*substream) for substream in stream ])
+
+                return self.event_emitter.emit(event, serializer.parse(*stream))
         
         if self.strict == True:
             raise BfxWebsocketException(f"Event of type <{type}> not found in self.__handlers.")
-
-    def __orders_channel_handler(self, type, stream):
-        if type == "os":
-            return self.event_emitter.emit("order_snapshot", [ 
-                serializers.Order.parse(*substream) for substream in stream 
-            ])
-
-        if type in [ "on", "ou", "oc" ]:
-            return self.event_emitter.emit({
-                "on": "new_order",
-                "ou": "order_update",
-                "oc": "order_cancel"
-            }[type], serializers.Order.parse(*stream))
-
-    def __positions_channel_handler(self, type, stream):
-        if type == "ps":
-            return self.event_emitter.emit("position_snapshot", [ 
-                serializers.Position.parse(*substream) for substream in stream 
-            ])
-
-        if type in [ "pn", "pu", "pc" ]:
-            return self.event_emitter.emit({
-                "pn": "new_position",
-                "pu": "position_update",
-                "pc": "position_close"
-            }[type], serializers.Position.parse(*stream))
-
-    def __trades_channel_handler(self, type, stream):
-        if type == "te":
-            self.event_emitter.emit("trade_executed", serializers.TradeExecuted.parse(*stream))
-
-        if type == "tu":
-            self.event_emitter.emit("trade_execution_update", serializers.TradeExecutionUpdate.parse(*stream))
-
-    def __funding_offers_channel_handler(self, type, stream):
-        if type == "fos":
-            return self.event_emitter.emit("funding_offer_snapshot", [ 
-                serializers.FundingOffer.parse(*substream) for substream in stream 
-            ])
-
-        if type in [ "fon", "fou", "foc" ]:
-            return self.event_emitter.emit({
-                "fon": "funding_offer_new",
-                "fou": "funding_offer_update",
-                "foc": "funding_offer_cancel"
-            }[type], serializers.FundingOffer.parse(*stream))
-
-    def __funding_credits_channel_handler(self, type, stream):
-        if type == "fcs":
-            return self.event_emitter.emit("funding_credit_snapshot", [ 
-                serializers.FundingCredit.parse(*substream) for substream in stream 
-            ])
-
-        if type in [ "fcn", "fcu", "fcc" ]:
-            return self.event_emitter.emit({
-                "fcn": "funding_credit_new",
-                "fcu": "funding_credit_update",
-                "fcc": "funding_credit_close"
-            }[type], serializers.FundingCredit.parse(*stream))
-
-    def __funding_loans_channel_handler(self, type, stream):
-        if type == "fls":
-            return self.event_emitter.emit("funding_loan_snapshot", [ 
-                serializers.FundingLoan.parse(*substream) for substream in stream 
-            ])
-
-        if type in [ "fln", "flu", "flc" ]:
-            return self.event_emitter.emit({
-                "fln": "funding_loan_new",
-                "flu": "funding_loan_update",
-                "flc": "funding_loan_close"
-            }[type], serializers.FundingLoan.parse(*stream))
-
-    def __wallets_channel_handler(self, type, stream):
-        if type == "ws":
-            return self.event_emitter.emit("wallet_snapshot", [ 
-                serializers.Wallet.parse(*substream) for substream in stream 
-            ])
-
-        if type == "wu":
-            return self.event_emitter.emit("wallet_update", serializers.Wallet.parse(*stream))
-
-    def __balance_info_channel_handler(self, type, stream):
-        if type == "bu":
-            return self.event_emitter.emit("balance_update", serializers.BalanceInfo.parse(*stream))
