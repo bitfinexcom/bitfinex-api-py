@@ -1,10 +1,16 @@
+from typing import Generic, TypeVar, Iterable, List, Any
+
+from . import typings
+
 from .exceptions import BfxWebsocketException
 
-class _Serializer(object):
-    def __init__(self, name, labels):
+T = TypeVar("T")
+
+class _Serializer(Generic[T]):
+    def __init__(self, name: str, labels: List[str]):
         self.name, self.__labels = name, labels
 
-    def __serialize(self, *args, IGNORE = [ "_PLACEHOLDER" ]):
+    def __serialize(self, *args: Any, IGNORE: List[str] = [ "_PLACEHOLDER" ]) -> Iterable[T]:
         if len(self.__labels) != len(args):
             raise BfxWebsocketException("<self.__labels> and <*args> arguments should contain the same amount of elements.")
 
@@ -12,12 +18,12 @@ class _Serializer(object):
             if label not in IGNORE:
                 yield label, args[index]
 
-    def parse(self, *values):
+    def parse(self, *values: Any) -> T:
         return dict(self.__serialize(*values))
 
 #region Serializers definition for Websocket Public Channels
 
-TradingPairTicker = _Serializer("TradingPairTicker", labels=[
+TradingPairTicker = _Serializer[typings.TradingPairTicker]("TradingPairTicker", labels=[
     "BID",
     "BID_SIZE",
     "ASK",
@@ -30,7 +36,7 @@ TradingPairTicker = _Serializer("TradingPairTicker", labels=[
     "LOW"
 ])
 
-FundingCurrencyTicker = _Serializer("FundingCurrencyTicker", labels=[
+FundingCurrencyTicker = _Serializer[typings.FundingCurrencyTicker]("FundingCurrencyTicker", labels=[
     "FRR",
     "BID",
     "BID_PERIOD",
@@ -49,14 +55,14 @@ FundingCurrencyTicker = _Serializer("FundingCurrencyTicker", labels=[
     "FRR_AMOUNT_AVAILABLE"
 ])
 
-TradingPairTrade = _Serializer("TradingPairTrade", labels=[ 
+TradingPairTrade = _Serializer[typings.TradingPairTrade]("TradingPairTrade", labels=[ 
     "ID", 
     "MTS", 
     "AMOUNT", 
     "PRICE" 
 ])
 
-FundingCurrencyTrade = _Serializer("FundingCurrencyTrade", labels=[ 
+FundingCurrencyTrade = _Serializer[typings.FundingCurrencyTrade]("FundingCurrencyTrade", labels=[ 
     "ID", 
     "MTS", 
     "AMOUNT", 
@@ -64,33 +70,33 @@ FundingCurrencyTrade = _Serializer("FundingCurrencyTrade", labels=[
     "PERIOD" 
 ])
 
-TradingPairBook = _Serializer("TradingPairBook", labels=[
+TradingPairBook = _Serializer[typings.TradingPairBook]("TradingPairBook", labels=[
     "PRICE", 
     "COUNT", 
     "AMOUNT"
 ])
 
-FundingCurrencyBook = _Serializer("FundingCurrencyBook", labels=[
+FundingCurrencyBook = _Serializer[typings.FundingCurrencyBook]("FundingCurrencyBook", labels=[
     "RATE", 
     "PERIOD", 
     "COUNT", 
     "AMOUNT"
 ])
 
-TradingPairRawBook = _Serializer("TradingPairRawBook", labels=[
+TradingPairRawBook = _Serializer[typings.TradingPairRawBook]("TradingPairRawBook", labels=[
     "ORDER_ID", 
     "PRICE", 
     "AMOUNT"
 ])
 
-FundingCurrencyRawBook = _Serializer("FundingCurrencyRawBook", labels=[
+FundingCurrencyRawBook = _Serializer[typings.FundingCurrencyRawBook]("FundingCurrencyRawBook", labels=[
     "OFFER_ID", 
     "PERIOD", 
     "RATE", 
     "AMOUNT"
 ])
 
-Candle = _Serializer("Candle", labels=[
+Candle = _Serializer[typings.Candle]("Candle", labels=[
     "MTS", 
     "OPEN", 
     "CLOSE", 
@@ -99,7 +105,7 @@ Candle = _Serializer("Candle", labels=[
     "VOLUME"
 ])
 
-DerivativesStatus = _Serializer("DerivativesStatus", labels=[
+DerivativesStatus = _Serializer[typings.DerivativesStatus]("DerivativesStatus", labels=[
     "TIME_MS",
     "_PLACEHOLDER", 
     "DERIV_PRICE",
@@ -129,7 +135,7 @@ DerivativesStatus = _Serializer("DerivativesStatus", labels=[
 
 #region Serializers definition for Websocket Authenticated Channels
 
-Order = _Serializer("Order", labels=[
+Order = _Serializer[typings.Order]("Order", labels=[
     "ID",
     "GID",
     "CID",
@@ -164,7 +170,7 @@ Order = _Serializer("Order", labels=[
     "META"
 ])
 
-Position = _Serializer("Position", labels=[
+Position = _Serializer[typings.Position]("Position", labels=[
     "SYMBOL", 
     "STATUS", 
     "AMOUNT", 
@@ -187,7 +193,7 @@ Position = _Serializer("Position", labels=[
     "META"
 ])
 
-TradeExecuted = _Serializer("TradeExecuted", labels=[
+TradeExecuted = _Serializer[typings.TradeExecuted]("TradeExecuted", labels=[
     "ID", 
     "SYMBOL", 
     "MTS_CREATE",
@@ -202,7 +208,7 @@ TradeExecuted = _Serializer("TradeExecuted", labels=[
     "CID"
 ])
 
-TradeExecutionUpdate = _Serializer("TradeExecutionUpdate", labels=[
+TradeExecutionUpdate = _Serializer[typings.TradeExecutionUpdate]("TradeExecutionUpdate", labels=[
     "ID", 
     "SYMBOL", 
     "MTS_CREATE",
@@ -217,7 +223,7 @@ TradeExecutionUpdate = _Serializer("TradeExecutionUpdate", labels=[
     "CID"
 ])
 
-FundingOffer = _Serializer("FundingOffer", labels=[
+FundingOffer = _Serializer[typings.FundingOffer]("FundingOffer", labels=[
     "ID",
     "SYMBOL",
     "MTS_CREATED",
@@ -241,7 +247,7 @@ FundingOffer = _Serializer("FundingOffer", labels=[
     "_PLACEHOLDER"
 ])
 
-FundingCredit = _Serializer("FundingCredit", labels=[
+FundingCredit = _Serializer[typings.FundingCredit]("FundingCredit", labels=[
     "ID",
     "SYMBOL",
     "SIDE",
@@ -266,7 +272,7 @@ FundingCredit = _Serializer("FundingCredit", labels=[
     "POSITION_PAIR"
 ])
 
-FundingLoan = _Serializer("FundingLoan", labels=[
+FundingLoan = _Serializer[typings.FundingLoan]("FundingLoan", labels=[
     "ID",
     "SYMBOL",
     "SIDE",
@@ -290,7 +296,7 @@ FundingLoan = _Serializer("FundingLoan", labels=[
     "NO_CLOSE"
 ])
 
-Wallet = _Serializer("Wallet", labels=[
+Wallet = _Serializer[typings.Wallet]("Wallet", labels=[
     "WALLET_TYPE", 
     "CURRENCY", 
     "BALANCE", 
@@ -300,7 +306,7 @@ Wallet = _Serializer("Wallet", labels=[
     "META"
 ])
 
-BalanceInfo = _Serializer("BalanceInfo", labels=[
+BalanceInfo = _Serializer[typings.BalanceInfo]("BalanceInfo", labels=[
     "AUM", 
     "AUM_NET", 
 ])
