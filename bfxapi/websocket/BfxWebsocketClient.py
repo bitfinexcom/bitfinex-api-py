@@ -125,22 +125,26 @@ class BfxWebsocketClient(object):
         if all(bucket.websocket != None and bucket.websocket.open == True for bucket in self.buckets):
             self.event_emitter.emit("open")
 
-    def on(self, event):
+    def on(self, event, callback = None):
         if event not in BfxWebsocketClient.EVENTS:
             raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events print BfxWebsocketClient.EVENTS")
+
+        if callback != None:
+            return self.event_emitter.on(event, callback)
 
         def handler(function):
             self.event_emitter.on(event, function)
-
         return handler 
 
-    def once(self, event):
+    def once(self, event, callback = None):
         if event not in BfxWebsocketClient.EVENTS:
             raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events print BfxWebsocketClient.EVENTS")
 
+        if callback != None:
+            return self.event_emitter.once(event, callback)
+
         def handler(function):
             self.event_emitter.once(event, function)
-
         return handler 
 
 class _BfxWebsocketBucket(object):
