@@ -41,6 +41,9 @@ class BfxWebsocketClient(object):
 
         self.logger = CustomLogger("BfxWebsocketClient", logLevel=log_level)
 
+    def run(self):
+        return asyncio.run(self.start())
+
     async def start(self):
         tasks = [ bucket._connect(index) for index, bucket in enumerate(self.buckets) ]
         
