@@ -1,4 +1,4 @@
-import json, asyncio, hmac, hashlib, time, uuid, websockets
+import traceback, json, asyncio, hmac, hashlib, time, uuid, websockets
 
 from enum import Enum
 
@@ -33,7 +33,7 @@ class BfxWebsocketClient(object):
     def __init__(self, host, buckets=5, log_level = "ERROR", API_KEY=None, API_SECRET=None, filter=None):
         self.host, self.websocket, self.event_emitter = host, None, AsyncIOEventEmitter()
 
-        self.event_emitter.add_listener("error", lambda message: self.logger.error(message))
+        self.event_emitter.add_listener("error", lambda message: self.logger.error(str(message) + "\n" + traceback.format_exc()))
 
         self.API_KEY, self.API_SECRET, self.filter, self.authentication = API_KEY, API_SECRET, filter, False
 
