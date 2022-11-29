@@ -7,6 +7,14 @@ class Channels(str, Enum):
     CANDLES = "candles"
     STATUS = "status"
 
+class Flags(int, Enum):
+    HIDDEN = 64
+    CLOSE = 512
+    REDUCE_ONLY = 1024
+    POST_ONLY = 4096
+    OCO = 16384
+    NO_VAR_RATES = 524288
+
 class Errors(int, Enum):
     ERR_UNK = 10000
     ERR_GENERIC = 10001

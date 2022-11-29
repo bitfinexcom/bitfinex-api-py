@@ -39,6 +39,8 @@ class BfxWebsocketClient(object):
 
         self.buckets = [ _BfxWebsocketBucket(self.host, self.event_emitter, self.__bucket_open_signal) for _ in range(buckets) ]
 
+        self.inputs = _BfxWebsocketInputs(self.__handle_websocket_input)
+
         self.logger = CustomLogger("BfxWebsocketClient", logLevel=log_level)
 
     def run(self):
@@ -105,7 +107,7 @@ class BfxWebsocketClient(object):
             await self.websocket.close(code=code, reason=reason)
 
         for bucket in self.buckets:
-            await bucket.close(code=code, reason=reason)
+            await bucket._close(code=code, reason=reason)
 
     def __require_websocket_authentication(function):
         async def wrapper(self, *args, **kwargs):
@@ -121,8 +123,8 @@ class BfxWebsocketClient(object):
         await self.websocket.send(json.dumps([ 0, "n", MESSAGE_ID, { "type": "ucm-test", "info": info, **kwargs } ]))
 
     @__require_websocket_authentication
-    async def new_order(self, data):
-        await self.websocket.send(json.dumps([ 0, "on", None, data ]))
+    async def __handle_websocket_input(self, input, data):
+        await self.websocket.send(json.dumps([ 0, input, None, data]))
 
     def __bucket_open_signal(self, index):
         if all(bucket.websocket != None and bucket.websocket.open == True for bucket in self.buckets):
@@ -212,5 +214,18 @@ class _BfxWebsocketBucket(object):
         }))
 
     @_require_websocket_connection
-    async def close(self, code=1000, reason=str()):
+    async def _close(self, code=1000, reason=str()):
         await self.websocket.close(code=code, reason=reason)
+
+class _BfxWebsocketInputs(object):
+    def __init__(self, __handle_websocket_input):
+        self.__handle_websocket_input = __handle_websocket_input
+
+    async def order_new(self, data):
+        await self.__handle_websocket_input("on", data)
+
+    async def order_update(self, data):
+        await self.__handle_websocket_input("ou", data)
+
+    async def order_cancel(self, data):
+        await self.__handle_websocket_input("oc", data)

@@ -124,8 +124,8 @@ class PublicChannelsHandler(object):
 
 class AuthenticatedChannelsHandler(object):
     __abbreviations = {
-        "os": "order_snapshot", "on": "new_order", "ou": "order_update", "oc": "order_cancel",
-        "ps": "position_snapshot", "pn": "new_position", "pu": "position_update", "pc": "position_close",
+        "os": "order_snapshot", "on": "order_new", "ou": "order_update", "oc": "order_cancel",
+        "ps": "position_snapshot", "pn": "position_new", "pu": "position_update", "pc": "position_close",
         "te": "trade_executed", "tu": "trade_execution_update",
         "fos": "funding_offer_snapshot", "fon": "funding_offer_new", "fou": "funding_offer_update", "foc": "funding_offer_cancel",
         "fcs": "funding_credit_snapshot", "fcn": "funding_credit_new", "fcu": "funding_credit_update", "fcc": "funding_credit_close",
