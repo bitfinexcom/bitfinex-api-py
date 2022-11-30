@@ -4,8 +4,8 @@ from enum import Enum
 
 from pyee.asyncio import AsyncIOEventEmitter
 
+from .typings import Inputs
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
-
 from .exceptions import ConnectionNotOpen, TooManySubscriptions, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
 from ..utils.logger import Formatter, CustomLogger
@@ -225,11 +225,20 @@ class _BfxWebsocketInputs(object):
     def __init__(self, __handle_websocket_input):
         self.__handle_websocket_input = __handle_websocket_input
 
-    async def order_new(self, data):
+    async def order_new(self, data: Inputs.Order.New):
         await self.__handle_websocket_input("on", data)
 
-    async def order_update(self, data):
+    async def order_update(self, data: Inputs.Order.Update):
         await self.__handle_websocket_input("ou", data)
 
-    async def order_cancel(self, data):
+    async def order_cancel(self, data: Inputs.Order.Cancel):
         await self.__handle_websocket_input("oc", data)
+
+    async def offer_new(self, data: Inputs.Offer.New):
+        await self.__handle_websocket_input("fon", data)
+
+    async def offer_cancel(self, data: Inputs.Offer.Cancel):
+        await self.__handle_websocket_input("foc", data)
+
+    async def calc(self, *args: str):
+        await self.__handle_websocket_input("calc", list(map(lambda arg: [arg], args)))

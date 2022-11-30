@@ -1,4 +1,10 @@
-from typing import Type, List, Dict, TypedDict, Union, Optional
+from decimal import Decimal
+
+from datetime import datetime
+
+from typing import Type, List, Dict, TypedDict, Union, Optional, Any
+
+int16 = int32 = int45 = int64 = int
 
 JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
@@ -292,4 +298,61 @@ BalanceInfo = TypedDict("BalanceInfo", {
     "AUM_NET": float
 })
 
+#endregion
+
+#region Type hinting for Websocket Authenticated Inputs
+
+class Inputs:
+    class Order:
+        New = TypedDict("Inputs.Order.New", {
+            "gid": Optional[int32],
+            "cid": int45,
+            "type": str,
+            "symbol": str,
+            "amount": Union[Decimal, str],
+            "price": Union[Decimal, str],
+            "lev": int,
+            "price_trailing": Union[Decimal, str],
+            "price_aux_limit": Union[Decimal, str],
+            "price_oco_stop": Union[Decimal, str],
+            "flags": int16,
+            "tif": Union[datetime, str],
+            "meta": JSON
+        })
+
+        Update = TypedDict("Inputs.Order.Update", {
+            "id": int64,
+            "cid": int45,
+            "cid_date": str,
+            "gid": int32,
+            "price": Union[Decimal, str],
+            "amount": Union[Decimal, str],
+            "lev": int,
+            "delta": Union[Decimal, str],
+            "price_aux_limit": Union[Decimal, str],
+            "price_trailing": Union[Decimal, str],
+            "flags": int16,
+            "tif": Union[datetime, str]
+        })
+
+        Cancel = TypedDict("Inputs.Order.Cancel", {
+            "id": int64,
+            "cid": int45,
+            "cid_date": str
+        })
+
+    class Offer:
+        New = TypedDict("Inputs.Offer.New", {
+            "type": str,
+            "symbol": str,
+            "amount": Union[Decimal, str],
+            "rate": Union[Decimal, str],
+            "period": int,
+            "flags": int16
+        })
+
+        Cancel = TypedDict("Inputs.Offer.Cancel", {
+            "id": int
+        })
+        
 #endregion
