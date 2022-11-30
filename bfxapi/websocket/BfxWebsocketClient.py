@@ -4,7 +4,7 @@ from enum import Enum
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from .typings import Inputs
+from .typings import Inputs, Tuple, Union
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
 from .exceptions import ConnectionNotOpen, TooManySubscriptions, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
@@ -233,6 +233,9 @@ class _BfxWebsocketInputs(object):
 
     async def order_cancel(self, data: Inputs.Order.Cancel):
         await self.__handle_websocket_input("oc", data)
+
+    async def order_multiple_operations(self, *args: Tuple[str, Union[Inputs.Order.New, Inputs.Order.Update, Inputs.Order.Cancel]]):
+        await self.__handle_websocket_input("ox_multi", args)
 
     async def offer_new(self, data: Inputs.Offer.New):
         await self.__handle_websocket_input("fon", data)

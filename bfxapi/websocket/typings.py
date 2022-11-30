@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from datetime import datetime
 
-from typing import Type, List, Dict, TypedDict, Union, Optional, Any
+from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
 
 int16 = int32 = int45 = int64 = int
 
