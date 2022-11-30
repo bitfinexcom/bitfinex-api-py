@@ -9,7 +9,7 @@ __all__ = [
 
 class BfxWebsocketException(Exception):
     """
-    Base class for all exceptions defined in bfx/websocket/errors.py.
+    Base class for all exceptions defined in bfxapi/websocket/exceptions.py.
     """
 
     pass
