@@ -45,9 +45,13 @@ TickerHistory = TypedDict("TickerHistory", {
     "MTS": int
 })
 
+TickerHistories = List[TickerHistory]
+
 (TradingPairTrade, FundingCurrencyTrade) = (
     TypedDict("TradingPairTrade", { "ID": int, "MTS": int, "AMOUNT": float, "PRICE": float }),
     TypedDict("FundingCurrencyTrade", { "ID": int, "MTS": int, "AMOUNT": float, "RATE": float, "PERIOD": int })
 )
+
+(TradingPairTrades, FundingCurrencyTrades) = (List[TradingPairTrade], List[FundingCurrencyTrade])
 
 #endregion

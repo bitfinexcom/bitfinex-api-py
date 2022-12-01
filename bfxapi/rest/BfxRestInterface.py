@@ -5,7 +5,7 @@ from http import HTTPStatus
 from typing import List, Union, Optional
 
 from . import serializers
-from .typings import PlatformStatus, TradingPairTicker, FundingCurrencyTicker, TickerHistory, TradingPairTrade, FundingCurrencyTrade
+from .typings import PlatformStatus, TradingPairTicker, FundingCurrencyTicker, TickerHistories, TradingPairTrades, FundingCurrencyTrades
 from .exceptions import RequestParametersError
 
 class BfxRestInterface(object):
@@ -40,7 +40,7 @@ class BfxRestInterface(object):
             "f": serializers.FundingCurrencyTicker.parse
         }[symbol[0]](*self.__GET(f"ticker/{symbol}"), skip=["SYMBOL"])
 
-    def tickers_hist(self, symbols: List[str], start: Optional[int] = None, end: Optional[int] = None, limit: Optional[int] = None) -> List[TickerHistory]:
+    def tickers_hist(self, symbols: List[str], start: Optional[int] = None, end: Optional[int] = None, limit: Optional[int] = None) -> TickerHistories:
         params = {
             "symbols": ",".join(symbols),
             "start": start, "end": end,
@@ -49,7 +49,7 @@ class BfxRestInterface(object):
         
         return [ serializers.TickerHistory.parse(*subdata) for subdata in self.__GET("tickers/hist", params=params) ]
 
-    def trades(self, symbol: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[int] = None) -> Union[List[TradingPairTrade], List[FundingCurrencyTicker]]:
+    def trades(self, symbol: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[int] = None) -> Union[TradingPairTrades, FundingCurrencyTrades]:
         params = { "symbol": symbol, "limit": limit, "start": start, "end": end, "sort": sort }
         
         return [
