@@ -8,7 +8,7 @@ from bfxapi.websocket.typings import Subscriptions, TradingPairRawBooks, Trading
 
 class RawOrderBook(object):
     def __init__(self, symbols: list[str]):
-        self.raw_order_book = {
+        self.__raw_order_book = {
             symbol: { 
                 "bids": OrderedDict(), "asks": OrderedDict() 
             } for symbol in symbols
@@ -20,15 +20,15 @@ class RawOrderBook(object):
         kind = (amount > 0) and "bids" or "asks"
 
         if price > 0:
-            self.raw_order_book[symbol][kind][order_id] = { 
+            self.__raw_order_book[symbol][kind][order_id] = { 
                 "order_id": order_id,
                 "price": price, 
                 "amount": amount 
             }
 
         if price == 0:
-            if order_id in self.raw_order_book[symbol][kind]:
-                del self.raw_order_book[symbol][kind][order_id]
+            if order_id in self.__raw_order_book[symbol][kind]:
+                del self.__raw_order_book[symbol][kind][order_id]
 
 SYMBOLS = [ "tBTCUSD", "tLTCUSD", "tLTCBTC", "tETHUSD", "tETHBTC" ]
 
