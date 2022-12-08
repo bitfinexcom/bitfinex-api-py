@@ -5,7 +5,7 @@ from http import HTTPStatus
 from typing import List, Union, Optional
 
 from . import serializers
-from .typings import PlatformStatus, TradingPairTicker, FundingCurrencyTicker, TickerHistories, TradingPairTrades, FundingCurrencyTrades
+from .typings import *
 from .exceptions import RequestParametersError
 
 class BfxRestInterface(object):
@@ -59,4 +59,14 @@ class BfxRestInterface(object):
             }[symbol[0]](*subdata)
 
             for subdata in self.__GET(f"trades/{symbol}/hist", params=params)
+        ]
+
+    def book(self, symbol: str, precision: str, len: Optional[int]) -> Union[TradingPairBooks, FundingCurrencyBooks, TradingPairRawBooks, FundingCurrencyRawBooks]:
+        return [
+            {
+                "t": precision == "R0" and serializers.TradingPairRawBook.parse or serializers.TradingPairBook.parse,
+                "f": precision == "R0" and serializers.FundingCurrencyRawBook.parse or serializers.FundingCurrencyBook.parse,
+            }[symbol[0]](*subdata)
+
+            for subdata in self.__GET(f"book/{symbol}/{precision}", params={ "len": len })
         ]

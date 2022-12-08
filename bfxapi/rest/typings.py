@@ -54,4 +54,18 @@ TickerHistories = List[TickerHistory]
 
 (TradingPairTrades, FundingCurrencyTrades) = (List[TradingPairTrade], List[FundingCurrencyTrade])
 
+(TradingPairBook, FundingCurrencyBook) = (
+    TypedDict("TradingPairBook", { "PRICE": float, "COUNT": int, "AMOUNT": float }),
+    TypedDict("FundingCurrencyBook", { "RATE": float, "PERIOD": int, "COUNT": int, "AMOUNT": float })
+)
+
+(TradingPairBooks, FundingCurrencyBooks) = (List[TradingPairBook], List[FundingCurrencyBook])
+
+(TradingPairRawBook, FundingCurrencyRawBook) = (
+    TypedDict("TradingPairRawBook", { "ORDER_ID": int, "PRICE": float, "AMOUNT": float }),
+    TypedDict("FundingCurrencyRawBook", { "OFFER_ID": int, "PERIOD": int, "RATE": float, "AMOUNT": float }),
+)
+
+(TradingPairRawBooks, FundingCurrencyRawBooks) = (List[TradingPairRawBook], List[FundingCurrencyRawBook])
+
 #endregion

@@ -94,4 +94,30 @@ FundingCurrencyTrade = _Serializer[typings.FundingCurrencyTrade]("FundingCurrenc
     "PERIOD" 
 ])
 
+TradingPairBook = _Serializer[typings.TradingPairBook]("TradingPairBook", labels=[
+    "PRICE", 
+    "COUNT", 
+    "AMOUNT"
+])
+
+FundingCurrencyBook = _Serializer[typings.FundingCurrencyBook]("FundingCurrencyBook", labels=[
+    "RATE", 
+    "PERIOD", 
+    "COUNT", 
+    "AMOUNT"
+])
+
+TradingPairRawBook = _Serializer[typings.TradingPairRawBook]("TradingPairRawBook", labels=[
+    "ORDER_ID", 
+    "PRICE", 
+    "AMOUNT"
+])
+
+FundingCurrencyRawBook = _Serializer[typings.FundingCurrencyRawBook]("FundingCurrencyRawBook", labels=[
+    "OFFER_ID", 
+    "PERIOD", 
+    "RATE", 
+    "AMOUNT"
+])
+
 #endregion
