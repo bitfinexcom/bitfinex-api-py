@@ -120,3 +120,8 @@ class BfxRestInterface(object):
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
 
         return [ serializers.DerivativesStatus.parse(*subdata, skip=[ "KEY" ]) for subdata in self.__GET(endpoint, params=params) ]
+
+    def liquidations(self, sort: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> Liquidations:
+        params = { "sort": sort, "start": start, "end": end, "limit": limit }
+
+        return [ serializers.Liquidation.parse(*subdata[0]) for subdata in self.__GET("liquidations/hist", params=params) ]

@@ -161,4 +161,19 @@ DerivativesStatus = _Serializer[typings.DerivativesStatus]("DerivativesStatus", 
     "CLAMP_MAX"
 ])
 
+Liquidation = _Serializer[typings.Liquidation]("Liquidation", labels=[
+    "_PLACEHOLDER",
+    "POS_ID",
+    "MTS",
+    "_PLACEHOLDER",
+    "SYMBOL",
+    "AMOUNT",
+    "BASE_PRICE",
+    "_PLACEHOLDER",
+    "IS_MATCH",
+    "IS_MARKET_SOLD",
+    "_PLACEHOLDER",
+    "PRICE_ACQUIRED"
+])
+
 #endregion

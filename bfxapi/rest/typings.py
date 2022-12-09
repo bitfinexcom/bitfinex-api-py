@@ -104,4 +104,17 @@ DerivativesStatus = TypedDict("DerivativesStatus", {
 
 DerivativeStatuses = List[DerivativesStatus]
 
+Liquidation = TypedDict("Liquidation", {
+    "POS_ID": int,
+    "MTS": int,
+    "SYMBOL": str,
+    "AMOUNT": float,
+    "BASE_PRICE": float,
+    "IS_MATCH": int,
+    "IS_MARKET_SOLD": int,
+    "PRICE_ACQUIRED": float
+})
+
+Liquidations = List[Liquidation]
+
 #endregion
