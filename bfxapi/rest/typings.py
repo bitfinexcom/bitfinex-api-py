@@ -68,4 +68,40 @@ TickerHistories = List[TickerHistory]
 
 (TradingPairRawBooks, FundingCurrencyRawBooks) = (List[TradingPairRawBook], List[FundingCurrencyRawBook])
 
+Stat = TypedDict("Stat", {
+    "MTS": int,
+    "VALUE": float
+})
+
+Stats = List[Stat]
+
+Candle = TypedDict("Candle", {
+    "MTS": int,
+    "OPEN": float,
+    "CLOSE": float,
+    "HIGH": float,
+    "LOW": float,
+    "VOLUME": float
+})
+
+Candles = List[Candle]
+
+DerivativesStatus = TypedDict("DerivativesStatus", {
+    "KEY": str,
+    "MTS": int,
+    "DERIV_PRICE": float,
+    "SPOT_PRICE": float,
+    "INSURANCE_FUND_BALANCE": float,
+    "NEXT_FUNDING_EVT_TIMESTAMP_MS": int,
+    "NEXT_FUNDING_ACCRUED": float,
+    "NEXT_FUNDING_STEP": int,
+    "CURRENT_FUNDING": float,
+    "MARK_PRICE": float,
+    "OPEN_INTEREST": float,
+    "CLAMP_MIN": float,
+    "CLAMP_MAX": float
+})
+
+DerivativeStatuses = List[DerivativesStatus]
+
 #endregion

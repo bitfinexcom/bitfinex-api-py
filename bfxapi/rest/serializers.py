@@ -120,4 +120,45 @@ FundingCurrencyRawBook = _Serializer[typings.FundingCurrencyRawBook]("FundingCur
     "AMOUNT"
 ])
 
+Stat = _Serializer[typings.Stat]("Stat", labels=[
+    "MTS",
+    "VALUE"
+])
+
+Candle = _Serializer[typings.Candle]("Candle", labels=[
+    "MTS",
+    "OPEN",
+    "CLOSE",
+    "HIGH",
+    "LOW",
+    "VOLUME"
+])
+
+DerivativesStatus = _Serializer[typings.DerivativesStatus]("DerivativesStatus", labels=[
+    "KEY",
+    "MTS",
+    "_PLACEHOLDER", 
+    "DERIV_PRICE",
+    "SPOT_PRICE",
+    "_PLACEHOLDER",
+    "INSURANCE_FUND_BALANCE",
+    "_PLACEHOLDER",
+    "NEXT_FUNDING_EVT_TIMESTAMP_MS",
+    "NEXT_FUNDING_ACCRUED",
+    "NEXT_FUNDING_STEP",
+    "_PLACEHOLDER",
+    "CURRENT_FUNDING",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "MARK_PRICE",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "OPEN_INTEREST",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "CLAMP_MIN",
+    "CLAMP_MAX"
+])
+
 #endregion
