@@ -2,7 +2,7 @@ import requests
 
 from http import HTTPStatus
 
-from typing import List, Union, Literal, Optional
+from typing import List, Union, Literal, Optional, Any
 
 from . import serializers
 from .typings import *
@@ -136,3 +136,23 @@ class BfxRestInterface(object):
         data = self.__GET("liquidations/hist", params=params)
 
         return [ serializers.Liquidation.parse(*subdata[0]) for subdata in data ]
+
+    def leaderboards(
+        self,
+        resource: str, section: Literal["hist", "last"],
+        sort: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
+    ) -> Union[Leaderboard, Leaderboards]:
+        params = { "sort": sort, "start": start, "end": end, "limit": limit }
+
+        data = self.__GET(f"rankings/{resource}/{section}", params=params)
+
+        if section == "last":
+            return serializers.Leaderboard.parse(*data)
+        return [ serializers.Leaderboard.parse(*subdata) for subdata in data ]
+
+    def funding_stats(self, symbol: str, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> FundingStats:
+        params = { "start": start, "end": end, "limit": limit }
+
+        data = self.__GET(f"funding/stats/{symbol}/hist", params=params)
+
+        return [ serializers.FundingStat.parse(*subdata) for subdata in data ]

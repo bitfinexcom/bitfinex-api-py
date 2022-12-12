@@ -87,7 +87,7 @@ Candle = TypedDict("Candle", {
 Candles = List[Candle]
 
 DerivativesStatus = TypedDict("DerivativesStatus", {
-    "KEY": str,
+    "KEY": Optional[str],
     "MTS": int,
     "DERIV_PRICE": float,
     "SPOT_PRICE": float,
@@ -116,5 +116,26 @@ Liquidation = TypedDict("Liquidation", {
 })
 
 Liquidations = List[Liquidation]
+
+Leaderboard = TypedDict("Leaderboard", {
+    "MTS": int,
+    "USERNAME": str,
+    "RANKING": int,
+    "VALUE": float,
+    "TWITTER_HANDLE": Optional[str]
+})
+
+Leaderboards = List[Leaderboard]
+
+FundingStat = TypedDict("FundingStat", {
+    "TIMESTAMP": int,
+    "FRR": float,
+    "AVG_PERIOD": float,
+    "FUNDING_AMOUNT": float,
+    "FUNDING_AMOUNT_USED": float,
+    "FUNDING_BELOW_THRESHOLD": float
+})
+
+FundingStats = List[FundingStat]
 
 #endregion

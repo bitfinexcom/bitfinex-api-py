@@ -13,7 +13,7 @@ class _Serializer(Generic[T]):
     def __serialize(self, *args: Any, skip: Optional[List[str]]) -> Iterable[T]:
         labels = list(filter(lambda label: label not in (skip or list()), self.__labels))
 
-        if len(labels) != len(args):
+        if len(labels) > len(args):
             raise BfxRestException("<labels> and <*args> arguments should contain the same amount of elements.")
 
         for index, label in enumerate(labels):
@@ -174,6 +174,34 @@ Liquidation = _Serializer[typings.Liquidation]("Liquidation", labels=[
     "IS_MARKET_SOLD",
     "_PLACEHOLDER",
     "PRICE_ACQUIRED"
+])
+
+Leaderboard = _Serializer[typings.Leaderboard]("Leaderboard", labels=[
+    "MTS",
+    "_PLACEHOLDER",
+    "USERNAME",
+    "RANKING",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "VALUE",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "TWITTER_HANDLE"
+])
+
+FundingStat = _Serializer[typings.FundingStat]("FundingStat", labels=[
+    "TIMESTAMP",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "FRR",
+    "AVG_PERIOD",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "FUNDING_AMOUNT",
+    "FUNDING_AMOUNT_USED",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "FUNDING_BELOW_THRESHOLD"
 ])
 
 #endregion
