@@ -5,7 +5,9 @@ from http import HTTPStatus
 from typing import List, Union, Literal, Optional, Any
 
 from . import serializers
+
 from .typings import *
+from .enums import Configs
 from .exceptions import RequestParametersError, ResourceNotFound
 
 class BfxRestInterface(object):
@@ -156,3 +158,6 @@ class BfxRestInterface(object):
         data = self.__GET(f"funding/stats/{symbol}/hist", params=params)
 
         return [ serializers.FundingStat.parse(*subdata) for subdata in data ]
+
+    def conf(self, config: Configs) -> Any:
+        return self.__GET(f"conf/{config}")[0]
