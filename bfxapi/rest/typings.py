@@ -38,14 +38,14 @@ FundingCurrencyTicker = TypedDict("FundingCurrencyTicker", {
     "FRR_AMOUNT_AVAILABLE": float
 })
 
-TickerHistory = TypedDict("TickerHistory", {
+TickersHistory = TypedDict("TickersHistory", {
     "SYMBOL": str,
     "BID": float,
     "ASK": float,
     "MTS": int
 })
 
-TickerHistories = List[TickerHistory]
+TickersHistories = List[TickersHistory]
 
 (TradingPairTrade, FundingCurrencyTrade) = (
     TypedDict("TradingPairTrade", { "ID": int, "MTS": int, "AMOUNT": float, "PRICE": float }),

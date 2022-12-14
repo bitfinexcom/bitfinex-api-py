@@ -63,7 +63,7 @@ FundingCurrencyTicker = _Serializer[typings.FundingCurrencyTicker]("FundingCurre
     "FRR_AMOUNT_AVAILABLE"
 ])
 
-TickerHistory = _Serializer[typings.TickerHistory]("TickerHistory", labels=[
+TickersHistory = _Serializer[typings.TickersHistory]("TickersHistory", labels=[
     "SYMBOL",
     "BID",
     "_PLACEHOLDER",

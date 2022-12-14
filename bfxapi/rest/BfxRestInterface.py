@@ -2,12 +2,12 @@ import requests
 
 from http import HTTPStatus
 
-from typing import List, Union, Literal, Optional, Any
+from typing import List, Union, Literal, Optional, Any, cast
 
 from . import serializers
 
 from .typings import *
-from .enums import Configs
+from .enums import Config, Precision, Sort
 from .exceptions import RequestParametersError, ResourceNotFound
 
 class BfxRestInterface(object):
@@ -34,24 +34,33 @@ class BfxRestInterface(object):
     def tickers(self, symbols: List[str]) -> List[Union[TradingPairTicker, FundingCurrencyTicker]]:
         data = self.__GET("tickers", params={ "symbols": ",".join(symbols) })
         
-        return [
-            {
-                "t": serializers.TradingPairTicker.parse,
-                "f": serializers.FundingCurrencyTicker.parse
-            }[subdata[0][0]](*subdata)
+        parsers = { "t": serializers.TradingPairTicker.parse, "f": serializers.FundingCurrencyTicker.parse }
+        
+        return [ parsers[subdata[0][0]](*subdata) for subdata in data ]
 
-            for subdata in data
-        ]
+    def t_tickers(self, pairs: Union[List[str], Literal["ALL"]]) -> List[TradingPairTicker]:
+        if isinstance(pairs, str) and pairs == "ALL":
+            return [ subdata for subdata in self.tickers([ "ALL" ]) if subdata["SYMBOL"].startswith("t") ]
 
-    def ticker(self, symbol: str) -> Union[TradingPairTicker, FundingCurrencyTicker]:
-        data = self.__GET(f"ticker/{symbol}")
+        data = self.tickers([ "t" + pair for pair in pairs ])
 
-        return {
-            "t": serializers.TradingPairTicker.parse,
-            "f": serializers.FundingCurrencyTicker.parse
-        }[symbol[0]](*data, skip=["SYMBOL"])
+        return cast(List[TradingPairTicker], data)
 
-    def tickers_history(self, symbols: List[str], start: Optional[int] = None, end: Optional[int] = None, limit: Optional[int] = None) -> TickerHistories:
+    def f_tickers(self, currencies: Union[List[str], Literal["ALL"]]) -> List[FundingCurrencyTicker]:
+        if isinstance(currencies, str) and currencies == "ALL":
+            return [ subdata for subdata in self.tickers([ "ALL" ]) if subdata["SYMBOL"].startswith("f") ]
+
+        data = self.tickers([ "f" + currency for currency in currencies ])
+
+        return cast(List[FundingCurrencyTicker], data)
+
+    def t_ticker(self, pair: str) -> TradingPairTicker:
+        return serializers.TradingPairTicker.parse(*self.__GET(f"ticker/t{pair}"), skip=["SYMBOL"])
+
+    def f_ticker(self, currency: str) -> FundingCurrencyTicker:
+        return serializers.FundingCurrencyTicker.parse(*self.__GET(f"ticker/f{currency}"), skip=["SYMBOL"])
+
+    def tickers_history(self, symbols: List[str], start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> TickersHistories:
         params = {
             "symbols": ",".join(symbols),
             "start": start, "end": end,
@@ -60,61 +69,67 @@ class BfxRestInterface(object):
 
         data = self.__GET("tickers/hist", params=params)
         
-        return [ serializers.TickerHistory.parse(*subdata) for subdata in data ]
+        return [ serializers.TickersHistory.parse(*subdata) for subdata in data ]
 
-    def trades(self, symbol: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[int] = None) -> Union[TradingPairTrades, FundingCurrencyTrades]:
-        params = { "symbol": symbol, "limit": limit, "start": start, "end": end, "sort": sort }
-        
-        data = self.__GET(f"trades/{symbol}/hist", params=params)
+    def t_trades(self, pair: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> TradingPairTrades:
+        params = { "limit": limit, "start": start, "end": end, "sort": sort }
+        data = self.__GET(f"trades/{'t' + pair}/hist", params=params)
+        return [ serializers.TradingPairTrade.parse(*subdata) for subdata in data ]
 
-        return [
-            {
-                "t": serializers.TradingPairTrade.parse,
-                "f": serializers.FundingCurrencyTrade.parse
-            }[symbol[0]](*subdata)
+    def f_trades(self, currency: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> FundingCurrencyTrades:
+        params = { "limit": limit, "start": start, "end": end, "sort": sort }
+        data = self.__GET(f"trades/{'f' + currency}/hist", params=params)
+        return [ serializers.FundingCurrencyTrade.parse(*subdata) for subdata in data ]
 
-            for subdata in data
-        ]
+    def t_book(self, pair: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> TradingPairBooks:
+        return [ serializers.TradingPairBook.parse(*subdata) for subdata in self.__GET(f"book/{'t' + pair}/{precision}", params={ "len": len }) ]
 
-    def book(self, symbol: str, precision: str, len: Optional[int] = None) -> Union[TradingPairBooks, FundingCurrencyBooks, TradingPairRawBooks, FundingCurrencyRawBooks]:
-        data = self.__GET(f"book/{symbol}/{precision}", params={ "len": len })
-        
-        return [
-            {
-                "t": precision == "R0" and serializers.TradingPairRawBook.parse or serializers.TradingPairBook.parse,
-                "f": precision == "R0" and serializers.FundingCurrencyRawBook.parse or serializers.FundingCurrencyBook.parse,
-            }[symbol[0]](*subdata)
+    def f_book(self, currency: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> FundingCurrencyBooks:
+        return [ serializers.FundingCurrencyBook.parse(*subdata) for subdata in self.__GET(f"book/{'f' + currency}/{precision}", params={ "len": len }) ]
 
-            for subdata in data
-        ]
+    def t_raw_book(self, pair: str, len: Optional[Literal[1, 25, 100]] = None) -> TradingPairRawBooks:
+        return [ serializers.TradingPairRawBook.parse(*subdata) for subdata in self.__GET(f"book/{'t' + pair}/R0", params={ "len": len }) ]
 
-    def stats(
+    def f_raw_book(self, currency: str, len: Optional[Literal[1, 25, 100]] = None) -> FundingCurrencyRawBooks:
+        return [ serializers.FundingCurrencyRawBook.parse(*subdata) for subdata in self.__GET(f"book/{'f' + currency}/R0", params={ "len": len }) ]
+
+    def stats_hist(
         self, 
-        resource: str, section: Literal["hist", "last"],
-        sort: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
-    ) -> Union[Stat, Stats]:
+        resource: str,
+        sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
+    ) -> Stats:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
-
-        data = self.__GET(f"stats1/{resource}/{section}", params=params)
-
-        if section == "last":
-            return serializers.Stat.parse(*data)
+        data = self.__GET(f"stats1/{resource}/hist", params=params)
         return [ serializers.Stat.parse(*subdata) for subdata in data ]
 
-    def candles(
-        self,
-        resource: str, section: Literal["hist", "last"],
-        sort: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
-    ) -> Union[Candle, Candles]:
+    def stats_last(
+        self, 
+        resource: str,
+        sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
+    ) -> Stat:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
+        data = self.__GET(f"stats1/{resource}/last", params=params)
+        return serializers.Stat.parse(*data)
 
-        data = self.__GET(f"candles/{resource}/{section}", params=params)
-
-        if section == "last":
-            return serializers.Candle.parse(*data)
+    def candles_hist(
+        self,
+        resource: str,
+        sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
+    ) -> Candles:
+        params = { "sort": sort, "start": start, "end": end, "limit": limit }
+        data = self.__GET(f"candles/{resource}/hist", params=params)
         return [ serializers.Candle.parse(*subdata) for subdata in data ]
 
-    def derivatives_status(self, type: str, keys: List[str] = None) -> DerivativeStatuses:
+    def candles_last(
+        self,
+        resource: str,
+        sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
+    ) -> Candle:
+        params = { "sort": sort, "start": start, "end": end, "limit": limit }
+        data = self.__GET(f"candles/{resource}/last", params=params)
+        return serializers.Candle.parse(*data)
+
+    def derivatives_status(self, type: str, keys: List[str]) -> DerivativeStatuses:
         params = { "keys": ",".join(keys) }
 
         data = self.__GET(f"status/{type}", params=params)
@@ -124,7 +139,7 @@ class BfxRestInterface(object):
     def derivatives_status_history(
         self, 
         type: str, symbol: str,
-        sort: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
+        sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
     ) -> DerivativeStatuses: 
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
 
@@ -132,25 +147,30 @@ class BfxRestInterface(object):
 
         return [ serializers.DerivativesStatus.parse(*subdata, skip=[ "KEY" ]) for subdata in data ]
 
-    def liquidations(self, sort: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> Liquidations:
+    def liquidations(self, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> Liquidations:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
 
         data = self.__GET("liquidations/hist", params=params)
 
         return [ serializers.Liquidation.parse(*subdata[0]) for subdata in data ]
 
-    def leaderboards(
+    def leaderboards_hist(
         self,
-        resource: str, section: Literal["hist", "last"],
-        sort: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
-    ) -> Union[Leaderboard, Leaderboards]:
+        resource: str,
+        sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
+    ) -> Leaderboards:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
-
-        data = self.__GET(f"rankings/{resource}/{section}", params=params)
-
-        if section == "last":
-            return serializers.Leaderboard.parse(*data)
+        data = self.__GET(f"rankings/{resource}/hist", params=params)
         return [ serializers.Leaderboard.parse(*subdata) for subdata in data ]
+
+    def leaderboards_last(
+        self,
+        resource: str,
+        sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
+    ) -> Leaderboard:
+        params = { "sort": sort, "start": start, "end": end, "limit": limit }
+        data = self.__GET(f"rankings/{resource}/last", params=params)
+        return serializers.Leaderboard.parse(*data)
 
     def funding_stats(self, symbol: str, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> FundingStats:
         params = { "start": start, "end": end, "limit": limit }
@@ -159,5 +179,5 @@ class BfxRestInterface(object):
 
         return [ serializers.FundingStat.parse(*subdata) for subdata in data ]
 
-    def conf(self, config: Configs) -> Any:
+    def conf(self, config: Config) -> Any:
         return self.__GET(f"conf/{config}")[0]
