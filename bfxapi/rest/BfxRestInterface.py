@@ -1,4 +1,4 @@
-import requests
+import time, hmac, hashlib, json, requests
 
 from http import HTTPStatus
 
@@ -8,15 +8,32 @@ from . import serializers
 
 from .typings import *
 from .enums import Config, Precision, Sort
-from .exceptions import RequestParametersError, ResourceNotFound
+from .exceptions import RequestParametersError, ResourceNotFound, InvalidAuthenticationCredentials
 
 class BfxRestInterface(object):
-    def __init__(self, host):
+    def __init__(self, host, API_KEY = None, API_SECRET = None):
         self.public = _RestPublicEndpoints(host=host)
 
+        self.auth = _RestAuthenticatedEndpoints(host=host, API_KEY=API_KEY, API_SECRET=API_SECRET)
+
 class _Requests(object):
-    def __init__(self, host: str):
-        self.host = host
+    def __init__(self, host, API_KEY = None, API_SECRET = None):
+        self.host, self.API_KEY, self.API_SECRET = host, API_KEY, API_SECRET
+
+    def __build_authentication_headers(self, endpoint, data):
+        nonce = str(int(time.time()) * 1000)
+
+        signature = hmac.new(
+            self.API_SECRET.encode("utf8"),
+            f"/api/v2/{endpoint}{nonce}{json.dumps(data)}".encode("utf8"),
+            hashlib.sha384 
+        ).hexdigest()
+
+        return {
+            "bfx-nonce": nonce,
+            "bfx-signature": signature,
+            "bfx-apikey": self.API_KEY
+        }
 
     def _GET(self, endpoint, params = None):
         response = requests.get(f"{self.host}/{endpoint}", params=params)
@@ -29,6 +46,28 @@ class _Requests(object):
         if len(data) and data[0] == "error":
             if data[1] == 10020:
                 raise RequestParametersError(f"The request was rejected with the following parameter error: <{data[2]}>")
+
+        return data
+
+    def _POST(self, endpoint, params = None, data = None, _append_authentication_headers = True):
+        headers = { "Content-Type": "application/json" }
+
+        if _append_authentication_headers:
+            headers = { **headers, **self.__build_authentication_headers(f"{endpoint}", data) }
+
+        response = requests.post(f"{self.host}/{endpoint}", params=params, data=json.dumps(data), headers=headers)
+        
+        if response.status_code == HTTPStatus.NOT_FOUND:
+            raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
+
+        data = response.json()
+
+        if len(data) and data[0] == "error":
+            if data[1] == 10020:
+                raise RequestParametersError(f"The request was rejected with the following parameter error: <{data[2]}>")
+
+            if data[1] == 10100:
+                raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
 
         return data
 
@@ -186,3 +225,6 @@ class _RestPublicEndpoints(_Requests):
 
     def conf(self, config: Config) -> Any:
         return self._GET(f"conf/{config}")[0]
+
+class _RestAuthenticatedEndpoints(_Requests):
+    __PREFIX = "auth/"

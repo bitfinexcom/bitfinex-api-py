@@ -1,6 +1,7 @@
 __all__ = [
     "RequestParametersError",
-    "ResourceNotFound"
+    "ResourceNotFound",
+    "InvalidAuthenticationCredentials"
 ]
 
 class BfxRestException(Exception):
@@ -20,6 +21,13 @@ class RequestParametersError(BfxRestException):
 class ResourceNotFound(BfxRestException):
     """
     This error indicates a failed HTTP request to a non-existent resource.
+    """
+
+    pass
+
+class InvalidAuthenticationCredentials(BfxRestException):
+    """
+    This error indicates that the user has provided incorrect credentials (API-KEY and API-SECRET) for authentication.
     """
 
     pass
