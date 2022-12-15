@@ -1,6 +1,6 @@
 from .exceptions import LabelerSerializerException
 
-from typing import Generic, TypeVar, Iterable, Optional, List, Any
+from typing import Generic, TypeVar, Iterable, Optional, List, Tuple, Any, cast
 
 T = TypeVar("T")
 
@@ -8,7 +8,7 @@ class _Serializer(Generic[T]):
     def __init__(self, name: str, labels: List[str], IGNORE: List[str] = [ "_PLACEHOLDER" ]):
         self.name, self.__labels, self.__IGNORE = name, labels, IGNORE
 
-    def __serialize(self, *args: Any, skip: Optional[List[str]]) -> Iterable[T]:
+    def __serialize(self, *args: Any, skip: Optional[List[str]]) -> Iterable[Tuple[str, Any]]:
         labels = list(filter(lambda label: label not in (skip or list()), self.__labels))
 
         if len(labels) > len(args):
@@ -19,4 +19,4 @@ class _Serializer(Generic[T]):
                 yield label, args[index]
 
     def parse(self, *values: Any, skip: Optional[List[str]] = None) -> T:
-        return dict(self.__serialize(*values, skip=skip))
+        return cast(T, dict(self.__serialize(*values, skip=skip)))
