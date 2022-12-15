@@ -1,12 +1,16 @@
+from ..exceptions import BfxBaseException
+
 __all__ = [
+    "BfxRestException",
+
     "RequestParametersError",
     "ResourceNotFound",
     "InvalidAuthenticationCredentials"
 ]
 
-class BfxRestException(Exception):
+class BfxRestException(BfxBaseException):
     """
-    Base class for all exceptions defined in bfxapi/rest/exceptions.py.
+    Base class for all custom exceptions in bfxapi/rest/exceptions.py.
     """
 
     pass
