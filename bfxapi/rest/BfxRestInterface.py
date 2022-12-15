@@ -104,7 +104,7 @@ class _RestPublicEndpoints(_Requests):
     def f_ticker(self, currency: str) -> FundingCurrencyTicker:
         return serializers.FundingCurrencyTicker.parse(*self._GET(f"ticker/f{currency}"), skip=["SYMBOL"])
 
-    def tickers_history(self, symbols: List[str], start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> TickersHistories:
+    def tickers_history(self, symbols: List[str], start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[TickersHistory]:
         params = {
             "symbols": ",".join(symbols),
             "start": start, "end": end,
@@ -115,51 +115,51 @@ class _RestPublicEndpoints(_Requests):
         
         return [ serializers.TickersHistory.parse(*subdata) for subdata in data ]
 
-    def t_trades(self, pair: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> TradingPairTrades:
+    def t_trades(self, pair: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> List[TradingPairTrade]:
         params = { "limit": limit, "start": start, "end": end, "sort": sort }
         data = self._GET(f"trades/{'t' + pair}/hist", params=params)
         return [ serializers.TradingPairTrade.parse(*subdata) for subdata in data ]
 
-    def f_trades(self, currency: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> FundingCurrencyTrades:
+    def f_trades(self, currency: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> List[FundingCurrencyTrade]:
         params = { "limit": limit, "start": start, "end": end, "sort": sort }
         data = self._GET(f"trades/{'f' + currency}/hist", params=params)
         return [ serializers.FundingCurrencyTrade.parse(*subdata) for subdata in data ]
 
-    def t_book(self, pair: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> TradingPairBooks:
+    def t_book(self, pair: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> List[TradingPairBook]:
         return [ serializers.TradingPairBook.parse(*subdata) for subdata in self._GET(f"book/{'t' + pair}/{precision}", params={ "len": len }) ]
 
-    def f_book(self, currency: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> FundingCurrencyBooks:
+    def f_book(self, currency: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> List[FundingCurrencyBook]:
         return [ serializers.FundingCurrencyBook.parse(*subdata) for subdata in self._GET(f"book/{'f' + currency}/{precision}", params={ "len": len }) ]
 
-    def t_raw_book(self, pair: str, len: Optional[Literal[1, 25, 100]] = None) -> TradingPairRawBooks:
+    def t_raw_book(self, pair: str, len: Optional[Literal[1, 25, 100]] = None) -> List[TradingPairRawBook]:
         return [ serializers.TradingPairRawBook.parse(*subdata) for subdata in self._GET(f"book/{'t' + pair}/R0", params={ "len": len }) ]
 
-    def f_raw_book(self, currency: str, len: Optional[Literal[1, 25, 100]] = None) -> FundingCurrencyRawBooks:
+    def f_raw_book(self, currency: str, len: Optional[Literal[1, 25, 100]] = None) -> List[FundingCurrencyRawBook]:
         return [ serializers.FundingCurrencyRawBook.parse(*subdata) for subdata in self._GET(f"book/{'f' + currency}/R0", params={ "len": len }) ]
 
     def stats_hist(
         self, 
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
-    ) -> Stats:
+    ) -> List[Statistic]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
         data = self._GET(f"stats1/{resource}/hist", params=params)
-        return [ serializers.Stat.parse(*subdata) for subdata in data ]
+        return [ serializers.Statistic.parse(*subdata) for subdata in data ]
 
     def stats_last(
         self, 
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
-    ) -> Stat:
+    ) -> Statistic:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
         data = self._GET(f"stats1/{resource}/last", params=params)
-        return serializers.Stat.parse(*data)
+        return serializers.Statistic.parse(*data)
 
     def candles_hist(
         self,
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
-    ) -> Candles:
+    ) -> List[Candle]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
         data = self._GET(f"candles/{resource}/hist", params=params)
         return [ serializers.Candle.parse(*subdata) for subdata in data ]
@@ -173,7 +173,7 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET(f"candles/{resource}/last", params=params)
         return serializers.Candle.parse(*data)
 
-    def derivatives_status(self, type: str, keys: List[str]) -> DerivativeStatuses:
+    def derivatives_status(self, type: str, keys: List[str]) -> List[DerivativesStatus]:
         params = { "keys": ",".join(keys) }
 
         data = self._GET(f"status/{type}", params=params)
@@ -184,14 +184,14 @@ class _RestPublicEndpoints(_Requests):
         self, 
         type: str, symbol: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
-    ) -> DerivativeStatuses: 
+    ) -> List[DerivativesStatus]: 
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
 
         data = self._GET(f"status/{type}/{symbol}/hist", params=params)
 
         return [ serializers.DerivativesStatus.parse(*subdata, skip=[ "KEY" ]) for subdata in data ]
 
-    def liquidations(self, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> Liquidations:
+    def liquidations(self, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Liquidation]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
 
         data = self._GET("liquidations/hist", params=params)
@@ -202,7 +202,7 @@ class _RestPublicEndpoints(_Requests):
         self,
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
-    ) -> Leaderboards:
+    ) -> List[Leaderboard]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
         data = self._GET(f"rankings/{resource}/hist", params=params)
         return [ serializers.Leaderboard.parse(*subdata) for subdata in data ]
@@ -216,12 +216,12 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET(f"rankings/{resource}/last", params=params)
         return serializers.Leaderboard.parse(*data)
 
-    def funding_stats(self, symbol: str, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> FundingStats:
+    def funding_stats(self, symbol: str, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingStatistic]:
         params = { "start": start, "end": end, "limit": limit }
 
         data = self._GET(f"funding/stats/{symbol}/hist", params=params)
 
-        return [ serializers.FundingStat.parse(*subdata) for subdata in data ]
+        return [ serializers.FundingStatistic.parse(*subdata) for subdata in data ]
 
     def conf(self, config: Config) -> Any:
         return self._GET(f"conf/{config}")[0]
