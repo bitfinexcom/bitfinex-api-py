@@ -1,13 +1,15 @@
 from collections import OrderedDict
 
+from typing import List
+
 from bfxapi import Client, Constants
 
 from bfxapi.websocket import BfxWebsocketClient
 from bfxapi.websocket.enums import Channels, Errors
-from bfxapi.websocket.typings import Subscriptions, TradingPairBooks, TradingPairBook
+from bfxapi.websocket.typings import Subscriptions, TradingPairBook
 
 class OrderBook(object):
-    def __init__(self, symbols: list[str]):
+    def __init__(self, symbols: List[str]):
         self.__order_book = {
             symbol: { 
                 "bids": OrderedDict(), "asks": OrderedDict() 
@@ -50,7 +52,7 @@ def on_subscribed(subscription):
     print(f"Subscription successful for pair <{subscription['pair']}>")
 
 @bfx.wss.on("t_book_snapshot")
-def on_t_book_snapshot(subscription: Subscriptions.Book, snapshot: TradingPairBooks):
+def on_t_book_snapshot(subscription: Subscriptions.Book, snapshot: List[TradingPairBook]):
     for data in snapshot:
         order_book.update(subscription["symbol"], data)
 
