@@ -1,27 +1,6 @@
-from typing import Generic, TypeVar, Iterable, Optional, List, Any
-
 from . import typings
 
-from .exceptions import BfxRestException
-
-T = TypeVar("T")
-
-class _Serializer(Generic[T]):
-    def __init__(self, name: str, labels: List[str], IGNORE: List[str] = [ "_PLACEHOLDER" ]):
-        self.name, self.__labels, self.__IGNORE = name, labels, IGNORE
-
-    def __serialize(self, *args: Any, skip: Optional[List[str]]) -> Iterable[T]:
-        labels = list(filter(lambda label: label not in (skip or list()), self.__labels))
-
-        if len(labels) > len(args):
-            raise BfxRestException("<labels> and <*args> arguments should contain the same amount of elements.")
-
-        for index, label in enumerate(labels):
-            if label not in self.__IGNORE:
-                yield label, args[index]
-
-    def parse(self, *values: Any, skip: Optional[List[str]] = None) -> T:
-        return dict(self.__serialize(*values, skip=skip))
+from .. labeler import _Serializer
 
 #region Serializers definition for Rest Public Endpoints
 
@@ -63,7 +42,7 @@ FundingCurrencyTicker = _Serializer[typings.FundingCurrencyTicker]("FundingCurre
     "FRR_AMOUNT_AVAILABLE"
 ])
 
-TickerHistory = _Serializer[typings.TickerHistory]("TickerHistory", labels=[
+TickersHistory = _Serializer[typings.TickersHistory]("TickersHistory", labels=[
     "SYMBOL",
     "BID",
     "_PLACEHOLDER",
@@ -120,7 +99,7 @@ FundingCurrencyRawBook = _Serializer[typings.FundingCurrencyRawBook]("FundingCur
     "AMOUNT"
 ])
 
-Stat = _Serializer[typings.Stat]("Stat", labels=[
+Statistic = _Serializer[typings.Statistic]("Statistic", labels=[
     "MTS",
     "VALUE"
 ])
@@ -189,7 +168,7 @@ Leaderboard = _Serializer[typings.Leaderboard]("Leaderboard", labels=[
     "TWITTER_HANDLE"
 ])
 
-FundingStat = _Serializer[typings.FundingStat]("FundingStat", labels=[
+FundingStatistic = _Serializer[typings.FundingStatistic]("FundingStatistic", labels=[
     "TIMESTAMP",
     "_PLACEHOLDER",
     "_PLACEHOLDER",

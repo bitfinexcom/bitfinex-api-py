@@ -1,5 +1,7 @@
 from .websocket import BfxWebsocketClient
 
+from typing import Optional
+
 from enum import Enum
 
 class Constants(str, Enum):
@@ -10,7 +12,7 @@ class Constants(str, Enum):
     PUB_WSS_HOST = "wss://api-pub.bitfinex.com/ws/2"
 
 class Client(object):
-    def __init__(self, WSS_HOST: str = Constants.WSS_HOST, API_KEY: str = None, API_SECRET: str = None, log_level: str = "WARNING"):
+    def __init__(self, WSS_HOST: str = Constants.WSS_HOST, API_KEY: Optional[str] = None, API_SECRET: Optional[str] = None, log_level: str = "WARNING"):
         self.wss = BfxWebsocketClient(
             host=WSS_HOST, 
             API_KEY=API_KEY, 

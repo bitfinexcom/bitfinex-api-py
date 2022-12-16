@@ -1,4 +1,8 @@
+from .. exceptions import BfxBaseException
+
 __all__ = [
+    "BfxWebsocketException",
+
     "ConnectionNotOpen",
     "TooManySubscriptions",
     "WebsocketAuthenticationRequired",
@@ -7,9 +11,9 @@ __all__ = [
     "OutdatedClientVersion"
 ]
 
-class BfxWebsocketException(Exception):
+class BfxWebsocketException(BfxBaseException):
     """
-    Base class for all exceptions defined in bfxapi/websocket/exceptions.py.
+    Base class for all custom exceptions in bfxapi/websocket/exceptions.py.
     """
 
     pass
@@ -35,13 +39,6 @@ class WebsocketAuthenticationRequired(BfxWebsocketException):
 
     pass
 
-class InvalidAuthenticationCredentials(BfxWebsocketException):
-    """
-    This error indicates that the user has provided incorrect credentials (API-KEY and API-SECRET) for authentication.
-    """
-
-    pass
-
 class EventNotSupported(BfxWebsocketException):
     """
     This error indicates a failed attempt to subscribe to an event not supported by the BfxWebsocketClient.
@@ -52,6 +49,13 @@ class EventNotSupported(BfxWebsocketException):
 class OutdatedClientVersion(BfxWebsocketException):
     """
     This error indicates a mismatch between the client version and the server WSS version.
+    """
+
+    pass
+
+class InvalidAuthenticationCredentials(BfxWebsocketException):
+    """
+    This error indicates that the user has provided incorrect credentials (API-KEY and API-SECRET) for authentication.
     """
 
     pass

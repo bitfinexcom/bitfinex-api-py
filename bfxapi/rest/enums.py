@@ -1,6 +1,6 @@
 from enum import Enum
 
-class Configs(str, Enum):
+class Config(str, Enum):
     MAP_CURRENCY_SYM = "pub:map:currency:sym"
     MAP_CURRENCY_LABEL = "pub:map:currency:label"
     MAP_CURRENCY_UNIT = "pub:map:currency:unit"
@@ -23,3 +23,14 @@ class Configs(str, Enum):
 
     SPEC_MARGIN = "pub:spec:margin",
     FEES = "pub:fees"
+
+class Precision(str, Enum):
+    P0 = "P0"
+    P1 = "P1"
+    P2 = "P2"
+    P3 = "P3"
+    P4 = "P4"
+
+class Sort(int, Enum):
+    ASCENDING = +1
+    DESCENDING = -1
