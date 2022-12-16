@@ -1,4 +1,4 @@
-from ..exceptions import BfxBaseException
+from .. exceptions import BfxBaseException
 
 __all__ = [
     "BfxRestException",

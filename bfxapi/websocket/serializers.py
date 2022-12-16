@@ -1,25 +1,6 @@
-from typing import Generic, TypeVar, Iterable, List, Any
-
 from . import typings
 
-from .exceptions import BfxWebsocketException
-
-T = TypeVar("T")
-
-class _Serializer(Generic[T]):
-    def __init__(self, name: str, labels: List[str]):
-        self.name, self.__labels = name, labels
-
-    def __serialize(self, *args: Any, IGNORE: List[str] = [ "_PLACEHOLDER" ]) -> Iterable[T]:
-        if len(self.__labels) != len(args):
-            raise BfxWebsocketException("<self.__labels> and <*args> arguments should contain the same amount of elements.")
-
-        for index, label in enumerate(self.__labels):
-            if label not in IGNORE:
-                yield label, args[index]
-
-    def parse(self, *values: Any) -> T:
-        return dict(self.__serialize(*values))
+from .. labeler import _Serializer
 
 #region Serializers definition for Websocket Public Channels
 
@@ -315,7 +296,7 @@ BalanceInfo = _Serializer[typings.BalanceInfo]("BalanceInfo", labels=[
 
 #region Serializers definition for Notifications channel
 
-Notification = _Serializer("Notification", labels=[
+Notification = _Serializer[typings.Notification]("Notification", labels=[
     "MTS",
     "TYPE",
     "MESSAGE_ID",
