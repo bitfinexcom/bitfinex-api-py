@@ -84,7 +84,7 @@ class _RestPublicEndpoints(_Requests):
 
     def t_tickers(self, pairs: Union[List[str], Literal["ALL"]]) -> List[TradingPairTicker]:
         if isinstance(pairs, str) and pairs == "ALL":
-            return [ subdata for subdata in self.tickers([ "ALL" ]) if subdata["SYMBOL"].startswith("t") ]
+            return [ cast(TradingPairTicker, subdata) for subdata in self.tickers([ "ALL" ]) if cast(str, subdata["SYMBOL"]).startswith("t") ]
 
         data = self.tickers([ "t" + pair for pair in pairs ])
 
@@ -92,7 +92,7 @@ class _RestPublicEndpoints(_Requests):
 
     def f_tickers(self, currencies: Union[List[str], Literal["ALL"]]) -> List[FundingCurrencyTicker]:
         if isinstance(currencies, str) and currencies == "ALL":
-            return [ subdata for subdata in self.tickers([ "ALL" ]) if subdata["SYMBOL"].startswith("f") ]
+            return [ cast(FundingCurrencyTicker, subdata) for subdata in self.tickers([ "ALL" ]) if cast(str, subdata["SYMBOL"]).startswith("f") ]
 
         data = self.tickers([ "f" + currency for currency in currencies ])
 
