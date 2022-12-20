@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from datetime import datetime
 
-from typing import Type, NewType, Tuple, List, Dict, TypedDict, Union, Optional, Any
+from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
 
 from ..utils.integers import Int16, Int32, Int45, Int64
 
@@ -11,22 +11,22 @@ JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 #region Type hinting for subscription objects
 
 class Subscriptions:
-    class TradingPairsTicker(TypedDict):
+    class TradingPairTicker(TypedDict):
         chanId: int
         symbol: str
         pair: str
 
-    class FundingCurrenciesTicker(TypedDict):
+    class FundingCurrencyTicker(TypedDict):
         chanId: int
         symbol: str
         currency: str
 
-    class TradingPairsTrades(TypedDict):
+    class TradingPairTrades(TypedDict):
         chanId: int
         symbol: str
         pair: str
 
-    class FundingCurrenciesTrades(TypedDict):
+    class FundingCurrencyTrades(TypedDict):
         chanId: int
         symbol: str
         currency: str
@@ -280,7 +280,7 @@ class BalanceInfo(TypedDict):
 
 #endregion
 
-#region Serializers definition for Notifications channel
+#region Type hinting for Notifications channel
 
 class Notification(TypedDict):
     MTS: int

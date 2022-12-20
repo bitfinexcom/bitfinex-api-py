@@ -7,7 +7,7 @@ from bfxapi.websocket.typings import Subscriptions, TradingPairTicker
 bfx = Client(WSS_HOST=Constants.PUB_WSS_HOST)
 
 @bfx.wss.on("t_ticker_update")
-def on_t_ticker_update(subscription: Subscriptions.TradingPairsTicker, data: TradingPairTicker):
+def on_t_ticker_update(subscription: Subscriptions.TradingPairTicker, data: TradingPairTicker):
     print(f"Subscription with channel ID: {subscription['chanId']}")
 
     print(f"Data: {data}")

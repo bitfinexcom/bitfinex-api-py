@@ -184,3 +184,68 @@ FundingStatistic = _Serializer[typings.FundingStatistic]("FundingStatistic", lab
 ])
 
 #endregion
+
+#region Serializers definition for Rest Authenticated Endpoints
+
+Wallet = _Serializer[typings.Wallet]("Wallet", labels=[
+    "WALLET_TYPE", 
+    "CURRENCY", 
+    "BALANCE", 
+    "UNSETTLED_INTEREST",
+    "AVAILABLE_BALANCE",
+    "LAST_CHANGE",
+    "TRADE_DETAILS"
+])
+
+Order = _Serializer[typings.Order]("Order", labels=[
+    "ID",
+    "GID",
+    "CID",
+    "SYMBOL",
+    "MTS_CREATE", 
+    "MTS_UPDATE", 
+    "AMOUNT", 
+    "AMOUNT_ORIG", 
+    "ORDER_TYPE",
+    "TYPE_PREV",
+    "MTS_TIF",
+    "_PLACEHOLDER",
+    "FLAGS",
+    "ORDER_STATUS",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "PRICE",
+    "PRICE_AVG",
+    "PRICE_TRAILING",
+    "PRICE_AUX_LIMIT",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "NOTIFY",
+    "HIDDEN", 
+    "PLACED_ID",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "ROUTING",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "META"
+])
+
+
+#endregion
+
+#region Serializers definition for Notifications channel
+
+Notification = _Serializer[typings.Notification]("Notification", labels=[
+    "MTS",
+    "TYPE",
+    "MESSAGE_ID",
+    "_PLACEHOLDER",
+    "NOTIFY_INFO",
+    "CODE",
+    "STATUS",
+    "TEXT"
+])
+
+#endregion

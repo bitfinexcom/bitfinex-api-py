@@ -8,7 +8,7 @@ from . import serializers
 
 from .typings import *
 from .enums import Config, Precision, Sort
-from .exceptions import RequestParametersError, ResourceNotFound, InvalidAuthenticationCredentials
+from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 
 class BfxRestInterface(object):
     def __init__(self, host, API_KEY = None, API_SECRET = None):
@@ -47,13 +47,16 @@ class _Requests(object):
             if data[1] == 10020:
                 raise RequestParametersError(f"The request was rejected with the following parameter error: <{data[2]}>")
 
+            if data[1] == None:
+                raise UnknownGenericError("The server replied to the request with a generic error.")
+
         return data
 
     def _POST(self, endpoint, params = None, data = None, _append_authentication_headers = True):
         headers = { "Content-Type": "application/json" }
 
         if _append_authentication_headers:
-            headers = { **headers, **self.__build_authentication_headers(f"{endpoint}", data) }
+            headers = { **headers, **self.__build_authentication_headers(endpoint, data) }
 
         response = requests.post(f"{self.host}/{endpoint}", params=params, data=json.dumps(data), headers=headers)
         
@@ -68,6 +71,9 @@ class _Requests(object):
 
             if data[1] == 10100:
                 raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
+
+            if data[1] == None:
+                raise UnknownGenericError("The server replied to the request with a generic error.")
 
         return data
 
@@ -227,4 +233,8 @@ class _RestPublicEndpoints(_Requests):
         return self._GET(f"conf/{config}")[0]
 
 class _RestAuthenticatedEndpoints(_Requests):
-    __PREFIX = "auth/"
+    def wallets(self) -> List[Wallet]:
+        return [ serializers.Wallet.parse(*subdata) for subdata in self._POST("auth/r/wallets") ]
+
+    def retrieve_orders(self, ids: Optional[List[str]] = None) -> List[Order]:
+        return [ serializers.Order.parse(*subdata) for subdata in self._POST("auth/r/orders", data={ "id": ids }) ]

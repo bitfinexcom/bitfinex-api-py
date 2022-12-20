@@ -1,4 +1,12 @@
+from decimal import Decimal
+
+from datetime import datetime
+
 from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
+
+from ..utils.integers import Int16, Int32, Int45, Int64
+
+JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
 #region Type hinting for Rest Public Endpoints
 
@@ -127,5 +135,55 @@ class FundingStatistic(TypedDict):
     FUNDING_AMOUNT: float
     FUNDING_AMOUNT_USED: float
     FUNDING_BELOW_THRESHOLD: float
+
+#endregion
+
+#region Type hinting for Rest Authenticated Endpoints
+
+class Wallet(TypedDict):
+    WALLET_TYPE: str
+    CURRENCY: str
+    BALANCE: float
+    UNSETTLED_INTEREST: float
+    AVAILABLE_BALANCE: float
+    LAST_CHANGE: str
+    TRADE_DETAILS: JSON
+
+class Order(TypedDict):
+    ID: int
+    GID: int
+    CID: int
+    SYMBOL: str
+    MTS_CREATE: int
+    MTS_UPDATE: int
+    AMOUNT: float
+    AMOUNT_ORIG: float
+    ORDER_TYPE: str
+    TYPE_PREV: str
+    MTS_TIF: int
+    FLAGS: int
+    ORDER_STATUS: str
+    PRICE: float
+    PRICE_AVG: float
+    PRICE_TRAILING: float
+    PRICE_AUX_LIMIT: float
+    NOTIFY: int
+    HIDDEN: int
+    PLACED_ID: int
+    ROUTING: str
+    META: JSON
+
+#endregion
+
+#region Type hinting for Notifications channel
+
+class Notification(TypedDict):
+    MTS: int
+    TYPE: str 
+    MESSAGE_ID: int
+    NOTIFY_INFO: JSON
+    CODE: int
+    STATUS: str
+    TEXT: str
 
 #endregion
