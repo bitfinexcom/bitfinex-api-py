@@ -10,7 +10,7 @@ from .typings import Inputs
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
 from .exceptions import ConnectionNotOpen, TooManySubscriptions, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
-from ..utils.decimal import DecimalEncoder
+from ..utils.encoder import JSONEncoder
 
 from ..utils.logger import Formatter, CustomLogger
 
@@ -139,7 +139,7 @@ class BfxWebsocketClient(object):
 
     @_require_websocket_authentication
     async def __handle_websocket_input(self, input, data):
-        await self.websocket.send(json.dumps([ 0, input, None, data], cls=DecimalEncoder))
+        await self.websocket.send(json.dumps([ 0, input, None, data], cls=JSONEncoder))
 
     def __bucket_open_signal(self, index):
         if all(bucket.websocket != None and bucket.websocket.open == True for bucket in self.buckets):

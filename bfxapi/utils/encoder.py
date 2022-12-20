@@ -1,9 +1,9 @@
 import json
-
 from decimal import Decimal
+from datetime import datetime
 
-class DecimalEncoder(json.JSONEncoder):
+class JSONEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, Decimal):
+        if isinstance(obj, Decimal) or isinstance(obj, datetime):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
