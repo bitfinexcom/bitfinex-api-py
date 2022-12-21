@@ -7,7 +7,7 @@ from typing import List, Union, Literal, Optional, Any, cast
 from . import serializers
 
 from .typings import *
-from .enums import Config, Precision, Sort
+from .enums import OrderType, Config, Precision, Sort
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 
 class BfxRestInterface(object):
@@ -47,8 +47,8 @@ class _Requests(object):
             if data[1] == 10020:
                 raise RequestParametersError(f"The request was rejected with the following parameter error: <{data[2]}>")
 
-            if data[1] == None:
-                raise UnknownGenericError("The server replied to the request with a generic error.")
+            if data[1] == None or data[1] == 10000 or data[1] == 10001:
+                raise UnknownGenericError("The server replied to the request with a generic error with message: <{data[2]}>.")
 
         return data
 
@@ -72,8 +72,8 @@ class _Requests(object):
             if data[1] == 10100:
                 raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
 
-            if data[1] == None:
-                raise UnknownGenericError("The server replied to the request with a generic error.")
+            if data[1] == None or data[1] == 10000 or data[1] == 10001:
+                raise UnknownGenericError(f"The server replied to the request with a generic error with message: <{data[2]}>.")
 
         return data
 
@@ -238,3 +238,18 @@ class _RestAuthenticatedEndpoints(_Requests):
 
     def retrieve_orders(self, ids: Optional[List[str]] = None) -> List[Order]:
         return [ serializers.Order.parse(*subdata) for subdata in self._POST("auth/r/orders", data={ "id": ids }) ]
+
+    def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, str], 
+                     price: Optional[Union[Decimal, str]] = None, lev: Optional[Union[Int32, int]] = None, 
+                     price_trailing: Optional[Union[Decimal, str]] = None, price_aux_limit: Optional[Union[Decimal, str]] = None, price_oco_stop: Optional[Union[Decimal, str]] = None,
+                     gid: Optional[Union[Int32, int]] = None, cid: Optional[Union[Int45, int]] = None,
+                     flags: Optional[Union[Int16, int]] = None, tif: Optional[Union[datetime, str]] = None, meta: Optional[JSON] = None) -> Notification:
+        data = {
+            "type": type, "symbol": symbol, "amount": amount,
+            "price": price, "lev": lev,
+            "price_trailing": price_trailing, "price_aux_limit": price_aux_limit, "price_oco_stop": price_oco_stop,
+            "gid": gid, "cid": cid,
+            "flags": flags, "tif": tif, "meta": meta
+        }
+        
+        return self._POST("auth/w/order/submit", data=data)

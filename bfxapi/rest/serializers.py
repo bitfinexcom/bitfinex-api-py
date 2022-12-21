@@ -232,7 +232,6 @@ Order = _Serializer[typings.Order]("Order", labels=[
     "META"
 ])
 
-
 #endregion
 
 #region Serializers definition for Notifications channel
