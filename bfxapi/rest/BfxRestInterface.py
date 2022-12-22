@@ -10,6 +10,8 @@ from .typings import *
 from .enums import OrderType, Config, Precision, Sort
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 
+from .. utils.encoder import JSONEncoder
+
 class BfxRestInterface(object):
     def __init__(self, host, API_KEY = None, API_SECRET = None):
         self.public = _RestPublicEndpoints(host=host)
@@ -58,7 +60,7 @@ class _Requests(object):
         if _append_authentication_headers:
             headers = { **headers, **self.__build_authentication_headers(endpoint, data) }
 
-        response = requests.post(f"{self.host}/{endpoint}", params=params, data=json.dumps(data), headers=headers)
+        response = requests.post(f"{self.host}/{endpoint}", params=params, data=json.dumps(data, cls=JSONEncoder), headers=headers)
         
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
@@ -252,4 +254,20 @@ class _RestAuthenticatedEndpoints(_Requests):
             "flags": flags, "tif": tif, "meta": meta
         }
         
-        return self._POST("auth/w/order/submit", data=data)
+        return serializers.Notification.parse(*self._POST("auth/w/order/submit", data=data))
+
+    def update_order(self, id: Union[Int64, int], amount: Optional[Union[Decimal, str]] = None, price: Optional[Union[Decimal, str]] = None,
+                     cid: Optional[Union[Int45, int]] = None, cid_date: Optional[str] = None, gid: Optional[Union[Int32, int]] = None,
+                     flags: Optional[Union[Int16, int]] = None, lev: Optional[Union[Int32, int]] = None, delta: Optional[Union[Decimal, str]] = None,
+                     price_aux_limit: Optional[Union[Decimal, str]] = None, price_trailing: Optional[Union[Decimal, str]] = None, tif: Optional[Union[datetime, str]] = None) -> Notification:
+        data = {
+            "id": id, "amount": amount, "price": price,
+            "cid": cid, "cid_date": cid_date, "gid": gid,
+            "flags": flags, "lev": lev, "delta": delta,
+            "price_aux_limit": price_aux_limit, "price_trailing": price_trailing, "tif": tif
+        }
+        
+        return serializers.Notification.parse(*self._POST("auth/w/order/update", data=data))
+
+    def cancel_order(self, id: Union[Int64, int]) -> Notification:
+        return serializers.Notification.parse(*self._POST("auth/w/order/cancel", data={ "id": id }))
