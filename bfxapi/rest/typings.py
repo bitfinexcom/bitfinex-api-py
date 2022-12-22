@@ -1,5 +1,7 @@
 from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
 
+from .. notification import Notification
+
 JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
 #region Type hinting for Rest Public Endpoints
@@ -166,18 +168,5 @@ class Order(TypedDict):
     PLACED_ID: int
     ROUTING: str
     META: JSON
-
-#endregion
-
-#region Type hinting for Notifications channel
-
-class Notification(TypedDict):
-    MTS: int
-    TYPE: str 
-    MESSAGE_ID: int
-    NOTIFY_INFO: JSON
-    CODE: int
-    STATUS: str
-    TEXT: str
 
 #endregion

@@ -2,6 +2,8 @@ from . import typings
 
 from .. labeler import _Serializer
 
+from .. notification import _Notification
+
 #region Serializers definition for Rest Public Endpoints
 
 PlatformStatus = _Serializer[typings.PlatformStatus]("PlatformStatus", labels=[
@@ -230,21 +232,6 @@ Order = _Serializer[typings.Order]("Order", labels=[
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "META"
-])
-
-#endregion
-
-#region Serializers definition for Notifications channel
-
-Notification = _Serializer[typings.Notification]("Notification", labels=[
-    "MTS",
-    "TYPE",
-    "MESSAGE_ID",
-    "_PLACEHOLDER",
-    "NOTIFY_INFO",
-    "CODE",
-    "STATUS",
-    "TEXT"
 ])
 
 #endregion

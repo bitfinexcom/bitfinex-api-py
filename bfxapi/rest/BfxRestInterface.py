@@ -1,5 +1,7 @@
 import time, hmac, hashlib, json, requests
 
+from decimal import Decimal
+from datetime import datetime
 from http import HTTPStatus
 
 from typing import List, Union, Literal, Optional, Any, cast
@@ -9,6 +11,8 @@ from . import serializers
 from .typings import *
 from .enums import OrderType, Config, Precision, Sort
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
+
+from .. utils.integers import Int16, Int32, Int45, Int64
 
 from .. utils.encoder import JSONEncoder
 
@@ -254,7 +258,7 @@ class _RestAuthenticatedEndpoints(_Requests):
             "flags": flags, "tif": tif, "meta": meta
         }
         
-        return serializers.Notification.parse(*self._POST("auth/w/order/submit", data=data))
+        return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/submit", data=data))
 
     def update_order(self, id: Union[Int64, int], amount: Optional[Union[Decimal, str]] = None, price: Optional[Union[Decimal, str]] = None,
                      cid: Optional[Union[Int45, int]] = None, cid_date: Optional[str] = None, gid: Optional[Union[Int32, int]] = None,
@@ -267,7 +271,7 @@ class _RestAuthenticatedEndpoints(_Requests):
             "price_aux_limit": price_aux_limit, "price_trailing": price_trailing, "tif": tif
         }
         
-        return serializers.Notification.parse(*self._POST("auth/w/order/update", data=data))
+        return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/update", data=data))
 
     def cancel_order(self, id: Union[Int64, int]) -> Notification:
-        return serializers.Notification.parse(*self._POST("auth/w/order/cancel", data={ "id": id }))
+        return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/cancel", data={ "id": id }))
