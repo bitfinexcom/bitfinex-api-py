@@ -1,20 +1,4 @@
-from enum import Enum
-
-class OrderType(str, Enum):
-    LIMIT = "LIMIT"
-    EXCHANGE_LIMIT = "EXCHANGE LIMIT"
-    MARKET = "MARKET"
-    EXCHANGE_MARKET = "EXCHANGE MARKET"
-    STOP = "STOP"
-    EXCHANGE_STOP = "EXCHANGE STOP"
-    STOP_LIMIT = "STOP LIMIT"
-    EXCHANGE_STOP_LIMIT = "EXCHANGE STOP LIMIT"
-    TRAILING_STOP = "TRAILING STOP"
-    EXCHANGE_TRAILING_STOP = "EXCHANGE TRAILING STOP"
-    FOK = "FOK"
-    EXCHANGE_FOK = "EXCHANGE FOK"
-    IOC = "IOC"
-    EXCHANGE_IOC = "EXCHANGE IOC"
+from ..enums import *
 
 class Config(str, Enum):
     MAP_CURRENCY_SYM = "pub:map:currency:sym"

@@ -9,7 +9,7 @@ from typing import List, Union, Literal, Optional, Any, cast
 from . import serializers
 
 from .typings import *
-from .enums import OrderType, Config, Precision, Sort
+from .enums import Config, Precision, Sort, OrderType, Error
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 
 from .. utils.integers import Int16, Int32, Int45, Int64
@@ -50,10 +50,10 @@ class _Requests(object):
         data = response.json()
 
         if len(data) and data[0] == "error":
-            if data[1] == 10020:
+            if data[1] == Error.ERR_PARAMS:
                 raise RequestParametersError(f"The request was rejected with the following parameter error: <{data[2]}>")
 
-            if data[1] == None or data[1] == 10000 or data[1] == 10001:
+            if data[1] == None or data[1] == Error.ERR_UNK or data[1] == Error.ERR_GENERIC:
                 raise UnknownGenericError("The server replied to the request with a generic error with message: <{data[2]}>.")
 
         return data
@@ -72,13 +72,13 @@ class _Requests(object):
         data = response.json()
 
         if len(data) and data[0] == "error":
-            if data[1] == 10020:
+            if data[1] == Error.ERR_PARAMS:
                 raise RequestParametersError(f"The request was rejected with the following parameter error: <{data[2]}>")
 
-            if data[1] == 10100:
+            if data[1] == Error.ERR_AUTH_FAIL:
                 raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
 
-            if data[1] == None or data[1] == 10000 or data[1] == 10001:
+            if data[1] == None or data[1] == Error.ERR_UNK or data[1] == Error.ERR_GENERIC:
                 raise UnknownGenericError(f"The server replied to the request with a generic error with message: <{data[2]}>.")
 
         return data

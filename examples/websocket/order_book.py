@@ -5,7 +5,7 @@ from typing import List
 from bfxapi import Client, Constants
 
 from bfxapi.websocket import BfxWebsocketClient
-from bfxapi.websocket.enums import Channels, Errors
+from bfxapi.websocket.enums import Channels, Error
 from bfxapi.websocket.typings import Subscriptions, TradingPairBook
 
 class OrderBook(object):
@@ -39,7 +39,7 @@ order_book = OrderBook(symbols=SYMBOLS)
 bfx = Client(WSS_HOST=Constants.PUB_WSS_HOST)
 
 @bfx.wss.on("wss-error")
-def on_wss_error(code: Errors, msg: str):
+def on_wss_error(code: Error, msg: str):
     print(code, msg)
 
 @bfx.wss.on("open")
