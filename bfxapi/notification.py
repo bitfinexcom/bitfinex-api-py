@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Any, TypedDict, cast
+from typing import List, Dict, Optional, Any, TypedDict, cast
 
 from .labeler import _Serializer
 
@@ -19,10 +19,10 @@ class _Notification(_Serializer):
 
         self.serializer = serializer
 
-    def parse(self, *values: Any) -> Notification:
+    def parse(self, *values: Any, skip: Optional[List[str]] = None) -> Notification:
         notification = dict(self._serialize(*values))
 
-        if self.serializer != None:
-            notification["NOTIFY_INFO"] = dict(self.serializer._serialize(*notification["NOTIFY_INFO"]))
+        if isinstance(self.serializer, _Serializer):
+            notification["NOTIFY_INFO"] = dict(self.serializer._serialize(*notification["NOTIFY_INFO"], skip=skip))
  
         return cast(Notification, notification)
