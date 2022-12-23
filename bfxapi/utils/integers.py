@@ -1,4 +1,4 @@
-from typing import cast, TypeVar
+from typing import cast, TypeVar, Union
 
 from .. exceptions import IntegerUnderflowError, IntegerOverflowflowError
 
@@ -25,11 +25,19 @@ class _Int(int):
 class Int16(_Int):
     _BITS = 16
 
+int16 = Union[Int16, int]
+
 class Int32(_Int):
     _BITS = 32
+
+int32 = Union[Int32, int]
 
 class Int45(_Int):
     _BITS = 45
 
+int45 = Union[Int45, int]
+
 class Int64(_Int):
     _BITS = 64
+
+int64 = Union[Int64, int]

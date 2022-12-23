@@ -234,4 +234,31 @@ Order = _Serializer[typings.Order]("Order", labels=[
     "META"
 ])
 
+Trade = _Serializer[typings.Trade]("Trade", labels=[
+    "ID", 
+    "PAIR", 
+    "MTS_CREATE", 
+    "ORDER_ID", 
+    "EXEC_AMOUNT", 
+    "EXEC_PRICE", 
+    "ORDER_TYPE", 
+    "ORDER_PRICE", 
+    "MAKER", 
+    "FEE", 
+    "FEE_CURRENCY",
+    "CID"
+])
+
+Ledger = _Serializer[typings.Ledger]("Ledger", labels=[
+    "ID",
+    "CURRENCY",
+    "_PLACEHOLDER",
+    "MTS",
+    "_PLACEHOLDER",
+    "AMOUNT",
+    "BALANCE",
+    "_PLACEHOLDER",
+    "DESCRIPTION"
+])
+
 #endregion

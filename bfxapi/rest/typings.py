@@ -169,4 +169,26 @@ class Order(TypedDict):
     ROUTING: str
     META: JSON
 
+class Trade(TypedDict):
+    ID: int 
+    SYMBOL: str 
+    MTS_CREATE: int
+    ORDER_ID: int 
+    EXEC_AMOUNT: float 
+    EXEC_PRICE: float 
+    ORDER_TYPE: str 
+    ORDER_PRICE: float 
+    MAKER:int
+    FEE: float
+    FEE_CURRENCY: str
+    CID: int
+
+class Ledger(TypedDict):
+    ID: int
+    CURRENCY: str 
+    MTS: int
+    AMOUNT: float
+    BALANCE: float
+    description: str
+
 #endregion

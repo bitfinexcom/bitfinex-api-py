@@ -12,7 +12,7 @@ from .typings import *
 from .enums import Config, Precision, Sort, OrderType, Error
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 
-from .. utils.integers import Int16, Int32, Int45, Int64
+from .. utils.integers import Int16, int32, int45, int64
 
 from .. utils.encoder import JSONEncoder
 
@@ -246,10 +246,10 @@ class _RestAuthenticatedEndpoints(_Requests):
         return [ serializers.Order.parse(*subdata) for subdata in self._POST("auth/r/orders", data={ "id": ids }) ]
 
     def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, str], 
-                     price: Optional[Union[Decimal, str]] = None, lev: Optional[Union[Int32, int]] = None, 
+                     price: Optional[Union[Decimal, str]] = None, lev: Optional[int] = None, 
                      price_trailing: Optional[Union[Decimal, str]] = None, price_aux_limit: Optional[Union[Decimal, str]] = None, price_oco_stop: Optional[Union[Decimal, str]] = None,
-                     gid: Optional[Union[Int32, int]] = None, cid: Optional[Union[Int45, int]] = None,
-                     flags: Optional[Union[Int16, int]] = None, tif: Optional[Union[datetime, str]] = None, meta: Optional[JSON] = None) -> Notification:
+                     gid: Optional[int] = None, cid: Optional[int] = None,
+                     flags: Optional[int] = None, tif: Optional[Union[datetime, str]] = None, meta: Optional[JSON] = None) -> Notification:
         data = {
             "type": type, "symbol": symbol, "amount": amount,
             "price": price, "lev": lev,
@@ -260,9 +260,9 @@ class _RestAuthenticatedEndpoints(_Requests):
         
         return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/submit", data=data))
 
-    def update_order(self, id: Union[Int64, int], amount: Optional[Union[Decimal, str]] = None, price: Optional[Union[Decimal, str]] = None,
-                     cid: Optional[Union[Int45, int]] = None, cid_date: Optional[str] = None, gid: Optional[Union[Int32, int]] = None,
-                     flags: Optional[Union[Int16, int]] = None, lev: Optional[Union[Int32, int]] = None, delta: Optional[Union[Decimal, str]] = None,
+    def update_order(self, id: int, amount: Optional[Union[Decimal, str]] = None, price: Optional[Union[Decimal, str]] = None,
+                     cid: Optional[int] = None, cid_date: Optional[str] = None, gid: Optional[int] = None,
+                     flags: Optional[int] = None, lev: Optional[int] = None, delta: Optional[Union[Decimal, str]] = None,
                      price_aux_limit: Optional[Union[Decimal, str]] = None, price_trailing: Optional[Union[Decimal, str]] = None, tif: Optional[Union[datetime, str]] = None) -> Notification:
         data = {
             "id": id, "amount": amount, "price": price,
@@ -273,5 +273,47 @@ class _RestAuthenticatedEndpoints(_Requests):
         
         return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/update", data=data))
 
-    def cancel_order(self, id: Union[Int64, int]) -> Notification:
-        return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/cancel", data={ "id": id }))
+    def cancel_order(self, id: Optional[int] = None, cid: Optional[int] = None, cid_date: Optional[str] = None) -> Notification:
+        data = { 
+            "id": id, 
+            "cid": cid, 
+            "cid_date": cid_date 
+        }
+
+        return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/cancel", data=data))
+
+    def cancel_order_multi(self, ids: Optional[List[int]] = None, cids: Optional[List[Tuple[int, str]]] = None, gids: Optional[List[int]] = None, all: bool = False) -> Notification:
+        data = {
+            "ids": ids,
+            "cids": cids,
+            "gids": gids,
+
+            "all": int(all)
+        }
+
+        return serializers._Notification(serializer=serializers.Order, iterate=True).parse(*self._POST("auth/w/order/cancel/multi", data=data))
+
+    def orders_history(self, symbol: Optional[str] = None, ids: Optional[List[int]] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Order]:
+        if symbol == None:
+            endpoint = "auth/r/orders/hist"
+        else: endpoint = f"auth/r/orders/{symbol}/hist"
+        
+        data = {
+            "id": ids,
+            "start": start, "end": end,
+            "limit": limit
+        }
+
+        return [ serializers.Order.parse(*subdata) for subdata in self._POST(endpoint, data=data) ]
+
+    def trades(self, symbol: str) -> List[Trade]:
+        return [ serializers.Trade.parse(*subdata) for subdata in self._POST(f"auth/r/trades/{symbol}/hist") ]
+
+    def ledgers(self, currency: str, category: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Ledger]:
+        data = {
+            "category": category,
+            "start": start, "end": end,
+            "limit": limit
+        }
+
+        return [ serializers.Ledger.parse(*subdata) for subdata in self._POST(f"auth/r/ledgers/{currency}/hist", data=data) ]
