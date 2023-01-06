@@ -16,6 +16,11 @@ class OrderType(str, Enum):
     IOC = "IOC"
     EXCHANGE_IOC = "EXCHANGE IOC"
 
+class FundingOfferType(str, Enum):
+    LIMIT = "LIMIT"
+    FRR_DELTA_FIX = "FRRDELTAFIX"
+    FRR_DELTA_VAR = "FRRDELTAVAR"
+
 class Flag(int, Enum):
     HIDDEN = 64
     CLOSE = 512
