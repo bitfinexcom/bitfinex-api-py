@@ -1,8 +1,8 @@
 import os
 
 from bfxapi.client import Client, Constants
+from bfxapi.enums import FundingOfferType
 from bfxapi.utils.flags import calculate_offer_flags
-from bfxapi.rest.typings import List, FundingOffer, Notification
 
 bfx = Client(
     REST_HOST=Constants.REST_HOST,
@@ -10,8 +10,8 @@ bfx = Client(
     API_SECRET=os.getenv("BFX_API_SECRET")
 )
 
-notification: Notification = bfx.rest.auth.submit_funding_offer(
-    type="LIMIT", 
+notification = bfx.rest.auth.submit_funding_offer(
+    type=FundingOfferType.LIMIT, 
     symbol="fUSD", 
     amount="123.45", 
     rate="0.001", 
@@ -21,6 +21,6 @@ notification: Notification = bfx.rest.auth.submit_funding_offer(
 
 print("Offer notification:", notification)
 
-offers: List[FundingOffer] = bfx.rest.auth.get_active_funding_offers()
+offers = bfx.rest.auth.get_active_funding_offers()
 
 print("Offers:", offers)

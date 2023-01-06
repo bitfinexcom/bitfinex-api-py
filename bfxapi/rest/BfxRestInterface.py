@@ -9,10 +9,8 @@ from typing import List, Union, Literal, Optional, Any, cast
 from . import serializers
 
 from .typings import *
-from .enums import Config, Precision, Sort, OrderType, FundingOfferType, Error
+from .enums import Config, Sort, OrderType, FundingOfferType, Error
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
-
-from .. utils.integers import Int16, int32, int45, int64
 
 from .. utils.encoder import JSONEncoder
 
@@ -64,7 +62,9 @@ class _Requests(object):
         if _append_authentication_headers:
             headers = { **headers, **self.__build_authentication_headers(endpoint, data) }
 
-        response = requests.post(f"{self.host}/{endpoint}", params=params, data=json.dumps(data, cls=JSONEncoder), headers=headers)
+        data = (data and json.dumps({ key: value for key, value in data.items() if value != None}, cls=JSONEncoder) or None)
+
+        response = requests.post(f"{self.host}/{endpoint}", params=params, data=data, headers=headers)
         
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
