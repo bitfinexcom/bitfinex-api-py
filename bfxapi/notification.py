@@ -24,7 +24,12 @@ class _Notification(_Serializer):
 
         if isinstance(self.serializer, _Serializer):
             if self.iterate == False:
-                notification["NOTIFY_INFO"] = dict(self.serializer._serialize(*notification["NOTIFY_INFO"], skip=skip))
+                NOTIFY_INFO = notification["NOTIFY_INFO"]
+
+                if len(NOTIFY_INFO) == 1 and isinstance(NOTIFY_INFO[0], list):
+                    NOTIFY_INFO = NOTIFY_INFO[0]
+
+                notification["NOTIFY_INFO"] = dict(self.serializer._serialize(*NOTIFY_INFO, skip=skip))
             else: notification["NOTIFY_INFO"] = [ dict(self.serializer._serialize(*data, skip=skip)) for data in notification["NOTIFY_INFO"] ]
 
         return cast(Notification, notification)
