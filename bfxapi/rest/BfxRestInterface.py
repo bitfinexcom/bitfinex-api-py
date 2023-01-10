@@ -9,10 +9,8 @@ from typing import List, Union, Literal, Optional, Any, cast
 from . import serializers
 
 from .typings import *
-from .enums import Config, Precision, Sort, OrderType, Error
+from .enums import Config, Sort, OrderType, FundingOfferType, Error
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
-
-from .. utils.integers import Int16, int32, int45, int64
 
 from .. utils.encoder import JSONEncoder
 
@@ -64,7 +62,9 @@ class _Requests(object):
         if _append_authentication_headers:
             headers = { **headers, **self.__build_authentication_headers(endpoint, data) }
 
-        response = requests.post(f"{self.host}/{endpoint}", params=params, data=json.dumps(data, cls=JSONEncoder), headers=headers)
+        data = (data and json.dumps({ key: value for key, value in data.items() if value != None}, cls=JSONEncoder) or None)
+
+        response = requests.post(f"{self.host}/{endpoint}", params=params, data=data, headers=headers)
         
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
@@ -84,39 +84,39 @@ class _Requests(object):
         return data
 
 class _RestPublicEndpoints(_Requests):
-    def platform_status(self) -> PlatformStatus:
+    def get_platform_status(self) -> PlatformStatus:
         return serializers.PlatformStatus.parse(*self._GET("platform/status"))
 
-    def tickers(self, symbols: List[str]) -> List[Union[TradingPairTicker, FundingCurrencyTicker]]:
+    def get_tickers(self, symbols: List[str]) -> List[Union[TradingPairTicker, FundingCurrencyTicker]]:
         data = self._GET("tickers", params={ "symbols": ",".join(symbols) })
         
         parsers = { "t": serializers.TradingPairTicker.parse, "f": serializers.FundingCurrencyTicker.parse }
         
         return [ parsers[subdata[0][0]](*subdata) for subdata in data ]
 
-    def t_tickers(self, pairs: Union[List[str], Literal["ALL"]]) -> List[TradingPairTicker]:
+    def get_t_tickers(self, pairs: Union[List[str], Literal["ALL"]]) -> List[TradingPairTicker]:
         if isinstance(pairs, str) and pairs == "ALL":
-            return [ cast(TradingPairTicker, subdata) for subdata in self.tickers([ "ALL" ]) if cast(str, subdata["SYMBOL"]).startswith("t") ]
+            return [ cast(TradingPairTicker, subdata) for subdata in self.get_tickers([ "ALL" ]) if cast(str, subdata["SYMBOL"]).startswith("t") ]
 
-        data = self.tickers([ "t" + pair for pair in pairs ])
+        data = self.get_tickers([ "t" + pair for pair in pairs ])
 
         return cast(List[TradingPairTicker], data)
 
-    def f_tickers(self, currencies: Union[List[str], Literal["ALL"]]) -> List[FundingCurrencyTicker]:
+    def get_f_tickers(self, currencies: Union[List[str], Literal["ALL"]]) -> List[FundingCurrencyTicker]:
         if isinstance(currencies, str) and currencies == "ALL":
-            return [ cast(FundingCurrencyTicker, subdata) for subdata in self.tickers([ "ALL" ]) if cast(str, subdata["SYMBOL"]).startswith("f") ]
+            return [ cast(FundingCurrencyTicker, subdata) for subdata in self.get_tickers([ "ALL" ]) if cast(str, subdata["SYMBOL"]).startswith("f") ]
 
-        data = self.tickers([ "f" + currency for currency in currencies ])
+        data = self.get_tickers([ "f" + currency for currency in currencies ])
 
         return cast(List[FundingCurrencyTicker], data)
 
-    def t_ticker(self, pair: str) -> TradingPairTicker:
+    def get_t_ticker(self, pair: str) -> TradingPairTicker:
         return serializers.TradingPairTicker.parse(*self._GET(f"ticker/t{pair}"), skip=["SYMBOL"])
 
-    def f_ticker(self, currency: str) -> FundingCurrencyTicker:
+    def get_f_ticker(self, currency: str) -> FundingCurrencyTicker:
         return serializers.FundingCurrencyTicker.parse(*self._GET(f"ticker/f{currency}"), skip=["SYMBOL"])
 
-    def tickers_history(self, symbols: List[str], start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[TickersHistory]:
+    def get_tickers_history(self, symbols: List[str], start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[TickersHistory]:
         params = {
             "symbols": ",".join(symbols),
             "start": start, "end": end,
@@ -127,29 +127,29 @@ class _RestPublicEndpoints(_Requests):
         
         return [ serializers.TickersHistory.parse(*subdata) for subdata in data ]
 
-    def t_trades(self, pair: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> List[TradingPairTrade]:
+    def get_t_trades(self, pair: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> List[TradingPairTrade]:
         params = { "limit": limit, "start": start, "end": end, "sort": sort }
         data = self._GET(f"trades/{'t' + pair}/hist", params=params)
         return [ serializers.TradingPairTrade.parse(*subdata) for subdata in data ]
 
-    def f_trades(self, currency: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> List[FundingCurrencyTrade]:
+    def get_f_trades(self, currency: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> List[FundingCurrencyTrade]:
         params = { "limit": limit, "start": start, "end": end, "sort": sort }
         data = self._GET(f"trades/{'f' + currency}/hist", params=params)
         return [ serializers.FundingCurrencyTrade.parse(*subdata) for subdata in data ]
 
-    def t_book(self, pair: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> List[TradingPairBook]:
+    def get_t_book(self, pair: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> List[TradingPairBook]:
         return [ serializers.TradingPairBook.parse(*subdata) for subdata in self._GET(f"book/{'t' + pair}/{precision}", params={ "len": len }) ]
 
-    def f_book(self, currency: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> List[FundingCurrencyBook]:
+    def get_f_book(self, currency: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> List[FundingCurrencyBook]:
         return [ serializers.FundingCurrencyBook.parse(*subdata) for subdata in self._GET(f"book/{'f' + currency}/{precision}", params={ "len": len }) ]
 
-    def t_raw_book(self, pair: str, len: Optional[Literal[1, 25, 100]] = None) -> List[TradingPairRawBook]:
+    def get_t_raw_book(self, pair: str, len: Optional[Literal[1, 25, 100]] = None) -> List[TradingPairRawBook]:
         return [ serializers.TradingPairRawBook.parse(*subdata) for subdata in self._GET(f"book/{'t' + pair}/R0", params={ "len": len }) ]
 
-    def f_raw_book(self, currency: str, len: Optional[Literal[1, 25, 100]] = None) -> List[FundingCurrencyRawBook]:
+    def get_f_raw_book(self, currency: str, len: Optional[Literal[1, 25, 100]] = None) -> List[FundingCurrencyRawBook]:
         return [ serializers.FundingCurrencyRawBook.parse(*subdata) for subdata in self._GET(f"book/{'f' + currency}/R0", params={ "len": len }) ]
 
-    def stats_hist(
+    def get_stats_hist(
         self, 
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
@@ -158,7 +158,7 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET(f"stats1/{resource}/hist", params=params)
         return [ serializers.Statistic.parse(*subdata) for subdata in data ]
 
-    def stats_last(
+    def get_stats_last(
         self, 
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
@@ -167,7 +167,7 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET(f"stats1/{resource}/last", params=params)
         return serializers.Statistic.parse(*data)
 
-    def candles_hist(
+    def get_candles_hist(
         self,
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
@@ -176,7 +176,7 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET(f"candles/{resource}/hist", params=params)
         return [ serializers.Candle.parse(*subdata) for subdata in data ]
 
-    def candles_last(
+    def get_candles_last(
         self,
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
@@ -185,14 +185,14 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET(f"candles/{resource}/last", params=params)
         return serializers.Candle.parse(*data)
 
-    def derivatives_status(self, type: str, keys: List[str]) -> List[DerivativesStatus]:
+    def get_derivatives_status(self, type: str, keys: List[str]) -> List[DerivativesStatus]:
         params = { "keys": ",".join(keys) }
 
         data = self._GET(f"status/{type}", params=params)
 
         return [ serializers.DerivativesStatus.parse(*subdata) for subdata in data ]
 
-    def derivatives_status_history(
+    def get_derivatives_status_history(
         self, 
         type: str, symbol: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
@@ -203,14 +203,14 @@ class _RestPublicEndpoints(_Requests):
 
         return [ serializers.DerivativesStatus.parse(*subdata, skip=[ "KEY" ]) for subdata in data ]
 
-    def liquidations(self, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Liquidation]:
+    def get_liquidations(self, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Liquidation]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
 
         data = self._GET("liquidations/hist", params=params)
 
         return [ serializers.Liquidation.parse(*subdata[0]) for subdata in data ]
 
-    def leaderboards_hist(
+    def get_leaderboards_hist(
         self,
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
@@ -219,7 +219,7 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET(f"rankings/{resource}/hist", params=params)
         return [ serializers.Leaderboard.parse(*subdata) for subdata in data ]
 
-    def leaderboards_last(
+    def get_leaderboards_last(
         self,
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
@@ -228,7 +228,7 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET(f"rankings/{resource}/last", params=params)
         return serializers.Leaderboard.parse(*data)
 
-    def funding_stats(self, symbol: str, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingStatistic]:
+    def get_funding_stats(self, symbol: str, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingStatistic]:
         params = { "start": start, "end": end, "limit": limit }
 
         data = self._GET(f"funding/stats/{symbol}/hist", params=params)
@@ -239,17 +239,17 @@ class _RestPublicEndpoints(_Requests):
         return self._GET(f"conf/{config}")[0]
 
 class _RestAuthenticatedEndpoints(_Requests):
-    def wallets(self) -> List[Wallet]:
+    def get_wallets(self) -> List[Wallet]:
         return [ serializers.Wallet.parse(*subdata) for subdata in self._POST("auth/r/wallets") ]
 
-    def retrieve_orders(self, ids: Optional[List[str]] = None) -> List[Order]:
+    def get_orders(self, ids: Optional[List[str]] = None) -> List[Order]:
         return [ serializers.Order.parse(*subdata) for subdata in self._POST("auth/r/orders", data={ "id": ids }) ]
 
     def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, str], 
                      price: Optional[Union[Decimal, str]] = None, lev: Optional[int] = None, 
                      price_trailing: Optional[Union[Decimal, str]] = None, price_aux_limit: Optional[Union[Decimal, str]] = None, price_oco_stop: Optional[Union[Decimal, str]] = None,
                      gid: Optional[int] = None, cid: Optional[int] = None,
-                     flags: Optional[int] = None, tif: Optional[Union[datetime, str]] = None, meta: Optional[JSON] = None) -> Notification:
+                     flags: Optional[int] = 0, tif: Optional[Union[datetime, str]] = None, meta: Optional[JSON] = None) -> Notification:
         data = {
             "type": type, "symbol": symbol, "amount": amount,
             "price": price, "lev": lev,
@@ -262,7 +262,7 @@ class _RestAuthenticatedEndpoints(_Requests):
 
     def update_order(self, id: int, amount: Optional[Union[Decimal, str]] = None, price: Optional[Union[Decimal, str]] = None,
                      cid: Optional[int] = None, cid_date: Optional[str] = None, gid: Optional[int] = None,
-                     flags: Optional[int] = None, lev: Optional[int] = None, delta: Optional[Union[Decimal, str]] = None,
+                     flags: Optional[int] = 0, lev: Optional[int] = None, delta: Optional[Union[Decimal, str]] = None,
                      price_aux_limit: Optional[Union[Decimal, str]] = None, price_trailing: Optional[Union[Decimal, str]] = None, tif: Optional[Union[datetime, str]] = None) -> Notification:
         data = {
             "id": id, "amount": amount, "price": price,
@@ -293,7 +293,7 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return serializers._Notification(serializer=serializers.Order, iterate=True).parse(*self._POST("auth/w/order/cancel/multi", data=data))
 
-    def orders_history(self, symbol: Optional[str] = None, ids: Optional[List[int]] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Order]:
+    def get_orders_history(self, symbol: Optional[str] = None, ids: Optional[List[int]] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Order]:
         if symbol == None:
             endpoint = "auth/r/orders/hist"
         else: endpoint = f"auth/r/orders/{symbol}/hist"
@@ -306,10 +306,10 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.Order.parse(*subdata) for subdata in self._POST(endpoint, data=data) ]
 
-    def trades(self, symbol: str) -> List[Trade]:
+    def get_trades(self, symbol: str) -> List[Trade]:
         return [ serializers.Trade.parse(*subdata) for subdata in self._POST(f"auth/r/trades/{symbol}/hist") ]
 
-    def ledgers(self, currency: str, category: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Ledger]:
+    def get_ledgers(self, currency: str, category: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Ledger]:
         data = {
             "category": category,
             "start": start, "end": end,
@@ -317,3 +317,22 @@ class _RestAuthenticatedEndpoints(_Requests):
         }
 
         return [ serializers.Ledger.parse(*subdata) for subdata in self._POST(f"auth/r/ledgers/{currency}/hist", data=data) ]
+
+    def get_active_funding_offers(self, symbol: Optional[str] = None) -> List[FundingOffer]:
+        endpoint = "auth/r/funding/offers"
+
+        if symbol != None:
+            endpoint += f"/{symbol}"
+
+        return [ serializers.FundingOffer.parse(*subdata) for subdata in self._POST(endpoint) ]
+
+    def submit_funding_offer(self, type: FundingOfferType, symbol: str, amount: Union[Decimal, str],
+                             rate: Union[Decimal, str], period: int,
+                             flags: Optional[int] = 0) -> Notification:
+        data = {
+            "type": type, "symbol": symbol, "amount": amount,
+            "rate": rate, "period": period, 
+            "flags": flags
+        }
+
+        return serializers._Notification(serializer=serializers.FundingOffer).parse(*self._POST("auth/w/funding/offer/submit", data=data))
