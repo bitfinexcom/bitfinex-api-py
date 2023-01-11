@@ -16,6 +16,7 @@ bfx = Client(
 @bfx.wss.on("wss-error")
 def on_wss_error(code: Error, msg: str):
     print(code, msg)
+
 @bfx.wss.on("authenticated")
 async def on_open(event):
     print(f"Auth event {event}")
