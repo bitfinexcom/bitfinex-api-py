@@ -30,12 +30,15 @@ async def on_open(event):
     await bfx.wss.inputs.order_new(order)
 
     print(f"Order sent")
+
 @bfx.wss.on("notification")
 async def on_notification(notification):
     print(f"Notification {notification}")
+
 @bfx.wss.on("order_new")
 async def on_order_new(order_new: Inputs.Order.New):
     print(f"Order new {order_new}")
+
 @bfx.wss.on("subscribed")
 def on_subscribed(subscription):
     print(f"Subscription successful <{subscription}>")
