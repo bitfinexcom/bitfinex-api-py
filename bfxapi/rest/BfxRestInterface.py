@@ -13,6 +13,7 @@ from .enums import Config, Sort, OrderType, FundingOfferType, Error
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 
 from .. utils.encoder import JSONEncoder
+from .. utils.cid import generate_unique_cid
 
 class BfxRestInterface(object):
     def __init__(self, host, API_KEY = None, API_SECRET = None):
@@ -30,7 +31,7 @@ class _Requests(object):
         signature = hmac.new(
             self.API_SECRET.encode("utf8"),
             f"/api/v2/{endpoint}{nonce}{json.dumps(data)}".encode("utf8"),
-            hashlib.sha384 
+            hashlib.sha384
         ).hexdigest()
 
         return {
@@ -41,7 +42,7 @@ class _Requests(object):
 
     def _GET(self, endpoint, params = None):
         response = requests.get(f"{self.host}/{endpoint}", params=params)
-        
+
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
 
@@ -62,10 +63,8 @@ class _Requests(object):
         if _append_authentication_headers:
             headers = { **headers, **self.__build_authentication_headers(endpoint, data) }
 
-        data = (data and json.dumps({ key: value for key, value in data.items() if value != None}, cls=JSONEncoder) or None)
+        response = requests.post(f"{self.host}/{endpoint}", params=params, data=json.dumps(data, cls=JSONEncoder), headers=headers)
 
-        response = requests.post(f"{self.host}/{endpoint}", params=params, data=data, headers=headers)
-        
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
 
@@ -89,9 +88,9 @@ class _RestPublicEndpoints(_Requests):
 
     def get_tickers(self, symbols: List[str]) -> List[Union[TradingPairTicker, FundingCurrencyTicker]]:
         data = self._GET("tickers", params={ "symbols": ",".join(symbols) })
-        
+
         parsers = { "t": serializers.TradingPairTicker.parse, "f": serializers.FundingCurrencyTicker.parse }
-        
+
         return [ parsers[subdata[0][0]](*subdata) for subdata in data ]
 
     def get_t_tickers(self, pairs: Union[List[str], Literal["ALL"]]) -> List[TradingPairTicker]:
@@ -124,7 +123,7 @@ class _RestPublicEndpoints(_Requests):
         }
 
         data = self._GET("tickers/hist", params=params)
-        
+
         return [ serializers.TickersHistory.parse(*subdata) for subdata in data ]
 
     def get_t_trades(self, pair: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> List[TradingPairTrade]:
@@ -150,7 +149,7 @@ class _RestPublicEndpoints(_Requests):
         return [ serializers.FundingCurrencyRawBook.parse(*subdata) for subdata in self._GET(f"book/{'f' + currency}/R0", params={ "len": len }) ]
 
     def get_stats_hist(
-        self, 
+        self,
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
     ) -> List[Statistic]:
@@ -159,7 +158,7 @@ class _RestPublicEndpoints(_Requests):
         return [ serializers.Statistic.parse(*subdata) for subdata in data ]
 
     def get_stats_last(
-        self, 
+        self,
         resource: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
     ) -> Statistic:
@@ -193,10 +192,10 @@ class _RestPublicEndpoints(_Requests):
         return [ serializers.DerivativesStatus.parse(*subdata) for subdata in data ]
 
     def get_derivatives_status_history(
-        self, 
+        self,
         type: str, symbol: str,
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
-    ) -> List[DerivativesStatus]: 
+    ) -> List[DerivativesStatus]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
 
         data = self._GET(f"status/{type}/{symbol}/hist", params=params)
@@ -245,39 +244,92 @@ class _RestAuthenticatedEndpoints(_Requests):
     def get_orders(self, ids: Optional[List[str]] = None) -> List[Order]:
         return [ serializers.Order.parse(*subdata) for subdata in self._POST("auth/r/orders", data={ "id": ids }) ]
 
-    def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, str], 
-                     price: Optional[Union[Decimal, str]] = None, lev: Optional[int] = None, 
+    def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, str],
+                     price: Optional[Union[Decimal, str]] = None, lev: Optional[int] = None,
                      price_trailing: Optional[Union[Decimal, str]] = None, price_aux_limit: Optional[Union[Decimal, str]] = None, price_oco_stop: Optional[Union[Decimal, str]] = None,
-                     gid: Optional[int] = None, cid: Optional[int] = None,
+                     gid: Optional[int] = None,
                      flags: Optional[int] = 0, tif: Optional[Union[datetime, str]] = None, meta: Optional[JSON] = None) -> Notification:
+        cid = generate_unique_cid()
+
         data = {
-            "type": type, "symbol": symbol, "amount": amount,
-            "price": price, "lev": lev,
-            "price_trailing": price_trailing, "price_aux_limit": price_aux_limit, "price_oco_stop": price_oco_stop,
-            "gid": gid, "cid": cid,
-            "flags": flags, "tif": tif, "meta": meta
+            "type": type, "symbol": symbol, "amount": str(amount), "price": str(price), "meta": meta, "cid": cid
         }
-        
+
+        # add extra parameters
+        if flags:
+            data["flags"] = flags
+
+        if price_trailing:
+            data["price_trailing"] = str(price_trailing)
+
+        if price_aux_limit:
+            data["price_aux_limit"] = str(price_aux_limit)
+
+        if price_oco_stop:
+            data["oco_stop_price"] = str(price_oco_stop)
+
+        if tif:
+            data["tif"] = str(tif)
+
+        if gid:
+            data["gid"] = gid
+
+        if lev:
+            data["lev"] = str(lev)
+
         return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/submit", data=data))
 
-    def update_order(self, id: int, amount: Optional[Union[Decimal, str]] = None, price: Optional[Union[Decimal, str]] = None,
+    def update_order(self, id: int, amount: Optional[Union[Decimal, str]] = None,
+                     price: Optional[Union[Decimal, str]] = None,
                      cid: Optional[int] = None, cid_date: Optional[str] = None, gid: Optional[int] = None,
                      flags: Optional[int] = 0, lev: Optional[int] = None, delta: Optional[Union[Decimal, str]] = None,
-                     price_aux_limit: Optional[Union[Decimal, str]] = None, price_trailing: Optional[Union[Decimal, str]] = None, tif: Optional[Union[datetime, str]] = None) -> Notification:
+                     price_aux_limit: Optional[Union[Decimal, str]] = None,
+                     price_trailing: Optional[Union[Decimal, str]] = None,
+                     tif: Optional[Union[datetime, str]] = None) -> Notification:
         data = {
-            "id": id, "amount": amount, "price": price,
-            "cid": cid, "cid_date": cid_date, "gid": gid,
-            "flags": flags, "lev": lev, "delta": delta,
-            "price_aux_limit": price_aux_limit, "price_trailing": price_trailing, "tif": tif
+            "id": id
         }
-        
+
+        if amount:
+            data["amount"] = str(amount)
+
+        if price:
+            data["price"] = str(price)
+
+        if cid:
+            data["cid"] = cid
+
+        if cid_date:
+            data["cid_date"] = str(cid_date)
+
+        if gid:
+            data["gid"] = gid
+
+        if flags:
+            data["flags"] = flags
+
+        if lev:
+            data["lev"] = str(lev)
+
+        if delta:
+            data["deta"] = str(delta)
+
+        if price_aux_limit:
+            data["price_aux_limit"] = str(price_aux_limit)
+
+        if price_trailing:
+            data["price_trailing"] = str(price_trailing)
+
+        if tif:
+            data["tif"] = str(tif)
+
         return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/update", data=data))
 
     def cancel_order(self, id: Optional[int] = None, cid: Optional[int] = None, cid_date: Optional[str] = None) -> Notification:
-        data = { 
-            "id": id, 
-            "cid": cid, 
-            "cid_date": cid_date 
+        data = {
+            "id": id,
+            "cid": cid,
+            "cid_date": cid_date
         }
 
         return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/cancel", data=data))
@@ -297,7 +349,7 @@ class _RestAuthenticatedEndpoints(_Requests):
         if symbol == None:
             endpoint = "auth/r/orders/hist"
         else: endpoint = f"auth/r/orders/{symbol}/hist"
-        
+
         data = {
             "id": ids,
             "start": start, "end": end,
@@ -331,7 +383,7 @@ class _RestAuthenticatedEndpoints(_Requests):
                              flags: Optional[int] = 0) -> Notification:
         data = {
             "type": type, "symbol": symbol, "amount": amount,
-            "rate": rate, "period": period, 
+            "rate": rate, "period": period,
             "flags": flags
         }
 
