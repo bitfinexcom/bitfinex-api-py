@@ -1,3 +1,5 @@
+# python -c "from examples.websocket.ticker import *"
+
 import asyncio
 
 from bfxapi import Client, Constants
@@ -16,4 +18,4 @@ def on_t_ticker_update(subscription: Subscriptions.TradingPairTicker, data: Trad
 async def open():
     await bfx.wss.subscribe(Channels.TICKER, symbol="tBTCUSD")
 
-asyncio.run(bfx.wss.start())
+bfx.wss.run()

@@ -1,10 +1,11 @@
+# python -c "from examples.websocket.order_book import *"
+
 from collections import OrderedDict
 
 from typing import List
 
 from bfxapi import Client, Constants
 
-from bfxapi.websocket import BfxWebsocketClient
 from bfxapi.websocket.enums import Channels, Error
 from bfxapi.websocket.typings import Subscriptions, TradingPairBook
 
