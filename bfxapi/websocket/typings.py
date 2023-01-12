@@ -1,10 +1,4 @@
-from decimal import Decimal
-
-from datetime import datetime
-
 from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
-
-from ..utils.integers import Int16, Int32, Int45, Int64
 
 JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
@@ -291,56 +285,4 @@ class Notification(TypedDict):
     STATUS: str
     TEXT: str
 
-#endregion
-
-#region Type hinting for Websocket Authenticated Inputs
-
-class Inputs:
-    class Order:
-        class New(TypedDict, total=False):
-            gid: Union[Int32, int]
-            cid: Union[Int45, int]
-            type: str
-            symbol: str
-            amount: Union[Decimal, str]
-            price: Union[Decimal, str]
-            lev: Union[Int32, int]
-            price_trailing: Union[Decimal, str]
-            price_aux_limit: Union[Decimal, str]
-            price_oco_stop: Union[Decimal, str]
-            flags: Union[Int16, int]
-            tif: Union[datetime, str]
-            meta: JSON
-
-        class Update(TypedDict, total=False):
-            id: Union[Int64, int]
-            cid: Union[Int45, int]
-            cid_date: str
-            gid: Union[Int32, int]
-            price: Union[Decimal, str]
-            amount: Union[Decimal, str]
-            lev: Union[Int32, int]
-            delta: Union[Decimal, str]
-            price_aux_limit: Union[Decimal, str]
-            price_trailing: Union[Decimal, str]
-            flags: Union[Int16, int]
-            tif: Union[datetime, str]
-
-        class Cancel(TypedDict, total=False):
-            id: Union[Int64, int]
-            cid: Union[Int45, int]
-            cid_date: Union[datetime, str]
-
-    class Offer:
-        class New(TypedDict, total=False):
-            type: str
-            symbol: str
-            amount: Union[Decimal, str]
-            rate: Union[Decimal, str]
-            period: Union[Int32, int]
-            flags: Union[Int16, int]
-
-        class Cancel(TypedDict, total=False):
-            id: Union[Int32, int]
-        
 #endregion

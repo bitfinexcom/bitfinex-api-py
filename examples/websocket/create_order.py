@@ -3,9 +3,8 @@
 import os
 
 from bfxapi.client import Client, Constants
-from bfxapi.utils.cid import generate_unique_cid
 from bfxapi.websocket.enums import Error, OrderType
-from bfxapi.websocket.typings import Inputs
+from bfxapi.websocket.typings import Order
 
 bfx = Client(
     WSS_HOST=Constants.WSS_HOST,
@@ -18,30 +17,28 @@ def on_wss_error(code: Error, msg: str):
     print(code, msg)
 
 @bfx.wss.on("authenticated")
-async def on_open(event):
-    print(f"Auth event {event}")
+async def on_authenticated(event):
+    print(f"Authentication: {event}.")
 
-    order: Inputs.Order.New = {
-        "gid": generate_unique_cid(),
-        "type": OrderType.EXCHANGE_LIMIT,
-        "symbol": "tBTCUST",
-        "amount": "0.1",
-        "price": "10000.0"
-    }
-    await bfx.wss.inputs.order_new(order)
+    await bfx.wss.inputs.submit_order(
+        type=OrderType.EXCHANGE_LIMIT,
+        symbol="tBTCUSD",
+        amount="0.1",
+        price="10000.0"
+    )
 
-    print(f"Order sent")
+    print("The order has been sent.")
 
 @bfx.wss.on("notification")
 async def on_notification(notification):
-    print(f"Notification {notification}")
+    print(f"Notification: {notification}.")
 
 @bfx.wss.on("order_new")
-async def on_order_new(order_new: Inputs.Order.New):
-    print(f"Order new {order_new}")
+async def on_order_new(order_new: Order):
+    print(f"Order new: {order_new}")
 
 @bfx.wss.on("subscribed")
 def on_subscribed(subscription):
-    print(f"Subscription successful <{subscription}>")
+    print(f"Subscription successful for <{subscription}>.")
 
 bfx.wss.run()
