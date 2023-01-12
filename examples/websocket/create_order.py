@@ -4,7 +4,7 @@ import os
 
 from bfxapi.client import Client, Constants
 from bfxapi.websocket.enums import Error, OrderType
-from bfxapi.websocket.typings import Order
+from bfxapi.websocket.typings import Notification, Order
 
 bfx = Client(
     WSS_HOST=Constants.WSS_HOST,
@@ -29,8 +29,8 @@ async def on_authenticated(event):
 
     print("The order has been sent.")
 
-@bfx.wss.on("notification")
-async def on_notification(notification):
+@bfx.wss.on("on-req-notification")
+async def on_notification(notification: Notification):
     print(f"Notification: {notification}.")
 
 @bfx.wss.on("order_new")

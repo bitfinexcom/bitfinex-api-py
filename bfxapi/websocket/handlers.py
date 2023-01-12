@@ -146,7 +146,13 @@ class AuthenticatedChannelsHandler(object):
         ("bu",): serializers.BalanceInfo
     }
 
-    EVENTS = [ "notification", *list(__abbreviations.values()) ]
+    EVENTS = [ 
+        "notification", 
+        "on-req-notification", "ou-req-notification", "oc-req-notification",
+        "oc_multi-notification",
+        "fon-req-notification", "foc-req-notification",
+        *list(__abbreviations.values()) 
+    ]
 
     def __init__(self, event_emitter, strict = False):
         self.event_emitter, self.strict = event_emitter, strict
@@ -168,4 +174,13 @@ class AuthenticatedChannelsHandler(object):
             raise BfxWebsocketException(f"Event of type <{type}> not found in self.__handlers.")
     
     def __notification(self, stream):
-        return self.event_emitter.emit("notification", serializers.Notification.parse(*stream))
+        if stream[1] == "on-req" or stream[1] == "ou-req" or stream[1] == "oc-req":
+            return self.event_emitter.emit(f"{stream[1]}-notification", serializers._Notification(serializer=serializers.Order).parse(*stream))
+
+        if stream[1] == "oc_multi-req":
+            return self.event_emitter.emit(f"{stream[1]}-notification", serializers._Notification(serializer=serializers.Order, iterate=True).parse(*stream))
+
+        if stream[1] == "fon-req" or stream[1] == "foc-req":
+            return self.event_emitter.emit(f"{stream[1]}-notification", serializers._Notification(serializer=serializers.FundingOffer).parse(*stream))
+
+        return self.event_emitter.emit("notification", serializers._Notification(serializer=None).parse(*stream))
