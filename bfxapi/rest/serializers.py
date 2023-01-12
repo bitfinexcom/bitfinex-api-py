@@ -2,9 +2,16 @@ from . import typings
 
 from .. labeler import _Serializer
 
-#region Serializers definition for Websocket Public Channels
+from .. notification import _Notification
+
+#region Serializers definition for Rest Public Endpoints
+
+PlatformStatus = _Serializer[typings.PlatformStatus]("PlatformStatus", labels=[
+    "OPERATIVE"
+])
 
 TradingPairTicker = _Serializer[typings.TradingPairTicker]("TradingPairTicker", labels=[
+    "SYMBOL",
     "BID",
     "BID_SIZE",
     "ASK",
@@ -18,6 +25,7 @@ TradingPairTicker = _Serializer[typings.TradingPairTicker]("TradingPairTicker", 
 ])
 
 FundingCurrencyTicker = _Serializer[typings.FundingCurrencyTicker]("FundingCurrencyTicker", labels=[
+    "SYMBOL",
     "FRR",
     "BID",
     "BID_PERIOD",
@@ -30,10 +38,26 @@ FundingCurrencyTicker = _Serializer[typings.FundingCurrencyTicker]("FundingCurre
     "LAST_PRICE",
     "VOLUME",
     "HIGH",
-    "LOW"
+    "LOW",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "FRR_AMOUNT_AVAILABLE"
+])
+
+TickersHistory = _Serializer[typings.TickersHistory]("TickersHistory", labels=[
+    "SYMBOL",
+    "BID",
+    "_PLACEHOLDER",
+    "ASK",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "MTS"
 ])
 
 TradingPairTrade = _Serializer[typings.TradingPairTrade]("TradingPairTrade", labels=[ 
@@ -77,17 +101,23 @@ FundingCurrencyRawBook = _Serializer[typings.FundingCurrencyRawBook]("FundingCur
     "AMOUNT"
 ])
 
+Statistic = _Serializer[typings.Statistic]("Statistic", labels=[
+    "MTS",
+    "VALUE"
+])
+
 Candle = _Serializer[typings.Candle]("Candle", labels=[
-    "MTS", 
-    "OPEN", 
-    "CLOSE", 
-    "HIGH", 
-    "LOW", 
+    "MTS",
+    "OPEN",
+    "CLOSE",
+    "HIGH",
+    "LOW",
     "VOLUME"
 ])
 
 DerivativesStatus = _Serializer[typings.DerivativesStatus]("DerivativesStatus", labels=[
-    "TIME_MS",
+    "KEY",
+    "MTS",
     "_PLACEHOLDER", 
     "DERIV_PRICE",
     "SPOT_PRICE",
@@ -98,7 +128,7 @@ DerivativesStatus = _Serializer[typings.DerivativesStatus]("DerivativesStatus", 
     "NEXT_FUNDING_ACCRUED",
     "NEXT_FUNDING_STEP",
     "_PLACEHOLDER",
-    "CURRENT_FUNDING"
+    "CURRENT_FUNDING",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "MARK_PRICE",
@@ -112,9 +142,62 @@ DerivativesStatus = _Serializer[typings.DerivativesStatus]("DerivativesStatus", 
     "CLAMP_MAX"
 ])
 
+Liquidation = _Serializer[typings.Liquidation]("Liquidation", labels=[
+    "_PLACEHOLDER",
+    "POS_ID",
+    "MTS",
+    "_PLACEHOLDER",
+    "SYMBOL",
+    "AMOUNT",
+    "BASE_PRICE",
+    "_PLACEHOLDER",
+    "IS_MATCH",
+    "IS_MARKET_SOLD",
+    "_PLACEHOLDER",
+    "PRICE_ACQUIRED"
+])
+
+Leaderboard = _Serializer[typings.Leaderboard]("Leaderboard", labels=[
+    "MTS",
+    "_PLACEHOLDER",
+    "USERNAME",
+    "RANKING",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "VALUE",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "TWITTER_HANDLE"
+])
+
+FundingStatistic = _Serializer[typings.FundingStatistic]("FundingStatistic", labels=[
+    "TIMESTAMP",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "FRR",
+    "AVG_PERIOD",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "FUNDING_AMOUNT",
+    "FUNDING_AMOUNT_USED",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "FUNDING_BELOW_THRESHOLD"
+])
+
 #endregion
 
-#region Serializers definition for Websocket Authenticated Channels
+#region Serializers definition for Rest Authenticated Endpoints
+
+Wallet = _Serializer[typings.Wallet]("Wallet", labels=[
+    "WALLET_TYPE", 
+    "CURRENCY", 
+    "BALANCE", 
+    "UNSETTLED_INTEREST",
+    "AVAILABLE_BALANCE",
+    "LAST_CHANGE",
+    "TRADE_DETAILS"
+])
 
 Order = _Serializer[typings.Order]("Order", labels=[
     "ID",
@@ -151,59 +234,6 @@ Order = _Serializer[typings.Order]("Order", labels=[
     "META"
 ])
 
-Position = _Serializer[typings.Position]("Position", labels=[
-    "SYMBOL", 
-    "STATUS", 
-    "AMOUNT", 
-    "BASE_PRICE", 
-    "MARGIN_FUNDING", 
-    "MARGIN_FUNDING_TYPE",
-    "PL",
-    "PL_PERC",
-    "PRICE_LIQ",
-    "LEVERAGE",
-    "FLAG",
-    "POSITION_ID",
-    "MTS_CREATE",
-    "MTS_UPDATE",
-    "_PLACEHOLDER",
-    "TYPE",
-    "_PLACEHOLDER",
-    "COLLATERAL",
-    "COLLATERAL_MIN",
-    "META"
-])
-
-TradeExecuted = _Serializer[typings.TradeExecuted]("TradeExecuted", labels=[
-    "ID", 
-    "SYMBOL", 
-    "MTS_CREATE",
-    "ORDER_ID", 
-    "EXEC_AMOUNT", 
-    "EXEC_PRICE", 
-    "ORDER_TYPE", 
-    "ORDER_PRICE", 
-    "MAKER",
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "CID"
-])
-
-TradeExecutionUpdate = _Serializer[typings.TradeExecutionUpdate]("TradeExecutionUpdate", labels=[
-    "ID", 
-    "SYMBOL", 
-    "MTS_CREATE",
-    "ORDER_ID", 
-    "EXEC_AMOUNT", 
-    "EXEC_PRICE", 
-    "ORDER_TYPE", 
-    "ORDER_PRICE", 
-    "MAKER",
-    "FEE",
-    "FEE_CURRENCY",
-    "CID"
-])
-
 FundingOffer = _Serializer[typings.FundingOffer]("FundingOffer", labels=[
     "ID",
     "SYMBOL",
@@ -215,7 +245,7 @@ FundingOffer = _Serializer[typings.FundingOffer]("FundingOffer", labels=[
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "FLAGS",
-    "STATUS",
+    "OFFER_STATUS",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
@@ -228,83 +258,31 @@ FundingOffer = _Serializer[typings.FundingOffer]("FundingOffer", labels=[
     "_PLACEHOLDER"
 ])
 
-FundingCredit = _Serializer[typings.FundingCredit]("FundingCredit", labels=[
+Trade = _Serializer[typings.Trade]("Trade", labels=[
+    "ID", 
+    "PAIR", 
+    "MTS_CREATE", 
+    "ORDER_ID", 
+    "EXEC_AMOUNT", 
+    "EXEC_PRICE", 
+    "ORDER_TYPE", 
+    "ORDER_PRICE", 
+    "MAKER", 
+    "FEE", 
+    "FEE_CURRENCY",
+    "CID"
+])
+
+Ledger = _Serializer[typings.Ledger]("Ledger", labels=[
     "ID",
-    "SYMBOL",
-    "SIDE",
-    "MTS_CREATE",
-    "MTS_UPDATE",
-    "AMOUNT",
-    "FLAGS",
-    "STATUS",
+    "CURRENCY",
     "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "RATE",
-    "PERIOD",
-    "MTS_OPENING",
-    "MTS_LAST_PAYOUT",
-    "NOTIFY",
-    "HIDDEN",
-    "_PLACEHOLDER",
-    "RENEW",
-    "RATE_REAL",
-    "NO_CLOSE",
-    "POSITION_PAIR"
-])
-
-FundingLoan = _Serializer[typings.FundingLoan]("FundingLoan", labels=[
-    "ID",
-    "SYMBOL",
-    "SIDE",
-    "MTS_CREATE",
-    "MTS_UPDATE",
-    "AMOUNT",
-    "FLAGS",
-    "STATUS",
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "RATE",
-    "PERIOD",
-    "MTS_OPENING",
-    "MTS_LAST_PAYOUT",
-    "NOTIFY",
-    "HIDDEN",
-    "_PLACEHOLDER",
-    "RENEW",
-    "RATE_REAL",
-    "NO_CLOSE"
-])
-
-Wallet = _Serializer[typings.Wallet]("Wallet", labels=[
-    "WALLET_TYPE", 
-    "CURRENCY", 
-    "BALANCE", 
-    "UNSETTLED_INTEREST",
-    "BALANCE_AVAILABLE",
-    "DESCRIPTION",
-    "META"
-])
-
-BalanceInfo = _Serializer[typings.BalanceInfo]("BalanceInfo", labels=[
-    "AUM", 
-    "AUM_NET", 
-])
-
-#endregion
-
-#region Serializers definition for Notifications channel
-
-Notification = _Serializer[typings.Notification]("Notification", labels=[
     "MTS",
-    "TYPE",
-    "MESSAGE_ID",
     "_PLACEHOLDER",
-    "NOTIFY_INFO",
-    "CODE",
-    "STATUS",
-    "TEXT"
+    "AMOUNT",
+    "BALANCE",
+    "_PLACEHOLDER",
+    "DESCRIPTION"
 ])
 
 #endregion

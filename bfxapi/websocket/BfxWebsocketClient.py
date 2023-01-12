@@ -1,25 +1,40 @@
 import traceback, json, asyncio, hmac, hashlib, time, uuid, websockets
 
+from typing import Tuple, Union, Literal, TypeVar, Callable, cast
+
 from enum import Enum
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from .typings import Inputs, Tuple, Union
+from .typings import Inputs
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
 from .exceptions import ConnectionNotOpen, TooManySubscriptions, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
+
+from ..utils.encoder import JSONEncoder
 
 from ..utils.logger import Formatter, CustomLogger
 
 _HEARTBEAT = "hb"
 
-def _require_websocket_connection(function):
+F = TypeVar("F", bound=Callable[..., Literal[None]])
+
+def _require_websocket_connection(function: F) -> F:
     async def wrapper(self, *args, **kwargs):
         if self.websocket == None or self.websocket.open == False:
             raise ConnectionNotOpen("No open connection with the server.")
     
         await function(self, *args, **kwargs)
 
-    return wrapper
+    return cast(F, wrapper)
+
+def _require_websocket_authentication(function: F) -> F:
+    async def wrapper(self, *args, **kwargs):
+        if self.authentication == False:
+            raise WebsocketAuthenticationRequired("To perform this action you need to authenticate using your API_KEY and API_SECRET.")
+    
+        await _require_websocket_connection(function)(self, *args, **kwargs)
+
+    return cast(F, wrapper)
 
 class BfxWebsocketClient(object):
     VERSION = 2
@@ -118,22 +133,13 @@ class BfxWebsocketClient(object):
         for bucket in self.buckets:
             await bucket._close(code=code, reason=reason)
 
-    def __require_websocket_authentication(function):
-        async def wrapper(self, *args, **kwargs):
-            if self.authentication == False:
-                raise WebsocketAuthenticationRequired("To perform this action you need to authenticate using your API_KEY and API_SECRET.")
-        
-            await _require_websocket_connection(function)(self, *args, **kwargs)
-
-        return wrapper
-
-    @__require_websocket_authentication
+    @_require_websocket_authentication
     async def notify(self, info, MESSAGE_ID=None, **kwargs):
         await self.websocket.send(json.dumps([ 0, "n", MESSAGE_ID, { "type": "ucm-test", "info": info, **kwargs } ]))
 
-    @__require_websocket_authentication
+    @_require_websocket_authentication
     async def __handle_websocket_input(self, input, data):
-        await self.websocket.send(json.dumps([ 0, input, None, data]))
+        await self.websocket.send(json.dumps([ 0, input, None, data], cls=JSONEncoder))
 
     def __bucket_open_signal(self, index):
         if all(bucket.websocket != None and bucket.websocket.open == True for bucket in self.buckets):
