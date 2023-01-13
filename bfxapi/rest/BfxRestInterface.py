@@ -341,3 +341,6 @@ class _RestAuthenticatedEndpoints(_Requests):
         }
 
         return serializers._Notification(serializer=serializers.FundingOffer).parse(*self._POST("auth/w/funding/offer/submit", data=data))
+
+    def cancel_funding_offer(self, id: int) -> Notification:
+        return serializers._Notification(serializer=serializers.FundingOffer).parse(*self._POST("auth/w/funding/offer/cancel", data={ "id": id }))

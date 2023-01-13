@@ -2,6 +2,8 @@ from . import typings
 
 from .. labeler import _Serializer
 
+from .. notification import _Notification
+
 #region Serializers definition for Websocket Public Channels
 
 TradingPairTicker = _Serializer[typings.TradingPairTicker]("TradingPairTicker", labels=[
@@ -290,21 +292,6 @@ Wallet = _Serializer[typings.Wallet]("Wallet", labels=[
 BalanceInfo = _Serializer[typings.BalanceInfo]("BalanceInfo", labels=[
     "AUM", 
     "AUM_NET", 
-])
-
-#endregion
-
-#region Serializers definition for Notifications channel
-
-Notification = _Serializer[typings.Notification]("Notification", labels=[
-    "MTS",
-    "TYPE",
-    "MESSAGE_ID",
-    "_PLACEHOLDER",
-    "NOTIFY_INFO",
-    "CODE",
-    "STATUS",
-    "TEXT"
 ])
 
 #endregion

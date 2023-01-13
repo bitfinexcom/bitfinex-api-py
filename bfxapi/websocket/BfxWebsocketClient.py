@@ -1,12 +1,10 @@
 import traceback, json, asyncio, hmac, hashlib, time, uuid, websockets
 
-from typing import Tuple, Union, Literal, TypeVar, Callable, cast
-
-from enum import Enum
+from typing import Literal, TypeVar, Callable, cast
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from .typings import Inputs
+from ._BfxWebsocketInputs import _BfxWebsocketInputs
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
 from .exceptions import ConnectionNotOpen, TooManySubscriptions, WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
@@ -231,28 +229,3 @@ class _BfxWebsocketBucket(object):
     @_require_websocket_connection
     async def _close(self, code=1000, reason=str()):
         await self.websocket.close(code=code, reason=reason)
-
-class _BfxWebsocketInputs(object):
-    def __init__(self, __handle_websocket_input):
-        self.__handle_websocket_input = __handle_websocket_input
-
-    async def order_new(self, data: Inputs.Order.New):
-        await self.__handle_websocket_input("on", data)
-
-    async def order_update(self, data: Inputs.Order.Update):
-        await self.__handle_websocket_input("ou", data)
-
-    async def order_cancel(self, data: Inputs.Order.Cancel):
-        await self.__handle_websocket_input("oc", data)
-
-    async def order_multiple_operations(self, *args: Tuple[str, Union[Inputs.Order.New, Inputs.Order.Update, Inputs.Order.Cancel]]):
-        await self.__handle_websocket_input("ox_multi", args)
-
-    async def offer_new(self, data: Inputs.Offer.New):
-        await self.__handle_websocket_input("fon", data)
-
-    async def offer_cancel(self, data: Inputs.Offer.Cancel):
-        await self.__handle_websocket_input("foc", data)
-
-    async def calc(self, *args: str):
-        await self.__handle_websocket_input("calc", list(map(lambda arg: [arg], args)))
