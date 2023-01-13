@@ -234,6 +234,29 @@ Order = _Serializer[typings.Order]("Order", labels=[
     "META"
 ])
 
+Position = _Serializer[typings.Position]("Position", labels=[
+    "SYMBOL", 
+    "STATUS", 
+    "AMOUNT", 
+    "BASE_PRICE", 
+    "FUNDING", 
+    "FUNDING_TYPE",
+    "PL",
+    "PL_PERC",
+    "PRICE_LIQ",
+    "LEVERAGE",
+    "_PLACEHOLDER",
+    "POSITION_ID",
+    "MTS_CREATE",
+    "MTS_UPDATE",
+    "_PLACEHOLDER",
+    "TYPE",
+    "_PLACEHOLDER",
+    "COLLATERAL",
+    "COLLATERAL_MIN",
+    "META"
+])
+
 FundingOffer = _Serializer[typings.FundingOffer]("FundingOffer", labels=[
     "ID",
     "SYMBOL",
@@ -273,6 +296,21 @@ Trade = _Serializer[typings.Trade]("Trade", labels=[
     "CID"
 ])
 
+OrderTrade = _Serializer[typings.OrderTrade]("OrderTrade", labels=[
+    "ID",
+    "PAIR",
+    "MTS_CREATE",
+    "ORDER_ID",
+    "EXEC_AMOUNT",
+    "EXEC_PRICE",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "MAKER",
+    "FEE",
+    "FEE_CURRENCY",
+    "CID"
+])
+
 Ledger = _Serializer[typings.Ledger]("Ledger", labels=[
     "ID",
     "CURRENCY",
@@ -283,6 +321,31 @@ Ledger = _Serializer[typings.Ledger]("Ledger", labels=[
     "BALANCE",
     "_PLACEHOLDER",
     "DESCRIPTION"
+])
+
+FundingCredit = _Serializer[typings.FundingCredit]("FundingCredit", labels=[
+    "ID",
+    "SYMBOL",
+    "SIDE",
+    "MTS_CREATE",
+    "MTS_UPDATE",
+    "AMOUNT",
+    "FLAGS",
+    "STATUS",
+    "RATE_TYPE",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "RATE",
+    "PERIOD",
+    "MTS_OPENING",
+    "MTS_LAST_PAYOUT",
+    "NOTIFY",
+    "HIDDEN",
+    "_PLACEHOLDER",
+    "RENEW",
+    "_PLACEHOLDER",
+    "NO_CLOSE",
+    "POSITION_PAIR"
 ])
 
 #endregion

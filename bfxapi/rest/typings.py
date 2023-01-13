@@ -169,6 +169,25 @@ class Order(TypedDict):
     ROUTING: str
     META: JSON
 
+class Position(TypedDict):
+    SYMBOL: str
+    STATUS: str
+    AMOUNT: float
+    BASE_PRICE: float
+    MARGIN_FUNDING: float
+    MARGIN_FUNDING_TYPE: int
+    PL: float
+    PL_PERC: float
+    PRICE_LIQ: float
+    LEVERAGE: float
+    POSITION_ID: int
+    MTS_CREATE: int
+    MTS_UPDATE: int
+    TYPE: int
+    COLLATERAL: float
+    COLLATERAL_MIN: float
+    META: JSON
+
 class FundingOffer(TypedDict):
     ID: int
     SYMBOL: str
@@ -199,6 +218,18 @@ class Trade(TypedDict):
     FEE_CURRENCY: str
     CID: int
 
+class OrderTrade(TypedDict):
+    ID: int 
+    SYMBOL: str 
+    MTS_CREATE: int
+    ORDER_ID: int 
+    EXEC_AMOUNT: float 
+    EXEC_PRICE: float 
+    MAKER:int
+    FEE: float
+    FEE_CURRENCY: str
+    CID: int
+
 class Ledger(TypedDict):
     ID: int
     CURRENCY: str 
@@ -206,5 +237,25 @@ class Ledger(TypedDict):
     AMOUNT: float
     BALANCE: float
     description: str
+
+class FundingCredit(TypedDict):
+    ID: int
+    SYMBOL: str
+    SIDE: int
+    MTS_CREATE: int
+    MTS_UPDATE: int
+    AMOUNT: float
+    FLAGS: int
+    STATUS: str
+    RATE: float
+    PERIOD: int
+    MTS_OPENING: int
+    MTS_LAST_PAYOUT: int
+    NOTIFY: int
+    HIDDEN: int
+    RENEW: int
+    RATE_REAL: float
+    NO_CLOSE: int
+    POSITION_PAIR: str
 
 #endregion
