@@ -247,8 +247,16 @@ class _RestAuthenticatedEndpoints(_Requests):
     def get_wallets(self) -> List[Wallet]:
         return [ serializers.Wallet.parse(*subdata) for subdata in self._POST("auth/r/wallets") ]
 
-    def get_orders(self, ids: Optional[List[str]] = None) -> List[Order]:
-        return [ serializers.Order.parse(*subdata) for subdata in self._POST("auth/r/orders", data={ "id": ids }) ]
+    def get_orders(self, symbol: Optional[str] = None, ids: Optional[List[str]] = None) -> List[Order]:
+        endpoint = "auth/r/orders"
+
+        if symbol != None:
+            endpoint += f"/{symbol}"
+
+        return [ serializers.Order.parse(*subdata) for subdata in self._POST(endpoint, data={ "id": ids }) ]
+
+    def get_positions(self) -> List[Position]:
+        return [ serializers.Position.parse(*subdata) for subdata in self._POST("auth/r/positions") ]
 
     def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, str], 
                      price: Optional[Union[Decimal, str]] = None, lev: Optional[int] = None, 
@@ -311,8 +319,21 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.Order.parse(*subdata) for subdata in self._POST(endpoint, data=data) ]
 
-    def get_trades(self, symbol: str) -> List[Trade]:
-        return [ serializers.Trade.parse(*subdata) for subdata in self._POST(f"auth/r/trades/{symbol}/hist") ]
+    def get_trades_history(self, symbol: Optional[str] = None, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Trade]:
+        if symbol == None:
+            endpoint = "auth/r/trades/hist"
+        else: endpoint = f"auth/r/trades/{symbol}/hist"
+        
+        data = {
+            "sort": sort,
+            "start": start, "end": end,
+            "limit": limit
+        }
+
+        return [ serializers.Trade.parse(*subdata) for subdata in self._POST(endpoint, data=data) ]
+
+    def get_order_trades(self, symbol: str, id: int) -> List[OrderTrade]:
+        return [ serializers.OrderTrade.parse(*subdata) for subdata in self._POST(f"auth/r/order/{symbol}:{id}/trades") ]
 
     def get_ledgers(self, currency: str, category: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Ledger]:
         data = {
@@ -323,7 +344,7 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.Ledger.parse(*subdata) for subdata in self._POST(f"auth/r/ledgers/{currency}/hist", data=data) ]
 
-    def get_active_funding_offers(self, symbol: Optional[str] = None) -> List[FundingOffer]:
+    def get_funding_offers(self, symbol: Optional[str] = None) -> List[FundingOffer]:
         endpoint = "auth/r/funding/offers"
 
         if symbol != None:
@@ -344,3 +365,34 @@ class _RestAuthenticatedEndpoints(_Requests):
 
     def cancel_funding_offer(self, id: int) -> Notification:
         return serializers._Notification(serializer=serializers.FundingOffer).parse(*self._POST("auth/w/funding/offer/cancel", data={ "id": id }))
+
+    def get_funding_offers_history(self, symbol: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingOffer]:
+        if symbol == None:
+            endpoint = "auth/r/funding/offers/hist"
+        else: endpoint = f"auth/r/funding/offers/{symbol}/hist"
+
+        data = {
+            "start": start, "end": end,
+            "limit": limit
+        }
+
+        return [ serializers.FundingOffer.parse(*subdata) for subdata in self._POST(endpoint, data=data) ]
+
+    def get_funding_credits(self, symbol: Optional[str] = None) -> List[FundingCredit]:
+        if symbol == None:
+            endpoint = "auth/r/funding/credits"
+        else: endpoint = f"auth/r/funding/credits/{symbol}"
+
+        return [ serializers.FundingCredit.parse(*subdata) for subdata in self._POST(endpoint) ]
+
+    def get_funding_credits_history(self, symbol: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingCredit]:
+        if symbol == None:
+            endpoint = "auth/r/funding/credits/hist"
+        else: endpoint = f"auth/r/funding/credits/{symbol}/hist"
+        
+        data = {
+            "start": start, "end": end,
+            "limit": limit
+        }
+
+        return [ serializers.FundingCredit.parse(*subdata) for subdata in self._POST(endpoint, data=data) ]
