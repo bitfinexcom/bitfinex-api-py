@@ -1,15 +1,17 @@
 from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
 
+from types import SimpleNamespace
+
 from .. notification import Notification
 
 JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
 #region Type hinting for Rest Public Endpoints
 
-class PlatformStatus(TypedDict):
+class PlatformStatus(SimpleNamespace):
     OPERATIVE: int
 
-class TradingPairTicker(TypedDict):
+class TradingPairTicker(SimpleNamespace):
     SYMBOL: Optional[str]
     BID: float
     BID_SIZE: float
@@ -22,7 +24,7 @@ class TradingPairTicker(TypedDict):
     HIGH: float
     LOW: float
 
-class FundingCurrencyTicker(TypedDict):
+class FundingCurrencyTicker(SimpleNamespace):
     SYMBOL: Optional[str]
     FRR: float
     BID: float
@@ -39,52 +41,52 @@ class FundingCurrencyTicker(TypedDict):
     LOW: float
     FRR_AMOUNT_AVAILABLE: float
 
-class TickersHistory(TypedDict):
+class TickersHistory(SimpleNamespace):
     SYMBOL: str
     BID: float
     ASK: float
     MTS: int
 
-class TradingPairTrade(TypedDict):
+class TradingPairTrade(SimpleNamespace):
     ID: int 
     MTS: int 
     AMOUNT: float 
     PRICE: float
 
-class FundingCurrencyTrade(TypedDict):
+class FundingCurrencyTrade(SimpleNamespace):
     ID: int 
     MTS: int 
     AMOUNT: float 
     RATE: float 
     PERIOD: int
 
-class TradingPairBook(TypedDict):
+class TradingPairBook(SimpleNamespace):
     PRICE: float 
     COUNT: int 
     AMOUNT: float
     
-class FundingCurrencyBook(TypedDict):
+class FundingCurrencyBook(SimpleNamespace):
     RATE: float 
     PERIOD: int 
     COUNT: int 
     AMOUNT: float
         
-class TradingPairRawBook(TypedDict):
+class TradingPairRawBook(SimpleNamespace):
     ORDER_ID: int
     PRICE: float 
     AMOUNT: float
             
-class FundingCurrencyRawBook(TypedDict):
+class FundingCurrencyRawBook(SimpleNamespace):
     OFFER_ID: int 
     PERIOD: int 
     RATE: float 
     AMOUNT: float
 
-class Statistic(TypedDict):
+class Statistic(SimpleNamespace):
     MTS: int
     VALUE: float
 
-class Candle(TypedDict):
+class Candle(SimpleNamespace):
     MTS: int
     OPEN: float
     CLOSE: float
@@ -92,7 +94,7 @@ class Candle(TypedDict):
     LOW: float
     VOLUME: float
 
-class DerivativesStatus(TypedDict):
+class DerivativesStatus(SimpleNamespace):
     KEY: Optional[str]
     MTS: int
     DERIV_PRICE: float
@@ -107,7 +109,7 @@ class DerivativesStatus(TypedDict):
     CLAMP_MIN: float
     CLAMP_MAX: float
 
-class Liquidation(TypedDict):
+class Liquidation(SimpleNamespace):
     POS_ID: int
     MTS: int
     SYMBOL: str
@@ -117,14 +119,14 @@ class Liquidation(TypedDict):
     IS_MARKET_SOLD: int
     PRICE_ACQUIRED: float
 
-class Leaderboard(TypedDict):
+class Leaderboard(SimpleNamespace):
     MTS: int
     USERNAME: str
     RANKING: int
     VALUE: float
     TWITTER_HANDLE: Optional[str]
 
-class FundingStatistic(TypedDict): 
+class FundingStatistic(SimpleNamespace): 
     TIMESTAMP: int
     FRR: float
     AVG_PERIOD: float
@@ -136,7 +138,7 @@ class FundingStatistic(TypedDict):
 
 #region Type hinting for Rest Authenticated Endpoints
 
-class Wallet(TypedDict):
+class Wallet(SimpleNamespace):
     WALLET_TYPE: str
     CURRENCY: str
     BALANCE: float
@@ -145,7 +147,7 @@ class Wallet(TypedDict):
     LAST_CHANGE: str
     TRADE_DETAILS: JSON
 
-class Order(TypedDict):
+class Order(SimpleNamespace):
     ID: int
     GID: int
     CID: int
@@ -169,7 +171,7 @@ class Order(TypedDict):
     ROUTING: str
     META: JSON
 
-class Position(TypedDict):
+class Position(SimpleNamespace):
     SYMBOL: str
     STATUS: str
     AMOUNT: float
@@ -188,7 +190,7 @@ class Position(TypedDict):
     COLLATERAL_MIN: float
     META: JSON
 
-class FundingOffer(TypedDict):
+class FundingOffer(SimpleNamespace):
     ID: int
     SYMBOL: str
     MTS_CREATE: int
@@ -204,7 +206,7 @@ class FundingOffer(TypedDict):
     HIDDEN: int
     RENEW: bool
     
-class Trade(TypedDict):
+class Trade(SimpleNamespace):
     ID: int 
     SYMBOL: str 
     MTS_CREATE: int
@@ -218,7 +220,7 @@ class Trade(TypedDict):
     FEE_CURRENCY: str
     CID: int
 
-class OrderTrade(TypedDict):
+class OrderTrade(SimpleNamespace):
     ID: int 
     SYMBOL: str 
     MTS_CREATE: int
@@ -230,7 +232,7 @@ class OrderTrade(TypedDict):
     FEE_CURRENCY: str
     CID: int
 
-class Ledger(TypedDict):
+class Ledger(SimpleNamespace):
     ID: int
     CURRENCY: str 
     MTS: int
@@ -238,7 +240,7 @@ class Ledger(TypedDict):
     BALANCE: float
     description: str
 
-class FundingCredit(TypedDict):
+class FundingCredit(SimpleNamespace):
     ID: int
     SYMBOL: str
     SIDE: int
