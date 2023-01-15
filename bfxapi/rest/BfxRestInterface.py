@@ -190,10 +190,10 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET(f"candles/{resource}/last", params=params)
         return serializers.Candle.parse(*data)
 
-    def get_derivatives_status(self, type: str, keys: List[str]) -> List[DerivativesStatus]:
-        params = { "keys": ",".join(keys) }
+    def get_derivatives_status(self, symbols: Union[List[str], Literal["ALL"]]) -> List[DerivativesStatus]:
+        params = { "keys": ",".join(symbols) if type(symbols) == List else "ALL" }
 
-        data = self._GET(f"status/{type}", params=params)
+        data = self._GET(f"status/deriv", params=params)
 
         return [ serializers.DerivativesStatus.parse(*subdata) for subdata in data ]
 
