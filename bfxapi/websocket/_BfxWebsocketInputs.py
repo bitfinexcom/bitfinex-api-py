@@ -2,7 +2,7 @@ from decimal import Decimal
 from datetime import datetime
 
 from typing import Union, Optional, List, Tuple
-from .typings import JSON
+from .types import JSON
 from .enums import OrderType, FundingOfferType
 
 def _strip(dictionary):

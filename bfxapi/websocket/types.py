@@ -1,6 +1,10 @@
 from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
 
-from .. notification import Notification
+from dataclasses import dataclass
+
+from ..labeler import _Type
+
+from ..notification import Notification
 
 JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
@@ -48,7 +52,8 @@ class Subscriptions:
 
 #region Type hinting for Websocket Public Channels
 
-class TradingPairTicker(TypedDict):
+@dataclass
+class TradingPairTicker(_Type):
     BID: float
     BID_SIZE: float
     ASK: float
@@ -60,7 +65,8 @@ class TradingPairTicker(TypedDict):
     HIGH: float
     LOW: float
 
-class FundingCurrencyTicker(TypedDict):
+@dataclass
+class FundingCurrencyTicker(_Type):
     FRR: float
     BID: float
     BID_PERIOD: int
@@ -76,42 +82,49 @@ class FundingCurrencyTicker(TypedDict):
     LOW: float
     FRR_AMOUNT_AVAILABLE: float
 
-class TradingPairTrade(TypedDict):
+@dataclass
+class TradingPairTrade(_Type):
     ID: int 
     MTS: int 
     AMOUNT: float 
     PRICE: float
 
-class FundingCurrencyTrade(TypedDict):
+@dataclass
+class FundingCurrencyTrade(_Type):
     ID: int 
     MTS: int 
     AMOUNT: float 
     RATE: float 
     PERIOD: int
 
-class TradingPairBook(TypedDict):
+@dataclass
+class TradingPairBook(_Type):
     PRICE: float 
     COUNT: int 
     AMOUNT: float
-    
-class FundingCurrencyBook(TypedDict):
+
+@dataclass
+class FundingCurrencyBook(_Type):
     RATE: float 
     PERIOD: int 
     COUNT: int 
     AMOUNT: float
-        
-class TradingPairRawBook(TypedDict):
+
+@dataclass    
+class TradingPairRawBook(_Type):
     ORDER_ID: int
     PRICE: float 
     AMOUNT: float
-            
-class FundingCurrencyRawBook(TypedDict):
+
+@dataclass      
+class FundingCurrencyRawBook(_Type):
     OFFER_ID: int 
     PERIOD: int 
     RATE: float 
     AMOUNT: float
 
-class Candle(TypedDict):
+@dataclass
+class Candle(_Type):
     MTS: int
     OPEN: float
     CLOSE: float
@@ -119,7 +132,8 @@ class Candle(TypedDict):
     LOW: float
     VOLUME: float
 
-class DerivativesStatus(TypedDict):
+@dataclass
+class DerivativesStatus(_Type):
     TIME_MS: int
     DERIV_PRICE: float
     SPOT_PRICE: float
@@ -136,8 +150,8 @@ class DerivativesStatus(TypedDict):
 #endregion
 
 #region Type hinting for Websocket Authenticated Channels
-
-class Order(TypedDict):
+@dataclass
+class Order(_Type):
     ID: int
     GID: int
     CID: int
@@ -161,7 +175,8 @@ class Order(TypedDict):
     ROUTING: str
     META: JSON
 
-class Position(TypedDict):
+@dataclass
+class Position(_Type):
     SYMBOL: str
     STATUS: str
     AMOUNT: float
@@ -180,7 +195,8 @@ class Position(TypedDict):
     COLLATERAL_MIN: float
     META: JSON
 
-class TradeExecuted(TypedDict):
+@dataclass
+class TradeExecuted(_Type):
     ID: int 
     SYMBOL: str 
     MTS_CREATE: int
@@ -192,7 +208,8 @@ class TradeExecuted(TypedDict):
     MAKER:int
     CID: int
 
-class TradeExecutionUpdate(TypedDict):
+@dataclass
+class TradeExecutionUpdate(_Type):
     ID: int 
     SYMBOL: str 
     MTS_CREATE: int
@@ -206,7 +223,8 @@ class TradeExecutionUpdate(TypedDict):
     FEE_CURRENCY: str
     CID: int
 
-class FundingOffer(TypedDict):
+@dataclass
+class FundingOffer(_Type):
     ID: int
     SYMBOL: str
     MTS_CREATED: int
@@ -222,7 +240,8 @@ class FundingOffer(TypedDict):
     HIDDEN: int
     RENEW: int
 
-class FundingCredit(TypedDict):
+@dataclass
+class FundingCredit(_Type):
     ID: int
     SYMBOL: str
     SIDE: int
@@ -242,7 +261,8 @@ class FundingCredit(TypedDict):
     NO_CLOSE: int
     POSITION_PAIR: str
 
-class FundingLoan(TypedDict):
+@dataclass
+class FundingLoan(_Type):
     ID: int
     SYMBOL: str
     SIDE: int
@@ -261,7 +281,8 @@ class FundingLoan(TypedDict):
     RATE_REAL: float
     NO_CLOSE: int
 
-class Wallet(TypedDict):
+@dataclass
+class Wallet(_Type):
     WALLET_TYPE: str
     CURRENCY: str
     BALANCE: float
@@ -270,7 +291,8 @@ class Wallet(TypedDict):
     DESCRIPTION: str
     META: JSON
 
-class BalanceInfo(TypedDict):
+@dataclass
+class BalanceInfo(_Type):
     AUM: float
     AUM_NET: float
 
