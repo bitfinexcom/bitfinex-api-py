@@ -2,7 +2,7 @@ from .exceptions import LabelerSerializerException
 
 from typing import Type, Generic, TypeVar, Iterable, Optional, List, Tuple, Any, cast
 
-T = TypeVar("T")
+T = TypeVar("T", bound="_Type")
 
 class _Type(object):
     def __init__(self, **kwargs):
@@ -26,5 +26,5 @@ class _Serializer(Generic[T]):
     def parse(self, *values: Any, skip: Optional[List[str]] = None) -> T:
         return cast(T, self.klass(**dict(self._serialize(*values, skip=skip))))
 
-def generate_labeler_serializer(name: str, klass: T, labels: List[str], IGNORE: List[str] = [ "_PLACEHOLDER" ]) -> _Serializer[T]:
+def generate_labeler_serializer(name: str, klass: Type[T], labels: List[str], IGNORE: List[str] = [ "_PLACEHOLDER" ]) -> _Serializer[T]:
     return _Serializer[T](name, klass, labels, IGNORE)
