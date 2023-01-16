@@ -1,6 +1,8 @@
 from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
 
-from types import SimpleNamespace
+from dataclasses import dataclass
+
+from .. labeler import _Typing
 
 from .. notification import Notification
 
@@ -8,10 +10,12 @@ JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
 #region Type hinting for Rest Public Endpoints
 
-class PlatformStatus(SimpleNamespace):
+@dataclass
+class PlatformStatus(_Typing):
     OPERATIVE: int
 
-class TradingPairTicker(SimpleNamespace):
+@dataclass
+class TradingPairTicker(_Typing):
     SYMBOL: Optional[str]
     BID: float
     BID_SIZE: float
@@ -24,7 +28,8 @@ class TradingPairTicker(SimpleNamespace):
     HIGH: float
     LOW: float
 
-class FundingCurrencyTicker(SimpleNamespace):
+@dataclass
+class FundingCurrencyTicker(_Typing):
     SYMBOL: Optional[str]
     FRR: float
     BID: float
@@ -41,52 +46,61 @@ class FundingCurrencyTicker(SimpleNamespace):
     LOW: float
     FRR_AMOUNT_AVAILABLE: float
 
-class TickersHistory(SimpleNamespace):
+@dataclass
+class TickersHistory(_Typing):
     SYMBOL: str
     BID: float
     ASK: float
     MTS: int
 
-class TradingPairTrade(SimpleNamespace):
+@dataclass
+class TradingPairTrade(_Typing):
     ID: int 
     MTS: int 
     AMOUNT: float 
     PRICE: float
 
-class FundingCurrencyTrade(SimpleNamespace):
+@dataclass
+class FundingCurrencyTrade(_Typing):
     ID: int 
     MTS: int 
     AMOUNT: float 
     RATE: float 
     PERIOD: int
 
-class TradingPairBook(SimpleNamespace):
+@dataclass
+class TradingPairBook(_Typing):
     PRICE: float 
     COUNT: int 
     AMOUNT: float
     
-class FundingCurrencyBook(SimpleNamespace):
+@dataclass
+class FundingCurrencyBook(_Typing):
     RATE: float 
     PERIOD: int 
     COUNT: int 
     AMOUNT: float
-        
-class TradingPairRawBook(SimpleNamespace):
+
+@dataclass        
+class TradingPairRawBook(_Typing):
     ORDER_ID: int
     PRICE: float 
     AMOUNT: float
-            
-class FundingCurrencyRawBook(SimpleNamespace):
+
+@dataclass           
+class FundingCurrencyRawBook(_Typing):
     OFFER_ID: int 
     PERIOD: int 
     RATE: float 
     AMOUNT: float
 
-class Statistic(SimpleNamespace):
+@dataclass
+class Statistic(_Typing):
     MTS: int
     VALUE: float
 
-class Candle(SimpleNamespace):
+@dataclass
+class Candle(_Typing):
     MTS: int
     OPEN: float
     CLOSE: float
@@ -94,7 +108,8 @@ class Candle(SimpleNamespace):
     LOW: float
     VOLUME: float
 
-class DerivativesStatus(SimpleNamespace):
+@dataclass
+class DerivativesStatus(_Typing):
     KEY: Optional[str]
     MTS: int
     DERIV_PRICE: float
@@ -109,7 +124,8 @@ class DerivativesStatus(SimpleNamespace):
     CLAMP_MIN: float
     CLAMP_MAX: float
 
-class Liquidation(SimpleNamespace):
+@dataclass
+class Liquidation(_Typing):
     POS_ID: int
     MTS: int
     SYMBOL: str
@@ -119,14 +135,16 @@ class Liquidation(SimpleNamespace):
     IS_MARKET_SOLD: int
     PRICE_ACQUIRED: float
 
-class Leaderboard(SimpleNamespace):
+@dataclass
+class Leaderboard(_Typing):
     MTS: int
     USERNAME: str
     RANKING: int
     VALUE: float
     TWITTER_HANDLE: Optional[str]
 
-class FundingStatistic(SimpleNamespace): 
+@dataclass
+class FundingStatistic(_Typing): 
     TIMESTAMP: int
     FRR: float
     AVG_PERIOD: float
@@ -138,7 +156,8 @@ class FundingStatistic(SimpleNamespace):
 
 #region Type hinting for Rest Authenticated Endpoints
 
-class Wallet(SimpleNamespace):
+@dataclass
+class Wallet(_Typing):
     WALLET_TYPE: str
     CURRENCY: str
     BALANCE: float
@@ -147,7 +166,8 @@ class Wallet(SimpleNamespace):
     LAST_CHANGE: str
     TRADE_DETAILS: JSON
 
-class Order(SimpleNamespace):
+@dataclass
+class Order(_Typing):
     ID: int
     GID: int
     CID: int
@@ -171,7 +191,8 @@ class Order(SimpleNamespace):
     ROUTING: str
     META: JSON
 
-class Position(SimpleNamespace):
+@dataclass
+class Position(_Typing):
     SYMBOL: str
     STATUS: str
     AMOUNT: float
@@ -190,7 +211,8 @@ class Position(SimpleNamespace):
     COLLATERAL_MIN: float
     META: JSON
 
-class FundingOffer(SimpleNamespace):
+@dataclass
+class FundingOffer(_Typing):
     ID: int
     SYMBOL: str
     MTS_CREATE: int
@@ -206,7 +228,8 @@ class FundingOffer(SimpleNamespace):
     HIDDEN: int
     RENEW: bool
     
-class Trade(SimpleNamespace):
+@dataclass
+class Trade(_Typing):
     ID: int 
     SYMBOL: str 
     MTS_CREATE: int
@@ -220,7 +243,8 @@ class Trade(SimpleNamespace):
     FEE_CURRENCY: str
     CID: int
 
-class OrderTrade(SimpleNamespace):
+@dataclass
+class OrderTrade(_Typing):
     ID: int 
     SYMBOL: str 
     MTS_CREATE: int
@@ -232,7 +256,8 @@ class OrderTrade(SimpleNamespace):
     FEE_CURRENCY: str
     CID: int
 
-class Ledger(SimpleNamespace):
+@dataclass
+class Ledger(_Typing):
     ID: int
     CURRENCY: str 
     MTS: int
@@ -240,7 +265,8 @@ class Ledger(SimpleNamespace):
     BALANCE: float
     description: str
 
-class FundingCredit(SimpleNamespace):
+@dataclass
+class FundingCredit(_Typing):
     ID: int
     SYMBOL: str
     SIDE: int

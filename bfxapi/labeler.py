@@ -2,9 +2,12 @@ from .exceptions import LabelerSerializerException
 
 from typing import Generic, TypeVar, Iterable, Optional, List, Tuple, Any, cast
 
-from types import SimpleNamespace
-
 T = TypeVar("T")
+
+class _Typing(object):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            self.__setattr__(key,value)
 
 class _Serializer(Generic[T]):
     def __init__(self, name: str, labels: List[str], IGNORE: List[str] = [ "_PLACEHOLDER" ]):
@@ -21,4 +24,4 @@ class _Serializer(Generic[T]):
                 yield label, args[index]
 
     def parse(self, *values: Any, skip: Optional[List[str]] = None) -> T:
-        return cast(T, SimpleNamespace(**dict(self._serialize(*values, skip=skip))))
+        return cast(T, _Typing(**dict(self._serialize(*values, skip=skip))))
