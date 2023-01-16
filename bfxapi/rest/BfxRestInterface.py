@@ -8,7 +8,7 @@ from typing import List, Union, Literal, Optional, Any, cast
 
 from . import serializers
 
-from .typings import *
+from .types import *
 from .enums import Config, Sort, OrderType, FundingOfferType, Error
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 

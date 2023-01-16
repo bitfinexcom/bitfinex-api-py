@@ -2,7 +2,7 @@ from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
 
 from dataclasses import dataclass
 
-from .. labeler import _Typing
+from .. labeler import _Type
 
 from .. notification import Notification
 
@@ -11,11 +11,11 @@ JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 #region Type hinting for Rest Public Endpoints
 
 @dataclass
-class PlatformStatus(_Typing):
+class PlatformStatus(_Type):
     OPERATIVE: int
 
 @dataclass
-class TradingPairTicker(_Typing):
+class TradingPairTicker(_Type):
     SYMBOL: Optional[str]
     BID: float
     BID_SIZE: float
@@ -29,7 +29,7 @@ class TradingPairTicker(_Typing):
     LOW: float
 
 @dataclass
-class FundingCurrencyTicker(_Typing):
+class FundingCurrencyTicker(_Type):
     SYMBOL: Optional[str]
     FRR: float
     BID: float
@@ -47,21 +47,21 @@ class FundingCurrencyTicker(_Typing):
     FRR_AMOUNT_AVAILABLE: float
 
 @dataclass
-class TickersHistory(_Typing):
+class TickersHistory(_Type):
     SYMBOL: str
     BID: float
     ASK: float
     MTS: int
 
 @dataclass
-class TradingPairTrade(_Typing):
+class TradingPairTrade(_Type):
     ID: int 
     MTS: int 
     AMOUNT: float 
     PRICE: float
 
 @dataclass
-class FundingCurrencyTrade(_Typing):
+class FundingCurrencyTrade(_Type):
     ID: int 
     MTS: int 
     AMOUNT: float 
@@ -69,38 +69,38 @@ class FundingCurrencyTrade(_Typing):
     PERIOD: int
 
 @dataclass
-class TradingPairBook(_Typing):
+class TradingPairBook(_Type):
     PRICE: float 
     COUNT: int 
     AMOUNT: float
     
 @dataclass
-class FundingCurrencyBook(_Typing):
+class FundingCurrencyBook(_Type):
     RATE: float 
     PERIOD: int 
     COUNT: int 
     AMOUNT: float
 
 @dataclass        
-class TradingPairRawBook(_Typing):
+class TradingPairRawBook(_Type):
     ORDER_ID: int
     PRICE: float 
     AMOUNT: float
 
 @dataclass           
-class FundingCurrencyRawBook(_Typing):
+class FundingCurrencyRawBook(_Type):
     OFFER_ID: int 
     PERIOD: int 
     RATE: float 
     AMOUNT: float
 
 @dataclass
-class Statistic(_Typing):
+class Statistic(_Type):
     MTS: int
     VALUE: float
 
 @dataclass
-class Candle(_Typing):
+class Candle(_Type):
     MTS: int
     OPEN: float
     CLOSE: float
@@ -109,7 +109,7 @@ class Candle(_Typing):
     VOLUME: float
 
 @dataclass
-class DerivativesStatus(_Typing):
+class DerivativesStatus(_Type):
     KEY: Optional[str]
     MTS: int
     DERIV_PRICE: float
@@ -125,7 +125,7 @@ class DerivativesStatus(_Typing):
     CLAMP_MAX: float
 
 @dataclass
-class Liquidation(_Typing):
+class Liquidation(_Type):
     POS_ID: int
     MTS: int
     SYMBOL: str
@@ -136,7 +136,7 @@ class Liquidation(_Typing):
     PRICE_ACQUIRED: float
 
 @dataclass
-class Leaderboard(_Typing):
+class Leaderboard(_Type):
     MTS: int
     USERNAME: str
     RANKING: int
@@ -144,7 +144,7 @@ class Leaderboard(_Typing):
     TWITTER_HANDLE: Optional[str]
 
 @dataclass
-class FundingStatistic(_Typing): 
+class FundingStatistic(_Type): 
     TIMESTAMP: int
     FRR: float
     AVG_PERIOD: float
@@ -157,7 +157,7 @@ class FundingStatistic(_Typing):
 #region Type hinting for Rest Authenticated Endpoints
 
 @dataclass
-class Wallet(_Typing):
+class Wallet(_Type):
     WALLET_TYPE: str
     CURRENCY: str
     BALANCE: float
@@ -167,7 +167,7 @@ class Wallet(_Typing):
     TRADE_DETAILS: JSON
 
 @dataclass
-class Order(_Typing):
+class Order(_Type):
     ID: int
     GID: int
     CID: int
@@ -192,7 +192,7 @@ class Order(_Typing):
     META: JSON
 
 @dataclass
-class Position(_Typing):
+class Position(_Type):
     SYMBOL: str
     STATUS: str
     AMOUNT: float
@@ -212,7 +212,7 @@ class Position(_Typing):
     META: JSON
 
 @dataclass
-class FundingOffer(_Typing):
+class FundingOffer(_Type):
     ID: int
     SYMBOL: str
     MTS_CREATE: int
@@ -229,7 +229,7 @@ class FundingOffer(_Typing):
     RENEW: bool
     
 @dataclass
-class Trade(_Typing):
+class Trade(_Type):
     ID: int 
     SYMBOL: str 
     MTS_CREATE: int
@@ -244,7 +244,7 @@ class Trade(_Typing):
     CID: int
 
 @dataclass
-class OrderTrade(_Typing):
+class OrderTrade(_Type):
     ID: int 
     SYMBOL: str 
     MTS_CREATE: int
@@ -257,7 +257,7 @@ class OrderTrade(_Typing):
     CID: int
 
 @dataclass
-class Ledger(_Typing):
+class Ledger(_Type):
     ID: int
     CURRENCY: str 
     MTS: int
@@ -266,7 +266,7 @@ class Ledger(_Typing):
     description: str
 
 @dataclass
-class FundingCredit(_Typing):
+class FundingCredit(_Type):
     ID: int
     SYMBOL: str
     SIDE: int

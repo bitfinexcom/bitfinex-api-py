@@ -4,7 +4,7 @@ from typing import Generic, TypeVar, Iterable, Optional, List, Tuple, Any, cast
 
 T = TypeVar("T")
 
-class _Typing(object):
+class _Type(object):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             self.__setattr__(key,value)
@@ -24,4 +24,4 @@ class _Serializer(Generic[T]):
                 yield label, args[index]
 
     def parse(self, *values: Any, skip: Optional[List[str]] = None) -> T:
-        return cast(T, _Typing(**dict(self._serialize(*values, skip=skip))))
+        return cast(T, _Type(**dict(self._serialize(*values, skip=skip))))
