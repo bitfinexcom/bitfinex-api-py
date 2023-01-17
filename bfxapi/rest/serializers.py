@@ -348,4 +348,69 @@ FundingCredit = generate_labeler_serializer("FundingCredit", klass=types.Funding
     "POSITION_PAIR"
 ])
 
+Transfer = generate_labeler_serializer("Transfer", klass=types.Transfer, labels=[
+    "MTS",
+    "WALLET_FROM",
+    "WALLET_TO",
+    "_PLACEHOLDER",
+    "CURRENCY",
+    "CURRENCY_TO",
+    "_PLACEHOLDER",
+    "AMOUNT"
+])
+
+Withdrawal = generate_labeler_serializer("Withdrawal", klass=types.Withdrawal, labels=[
+    "WITHDRAWAL_ID",
+    "_PLACEHOLDER",
+    "METHOD",
+    "PAYMENT_ID",
+    "WALLET",
+    "AMOUNT",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "WITHDRAWAL_FEE"
+])
+
+DepositAddress = generate_labeler_serializer("DepositAddress", klass=types.DepositAddress, labels=[
+    "_PLACEHOLDER",
+    "METHOD",
+    "CURRENCY_CODE",
+    "_PLACEHOLDER",
+    "ADDRESS",
+    "POOL_ADDRESS"
+])
+
+Invoice = generate_labeler_serializer("Invoice", klass=types.Invoice, labels=[
+    "INVOICE_HASH",
+    "INVOICE",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "AMOUNT"
+])
+
+Movement = generate_labeler_serializer("Movement", klass=types.Movement, labels=[
+    "ID",
+    "CURRENCY",
+    "CURRENCY_NAME",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "MTS_STARTED",
+    "MTS_UPDATED",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "STATUS",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "AMOUNT",
+    "FEES",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "DESTINATION_ADDRESS",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "TRANSACTION_ID",
+    "WITHDRAW_TRANSACTION_NOTE"
+])
+
 #endregion

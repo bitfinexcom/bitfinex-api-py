@@ -286,4 +286,49 @@ class FundingCredit(_Type):
     NO_CLOSE: int
     POSITION_PAIR: str
 
+@dataclass
+class Transfer(_Type):
+    MTS: int
+    WALLET_FROM: str
+    WALLET_TO: str
+    CURRENCY: str
+    CURRENCY_TO: str
+    AMOUNT: int
+
+@dataclass
+class Withdrawal(_Type):
+    WITHDRAWAL_ID: int
+    METHOD: str
+    PAYMENT_ID: str
+    WALLET: str
+    AMOUNT: float
+    WITHDRAWAL_FEE: float
+
+@dataclass
+class DepositAddress(_Type):
+    METHOD: str
+    CURRENCY_CODE: str
+    ADDRESS: str
+    POOL_ADDRESS: str
+
+@dataclass
+class Invoice(_Type):
+    INVOICE_HASH: str
+    INVOICE: str
+    AMOUNT: str
+
+@dataclass
+class Movement(_Type):
+    ID: str
+    CURRENCY: str
+    CURRENCY_NAME: str
+    MTS_STARTED: int
+    MTS_UPDATED: int
+    STATUS: str
+    AMOUNT: int
+    FEES: int
+    DESTINATION_ADDRESS: str
+    TRANSACTION_ID: str
+    WITHDRAW_TRANSACTION_NOTE: str
+
 #endregion

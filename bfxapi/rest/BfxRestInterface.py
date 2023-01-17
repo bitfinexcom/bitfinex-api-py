@@ -192,8 +192,10 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET(f"candles/trade:{tf}:{symbol}/last", params=params)
         return serializers.Candle.parse(*data)
 
-    def get_derivatives_status(self, symbols: Union[List[str], Literal["ALL"]]) -> List[DerivativesStatus]:
-        params = { "keys": ",".join(symbols) if type(symbols) == List else "ALL" }
+    def get_derivatives_status(self, keys: Union[List[str], Literal["ALL"]]) -> List[DerivativesStatus]:
+        if keys == "ALL":
+            params = { "keys": "ALL" }
+        else:  params = { "keys": ",".join(keys) }
 
         data = self._GET(f"status/deriv", params=params)
 
@@ -406,3 +408,49 @@ class _RestAuthenticatedEndpoints(_Requests):
         }
 
         return [ serializers.FundingCredit.parse(*subdata) for subdata in self._POST(endpoint, data=data) ]
+
+    def submit_wallet_transfer(self, from_wallet: str, to_wallet: str, currency: str, currency_to: str, amount: Union[Decimal, str]) -> Notification[Transfer]:
+        data = {
+            "from": from_wallet, "to": to_wallet,
+            "currency": currency, "currency_to": currency_to,
+            "amount": amount
+        }
+
+        return serializers._Notification[Transfer](serializer=serializers.Transfer).parse(*self._POST("auth/w/transfer", data=data))
+
+    def submit_wallet_withdraw(self, wallet: str, method: str, address: str, amount: Union[Decimal, str]) -> Notification[Withdrawal]:
+        data = {
+            "wallet": wallet, "method": method,
+            "address": address, "amount": amount,
+        }
+
+        return serializers._Notification[Withdrawal](serializer=serializers.Withdrawal).parse(*self._POST("auth/w/withdraw", data=data))
+
+    def get_deposit_address(self, wallet: str, method: str, renew: bool = False) -> Notification[DepositAddress]:
+        data = {
+            "wallet": wallet,
+            "method": method,
+            "renew": int(renew)
+        }
+
+        return serializers._Notification[DepositAddress](serializer=serializers.DepositAddress).parse(*self._POST("auth/w/deposit/address", data=data))
+
+    def get_deposit_invoice(self, wallet: str, currency: str, amount: Union[Decimal, str]) -> Invoice:
+        data = {
+            "wallet": wallet, "currency": currency,
+            "amount": amount
+        }
+
+        return serializers.Invoice.parse(*self._POST("auth/w/deposit/invoice", data=data))
+
+    def get_movements(self, currency: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Movement]:
+        if currency == None:
+            endpoint = "auth/r/movements/hist"
+        else: endpoint = f"auth/r/movements/{currency}/hist"
+        
+        data = {
+            "start": start, "end": end,
+            "limit": limit
+        }
+
+        return [ serializers.Movement.parse(*subdata) for subdata in self._POST(endpoint, data=data) ]
