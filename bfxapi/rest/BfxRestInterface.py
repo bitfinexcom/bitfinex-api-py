@@ -45,6 +45,8 @@ class _Requests(object):
 
     def _GET(self, endpoint, params = None):
         response = requests.get(f"{self.host}/{endpoint}", params=params)
+
+        print(f"{self.host}/{endpoint}")
         
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
@@ -214,6 +216,14 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET("liquidations/hist", params=params)
 
         return [ serializers.Liquidation.parse(*subdata[0]) for subdata in data ]
+
+    def get_seed_candles(self, symbol: str, tf: str = '1m', sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Candle]:
+
+        params = {"sort": sort, "start": start, "end": end, "limit": limit}
+
+        data = self._GET(f"candles/trade:{tf}:{symbol}/hist?limit={limit}&start={start}&end={end}&sort={sort}", params=params)
+
+        return [ serializers.Candle.parse(*subdata) for subdata in data ]
 
     def get_leaderboards_hist(
         self,
