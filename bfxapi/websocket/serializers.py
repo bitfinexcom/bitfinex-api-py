@@ -1,12 +1,12 @@
-from . import typings
+from . import types
 
-from .. labeler import _Serializer
+from .. labeler import generate_labeler_serializer
 
 from .. notification import _Notification
 
 #region Serializers definition for Websocket Public Channels
 
-TradingPairTicker = _Serializer[typings.TradingPairTicker]("TradingPairTicker", labels=[
+TradingPairTicker = generate_labeler_serializer("TradingPairTicker", klass=types.TradingPairTicker, labels=[
     "BID",
     "BID_SIZE",
     "ASK",
@@ -19,7 +19,7 @@ TradingPairTicker = _Serializer[typings.TradingPairTicker]("TradingPairTicker", 
     "LOW"
 ])
 
-FundingCurrencyTicker = _Serializer[typings.FundingCurrencyTicker]("FundingCurrencyTicker", labels=[
+FundingCurrencyTicker = generate_labeler_serializer("FundingCurrencyTicker", klass=types.FundingCurrencyTicker, labels=[
     "FRR",
     "BID",
     "BID_PERIOD",
@@ -38,14 +38,14 @@ FundingCurrencyTicker = _Serializer[typings.FundingCurrencyTicker]("FundingCurre
     "FRR_AMOUNT_AVAILABLE"
 ])
 
-TradingPairTrade = _Serializer[typings.TradingPairTrade]("TradingPairTrade", labels=[ 
+TradingPairTrade = generate_labeler_serializer("TradingPairTrade", klass=types.TradingPairTrade, labels=[ 
     "ID", 
     "MTS", 
     "AMOUNT", 
     "PRICE" 
 ])
 
-FundingCurrencyTrade = _Serializer[typings.FundingCurrencyTrade]("FundingCurrencyTrade", labels=[ 
+FundingCurrencyTrade = generate_labeler_serializer("FundingCurrencyTrade", klass=types.FundingCurrencyTrade, labels=[ 
     "ID", 
     "MTS", 
     "AMOUNT", 
@@ -53,33 +53,33 @@ FundingCurrencyTrade = _Serializer[typings.FundingCurrencyTrade]("FundingCurrenc
     "PERIOD" 
 ])
 
-TradingPairBook = _Serializer[typings.TradingPairBook]("TradingPairBook", labels=[
+TradingPairBook = generate_labeler_serializer("TradingPairBook", klass=types.TradingPairBook, labels=[
     "PRICE", 
     "COUNT", 
     "AMOUNT"
 ])
 
-FundingCurrencyBook = _Serializer[typings.FundingCurrencyBook]("FundingCurrencyBook", labels=[
+FundingCurrencyBook = generate_labeler_serializer("FundingCurrencyBook", klass=types.FundingCurrencyBook, labels=[
     "RATE", 
     "PERIOD", 
     "COUNT", 
     "AMOUNT"
 ])
 
-TradingPairRawBook = _Serializer[typings.TradingPairRawBook]("TradingPairRawBook", labels=[
+TradingPairRawBook = generate_labeler_serializer("TradingPairRawBook", klass=types.TradingPairRawBook, labels=[
     "ORDER_ID", 
     "PRICE", 
     "AMOUNT"
 ])
 
-FundingCurrencyRawBook = _Serializer[typings.FundingCurrencyRawBook]("FundingCurrencyRawBook", labels=[
+FundingCurrencyRawBook = generate_labeler_serializer("FundingCurrencyRawBook", klass=types.FundingCurrencyRawBook, labels=[
     "OFFER_ID", 
     "PERIOD", 
     "RATE", 
     "AMOUNT"
 ])
 
-Candle = _Serializer[typings.Candle]("Candle", labels=[
+Candle = generate_labeler_serializer("Candle", klass=types.Candle, labels=[
     "MTS", 
     "OPEN", 
     "CLOSE", 
@@ -88,7 +88,7 @@ Candle = _Serializer[typings.Candle]("Candle", labels=[
     "VOLUME"
 ])
 
-DerivativesStatus = _Serializer[typings.DerivativesStatus]("DerivativesStatus", labels=[
+DerivativesStatus = generate_labeler_serializer("DerivativesStatus", klass=types.DerivativesStatus, labels=[
     "TIME_MS",
     "_PLACEHOLDER", 
     "DERIV_PRICE",
@@ -118,7 +118,7 @@ DerivativesStatus = _Serializer[typings.DerivativesStatus]("DerivativesStatus", 
 
 #region Serializers definition for Websocket Authenticated Channels
 
-Order = _Serializer[typings.Order]("Order", labels=[
+Order = generate_labeler_serializer("Order", klass=types.Order, labels=[
     "ID",
     "GID",
     "CID",
@@ -153,7 +153,7 @@ Order = _Serializer[typings.Order]("Order", labels=[
     "META"
 ])
 
-Position = _Serializer[typings.Position]("Position", labels=[
+Position = generate_labeler_serializer("Position", klass=types.Position, labels=[
     "SYMBOL", 
     "STATUS", 
     "AMOUNT", 
@@ -176,7 +176,7 @@ Position = _Serializer[typings.Position]("Position", labels=[
     "META"
 ])
 
-TradeExecuted = _Serializer[typings.TradeExecuted]("TradeExecuted", labels=[
+TradeExecuted = generate_labeler_serializer("TradeExecuted", klass=types.TradeExecuted, labels=[
     "ID", 
     "SYMBOL", 
     "MTS_CREATE",
@@ -191,7 +191,7 @@ TradeExecuted = _Serializer[typings.TradeExecuted]("TradeExecuted", labels=[
     "CID"
 ])
 
-TradeExecutionUpdate = _Serializer[typings.TradeExecutionUpdate]("TradeExecutionUpdate", labels=[
+TradeExecutionUpdate = generate_labeler_serializer("TradeExecutionUpdate", klass=types.TradeExecutionUpdate, labels=[
     "ID", 
     "SYMBOL", 
     "MTS_CREATE",
@@ -206,7 +206,7 @@ TradeExecutionUpdate = _Serializer[typings.TradeExecutionUpdate]("TradeExecution
     "CID"
 ])
 
-FundingOffer = _Serializer[typings.FundingOffer]("FundingOffer", labels=[
+FundingOffer = generate_labeler_serializer("FundingOffer", klass=types.FundingOffer, labels=[
     "ID",
     "SYMBOL",
     "MTS_CREATED",
@@ -230,7 +230,7 @@ FundingOffer = _Serializer[typings.FundingOffer]("FundingOffer", labels=[
     "_PLACEHOLDER"
 ])
 
-FundingCredit = _Serializer[typings.FundingCredit]("FundingCredit", labels=[
+FundingCredit = generate_labeler_serializer("FundingCredit", klass=types.FundingCredit, labels=[
     "ID",
     "SYMBOL",
     "SIDE",
@@ -255,7 +255,7 @@ FundingCredit = _Serializer[typings.FundingCredit]("FundingCredit", labels=[
     "POSITION_PAIR"
 ])
 
-FundingLoan = _Serializer[typings.FundingLoan]("FundingLoan", labels=[
+FundingLoan = generate_labeler_serializer("FundingLoan", klass=types.FundingLoan, labels=[
     "ID",
     "SYMBOL",
     "SIDE",
@@ -279,7 +279,7 @@ FundingLoan = _Serializer[typings.FundingLoan]("FundingLoan", labels=[
     "NO_CLOSE"
 ])
 
-Wallet = _Serializer[typings.Wallet]("Wallet", labels=[
+Wallet = generate_labeler_serializer("Wallet", klass=types.Wallet, labels=[
     "WALLET_TYPE", 
     "CURRENCY", 
     "BALANCE", 
@@ -289,7 +289,7 @@ Wallet = _Serializer[typings.Wallet]("Wallet", labels=[
     "META"
 ])
 
-BalanceInfo = _Serializer[typings.BalanceInfo]("BalanceInfo", labels=[
+BalanceInfo = generate_labeler_serializer("BalanceInfo", klass=types.BalanceInfo, labels=[
     "AUM", 
     "AUM_NET", 
 ])

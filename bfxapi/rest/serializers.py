@@ -1,16 +1,16 @@
-from . import typings
+from . import types
 
-from .. labeler import _Serializer
+from .. labeler import generate_labeler_serializer
 
 from .. notification import _Notification
 
 #region Serializers definition for Rest Public Endpoints
 
-PlatformStatus = _Serializer[typings.PlatformStatus]("PlatformStatus", labels=[
+PlatformStatus = generate_labeler_serializer("PlatformStatus", klass=types.PlatformStatus, labels=[
     "OPERATIVE"
 ])
 
-TradingPairTicker = _Serializer[typings.TradingPairTicker]("TradingPairTicker", labels=[
+TradingPairTicker = generate_labeler_serializer("TradingPairTicker", klass=types.TradingPairTicker, labels=[
     "SYMBOL",
     "BID",
     "BID_SIZE",
@@ -24,7 +24,7 @@ TradingPairTicker = _Serializer[typings.TradingPairTicker]("TradingPairTicker", 
     "LOW"
 ])
 
-FundingCurrencyTicker = _Serializer[typings.FundingCurrencyTicker]("FundingCurrencyTicker", labels=[
+FundingCurrencyTicker = generate_labeler_serializer("FundingCurrencyTicker", klass=types.FundingCurrencyTicker, labels=[
     "SYMBOL",
     "FRR",
     "BID",
@@ -44,7 +44,7 @@ FundingCurrencyTicker = _Serializer[typings.FundingCurrencyTicker]("FundingCurre
     "FRR_AMOUNT_AVAILABLE"
 ])
 
-TickersHistory = _Serializer[typings.TickersHistory]("TickersHistory", labels=[
+TickersHistory = generate_labeler_serializer("TickersHistory", klass=types.TickersHistory, labels=[
     "SYMBOL",
     "BID",
     "_PLACEHOLDER",
@@ -60,14 +60,14 @@ TickersHistory = _Serializer[typings.TickersHistory]("TickersHistory", labels=[
     "MTS"
 ])
 
-TradingPairTrade = _Serializer[typings.TradingPairTrade]("TradingPairTrade", labels=[ 
+TradingPairTrade = generate_labeler_serializer("TradingPairTrade", klass=types.TradingPairTrade, labels=[ 
     "ID", 
     "MTS", 
     "AMOUNT", 
     "PRICE" 
 ])
 
-FundingCurrencyTrade = _Serializer[typings.FundingCurrencyTrade]("FundingCurrencyTrade", labels=[ 
+FundingCurrencyTrade = generate_labeler_serializer("FundingCurrencyTrade", klass=types.FundingCurrencyTrade, labels=[ 
     "ID", 
     "MTS", 
     "AMOUNT", 
@@ -75,38 +75,38 @@ FundingCurrencyTrade = _Serializer[typings.FundingCurrencyTrade]("FundingCurrenc
     "PERIOD" 
 ])
 
-TradingPairBook = _Serializer[typings.TradingPairBook]("TradingPairBook", labels=[
+TradingPairBook = generate_labeler_serializer("TradingPairBook", klass=types.TradingPairBook, labels=[
     "PRICE", 
     "COUNT", 
     "AMOUNT"
 ])
 
-FundingCurrencyBook = _Serializer[typings.FundingCurrencyBook]("FundingCurrencyBook", labels=[
+FundingCurrencyBook = generate_labeler_serializer("FundingCurrencyBook", klass=types.FundingCurrencyBook, labels=[
     "RATE", 
     "PERIOD", 
     "COUNT", 
     "AMOUNT"
 ])
 
-TradingPairRawBook = _Serializer[typings.TradingPairRawBook]("TradingPairRawBook", labels=[
+TradingPairRawBook = generate_labeler_serializer("TradingPairRawBook", klass=types.TradingPairRawBook, labels=[
     "ORDER_ID", 
     "PRICE", 
     "AMOUNT"
 ])
 
-FundingCurrencyRawBook = _Serializer[typings.FundingCurrencyRawBook]("FundingCurrencyRawBook", labels=[
+FundingCurrencyRawBook = generate_labeler_serializer("FundingCurrencyRawBook", klass=types.FundingCurrencyRawBook, labels=[
     "OFFER_ID", 
     "PERIOD", 
     "RATE", 
     "AMOUNT"
 ])
 
-Statistic = _Serializer[typings.Statistic]("Statistic", labels=[
+Statistic = generate_labeler_serializer("Statistic", klass=types.Statistic, labels=[
     "MTS",
     "VALUE"
 ])
 
-Candle = _Serializer[typings.Candle]("Candle", labels=[
+Candle = generate_labeler_serializer("Candle", klass=types.Candle, labels=[
     "MTS",
     "OPEN",
     "CLOSE",
@@ -115,7 +115,7 @@ Candle = _Serializer[typings.Candle]("Candle", labels=[
     "VOLUME"
 ])
 
-DerivativesStatus = _Serializer[typings.DerivativesStatus]("DerivativesStatus", labels=[
+DerivativesStatus = generate_labeler_serializer("DerivativesStatus", klass=types.DerivativesStatus, labels=[
     "KEY",
     "MTS",
     "_PLACEHOLDER", 
@@ -142,7 +142,7 @@ DerivativesStatus = _Serializer[typings.DerivativesStatus]("DerivativesStatus", 
     "CLAMP_MAX"
 ])
 
-Liquidation = _Serializer[typings.Liquidation]("Liquidation", labels=[
+Liquidation = generate_labeler_serializer("Liquidation", klass=types.Liquidation, labels=[
     "_PLACEHOLDER",
     "POS_ID",
     "MTS",
@@ -157,7 +157,7 @@ Liquidation = _Serializer[typings.Liquidation]("Liquidation", labels=[
     "PRICE_ACQUIRED"
 ])
 
-Leaderboard = _Serializer[typings.Leaderboard]("Leaderboard", labels=[
+Leaderboard = generate_labeler_serializer("Leaderboard", klass=types.Leaderboard, labels=[
     "MTS",
     "_PLACEHOLDER",
     "USERNAME",
@@ -170,7 +170,7 @@ Leaderboard = _Serializer[typings.Leaderboard]("Leaderboard", labels=[
     "TWITTER_HANDLE"
 ])
 
-FundingStatistic = _Serializer[typings.FundingStatistic]("FundingStatistic", labels=[
+FundingStatistic = generate_labeler_serializer("FundingStatistic", klass=types.FundingStatistic, labels=[
     "TIMESTAMP",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
@@ -189,7 +189,7 @@ FundingStatistic = _Serializer[typings.FundingStatistic]("FundingStatistic", lab
 
 #region Serializers definition for Rest Authenticated Endpoints
 
-Wallet = _Serializer[typings.Wallet]("Wallet", labels=[
+Wallet = generate_labeler_serializer("Wallet", klass=types.Wallet, labels=[
     "WALLET_TYPE", 
     "CURRENCY", 
     "BALANCE", 
@@ -199,7 +199,7 @@ Wallet = _Serializer[typings.Wallet]("Wallet", labels=[
     "TRADE_DETAILS"
 ])
 
-Order = _Serializer[typings.Order]("Order", labels=[
+Order = generate_labeler_serializer("Order", klass=types.Order, labels=[
     "ID",
     "GID",
     "CID",
@@ -234,7 +234,7 @@ Order = _Serializer[typings.Order]("Order", labels=[
     "META"
 ])
 
-Position = _Serializer[typings.Position]("Position", labels=[
+Position = generate_labeler_serializer("Position", klass=types.Position, labels=[
     "SYMBOL", 
     "STATUS", 
     "AMOUNT", 
@@ -257,7 +257,7 @@ Position = _Serializer[typings.Position]("Position", labels=[
     "META"
 ])
 
-FundingOffer = _Serializer[typings.FundingOffer]("FundingOffer", labels=[
+FundingOffer = generate_labeler_serializer("FundingOffer", klass=types.FundingOffer, labels=[
     "ID",
     "SYMBOL",
     "MTS_CREATED",
@@ -281,7 +281,7 @@ FundingOffer = _Serializer[typings.FundingOffer]("FundingOffer", labels=[
     "_PLACEHOLDER"
 ])
 
-Trade = _Serializer[typings.Trade]("Trade", labels=[
+Trade = generate_labeler_serializer("Trade", klass=types.Trade, labels=[
     "ID", 
     "PAIR", 
     "MTS_CREATE", 
@@ -296,7 +296,7 @@ Trade = _Serializer[typings.Trade]("Trade", labels=[
     "CID"
 ])
 
-OrderTrade = _Serializer[typings.OrderTrade]("OrderTrade", labels=[
+OrderTrade = generate_labeler_serializer("OrderTrade", klass=types.OrderTrade, labels=[
     "ID",
     "PAIR",
     "MTS_CREATE",
@@ -311,7 +311,7 @@ OrderTrade = _Serializer[typings.OrderTrade]("OrderTrade", labels=[
     "CID"
 ])
 
-Ledger = _Serializer[typings.Ledger]("Ledger", labels=[
+Ledger = generate_labeler_serializer("Ledger", klass=types.Ledger, labels=[
     "ID",
     "CURRENCY",
     "_PLACEHOLDER",
@@ -323,7 +323,7 @@ Ledger = _Serializer[typings.Ledger]("Ledger", labels=[
     "DESCRIPTION"
 ])
 
-FundingCredit = _Serializer[typings.FundingCredit]("FundingCredit", labels=[
+FundingCredit = generate_labeler_serializer("FundingCredit", klass=types.FundingCredit, labels=[
     "ID",
     "SYMBOL",
     "SIDE",
