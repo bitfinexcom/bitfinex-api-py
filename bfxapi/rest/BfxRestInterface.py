@@ -176,20 +176,20 @@ class _RestPublicEndpoints(_Requests):
 
     def get_candles_hist(
         self,
-        resource: str,
+        symbol: str, tf: str = "1m",
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
     ) -> List[Candle]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
-        data = self._GET(f"candles/{resource}/hist", params=params)
+        data = self._GET(f"candles/trade:{tf}:{symbol}/hist", params=params)
         return [ serializers.Candle.parse(*subdata) for subdata in data ]
 
     def get_candles_last(
         self,
-        resource: str,
+        symbol: str, tf: str = "1m",
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
     ) -> Candle:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
-        data = self._GET(f"candles/{resource}/last", params=params)
+        data = self._GET(f"candles/trade:{tf}:{symbol}/last", params=params)
         return serializers.Candle.parse(*data)
 
     def get_derivatives_status(self, symbols: Union[List[str], Literal["ALL"]]) -> List[DerivativesStatus]:
