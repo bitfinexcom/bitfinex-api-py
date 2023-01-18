@@ -12,7 +12,7 @@ JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
 @dataclass
 class PlatformStatus(_Type):
-    OPERATIVE: int
+    STATUS: int
 
 @dataclass
 class TradingPairTicker(_Type):

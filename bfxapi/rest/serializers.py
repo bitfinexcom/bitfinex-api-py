@@ -7,7 +7,7 @@ from .. notification import _Notification
 #region Serializers definition for Rest Public Endpoints
 
 PlatformStatus = generate_labeler_serializer("PlatformStatus", klass=types.PlatformStatus, labels=[
-    "OPERATIVE"
+    "STATUS"
 ])
 
 TradingPairTicker = generate_labeler_serializer("TradingPairTicker", klass=types.TradingPairTicker, labels=[
