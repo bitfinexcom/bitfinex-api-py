@@ -23,7 +23,7 @@ print("Submit Order Notification:", submitted_order)
 
 # Update it
 updated_order = bfx.rest.auth.update_order(
-    id=submitted_order["NOTIFY_INFO"]["ID"], 
+    id=submitted_order.NOTIFY_INFO.ID,
     amount="0.020", 
     price="10100"
 )
@@ -31,6 +31,6 @@ updated_order = bfx.rest.auth.update_order(
 print("Update Order Notification:", updated_order)
 
 # Delete it
-canceled_order = bfx.rest.auth.cancel_order(id=submitted_order["NOTIFY_INFO"]["ID"])
+canceled_order = bfx.rest.auth.cancel_order(id=submitted_order.NOTIFY_INFO.ID)
 
 print("Cancel Order Notification:", canceled_order)

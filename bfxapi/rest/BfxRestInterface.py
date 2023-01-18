@@ -8,7 +8,7 @@ from typing import List, Union, Literal, Optional, Any, cast
 
 from . import serializers
 
-from .typings import *
+from .types import *
 from .enums import Config, Sort, OrderType, FundingOfferType, Error
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 
@@ -45,6 +45,8 @@ class _Requests(object):
 
     def _GET(self, endpoint, params = None):
         response = requests.get(f"{self.host}/{endpoint}", params=params)
+
+        print(f"{self.host}/{endpoint}")
         
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
@@ -97,11 +99,11 @@ class _RestPublicEndpoints(_Requests):
         
         parsers = { "t": serializers.TradingPairTicker.parse, "f": serializers.FundingCurrencyTicker.parse }
         
-        return [ parsers[subdata[0][0]](*subdata) for subdata in data ]
+        return [ cast(Union[TradingPairTicker, FundingCurrencyTicker], parsers[subdata[0][0]](*subdata)) for subdata in data ]
 
     def get_t_tickers(self, pairs: Union[List[str], Literal["ALL"]]) -> List[TradingPairTicker]:
         if isinstance(pairs, str) and pairs == "ALL":
-            return [ cast(TradingPairTicker, subdata) for subdata in self.get_tickers([ "ALL" ]) if cast(str, subdata["SYMBOL"]).startswith("t") ]
+            return [ cast(TradingPairTicker, subdata) for subdata in self.get_tickers([ "ALL" ]) if cast(str, subdata.SYMBOL).startswith("t") ]
 
         data = self.get_tickers([ "t" + pair for pair in pairs ])
 
@@ -109,7 +111,7 @@ class _RestPublicEndpoints(_Requests):
 
     def get_f_tickers(self, currencies: Union[List[str], Literal["ALL"]]) -> List[FundingCurrencyTicker]:
         if isinstance(currencies, str) and currencies == "ALL":
-            return [ cast(FundingCurrencyTicker, subdata) for subdata in self.get_tickers([ "ALL" ]) if cast(str, subdata["SYMBOL"]).startswith("f") ]
+            return [ cast(FundingCurrencyTicker, subdata) for subdata in self.get_tickers([ "ALL" ]) if cast(str, subdata.SYMBOL).startswith("f") ]
 
         data = self.get_tickers([ "f" + currency for currency in currencies ])
 
@@ -174,26 +176,28 @@ class _RestPublicEndpoints(_Requests):
 
     def get_candles_hist(
         self,
-        resource: str,
+        symbol: str, tf: str = "1m",
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
     ) -> List[Candle]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
-        data = self._GET(f"candles/{resource}/hist", params=params)
+        data = self._GET(f"candles/trade:{tf}:{symbol}/hist", params=params)
         return [ serializers.Candle.parse(*subdata) for subdata in data ]
 
     def get_candles_last(
         self,
-        resource: str,
+        symbol: str, tf: str = "1m",
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
     ) -> Candle:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
-        data = self._GET(f"candles/{resource}/last", params=params)
+        data = self._GET(f"candles/trade:{tf}:{symbol}/last", params=params)
         return serializers.Candle.parse(*data)
 
-    def get_derivatives_status(self, type: str, keys: List[str]) -> List[DerivativesStatus]:
-        params = { "keys": ",".join(keys) }
+    def get_derivatives_status(self, keys: Union[List[str], Literal["ALL"]]) -> List[DerivativesStatus]:
+        if keys == "ALL":
+            params = { "keys": "ALL" }
+        else:  params = { "keys": ",".join(keys) }
 
-        data = self._GET(f"status/{type}", params=params)
+        data = self._GET(f"status/deriv", params=params)
 
         return [ serializers.DerivativesStatus.parse(*subdata) for subdata in data ]
 
@@ -214,6 +218,14 @@ class _RestPublicEndpoints(_Requests):
         data = self._GET("liquidations/hist", params=params)
 
         return [ serializers.Liquidation.parse(*subdata[0]) for subdata in data ]
+
+    def get_seed_candles(self, symbol: str, tf: str = '1m', sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Candle]:
+
+        params = {"sort": sort, "start": start, "end": end, "limit": limit}
+
+        data = self._GET(f"candles/trade:{tf}:{symbol}/hist?limit={limit}&start={start}&end={end}&sort={sort}", params=params)
+
+        return [ serializers.Candle.parse(*subdata) for subdata in data ]
 
     def get_leaderboards_hist(
         self,
@@ -262,7 +274,7 @@ class _RestAuthenticatedEndpoints(_Requests):
                      price: Optional[Union[Decimal, str]] = None, lev: Optional[int] = None, 
                      price_trailing: Optional[Union[Decimal, str]] = None, price_aux_limit: Optional[Union[Decimal, str]] = None, price_oco_stop: Optional[Union[Decimal, str]] = None,
                      gid: Optional[int] = None, cid: Optional[int] = None,
-                     flags: Optional[int] = 0, tif: Optional[Union[datetime, str]] = None, meta: Optional[JSON] = None) -> Notification:
+                     flags: Optional[int] = 0, tif: Optional[Union[datetime, str]] = None, meta: Optional[JSON] = None) -> Notification[Order]:
         data = {
             "type": type, "symbol": symbol, "amount": amount,
             "price": price, "lev": lev,
@@ -271,12 +283,12 @@ class _RestAuthenticatedEndpoints(_Requests):
             "flags": flags, "tif": tif, "meta": meta
         }
         
-        return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/submit", data=data))
+        return serializers._Notification[Order](serializer=serializers.Order).parse(*self._POST("auth/w/order/submit", data=data))
 
     def update_order(self, id: int, amount: Optional[Union[Decimal, str]] = None, price: Optional[Union[Decimal, str]] = None,
                      cid: Optional[int] = None, cid_date: Optional[str] = None, gid: Optional[int] = None,
                      flags: Optional[int] = 0, lev: Optional[int] = None, delta: Optional[Union[Decimal, str]] = None,
-                     price_aux_limit: Optional[Union[Decimal, str]] = None, price_trailing: Optional[Union[Decimal, str]] = None, tif: Optional[Union[datetime, str]] = None) -> Notification:
+                     price_aux_limit: Optional[Union[Decimal, str]] = None, price_trailing: Optional[Union[Decimal, str]] = None, tif: Optional[Union[datetime, str]] = None) -> Notification[Order]:
         data = {
             "id": id, "amount": amount, "price": price,
             "cid": cid, "cid_date": cid_date, "gid": gid,
@@ -284,18 +296,18 @@ class _RestAuthenticatedEndpoints(_Requests):
             "price_aux_limit": price_aux_limit, "price_trailing": price_trailing, "tif": tif
         }
         
-        return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/update", data=data))
+        return serializers._Notification[Order](serializer=serializers.Order).parse(*self._POST("auth/w/order/update", data=data))
 
-    def cancel_order(self, id: Optional[int] = None, cid: Optional[int] = None, cid_date: Optional[str] = None) -> Notification:
+    def cancel_order(self, id: Optional[int] = None, cid: Optional[int] = None, cid_date: Optional[str] = None) -> Notification[Order]:
         data = { 
             "id": id, 
             "cid": cid, 
             "cid_date": cid_date 
         }
 
-        return serializers._Notification(serializer=serializers.Order).parse(*self._POST("auth/w/order/cancel", data=data))
+        return serializers._Notification[Order](serializer=serializers.Order).parse(*self._POST("auth/w/order/cancel", data=data))
 
-    def cancel_order_multi(self, ids: Optional[List[int]] = None, cids: Optional[List[Tuple[int, str]]] = None, gids: Optional[List[int]] = None, all: bool = False) -> Notification:
+    def cancel_order_multi(self, ids: Optional[List[int]] = None, cids: Optional[List[Tuple[int, str]]] = None, gids: Optional[List[int]] = None, all: bool = False) -> Notification[List[Order]]:
         data = {
             "ids": ids,
             "cids": cids,
@@ -304,7 +316,7 @@ class _RestAuthenticatedEndpoints(_Requests):
             "all": int(all)
         }
 
-        return serializers._Notification(serializer=serializers.Order, iterate=True).parse(*self._POST("auth/w/order/cancel/multi", data=data))
+        return serializers._Notification[List[Order]](serializer=serializers.Order, iterate=True).parse(*self._POST("auth/w/order/cancel/multi", data=data))
 
     def get_orders_history(self, symbol: Optional[str] = None, ids: Optional[List[int]] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Order]:
         if symbol == None:
@@ -354,17 +366,17 @@ class _RestAuthenticatedEndpoints(_Requests):
 
     def submit_funding_offer(self, type: FundingOfferType, symbol: str, amount: Union[Decimal, str],
                              rate: Union[Decimal, str], period: int,
-                             flags: Optional[int] = 0) -> Notification:
+                             flags: Optional[int] = 0) -> Notification[FundingOffer]:
         data = {
             "type": type, "symbol": symbol, "amount": amount,
             "rate": rate, "period": period, 
             "flags": flags
         }
 
-        return serializers._Notification(serializer=serializers.FundingOffer).parse(*self._POST("auth/w/funding/offer/submit", data=data))
+        return serializers._Notification[FundingOffer](serializer=serializers.FundingOffer).parse(*self._POST("auth/w/funding/offer/submit", data=data))
 
-    def cancel_funding_offer(self, id: int) -> Notification:
-        return serializers._Notification(serializer=serializers.FundingOffer).parse(*self._POST("auth/w/funding/offer/cancel", data={ "id": id }))
+    def cancel_funding_offer(self, id: int) -> Notification[FundingOffer]:
+        return serializers._Notification[FundingOffer](serializer=serializers.FundingOffer).parse(*self._POST("auth/w/funding/offer/cancel", data={ "id": id }))
 
     def get_funding_offers_history(self, symbol: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingOffer]:
         if symbol == None:
@@ -396,3 +408,49 @@ class _RestAuthenticatedEndpoints(_Requests):
         }
 
         return [ serializers.FundingCredit.parse(*subdata) for subdata in self._POST(endpoint, data=data) ]
+
+    def submit_wallet_transfer(self, from_wallet: str, to_wallet: str, currency: str, currency_to: str, amount: Union[Decimal, str]) -> Notification[Transfer]:
+        data = {
+            "from": from_wallet, "to": to_wallet,
+            "currency": currency, "currency_to": currency_to,
+            "amount": amount
+        }
+
+        return serializers._Notification[Transfer](serializer=serializers.Transfer).parse(*self._POST("auth/w/transfer", data=data))
+
+    def submit_wallet_withdraw(self, wallet: str, method: str, address: str, amount: Union[Decimal, str]) -> Notification[Withdrawal]:
+        data = {
+            "wallet": wallet, "method": method,
+            "address": address, "amount": amount,
+        }
+
+        return serializers._Notification[Withdrawal](serializer=serializers.Withdrawal).parse(*self._POST("auth/w/withdraw", data=data))
+
+    def get_deposit_address(self, wallet: str, method: str, renew: bool = False) -> Notification[DepositAddress]:
+        data = {
+            "wallet": wallet,
+            "method": method,
+            "renew": int(renew)
+        }
+
+        return serializers._Notification[DepositAddress](serializer=serializers.DepositAddress).parse(*self._POST("auth/w/deposit/address", data=data))
+
+    def get_deposit_invoice(self, wallet: str, currency: str, amount: Union[Decimal, str]) -> Invoice:
+        data = {
+            "wallet": wallet, "currency": currency,
+            "amount": amount
+        }
+
+        return serializers.Invoice.parse(*self._POST("auth/w/deposit/invoice", data=data))
+
+    def get_movements(self, currency: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Movement]:
+        if currency == None:
+            endpoint = "auth/r/movements/hist"
+        else: endpoint = f"auth/r/movements/{currency}/hist"
+        
+        data = {
+            "start": start, "end": end,
+            "limit": limit
+        }
+
+        return [ serializers.Movement.parse(*subdata) for subdata in self._POST(endpoint, data=data) ]
