@@ -1,5 +1,13 @@
 from typing import TypedDict, Optional
 
+__all__ = [
+    "Ticker",
+    "Trades",
+    "Book",
+    "Candles",
+    "Status"
+]
+
 class Ticker(TypedDict):
     chanId: int; symbol: str
     pair: Optional[str]
