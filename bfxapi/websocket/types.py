@@ -8,48 +8,6 @@ from ..notification import Notification
 
 JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
-#region Type hinting for subscription objects
-
-class Subscriptions:
-    class TradingPairTicker(TypedDict):
-        chanId: int
-        symbol: str
-        pair: str
-
-    class FundingCurrencyTicker(TypedDict):
-        chanId: int
-        symbol: str
-        currency: str
-
-    class TradingPairTrades(TypedDict):
-        chanId: int
-        symbol: str
-        pair: str
-
-    class FundingCurrencyTrades(TypedDict):
-        chanId: int
-        symbol: str
-        currency: str
-
-    class Book(TypedDict):
-        chanId: int
-        symbol: str
-        prec: str
-        freq: str
-        len: str
-        subId: int
-        pair: str
-
-    class Candles(TypedDict):
-        chanId: int
-        key: str
-
-    class DerivativesStatus(TypedDict):
-        chanId: int
-        key: str
-
-#endregion
-
 #region Type hinting for Websocket Public Channels
 
 @dataclass

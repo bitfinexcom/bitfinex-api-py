@@ -5,9 +5,11 @@ from typing import Type, Generic, TypeVar, Iterable, Optional, List, Tuple, Any,
 T = TypeVar("T", bound="_Type")
 
 class _Type(object):
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            self.__setattr__(key, value)
+    """
+    Base class for any dataclass serializable by the _Serializer generic class.
+    """
+
+    pass
 
 class _Serializer(Generic[T]):
     def __init__(self, name: str, klass: Type[_Type], labels: List[str], IGNORE: List[str] = [ "_PLACEHOLDER" ]):

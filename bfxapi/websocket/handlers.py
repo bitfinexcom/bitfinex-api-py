@@ -6,9 +6,6 @@ from . import serializers
 from .enums import Channels
 from .exceptions import BfxWebsocketException
 
-def _get_sub_dictionary(dictionary, keys):
-    return { key: dictionary[key] for key in dictionary if key in keys }
-    
 class PublicChannelsHandler(object):
     EVENTS = [
         "t_ticker_update", "f_ticker_update",
@@ -30,21 +27,23 @@ class PublicChannelsHandler(object):
         }
 
     def handle(self, subscription, *stream):
+        _clear = lambda dictionary, *args: { key: value for key, value in dictionary.items() if key not in args }
+
         if channel := subscription["channel"] or channel in self.__handlers.keys():
-            return self.__handlers[channel](subscription, *stream)
+            return self.__handlers[channel](_clear(subscription, "event", "channel"), *stream)
 
     def __ticker_channel_handler(self, subscription, *stream):
         if subscription["symbol"].startswith("t"):
             return self.event_emitter.emit(
                 "t_ticker_update",
-                _get_sub_dictionary(subscription, [ "chanId", "symbol", "pair" ]),
+                subscription,
                 serializers.TradingPairTicker.parse(*stream[0])
             )
 
         if subscription["symbol"].startswith("f"):
             return self.event_emitter.emit(
                 "f_ticker_update",
-                _get_sub_dictionary(subscription, [ "chanId", "symbol", "currency" ]),
+                subscription,
                 serializers.FundingCurrencyTicker.parse(*stream[0])
             )
 
@@ -53,34 +52,32 @@ class PublicChannelsHandler(object):
             if subscription["symbol"].startswith("t"):
                 return self.event_emitter.emit(
                     { "te": "t_trade_executed", "tu": "t_trade_execution_update" }[type],
-                    _get_sub_dictionary(subscription, [ "chanId", "symbol", "pair" ]),
+                    subscription,
                     serializers.TradingPairTrade.parse(*stream[1])
                 )
 
             if subscription["symbol"].startswith("f"):
                 return self.event_emitter.emit(
                     { "fte": "f_trade_executed", "ftu": "f_trade_execution_update" }[type],
-                    _get_sub_dictionary(subscription, [ "chanId", "symbol", "currency" ]),
+                    subscription,
                     serializers.FundingCurrencyTrade.parse(*stream[1])
                 )
 
         if subscription["symbol"].startswith("t"):
             return self.event_emitter.emit(
                 "t_trades_snapshot",
-                _get_sub_dictionary(subscription, [ "chanId", "symbol", "pair" ]),
+                subscription,
                 [ serializers.TradingPairTrade.parse(*substream) for substream in stream[0] ]
             )
 
         if subscription["symbol"].startswith("f"):
             return self.event_emitter.emit(
                 "f_trades_snapshot",
-                _get_sub_dictionary(subscription, [ "chanId", "symbol", "currency" ]),
+                subscription,
                 [ serializers.FundingCurrencyTrade.parse(*substream)  for substream in stream[0] ]
             )
 
     def __book_channel_handler(self, subscription, *stream):
-        subscription = _get_sub_dictionary(subscription, [ "chanId", "symbol", "prec", "freq", "len", "subId", "pair" ])
-
         type = subscription["symbol"][0]
 
         if subscription["prec"] == "R0":
@@ -101,8 +98,6 @@ class PublicChannelsHandler(object):
         )
         
     def __candles_channel_handler(self, subscription, *stream):
-        subscription = _get_sub_dictionary(subscription, [ "chanId", "key" ])
-
         if all(isinstance(substream, list) for substream in stream[0]):
             return self.event_emitter.emit(
                 "candles_snapshot", 
@@ -117,8 +112,6 @@ class PublicChannelsHandler(object):
         )
 
     def __status_channel_handler(self, subscription, *stream):
-        subscription = _get_sub_dictionary(subscription, [ "chanId", "key" ])
-
         if subscription["key"].startswith("deriv:"):
             return self.event_emitter.emit(
                 "derivatives_status_update",
