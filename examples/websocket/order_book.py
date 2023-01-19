@@ -7,7 +7,7 @@ from typing import List
 from bfxapi import Client, Constants
 
 from bfxapi.websocket.enums import Channels, Error
-from bfxapi.websocket.typings import Subscriptions, TradingPairBook
+from bfxapi.websocket.types import Subscriptions, TradingPairBook
 
 class OrderBook(object):
     def __init__(self, symbols: List[str]):
@@ -18,7 +18,7 @@ class OrderBook(object):
         }
             
     def update(self, symbol: str, data: TradingPairBook) -> None:
-        price, count, amount = data["PRICE"], data["COUNT"], data["AMOUNT"]
+        price, count, amount = data.PRICE, data.COUNT, data.AMOUNT
 
         kind = (amount > 0) and "bids" or "asks"
 

@@ -1,10 +1,8 @@
 # python -c "from examples.websocket.ticker import *"
 
-import asyncio
-
 from bfxapi import Client, Constants
 from bfxapi.websocket.enums import Channels
-from bfxapi.websocket.typings import Subscriptions, TradingPairTicker
+from bfxapi.websocket.types import Subscriptions, TradingPairTicker
 
 bfx = Client(WSS_HOST=Constants.PUB_WSS_HOST)
 
