@@ -62,13 +62,13 @@ class _Requests(object):
 
         return data
 
-    def _POST(self, endpoint, params = None, data = None, _append_authentication_headers = True):
+    def _POST(self, endpoint, params = None, data = None):
         headers = { "Content-Type": "application/json" }
 
         if isinstance(data, dict):
             data = json.dumps({ key: value for key, value in data.items() if value != None}, cls=JSONEncoder)
 
-        if _append_authentication_headers:
+        if self.API_KEY and self.API_SECRET:
             headers = { **headers, **self.__build_authentication_headers(endpoint, data) }
 
         response = requests.post(f"{self.host}/{endpoint}", params=params, data=data, headers=headers)
@@ -267,6 +267,21 @@ class _RestPublicEndpoints(_Requests):
             messages.append(message)
 
         return messages
+
+    def get_trading_market_average_price(self, symbol: str, amount: Union[Decimal, str], price_limit: Optional[Union[Decimal, str]] = None) -> TradingMarketAveragePrice:
+        data = {
+            "symbol": symbol, "amount": amount, "price_limit": price_limit
+        }
+
+        return serializers.TradingMarketAveragePrice.parse(*self._POST("calc/trade/avg", data=data))
+
+    def get_funding_market_average_price(self, symbol: str, amount: Union[Decimal, str], period: int, rate_limit: Optional[Union[Decimal, str]] = None) -> FundingMarketAveragePrice:
+        data = {
+            "symbol": symbol, "amount": amount, "period": period,
+            "rate_limit": rate_limit
+        }
+
+        return serializers.FundingMarketAveragePrice.parse(*self._POST("calc/trade/avg", data=data))
 
 class _RestAuthenticatedEndpoints(_Requests):
     def get_wallets(self) -> List[Wallet]:
