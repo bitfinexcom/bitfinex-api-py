@@ -30,7 +30,7 @@ class PublicChannelsHandler(object):
         _clear = lambda dictionary, *args: { key: value for key, value in dictionary.items() if key not in args }
 
         if channel := subscription["channel"] or channel in self.__handlers.keys():
-            return self.__handlers[channel](_clear(subscription, "event", "channel"), *stream)
+            return self.__handlers[channel](_clear(subscription, "event", "channel", "subId"), *stream)
 
     def __ticker_channel_handler(self, subscription, *stream):
         if subscription["symbol"].startswith("t"):
