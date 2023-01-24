@@ -152,6 +152,35 @@ class FundingStatistic(_Type):
     FUNDING_AMOUNT_USED: float
     FUNDING_BELOW_THRESHOLD: float
 
+@dataclass
+class PulseProfile(_Type):
+    PUID: str
+    MTS: int
+    NICKNAME: str
+    PICTURE: str
+    TEXT: str
+    TWITTER_HANDLE: str
+    FOLLOWERS: int
+    FOLLOWING: int
+    TIPPING_STATUS: int
+
+@dataclass
+class PulseMessage(_Type):
+    PID: str
+    MTS: int
+    PUID: str
+    TITLE: str
+    CONTENT: str
+    IS_PIN: int
+    IS_PUBLIC: int
+    COMMENTS_DISABLED: int
+    TAGS: List[str]
+    ATTACHMENTS: List[str]
+    META: List[JSON]
+    LIKES: int
+    PROFILE: PulseProfile
+    COMMENTS: int
+
 #endregion
 
 #region Type hinting for Rest Authenticated Endpoints

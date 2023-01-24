@@ -58,7 +58,7 @@ class _Requests(object):
                 raise RequestParametersError(f"The request was rejected with the following parameter error: <{data[2]}>")
 
             if data[1] == None or data[1] == Error.ERR_UNK or data[1] == Error.ERR_GENERIC:
-                raise UnknownGenericError("The server replied to the request with a generic error with message: <{data[2]}>.")
+                raise UnknownGenericError(f"The server replied to the request with a generic error with message: <{data[2]}>.")
 
         return data
 
@@ -254,6 +254,19 @@ class _RestPublicEndpoints(_Requests):
 
     def conf(self, config: Config) -> Any:
         return self._GET(f"conf/{config}")[0]
+
+    def get_pulse_profile(self, nickname: str) -> PulseProfile:
+        return serializers.PulseProfile.parse(*self._GET(f"pulse/profile/{nickname}"))
+
+    def get_pulse_history(self, end: Optional[str] = None, limit: Optional[int] = None) -> List[PulseMessage]:
+        messages = list()
+
+        for subdata in self._GET("pulse/hist", params={ "end": end, "limit": limit }):
+            subdata[18] = subdata[18][0]
+            message = serializers.PulseMessage.parse(*subdata)
+            messages.append(message)
+
+        return messages
 
 class _RestAuthenticatedEndpoints(_Requests):
     def get_wallets(self) -> List[Wallet]:

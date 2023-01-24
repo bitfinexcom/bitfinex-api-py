@@ -1,6 +1,6 @@
 from . import types
 
-from .. labeler import generate_labeler_serializer
+from .. labeler import generate_labeler_serializer, generate_recursive_serializer
 
 from .. notification import _Notification
 
@@ -183,6 +183,51 @@ FundingStatistic = generate_labeler_serializer("FundingStatistic", klass=types.F
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "FUNDING_BELOW_THRESHOLD"
+])
+
+PulseProfile = generate_labeler_serializer("PulseProfile", klass=types.PulseProfile, labels=[
+    "PUID",
+    "MTS",
+    "_PLACEHOLDER",
+    "NICKNAME",
+    "_PLACEHOLDER",
+    "PICTURE",
+    "TEXT",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "TWITTER_HANDLE",
+    "_PLACEHOLDER",
+    "FOLLOWERS",
+    "FOLLOWING",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "TIPPING_STATUS"
+])
+
+PulseMessage = generate_recursive_serializer("PulseMessage", klass=types.PulseMessage, serializers={ "PROFILE": PulseProfile }, labels=[
+    "PID",
+    "MTS",
+    "_PLACEHOLDER",
+    "PUID",
+    "_PLACEHOLDER",
+    "TITLE",
+    "CONTENT",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "IS_PIN",
+    "IS_PUBLIC",
+    "COMMENTS_DISABLED",
+    "TAGS", 
+    "ATTACHMENTS",
+    "META",
+    "LIKES",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "PROFILE",
+    "COMMENTS",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER"
 ])
 
 #endregion
