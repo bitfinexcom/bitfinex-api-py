@@ -24,7 +24,6 @@ class Book(TypedDict):
     prec: str
     freq: str
     len: str
-    subId: int
     pair: str
 
 class Candles(TypedDict):
