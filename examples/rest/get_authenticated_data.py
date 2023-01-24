@@ -85,6 +85,15 @@ def log_funding_credits_history():
     print("Funding credit history:")
     [print(c) for c in credit]
 
+def log_margin_info():
+    btcusd_margin_info = bfx.rest.auth.get_symbol_margin_info('tBTCUSD')
+    print(f"tBTCUSD margin info {btcusd_margin_info}")
+
+    sym_all_margin_info = bfx.rest.auth.get_all_symbols_margin_info()
+    print(f"Sym all margin info {sym_all_margin_info}")
+
+    base_margin_info = bfx.rest.auth.get_base_margin_info()
+    print(f"Base margin info {base_margin_info}")
 
 def run():
     log_wallets()
@@ -97,5 +106,6 @@ def run():
     log_funding_offer_history()
     log_funding_credits()
     log_funding_credits_history()
+    log_margin_info()
 
 run()

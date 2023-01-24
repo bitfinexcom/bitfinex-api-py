@@ -373,5 +373,21 @@ class Movement(_Type):
     DESTINATION_ADDRESS: str
     TRANSACTION_ID: str
     WITHDRAW_TRANSACTION_NOTE: str
+    
+@dataclass
+class SymbolMarginInfo(_Type):
+    SYMBOL: str
+    TRADABLE_BALANCE: float
+    GROSS_BALANCE: float
+    BUY: float
+    SELL: float
+
+@dataclass
+class BaseMarginInfo(_Type):
+    USER_PL: float
+    USER_SWAPS: float
+    MARGIN_BALANCE: float
+    MARGIN_NET: float
+    MARGIN_MIN: float
 
 #endregion
