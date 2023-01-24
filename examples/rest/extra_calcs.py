@@ -12,7 +12,7 @@ t_symbol_response = bfx.rest.public.get_trading_market_average_price(
     price_limit="20000.5"
 )
 
-print(t_symbol_response)
+print(t_symbol_response.PRICE_AVG)
 
 f_symbol_response = bfx.rest.public.get_funding_market_average_price(
     symbol="fUSD",
@@ -21,4 +21,8 @@ f_symbol_response = bfx.rest.public.get_funding_market_average_price(
     rate_limit="0.00015"
 )
 
-print(f_symbol_response)
+print(f_symbol_response.RATE_AVG)
+
+fx_rate = bfx.rest.public.get_fx_rate(ccy1="USD", ccy2="EUR")
+
+print(fx_rate.CURRENT_RATE)

@@ -283,6 +283,9 @@ class _RestPublicEndpoints(_Requests):
 
         return serializers.FundingMarketAveragePrice.parse(*self._POST("calc/trade/avg", data=data))
 
+    def get_fx_rate(self, ccy1: str, ccy2: str) -> FxRate:
+        return serializers.FxRate.parse(*self._POST("calc/fx", data={ "ccy1": ccy1, "ccy2": ccy2 }))
+
 class _RestAuthenticatedEndpoints(_Requests):
     def get_wallets(self) -> List[Wallet]:
         return [ serializers.Wallet.parse(*subdata) for subdata in self._POST("auth/r/wallets") ]

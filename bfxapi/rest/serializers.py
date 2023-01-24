@@ -241,6 +241,10 @@ FundingMarketAveragePrice = generate_labeler_serializer("FundingMarketAveragePri
     "AMOUNT"
 ])
 
+FxRate = generate_labeler_serializer("FxRate", klass=types.FxRate, labels=[
+    "CURRENT_RATE"
+])
+
 #endregion
 
 #region Serializers definition for Rest Authenticated Endpoints
