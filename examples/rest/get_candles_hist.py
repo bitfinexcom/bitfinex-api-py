@@ -1,4 +1,4 @@
-# python -c "from examples.rest.get_candles_hist import *"
+# python -c "import examples.rest.get_candles_hist"
 
 from bfxapi.client import Client, Constants
 

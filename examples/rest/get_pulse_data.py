@@ -1,4 +1,4 @@
-# python -c "from examples.rest.get_pulse_data import *"
+# python -c "import examples.rest.get_pulse_data"
 
 import time
 

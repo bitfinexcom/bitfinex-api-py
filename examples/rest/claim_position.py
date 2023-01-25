@@ -1,4 +1,4 @@
-# python -c "from examples.rest.claim_position import *"
+# python -c "import examples.rest.claim_position"
 
 import os
 

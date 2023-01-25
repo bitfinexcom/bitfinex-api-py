@@ -1,4 +1,4 @@
-# python -c "from examples.rest.transfer_wallet import *"
+# python -c "import examples.rest.transfer_wallet"
 
 import os
 

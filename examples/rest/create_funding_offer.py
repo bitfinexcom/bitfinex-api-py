@@ -1,4 +1,4 @@
-# python -c "from examples.rest.create_funding_offer import *"
+# python -c "import examples.rest.create_funding_offer"
 
 import os
 

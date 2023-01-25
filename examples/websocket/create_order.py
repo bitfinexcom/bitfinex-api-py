@@ -1,4 +1,4 @@
-# python -c "from examples.websocket.create_order import *"
+# python -c "import examples.websocket.create_order"
 
 import os
 

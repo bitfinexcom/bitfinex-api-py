@@ -1,4 +1,4 @@
-# python -c "from examples.rest.create_order import *"
+# python -c "import examples.rest.create_order"
 
 import os
 

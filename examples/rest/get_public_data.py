@@ -1,4 +1,4 @@
-# python -c "from examples.rest.get_public_data import *"
+# python -c "import examples.rest.get_public_data"
 
 import time
 

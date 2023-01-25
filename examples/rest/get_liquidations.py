@@ -1,4 +1,4 @@
-# python -c "from examples.rest.get_liquidations import *"
+# python -c "import examples.rest.get_liquidations"
 
 import time
 

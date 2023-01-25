@@ -1,4 +1,4 @@
-# python -c "from examples.rest.extra_calcs import *"
+# python -c "import examples.rest.extra_calcs"
 
 from bfxapi.client import Client, Constants
 

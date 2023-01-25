@@ -1,4 +1,4 @@
-# python -c "from examples.websocket.order_book import *"
+# python -c "import examples.websocket.order_book"
 
 from collections import OrderedDict
 

@@ -1,4 +1,4 @@
-# python -c "from examples.websocket.ticker import *"
+# python -c "import examples.websocket.ticker"
 
 from bfxapi import Client, Constants
 
