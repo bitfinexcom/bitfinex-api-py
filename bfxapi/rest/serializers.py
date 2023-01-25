@@ -235,7 +235,6 @@ TradingMarketAveragePrice = generate_labeler_serializer("TradingMarketAveragePri
     "AMOUNT"
 ])
 
-
 FundingMarketAveragePrice = generate_labeler_serializer("FundingMarketAveragePrice", klass=types.FundingMarketAveragePrice, labels=[
     "RATE_AVG",
     "AMOUNT"
@@ -299,8 +298,8 @@ Position = generate_labeler_serializer("Position", klass=types.Position, labels=
     "STATUS", 
     "AMOUNT", 
     "BASE_PRICE", 
-    "FUNDING", 
-    "FUNDING_TYPE",
+    "MARGIN_FUNDING", 
+    "MARGIN_FUNDING_TYPE",
     "PL",
     "PL_PERC",
     "PRICE_LIQ",
@@ -487,6 +486,29 @@ BaseMarginInfo = generate_labeler_serializer("BaseMarginInfo", klass=types.BaseM
     "MARGIN_BALANCE",
     "MARGIN_NET",
     "MARGIN_MIN"
+])
+
+Claim = generate_labeler_serializer("Claim", klass=types.Claim, labels=[
+    "SYMBOL",
+    "POSITION_STATUS",
+    "AMOUNT",
+    "BASE_PRICE",
+    "MARGIN_FUNDING",
+    "MARGIN_FUNDING_TYPE",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "POSITION_ID",
+    "MTS_CREATE",
+    "MTS_UPDATE",
+    "_PLACEHOLDER",
+    "POS_TYPE",
+    "_PLACEHOLDER",
+    "COLLATERAL",
+    "MIN_COLLATERAL",
+    "META"
 ])
 
 #endregion

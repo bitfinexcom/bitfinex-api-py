@@ -1,3 +1,5 @@
+# python -c "from examples.rest.create_funding_offer import *"
+
 import os
 
 from bfxapi.client import Client, Constants

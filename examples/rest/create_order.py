@@ -1,3 +1,5 @@
+# python -c "from examples.rest.create_order import *"
+
 import os
 
 from bfxapi.client import Client, Constants

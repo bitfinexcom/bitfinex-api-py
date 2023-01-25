@@ -388,4 +388,20 @@ class BaseMarginInfo(_Type):
     MARGIN_NET: float
     MARGIN_MIN: float
 
+@dataclass
+class Claim(_Type):
+    SYMBOL: str
+    POSITION_STATUS: str
+    AMOUNT: float
+    BASE_PRICE: float
+    MARGIN_FUNDING: float
+    MARGIN_FUNDING_TYPE: int
+    POSITION_ID: int
+    MTS_CREATE: int
+    MTS_UPDATE: int
+    POS_TYPE: int
+    COLLATERAL: str
+    MIN_COLLATERAL: str
+    META: JSON
+
 #endregion

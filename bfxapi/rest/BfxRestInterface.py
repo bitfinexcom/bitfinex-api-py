@@ -496,3 +496,6 @@ class _RestAuthenticatedEndpoints(_Requests):
 
     def get_base_margin_info(self) -> BaseMarginInfo:
         return serializers.BaseMarginInfo.parse(*(self._POST(f"auth/r/info/margin/base")[1]))
+
+    def claim_position(self, id: int, amount: Optional[Union[Decimal, float, str]] = None) -> Notification[Claim]:
+        return serializers._Notification[Claim](serializer=serializers.Claim).parse(*self._POST("auth/w/position/claim", data={ "id": id, "amount": amount }))
