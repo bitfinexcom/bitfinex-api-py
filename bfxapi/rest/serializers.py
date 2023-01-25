@@ -511,4 +511,30 @@ Claim = generate_labeler_serializer("Claim", klass=types.Claim, labels=[
     "META"
 ])
 
+IncreaseInfo = generate_labeler_serializer("IncreaseInfo", klass=types.IncreaseInfo, labels=[
+    "MAX_POS",
+    "CURRENT_POS",
+    "BASE_CURRENCY_BALANCE",
+    "TRADABLE_BALANCE_QUOTE_CURRENCY",
+    "TRADABLE_BALANCE_QUOTE_TOTAL",
+    "TRADABLE_BALANCE_BASE_CURRENCY",
+    "TRADABLE_BALANCE_BASE_TOTAL",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "FUNDING_AVAIL",
+    "FUNDING_VALUE",
+    "FUNDING_REQUIRED",
+    "FUNDING_VALUE_CURRENCY",
+    "FUNDING_REQUIRED_CURRENCY"
+])
+
+Increase = generate_labeler_serializer("Increase", klass=types.Increase, labels=[
+    "SYMBOL",
+    "_PLACEHOLDER",
+    "AMOUNT",
+    "BASE_PRICE"
+])
+
 #endregion

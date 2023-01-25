@@ -499,3 +499,13 @@ class _RestAuthenticatedEndpoints(_Requests):
 
     def claim_position(self, id: int, amount: Optional[Union[Decimal, float, str]] = None) -> Notification[Claim]:
         return serializers._Notification[Claim](serializer=serializers.Claim).parse(*self._POST("auth/w/position/claim", data={ "id": id, "amount": amount }))
+
+    def get_increase_position_info(self, symbol: str, amount: Union[Decimal, float, str]) -> IncreaseInfo:
+        data = self._POST(f"auth/r/position/increase/info", data={ "symbol": symbol, "amount": amount })
+
+        return serializers.IncreaseInfo.parse(*(
+            data[0] + [data[1][0]] + data[1][1] + [data[1][2]] + data[4] + data[5]
+        ))
+
+    def increase_position(self, symbol: str, amount: Union[Decimal, float, str]) -> Notification[Increase]:
+        return serializers._Notification[Increase](serializer=serializers.Increase).parse(*self._POST("auth/w/position/increase", data={ "symbol": symbol, "amount": amount }))
