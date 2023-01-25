@@ -45,8 +45,6 @@ class _Requests(object):
 
     def _GET(self, endpoint, params = None):
         response = requests.get(f"{self.host}/{endpoint}", params=params)
-
-        print(f"{self.host}/{endpoint}")
         
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
@@ -487,9 +485,9 @@ class _RestAuthenticatedEndpoints(_Requests):
         return [ serializers.Movement.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
 
     def get_symbol_margin_info(self, symbol: str) -> SymbolMarginInfo:
-        data = self._POST(f"auth/r/info/margin/{symbol}")
+        response = self._POST(f"auth/r/info/margin/{symbol}")
 
-        return serializers.SymbolMarginInfo.parse(*([data[1]] + data[2]))
+        return serializers.SymbolMarginInfo.parse(*([response[1]] + response[2]))
     
     def get_all_symbols_margin_info(self) -> List[SymbolMarginInfo]:
         return [ serializers.SymbolMarginInfo.parse(*([sub_data[1]] + sub_data[2])) for sub_data in self._POST(f"auth/r/info/margin/sym_all") ]
@@ -501,11 +499,14 @@ class _RestAuthenticatedEndpoints(_Requests):
         return serializers._Notification[Claim](serializer=serializers.Claim).parse(*self._POST("auth/w/position/claim", data={ "id": id, "amount": amount }))
 
     def get_increase_position_info(self, symbol: str, amount: Union[Decimal, float, str]) -> IncreaseInfo:
-        data = self._POST(f"auth/r/position/increase/info", data={ "symbol": symbol, "amount": amount })
+        response = self._POST(f"auth/r/position/increase/info", data={ "symbol": symbol, "amount": amount })
 
         return serializers.IncreaseInfo.parse(*(
-            data[0] + [data[1][0]] + data[1][1] + [data[1][2]] + data[4] + data[5]
+            response[0] + [response[1][0]] + response[1][1] + [response[1][2]] + response[4] + response[5]
         ))
 
     def increase_position(self, symbol: str, amount: Union[Decimal, float, str]) -> Notification[Increase]:
         return serializers._Notification[Increase](serializer=serializers.Increase).parse(*self._POST("auth/w/position/increase", data={ "symbol": symbol, "amount": amount }))
+
+    def get_position_history(self, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionHistory]:
+        return [ serializers.PositionHistory.parse(*sub_data) for sub_data in self._POST("auth/r/positions/hist", data={ "start": start, "end": end, "limit": limit }) ]

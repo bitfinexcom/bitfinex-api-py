@@ -425,4 +425,16 @@ class Increase(_Type):
     AMOUNT: float
     BASE_PRICE: float
 
+@dataclass
+class PositionHistory(_Type):
+    SYMBOL: str
+    STATUS: str
+    AMOUNT: float
+    BASE_PRICE: float
+    FUNDING: float
+    FUNDING_TYPE: int
+    POSITION_ID: int
+    MTS_CREATE: int
+    MTS_UPDATE: int
+
 #endregion
