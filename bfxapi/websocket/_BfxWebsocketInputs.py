@@ -12,9 +12,9 @@ class _BfxWebsocketInputs(object):
     def __init__(self, __handle_websocket_input):
         self.__handle_websocket_input = __handle_websocket_input
 
-    async def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, str], 
-                     price: Optional[Union[Decimal, str]] = None, lev: Optional[int] = None, 
-                     price_trailing: Optional[Union[Decimal, str]] = None, price_aux_limit: Optional[Union[Decimal, str]] = None, price_oco_stop: Optional[Union[Decimal, str]] = None,
+    async def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, float, str], 
+                     price: Optional[Union[Decimal, float, str]] = None, lev: Optional[int] = None, 
+                     price_trailing: Optional[Union[Decimal, float, str]] = None, price_aux_limit: Optional[Union[Decimal, float, str]] = None, price_oco_stop: Optional[Union[Decimal, float, str]] = None,
                      gid: Optional[int] = None, cid: Optional[int] = None,
                      flags: Optional[int] = 0, tif: Optional[Union[datetime, str]] = None, meta: Optional[JSON] = None):
         data = _strip({
@@ -27,10 +27,10 @@ class _BfxWebsocketInputs(object):
         
         await self.__handle_websocket_input("on", data)
 
-    async def update_order(self, id: int, amount: Optional[Union[Decimal, str]] = None, price: Optional[Union[Decimal, str]] = None,
+    async def update_order(self, id: int, amount: Optional[Union[Decimal, float, str]] = None, price: Optional[Union[Decimal, float, str]] = None,
                      cid: Optional[int] = None, cid_date: Optional[str] = None, gid: Optional[int] = None,
-                     flags: Optional[int] = 0, lev: Optional[int] = None, delta: Optional[Union[Decimal, str]] = None,
-                     price_aux_limit: Optional[Union[Decimal, str]] = None, price_trailing: Optional[Union[Decimal, str]] = None, tif: Optional[Union[datetime, str]] = None):
+                     flags: Optional[int] = 0, lev: Optional[int] = None, delta: Optional[Union[Decimal, float, str]] = None,
+                     price_aux_limit: Optional[Union[Decimal, float, str]] = None, price_trailing: Optional[Union[Decimal, float, str]] = None, tif: Optional[Union[datetime, str]] = None):
         data = _strip({
             "id": id, "amount": amount, "price": price,
             "cid": cid, "cid_date": cid_date, "gid": gid,
@@ -60,8 +60,8 @@ class _BfxWebsocketInputs(object):
         
         await self.__handle_websocket_input("oc_multi", data)
 
-    async def submit_funding_offer(self, type: FundingOfferType, symbol: str, amount: Union[Decimal, str],
-                             rate: Union[Decimal, str], period: int,
+    async def submit_funding_offer(self, type: FundingOfferType, symbol: str, amount: Union[Decimal, float, str],
+                             rate: Union[Decimal, float, str], period: int,
                              flags: Optional[int] = 0):
         data = {
             "type": type, "symbol": symbol, "amount": amount,

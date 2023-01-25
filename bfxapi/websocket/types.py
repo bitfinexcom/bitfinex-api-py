@@ -3,10 +3,8 @@ from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
 from dataclasses import dataclass
 
 from ..labeler import _Type
-
 from ..notification import Notification
-
-JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
+from .. utils.encoder import JSON
 
 #region Type hinting for Websocket Public Channels
 

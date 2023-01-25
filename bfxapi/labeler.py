@@ -29,7 +29,7 @@ class _Serializer(Generic[T]):
         return cast(T, self.klass(**dict(self._serialize(*values, skip=skip))))
 
 class _RecursiveSerializer(_Serializer, Generic[T]):
-    def __init__(self, name: str, klass: Type[_Type], labels: List[str], serializers: Dict[str, Type[_Serializer]], IGNORE: List[str] = ["_PLACEHOLDER"]):
+    def __init__(self, name: str, klass: Type[_Type], labels: List[str], serializers: Dict[str, _Serializer[Any]], IGNORE: List[str] = ["_PLACEHOLDER"]):
         super().__init__(name, klass, labels, IGNORE)
 
         self.serializers = serializers
@@ -46,5 +46,5 @@ class _RecursiveSerializer(_Serializer, Generic[T]):
 def generate_labeler_serializer(name: str, klass: Type[T], labels: List[str], IGNORE: List[str] = [ "_PLACEHOLDER" ]) -> _Serializer[T]:
     return _Serializer[T](name, klass, labels, IGNORE)
 
-def generate_recursive_serializer(name: str, klass: Type[T], labels: List[str], serializers: Dict[str, Type[_Serializer]], IGNORE: List[str] = [ "_PLACEHOLDER" ]) -> _RecursiveSerializer[T]:
+def generate_recursive_serializer(name: str, klass: Type[T], labels: List[str], serializers: Dict[str, _Serializer[Any]], IGNORE: List[str] = [ "_PLACEHOLDER" ]) -> _RecursiveSerializer[T]:
     return _RecursiveSerializer[T](name, klass, labels, serializers, IGNORE)

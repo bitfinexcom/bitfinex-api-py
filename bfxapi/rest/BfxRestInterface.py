@@ -268,14 +268,14 @@ class _RestPublicEndpoints(_Requests):
 
         return messages
 
-    def get_trading_market_average_price(self, symbol: str, amount: Union[Decimal, str], price_limit: Optional[Union[Decimal, str]] = None) -> TradingMarketAveragePrice:
+    def get_trading_market_average_price(self, symbol: str, amount: Union[Decimal, float, str], price_limit: Optional[Union[Decimal, float, str]] = None) -> TradingMarketAveragePrice:
         data = {
             "symbol": symbol, "amount": amount, "price_limit": price_limit
         }
 
         return serializers.TradingMarketAveragePrice.parse(*self._POST("calc/trade/avg", data=data))
 
-    def get_funding_market_average_price(self, symbol: str, amount: Union[Decimal, str], period: int, rate_limit: Optional[Union[Decimal, str]] = None) -> FundingMarketAveragePrice:
+    def get_funding_market_average_price(self, symbol: str, amount: Union[Decimal, float, str], period: int, rate_limit: Optional[Union[Decimal, float, str]] = None) -> FundingMarketAveragePrice:
         data = {
             "symbol": symbol, "amount": amount, "period": period,
             "rate_limit": rate_limit
@@ -301,9 +301,9 @@ class _RestAuthenticatedEndpoints(_Requests):
     def get_positions(self) -> List[Position]:
         return [ serializers.Position.parse(*sub_data) for sub_data in self._POST("auth/r/positions") ]
 
-    def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, str], 
-                     price: Optional[Union[Decimal, str]] = None, lev: Optional[int] = None, 
-                     price_trailing: Optional[Union[Decimal, str]] = None, price_aux_limit: Optional[Union[Decimal, str]] = None, price_oco_stop: Optional[Union[Decimal, str]] = None,
+    def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, float, str], 
+                     price: Optional[Union[Decimal, float, str]] = None, lev: Optional[int] = None, 
+                     price_trailing: Optional[Union[Decimal, float, str]] = None, price_aux_limit: Optional[Union[Decimal, float, str]] = None, price_oco_stop: Optional[Union[Decimal, float, str]] = None,
                      gid: Optional[int] = None, cid: Optional[int] = None,
                      flags: Optional[int] = 0, tif: Optional[Union[datetime, str]] = None, meta: Optional[JSON] = None) -> Notification[Order]:
         data = {
@@ -316,10 +316,10 @@ class _RestAuthenticatedEndpoints(_Requests):
         
         return serializers._Notification[Order](serializer=serializers.Order).parse(*self._POST("auth/w/order/submit", data=data))
 
-    def update_order(self, id: int, amount: Optional[Union[Decimal, str]] = None, price: Optional[Union[Decimal, str]] = None,
+    def update_order(self, id: int, amount: Optional[Union[Decimal, float, str]] = None, price: Optional[Union[Decimal, float, str]] = None,
                      cid: Optional[int] = None, cid_date: Optional[str] = None, gid: Optional[int] = None,
-                     flags: Optional[int] = 0, lev: Optional[int] = None, delta: Optional[Union[Decimal, str]] = None,
-                     price_aux_limit: Optional[Union[Decimal, str]] = None, price_trailing: Optional[Union[Decimal, str]] = None, tif: Optional[Union[datetime, str]] = None) -> Notification[Order]:
+                     flags: Optional[int] = 0, lev: Optional[int] = None, delta: Optional[Union[Decimal, float, str]] = None,
+                     price_aux_limit: Optional[Union[Decimal, float, str]] = None, price_trailing: Optional[Union[Decimal, float, str]] = None, tif: Optional[Union[datetime, str]] = None) -> Notification[Order]:
         data = {
             "id": id, "amount": amount, "price": price,
             "cid": cid, "cid_date": cid_date, "gid": gid,
@@ -395,8 +395,8 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.FundingOffer.parse(*sub_data) for sub_data in self._POST(endpoint) ]
 
-    def submit_funding_offer(self, type: FundingOfferType, symbol: str, amount: Union[Decimal, str],
-                             rate: Union[Decimal, str], period: int,
+    def submit_funding_offer(self, type: FundingOfferType, symbol: str, amount: Union[Decimal, float, str],
+                             rate: Union[Decimal, float, str], period: int,
                              flags: Optional[int] = 0) -> Notification[FundingOffer]:
         data = {
             "type": type, "symbol": symbol, "amount": amount,
@@ -440,7 +440,7 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.FundingCredit.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
 
-    def submit_wallet_transfer(self, from_wallet: str, to_wallet: str, currency: str, currency_to: str, amount: Union[Decimal, str]) -> Notification[Transfer]:
+    def submit_wallet_transfer(self, from_wallet: str, to_wallet: str, currency: str, currency_to: str, amount: Union[Decimal, float, str]) -> Notification[Transfer]:
         data = {
             "from": from_wallet, "to": to_wallet,
             "currency": currency, "currency_to": currency_to,
@@ -449,7 +449,7 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return serializers._Notification[Transfer](serializer=serializers.Transfer).parse(*self._POST("auth/w/transfer", data=data))
 
-    def submit_wallet_withdraw(self, wallet: str, method: str, address: str, amount: Union[Decimal, str]) -> Notification[Withdrawal]:
+    def submit_wallet_withdraw(self, wallet: str, method: str, address: str, amount: Union[Decimal, float, str]) -> Notification[Withdrawal]:
         data = {
             "wallet": wallet, "method": method,
             "address": address, "amount": amount,
@@ -466,7 +466,7 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return serializers._Notification[DepositAddress](serializer=serializers.DepositAddress).parse(*self._POST("auth/w/deposit/address", data=data))
 
-    def get_deposit_invoice(self, wallet: str, currency: str, amount: Union[Decimal, str]) -> Invoice:
+    def get_deposit_invoice(self, wallet: str, currency: str, amount: Union[Decimal, float, str]) -> Invoice:
         data = {
             "wallet": wallet, "currency": currency,
             "amount": amount
