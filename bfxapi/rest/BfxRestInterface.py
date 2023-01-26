@@ -519,3 +519,9 @@ class _RestAuthenticatedEndpoints(_Requests):
 
     def get_positions_audit(self, ids: Optional[List[int]] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionAudit]:
         return [ serializers.PositionAudit.parse(*sub_data) for sub_data in self._POST("auth/r/positions/audit", data={ "ids": ids, "start": start, "end": end, "limit": limit }) ]
+
+    def set_derivative_position_collateral(self, symbol: str, collateral: Union[Decimal, float, str]) -> DerivativePositionCollateral:
+        return serializers.DerivativePositionCollateral.parse(*(self._POST("auth/w/deriv/collateral/set", data={ "symbol": symbol, "collateral": collateral })[0]))
+
+    def get_derivative_position_collateral_limits(self, symbol: str) -> DerivativePositionCollateralLimits:
+        return serializers.DerivativePositionCollateralLimits.parse(*self._POST("auth/calc/deriv/collateral/limits", data={ "symbol": symbol }))

@@ -1,4 +1,4 @@
-# python -c "import examples.rest.get_positions_snapshot"
+# python -c "import examples.rest.get_positions"
 
 import os
 import time

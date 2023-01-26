@@ -465,4 +465,13 @@ class PositionAudit(_Type):
     COLLATERAL_MIN: float
     META: JSON
 
+@dataclass
+class DerivativePositionCollateral(_Type):
+    STATUS: int
+
+@dataclass
+class DerivativePositionCollateralLimits(_Type):
+    MIN_COLLATERAL: float
+    MAX_COLLATERAL: float
+
 #endregion

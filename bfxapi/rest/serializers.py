@@ -594,4 +594,13 @@ PositionAudit = generate_labeler_serializer("PositionAudit", klass=types.Positio
     "META"
 ])
 
+DerivativePositionCollateral = generate_labeler_serializer("DerivativePositionCollateral", klass=types.DerivativePositionCollateral, labels=[
+    "STATUS"
+])
+
+DerivativePositionCollateralLimits = generate_labeler_serializer("DerivativePositionCollateralLimits", klass=types.DerivativePositionCollateralLimits, labels=[
+    "MIN_COLLATERAL",
+    "MAX_COLLATERAL"
+])
+
 #endregion
