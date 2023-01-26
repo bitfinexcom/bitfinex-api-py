@@ -407,6 +407,9 @@ class _RestAuthenticatedEndpoints(_Requests):
     def cancel_funding_offer(self, id: int) -> Notification[FundingOffer]:
         return serializers._Notification[FundingOffer](serializer=serializers.FundingOffer).parse(*self._POST("auth/w/funding/offer/cancel", data={ "id": id }))
 
+    def cancel_all_funding_offers(self, currency: str) -> Notification:
+        return serializers._Notification().parse(*self._POST("auth/w/funding/offer/cancel/all", data={ "currency": currency }))
+
     def get_funding_offers_history(self, symbol: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingOffer]:
         if symbol == None:
             endpoint = "auth/r/funding/offers/hist"

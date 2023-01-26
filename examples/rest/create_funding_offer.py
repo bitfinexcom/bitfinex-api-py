@@ -26,3 +26,8 @@ print("Offer notification:", notification)
 offers = bfx.rest.auth.get_active_funding_offers(symbol="fUSD")
 
 print("Offers:", offers)
+
+# Cancel all funding offers
+notification = bfx.rest.auth.cancel_all_funding_offers(currency="fUSD")
+
+print(notification)
