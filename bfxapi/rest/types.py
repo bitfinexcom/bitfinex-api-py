@@ -437,4 +437,32 @@ class PositionHistory(_Type):
     MTS_CREATE: int
     MTS_UPDATE: int
 
+@dataclass
+class PositionSnapshot(_Type):
+    SYMBOL: str
+    STATUS: str
+    AMOUNT: float
+    BASE_PRICE: float
+    FUNDING: float
+    FUNDING_TYPE: int
+    POSITION_ID: int
+    MTS_CREATE: int
+    MTS_UPDATE: int
+
+@dataclass
+class PositionAudit(_Type):
+    SYMBOL: str
+    STATUS: str
+    AMOUNT: float
+    BASE_PRICE: float
+    FUNDING: float
+    FUNDING_TYPE: int
+    POSITION_ID: int
+    MTS_CREATE: int
+    MTS_UPDATE: int
+    TYPE: int
+    COLLATERAL: float
+    COLLATERAL_MIN: float
+    META: JSON
+
 #endregion

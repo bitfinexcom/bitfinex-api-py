@@ -508,5 +508,11 @@ class _RestAuthenticatedEndpoints(_Requests):
     def increase_position(self, symbol: str, amount: Union[Decimal, float, str]) -> Notification[Increase]:
         return serializers._Notification[Increase](serializer=serializers.Increase).parse(*self._POST("auth/w/position/increase", data={ "symbol": symbol, "amount": amount }))
 
-    def get_position_history(self, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionHistory]:
+    def get_positions_history(self, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionHistory]:
         return [ serializers.PositionHistory.parse(*sub_data) for sub_data in self._POST("auth/r/positions/hist", data={ "start": start, "end": end, "limit": limit }) ]
+    
+    def get_positions_snapshot(self, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionSnapshot]:
+        return [ serializers.PositionSnapshot.parse(*sub_data) for sub_data in self._POST("auth/r/positions/snap", data={ "start": start, "end": end, "limit": limit }) ]
+
+    def get_positions_audit(self, ids: Optional[List[int]] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionAudit]:
+        return [ serializers.PositionAudit.parse(*sub_data) for sub_data in self._POST("auth/r/positions/audit", data={ "ids": ids, "start": start, "end": end, "limit": limit }) ]
