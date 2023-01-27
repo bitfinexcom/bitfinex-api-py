@@ -89,6 +89,9 @@ class _Requests(object):
         return data
 
 class _RestPublicEndpoints(_Requests):
+    def conf(self, config: Config) -> Any:
+        return self._GET(f"conf/{config}")[0]
+
     def get_platform_status(self) -> PlatformStatus:
         return serializers.PlatformStatus.parse(*self._GET("platform/status"))
 
@@ -121,16 +124,12 @@ class _RestPublicEndpoints(_Requests):
     def get_f_ticker(self, currency: str) -> FundingCurrencyTicker:
         return serializers.FundingCurrencyTicker.parse(*self._GET(f"ticker/f{currency}"), skip=["SYMBOL"])
 
-    def get_tickers_history(self, symbols: List[str], start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[TickersHistory]:
-        params = {
+    def get_tickers_history(self, symbols: List[str], start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[TickersHistory]: 
+        return [ serializers.TickersHistory.parse(*sub_data) for sub_data in self._GET("tickers/hist", params={
             "symbols": ",".join(symbols),
             "start": start, "end": end,
             "limit": limit
-        }
-
-        data = self._GET("tickers/hist", params=params)
-        
-        return [ serializers.TickersHistory.parse(*sub_data) for sub_data in data ]
+        }) ]
 
     def get_t_trades(self, pair: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> List[TradingPairTrade]:
         params = { "limit": limit, "start": start, "end": end, "sort": sort }
@@ -205,23 +204,17 @@ class _RestPublicEndpoints(_Requests):
         sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None
     ) -> List[DerivativesStatus]: 
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
-
         data = self._GET(f"status/{type}/{symbol}/hist", params=params)
-
         return [ serializers.DerivativesStatus.parse(*sub_data, skip=[ "KEY" ]) for sub_data in data ]
 
     def get_liquidations(self, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Liquidation]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
-
         data = self._GET("liquidations/hist", params=params)
-
         return [ serializers.Liquidation.parse(*sub_data[0]) for sub_data in data ]
 
     def get_seed_candles(self, symbol: str, tf: str = '1m', sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Candle]:
         params = {"sort": sort, "start": start, "end": end, "limit": limit}
-
         data = self._GET(f"candles/trade:{tf}:{symbol}/hist?limit={limit}&start={start}&end={end}&sort={sort}", params=params)
-
         return [ serializers.Candle.parse(*sub_data) for sub_data in data ]
 
     def get_leaderboards_hist(
@@ -244,13 +237,8 @@ class _RestPublicEndpoints(_Requests):
 
     def get_funding_stats(self, symbol: str, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingStatistic]:
         params = { "start": start, "end": end, "limit": limit }
-
         data = self._GET(f"funding/stats/{symbol}/hist", params=params)
-
         return [ serializers.FundingStatistic.parse(*sub_data) for sub_data in data ]
-
-    def conf(self, config: Config) -> Any:
-        return self._GET(f"conf/{config}")[0]
 
     def get_pulse_profile(self, nickname: str) -> PulseProfile:
         return serializers.PulseProfile.parse(*self._GET(f"pulse/profile/{nickname}"))
@@ -266,19 +254,14 @@ class _RestPublicEndpoints(_Requests):
         return messages
 
     def get_trading_market_average_price(self, symbol: str, amount: Union[Decimal, float, str], price_limit: Optional[Union[Decimal, float, str]] = None) -> TradingMarketAveragePrice:
-        data = {
+        return serializers.TradingMarketAveragePrice.parse(*self._POST("calc/trade/avg", data={
             "symbol": symbol, "amount": amount, "price_limit": price_limit
-        }
-
-        return serializers.TradingMarketAveragePrice.parse(*self._POST("calc/trade/avg", data=data))
+        }))
 
     def get_funding_market_average_price(self, symbol: str, amount: Union[Decimal, float, str], period: int, rate_limit: Optional[Union[Decimal, float, str]] = None) -> FundingMarketAveragePrice:
-        data = {
-            "symbol": symbol, "amount": amount, "period": period,
-            "rate_limit": rate_limit
-        }
-
-        return serializers.FundingMarketAveragePrice.parse(*self._POST("calc/trade/avg", data=data))
+        return serializers.FundingMarketAveragePrice.parse(*self._POST("calc/trade/avg", data={
+            "symbol": symbol, "amount": amount, "period": period, "rate_limit": rate_limit
+        }))
 
     def get_fx_rate(self, ccy1: str, ccy2: str) -> FxRate:
         return serializers.FxRate.parse(*self._POST("calc/fx", data={ "ccy1": ccy1, "ccy2": ccy2 }))
