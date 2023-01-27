@@ -15,5 +15,5 @@ open_margin_positions = bfx.rest.auth.get_positions()
 # claim all positions
 for position in open_margin_positions:
     print(f"Position {position}")
-    claim = bfx.rest.auth.claim_position(position.POSITION_ID, amount=0.000001)
-    print(f"Claim {claim.NOTIFY_INFO}")
+    claim = bfx.rest.auth.claim_position(position.position_id, amount=0.000001)
+    print(f"Claim {claim.notify_info}")

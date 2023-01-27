@@ -19,7 +19,7 @@ class OrderBook(object):
         }
             
     def update(self, symbol: str, data: TradingPairBook) -> None:
-        price, count, amount = data.PRICE, data.COUNT, data.AMOUNT
+        price, count, amount = data.price, data.count, data.amount
 
         kind = (amount > 0) and "bids" or "asks"
 

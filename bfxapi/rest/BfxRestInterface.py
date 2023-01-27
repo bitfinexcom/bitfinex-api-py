@@ -101,7 +101,7 @@ class _RestPublicEndpoints(_Requests):
 
     def get_t_tickers(self, pairs: Union[List[str], Literal["ALL"]]) -> List[TradingPairTicker]:
         if isinstance(pairs, str) and pairs == "ALL":
-            return [ cast(TradingPairTicker, sub_data) for sub_data in self.get_tickers([ "ALL" ]) if cast(str, sub_data.SYMBOL).startswith("t") ]
+            return [ cast(TradingPairTicker, sub_data) for sub_data in self.get_tickers([ "ALL" ]) if cast(str, sub_data.symbol).startswith("t") ]
 
         data = self.get_tickers([ "t" + pair for pair in pairs ])
 
@@ -109,7 +109,7 @@ class _RestPublicEndpoints(_Requests):
 
     def get_f_tickers(self, currencies: Union[List[str], Literal["ALL"]]) -> List[FundingCurrencyTicker]:
         if isinstance(currencies, str) and currencies == "ALL":
-            return [ cast(FundingCurrencyTicker, sub_data) for sub_data in self.get_tickers([ "ALL" ]) if cast(str, sub_data.SYMBOL).startswith("f") ]
+            return [ cast(FundingCurrencyTicker, sub_data) for sub_data in self.get_tickers([ "ALL" ]) if cast(str, sub_data.symbol).startswith("f") ]
 
         data = self.get_tickers([ "f" + currency for currency in currencies ])
 
@@ -218,7 +218,6 @@ class _RestPublicEndpoints(_Requests):
         return [ serializers.Liquidation.parse(*sub_data[0]) for sub_data in data ]
 
     def get_seed_candles(self, symbol: str, tf: str = '1m', sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Candle]:
-
         params = {"sort": sort, "start": start, "end": end, "limit": limit}
 
         data = self._GET(f"candles/trade:{tf}:{symbol}/hist?limit={limit}&start={start}&end={end}&sort={sort}", params=params)
