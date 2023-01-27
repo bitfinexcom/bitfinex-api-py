@@ -10,246 +10,246 @@ from .. utils.encoder import JSON
 
 @dataclass
 class TradingPairTicker(_Type):
-    BID: float
-    BID_SIZE: float
-    ASK: float
-    ASK_SIZE: float
-    DAILY_CHANGE: float
-    DAILY_CHANGE_RELATIVE: float
-    LAST_PRICE: float
-    VOLUME: float
-    HIGH: float
-    LOW: float
+    bid: float
+    bid_size: float
+    ask: float
+    ask_size: float
+    daily_change: float
+    daily_change_relative: float
+    last_price: float
+    volume: float
+    high: float
+    low: float
 
 @dataclass
 class FundingCurrencyTicker(_Type):
-    FRR: float
-    BID: float
-    BID_PERIOD: int
-    BID_SIZE: float
-    ASK: float
-    ASK_PERIOD: int
-    ASK_SIZE: float
-    DAILY_CHANGE: float
-    DAILY_CHANGE_RELATIVE: float
-    LAST_PRICE: float
-    VOLUME: float
-    HIGH: float
-    LOW: float
-    FRR_AMOUNT_AVAILABLE: float
+    frr: float
+    bid: float
+    bid_period: int
+    bid_size: float
+    ask: float
+    ask_period: int
+    ask_size: float
+    daily_change: float
+    daily_change_relative: float
+    last_price: float
+    volume: float
+    high: float
+    low: float
+    frr_amount_available: float
 
 @dataclass
 class TradingPairTrade(_Type):
-    ID: int 
-    MTS: int 
-    AMOUNT: float 
-    PRICE: float
+    id: int 
+    mts: int 
+    amount: float 
+    price: float
 
 @dataclass
 class FundingCurrencyTrade(_Type):
-    ID: int 
-    MTS: int 
-    AMOUNT: float 
-    RATE: float 
-    PERIOD: int
+    id: int 
+    mts: int 
+    amount: float 
+    rate: float 
+    period: int
 
 @dataclass
 class TradingPairBook(_Type):
-    PRICE: float 
-    COUNT: int 
-    AMOUNT: float
+    price: float 
+    count: int 
+    amount: float
 
 @dataclass
 class FundingCurrencyBook(_Type):
-    RATE: float 
-    PERIOD: int 
-    COUNT: int 
-    AMOUNT: float
+    rate: float 
+    period: int 
+    count: int 
+    amount: float
 
 @dataclass    
 class TradingPairRawBook(_Type):
-    ORDER_ID: int
-    PRICE: float 
-    AMOUNT: float
+    order_id: int
+    price: float 
+    amount: float
 
 @dataclass      
 class FundingCurrencyRawBook(_Type):
-    OFFER_ID: int 
-    PERIOD: int 
-    RATE: float 
-    AMOUNT: float
+    offer_id: int 
+    period: int 
+    rate: float 
+    amount: float
 
 @dataclass
 class Candle(_Type):
-    MTS: int
-    OPEN: float
-    CLOSE: float
-    HIGH: float
-    LOW: float
-    VOLUME: float
+    mts: int
+    open: float
+    close: float
+    high: float
+    low: float
+    volume: float
 
 @dataclass
 class DerivativesStatus(_Type):
-    TIME_MS: int
-    DERIV_PRICE: float
-    SPOT_PRICE: float
-    INSURANCE_FUND_BALANCE: float
-    NEXT_FUNDING_EVT_TIMESTAMP_MS: int
-    NEXT_FUNDING_ACCRUED: float
-    NEXT_FUNDING_STEP: int
-    CURRENT_FUNDING: float
-    MARK_PRICE: float
-    OPEN_INTEREST: float
-    CLAMP_MIN: float
-    CLAMP_MAX: float
+    time_ms: int
+    deriv_price: float
+    spot_price: float
+    insurance_fund_balance: float
+    next_funding_evt_timestamp_ms: int
+    next_funding_accrued: float
+    next_funding_step: int
+    current_funding: float
+    mark_price: float
+    open_interest: float
+    clamp_min: float
+    clamp_max: float
 
 #endregion
 
 #region Type hinting for Websocket Authenticated Channels
 @dataclass
 class Order(_Type):
-    ID: int
-    GID: int
-    CID: int
-    SYMBOL: str
-    MTS_CREATE: int
-    MTS_UPDATE: int
-    AMOUNT: float
-    AMOUNT_ORIG: float
-    ORDER_TYPE: str
-    TYPE_PREV: str
-    MTS_TIF: int
-    FLAGS: int
-    ORDER_STATUS: str
-    PRICE: float
-    PRICE_AVG: float
-    PRICE_TRAILING: float
-    PRICE_AUX_LIMIT: float
-    NOTIFY: int
-    HIDDEN: int
-    PLACED_ID: int
-    ROUTING: str
-    META: JSON
+    id: int
+    gid: int
+    cid: int
+    symbol: str
+    mts_create: int
+    mts_update: int
+    amount: float
+    amount_orig: float
+    order_type: str
+    type_prev: str
+    mts_tif: int
+    flags: int
+    order_status: str
+    price: float
+    price_avg: float
+    price_trailing: float
+    price_aux_limit: float
+    notify: int
+    hidden: int
+    placed_id: int
+    routing: str
+    meta: JSON
 
 @dataclass
 class Position(_Type):
-    SYMBOL: str
-    STATUS: str
-    AMOUNT: float
-    BASE_PRICE: float
-    MARGIN_FUNDING: float
-    MARGIN_FUNDING_TYPE: int
-    PL: float
-    PL_PERC: float
-    PRICE_LIQ: float
-    LEVERAGE: float
-    POSITION_ID: int
-    MTS_CREATE: int
-    MTS_UPDATE: int
-    TYPE: int
-    COLLATERAL: float
-    COLLATERAL_MIN: float
-    META: JSON
+    symbol: str
+    status: str
+    amount: float
+    base_price: float
+    margin_funding: float
+    margin_funding_type: int
+    pl: float
+    pl_perc: float
+    price_liq: float
+    leverage: float
+    position_id: int
+    mts_create: int
+    mts_update: int
+    type: int
+    collateral: float
+    collateral_min: float
+    meta: JSON
 
 @dataclass
 class TradeExecuted(_Type):
-    ID: int 
-    SYMBOL: str 
-    MTS_CREATE: int
-    ORDER_ID: int 
-    EXEC_AMOUNT: float 
-    EXEC_PRICE: float 
-    ORDER_TYPE: str 
-    ORDER_PRICE: float 
-    MAKER:int
-    CID: int
+    id: int 
+    symbol: str 
+    mts_create: int
+    order_id: int 
+    exec_amount: float 
+    exec_price: float 
+    order_type: str 
+    order_price: float 
+    maker:int
+    cid: int
 
 @dataclass
 class TradeExecutionUpdate(_Type):
-    ID: int 
-    SYMBOL: str 
-    MTS_CREATE: int
-    ORDER_ID: int 
-    EXEC_AMOUNT: float 
-    EXEC_PRICE: float 
-    ORDER_TYPE: str 
-    ORDER_PRICE: float 
-    MAKER:int
-    FEE: float
-    FEE_CURRENCY: str
-    CID: int
+    id: int 
+    symbol: str 
+    mts_create: int
+    order_id: int 
+    exec_amount: float 
+    exec_price: float 
+    order_type: str 
+    order_price: float 
+    maker:int
+    fee: float
+    fee_currency: str
+    cid: int
 
 @dataclass
 class FundingOffer(_Type):
-    ID: int
-    SYMBOL: str
-    MTS_CREATED: int
-    MTS_UPDATED: int
-    AMOUNT: float
-    AMOUNT_ORIG: float
-    OFFER_TYPE: str
-    FLAGS: int
-    STATUS: str
-    RATE: float
-    PERIOD: int
-    NOTIFY: int
-    HIDDEN: int
-    RENEW: int
+    id: int
+    symbol: str
+    mts_created: int
+    mts_updated: int
+    amount: float
+    amount_orig: float
+    offer_type: str
+    flags: int
+    status: str
+    rate: float
+    period: int
+    notify: int
+    hidden: int
+    renew: int
 
 @dataclass
 class FundingCredit(_Type):
-    ID: int
-    SYMBOL: str
-    SIDE: int
-    MTS_CREATE: int
-    MTS_UPDATE: int
-    AMOUNT: float
-    FLAGS: int
-    STATUS: str
-    RATE: float
-    PERIOD: int
-    MTS_OPENING: int
-    MTS_LAST_PAYOUT: int
-    NOTIFY: int
-    HIDDEN: int
-    RENEW: int
-    RATE_REAL: float
-    NO_CLOSE: int
-    POSITION_PAIR: str
+    id: int
+    symbol: str
+    side: int
+    mts_create: int
+    mts_update: int
+    amount: float
+    flags: int
+    status: str
+    rate: float
+    period: int
+    mts_opening: int
+    mts_last_payout: int
+    notify: int
+    hidden: int
+    renew: int
+    rate_real: float
+    no_close: int
+    position_pair: str
 
 @dataclass
 class FundingLoan(_Type):
-    ID: int
-    SYMBOL: str
-    SIDE: int
-    MTS_CREATE: int
-    MTS_UPDATE: int
-    AMOUNT: float
-    FLAGS: int
-    STATUS: str
-    RATE: float
-    PERIOD: int
-    MTS_OPENING: int
-    MTS_LAST_PAYOUT: int
-    NOTIFY: int
-    HIDDEN: int
-    RENEW: int
-    RATE_REAL: float
-    NO_CLOSE: int
+    id: int
+    symbol: str
+    side: int
+    mts_create: int
+    mts_update: int
+    amount: float
+    flags: int
+    status: str
+    rate: float
+    period: int
+    mts_opening: int
+    mts_last_payout: int
+    notify: int
+    hidden: int
+    renew: int
+    rate_real: float
+    no_close: int
 
 @dataclass
 class Wallet(_Type):
-    WALLET_TYPE: str
-    CURRENCY: str
-    BALANCE: float
-    UNSETTLED_INTEREST: float
-    BALANCE_AVAILABLE: float
-    DESCRIPTION: str
-    META: JSON
+    wallet_type: str
+    currency: str
+    balance: float
+    unsettled_interest: float
+    balance_available: float
+    description: str
+    meta: JSON
 
 @dataclass
 class BalanceInfo(_Type):
-    AUM: float
-    AUM_NET: float
+    aum: float
+    aum_net: float
 
 #endregion

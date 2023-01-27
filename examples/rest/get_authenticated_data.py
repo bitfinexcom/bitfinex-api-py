@@ -69,7 +69,7 @@ def log_funding_loans():
 
 
 def log_funding_loans_history():
-    loans = bfx.rest.auth.get_funding_loan_history(symbol='fUSD', start=0, end=now)
+    loans = bfx.rest.auth.get_funding_loans_history(symbol='fUSD', start=0, end=now)
     print("Funding loan history:")
     [print(l) for l in loans]
 

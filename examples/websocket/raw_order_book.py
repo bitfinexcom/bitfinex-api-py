@@ -19,7 +19,7 @@ class RawOrderBook(object):
         }
             
     def update(self, symbol: str, data: TradingPairRawBook) -> None:
-        order_id, price, amount = data.ORDER_ID, data.PRICE, data.AMOUNT
+        order_id, price, amount = data.order_id, data.price, data.amount
 
         kind = (amount > 0) and "bids" or "asks"
 

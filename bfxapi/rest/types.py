@@ -10,188 +10,188 @@ from .. utils.encoder import JSON
 
 @dataclass
 class PlatformStatus(_Type):
-    STATUS: int
+    status: int
 
 @dataclass
 class TradingPairTicker(_Type):
-    SYMBOL: Optional[str]
-    BID: float
-    BID_SIZE: float
-    ASK: float
-    ASK_SIZE: float
-    DAILY_CHANGE: float
-    DAILY_CHANGE_RELATIVE: float
-    LAST_PRICE: float
-    VOLUME: float
-    HIGH: float
-    LOW: float
+    symbol: Optional[str]
+    bid: float
+    bid_size: float
+    ask: float
+    ask_size: float
+    daily_change: float
+    daily_change_relative: float
+    last_price: float
+    volume: float
+    high: float
+    low: float
 
 @dataclass
 class FundingCurrencyTicker(_Type):
-    SYMBOL: Optional[str]
-    FRR: float
-    BID: float
-    BID_PERIOD: int
-    BID_SIZE: float
-    ASK: float
-    ASK_PERIOD: int
-    ASK_SIZE: float
-    DAILY_CHANGE: float
-    DAILY_CHANGE_RELATIVE: float
-    LAST_PRICE: float
-    VOLUME: float
-    HIGH: float
-    LOW: float
-    FRR_AMOUNT_AVAILABLE: float
+    symbol: Optional[str]
+    frr: float
+    bid: float
+    bid_period: int
+    bid_size: float
+    ask: float
+    ask_period: int
+    ask_size: float
+    daily_change: float
+    daily_change_relative: float
+    last_price: float
+    volume: float
+    high: float
+    low: float
+    frr_amount_available: float
 
 @dataclass
 class TickersHistory(_Type):
-    SYMBOL: str
-    BID: float
-    ASK: float
-    MTS: int
+    symbol: str
+    bid: float
+    ask: float
+    mts: int
 
 @dataclass
 class TradingPairTrade(_Type):
-    ID: int 
-    MTS: int 
-    AMOUNT: float 
-    PRICE: float
+    id: int 
+    mts: int 
+    amount: float 
+    price: float
 
 @dataclass
 class FundingCurrencyTrade(_Type):
-    ID: int 
-    MTS: int 
-    AMOUNT: float 
-    RATE: float 
-    PERIOD: int
+    id: int 
+    mts: int 
+    amount: float 
+    rate: float 
+    period: int
 
 @dataclass
 class TradingPairBook(_Type):
-    PRICE: float 
-    COUNT: int 
-    AMOUNT: float
+    price: float 
+    count: int 
+    amount: float
     
 @dataclass
 class FundingCurrencyBook(_Type):
-    RATE: float 
-    PERIOD: int 
-    COUNT: int 
-    AMOUNT: float
+    rate: float 
+    period: int 
+    count: int 
+    amount: float
 
 @dataclass        
 class TradingPairRawBook(_Type):
-    ORDER_ID: int
-    PRICE: float 
-    AMOUNT: float
+    order_id: int
+    price: float 
+    amount: float
 
 @dataclass           
 class FundingCurrencyRawBook(_Type):
-    OFFER_ID: int 
-    PERIOD: int 
-    RATE: float 
-    AMOUNT: float
+    offer_id: int 
+    period: int 
+    rate: float 
+    amount: float
 
 @dataclass
 class Statistic(_Type):
-    MTS: int
-    VALUE: float
+    mts: int
+    value: float
 
 @dataclass
 class Candle(_Type):
-    MTS: int
-    OPEN: float
-    CLOSE: float
-    HIGH: float
-    LOW: float
-    VOLUME: float
+    mts: int
+    open: float
+    close: float
+    high: float
+    low: float
+    volume: float
 
 @dataclass
 class DerivativesStatus(_Type):
-    KEY: Optional[str]
-    MTS: int
-    DERIV_PRICE: float
-    SPOT_PRICE: float
-    INSURANCE_FUND_BALANCE: float
-    NEXT_FUNDING_EVT_TIMESTAMP_MS: int
-    NEXT_FUNDING_ACCRUED: float
-    NEXT_FUNDING_STEP: int
-    CURRENT_FUNDING: float
-    MARK_PRICE: float
-    OPEN_INTEREST: float
-    CLAMP_MIN: float
-    CLAMP_MAX: float
+    key: Optional[str]
+    mts: int
+    deriv_price: float
+    spot_price: float
+    insurance_fund_balance: float
+    next_funding_evt_timestamp_ms: int
+    next_funding_accrued: float
+    next_funding_step: int
+    current_funding: float
+    mark_price: float
+    open_interest: float
+    clamp_min: float
+    clamp_max: float
 
 @dataclass
 class Liquidation(_Type):
-    POS_ID: int
-    MTS: int
-    SYMBOL: str
-    AMOUNT: float
-    BASE_PRICE: float
-    IS_MATCH: int
-    IS_MARKET_SOLD: int
-    PRICE_ACQUIRED: float
+    pos_id: int
+    mts: int
+    symbol: str
+    amount: float
+    base_price: float
+    is_match: int
+    is_market_sold: int
+    price_acquired: float
 
 @dataclass
 class Leaderboard(_Type):
-    MTS: int
-    USERNAME: str
-    RANKING: int
-    VALUE: float
-    TWITTER_HANDLE: Optional[str]
+    mts: int
+    username: str
+    ranking: int
+    value: float
+    twitter_handle: Optional[str]
 
 @dataclass
 class FundingStatistic(_Type): 
-    TIMESTAMP: int
-    FRR: float
-    AVG_PERIOD: float
-    FUNDING_AMOUNT: float
-    FUNDING_AMOUNT_USED: float
-    FUNDING_BELOW_THRESHOLD: float
+    timestamp: int
+    frr: float
+    avg_period: float
+    funding_amount: float
+    funding_amount_used: float
+    funding_below_threshold: float
 
 @dataclass
 class PulseProfile(_Type):
-    PUID: str
-    MTS: int
-    NICKNAME: str
-    PICTURE: str
-    TEXT: str
-    TWITTER_HANDLE: str
-    FOLLOWERS: int
-    FOLLOWING: int
-    TIPPING_STATUS: int
+    puid: str
+    mts: int
+    nickname: str
+    picture: str
+    text: str
+    twitter_handle: str
+    followers: int
+    following: int
+    tipping_status: int
 
 @dataclass
 class PulseMessage(_Type):
-    PID: str
-    MTS: int
-    PUID: str
-    TITLE: str
-    CONTENT: str
-    IS_PIN: int
-    IS_PUBLIC: int
-    COMMENTS_DISABLED: int
-    TAGS: List[str]
-    ATTACHMENTS: List[str]
-    META: List[JSON]
-    LIKES: int
-    PROFILE: PulseProfile
-    COMMENTS: int
+    pid: str
+    mts: int
+    puid: str
+    title: str
+    content: str
+    is_pin: int
+    is_public: int
+    comments_disabled: int
+    tags: List[str]
+    attachments: List[str]
+    meta: List[JSON]
+    likes: int
+    profile: PulseProfile
+    comments: int
 
 @dataclass
 class TradingMarketAveragePrice(_Type):
-    PRICE_AVG: float
-    AMOUNT: float
+    price_avg: float
+    amount: float
 
 @dataclass
 class FundingMarketAveragePrice(_Type):
-    RATE_AVG: float
-    AMOUNT: float
+    rate_avg: float
+    amount: float
 
 @dataclass
 class FxRate(_Type):
-    CURRENT_RATE: float
+    current_rate: float
 
 #endregion
 
@@ -199,279 +199,299 @@ class FxRate(_Type):
 
 @dataclass
 class Wallet(_Type):
-    WALLET_TYPE: str
-    CURRENCY: str
-    BALANCE: float
-    UNSETTLED_INTEREST: float
-    AVAILABLE_BALANCE: float
-    LAST_CHANGE: str
-    TRADE_DETAILS: JSON
+    wallet_type: str
+    currency: str
+    balance: float
+    unsettled_interest: float
+    available_balance: float
+    last_change: str
+    trade_details: JSON
 
 @dataclass
 class Order(_Type):
-    ID: int
-    GID: int
-    CID: int
-    SYMBOL: str
-    MTS_CREATE: int
-    MTS_UPDATE: int
-    AMOUNT: float
-    AMOUNT_ORIG: float
-    ORDER_TYPE: str
-    TYPE_PREV: str
-    MTS_TIF: int
-    FLAGS: int
-    ORDER_STATUS: str
-    PRICE: float
-    PRICE_AVG: float
-    PRICE_TRAILING: float
-    PRICE_AUX_LIMIT: float
-    NOTIFY: int
-    HIDDEN: int
-    PLACED_ID: int
-    ROUTING: str
-    META: JSON
+    id: int
+    gid: int
+    cid: int
+    symbol: str
+    mts_create: int
+    mts_update: int
+    amount: float
+    amount_orig: float
+    order_type: str
+    type_prev: str
+    mts_tif: int
+    flags: int
+    order_status: str
+    price: float
+    price_avg: float
+    price_trailing: float
+    price_aux_limit: float
+    notify: int
+    hidden: int
+    placed_id: int
+    routing: str
+    meta: JSON
 
 @dataclass
 class Position(_Type):
-    SYMBOL: str
-    STATUS: str
-    AMOUNT: float
-    BASE_PRICE: float
-    MARGIN_FUNDING: float
-    MARGIN_FUNDING_TYPE: int
-    PL: float
-    PL_PERC: float
-    PRICE_LIQ: float
-    LEVERAGE: float
-    POSITION_ID: int
-    MTS_CREATE: int
-    MTS_UPDATE: int
-    TYPE: int
-    COLLATERAL: float
-    COLLATERAL_MIN: float
-    META: JSON
+    symbol: str
+    status: str
+    amount: float
+    base_price: float
+    margin_funding: float
+    margin_funding_type: int
+    pl: float
+    pl_perc: float
+    price_liq: float
+    leverage: float
+    position_id: int
+    mts_create: int
+    mts_update: int
+    type: int
+    collateral: float
+    collateral_min: float
+    meta: JSON
 
 @dataclass
 class FundingOffer(_Type):
-    ID: int
-    SYMBOL: str
-    MTS_CREATE: int
-    MTS_UPDATE: int
-    AMOUNT: float
-    AMOUNT_ORIG: float
-    OFFER_TYPE: str
-    FLAGS: int
-    OFFER_STATUS: str
-    RATE: float
-    PERIOD: int
-    NOTIFY: bool
-    HIDDEN: int
-    RENEW: bool
+    id: int
+    symbol: str
+    mts_create: int
+    mts_update: int
+    amount: float
+    amount_orig: float
+    offer_type: str
+    flags: int
+    offer_status: str
+    rate: float
+    period: int
+    notify: bool
+    hidden: int
+    renew: bool
     
 @dataclass
 class Trade(_Type):
-    ID: int 
-    SYMBOL: str 
-    MTS_CREATE: int
-    ORDER_ID: int 
-    EXEC_AMOUNT: float 
-    EXEC_PRICE: float 
-    ORDER_TYPE: str 
-    ORDER_PRICE: float 
-    MAKER:int
-    FEE: float
-    FEE_CURRENCY: str
-    CID: int
+    id: int 
+    symbol: str 
+    mts_create: int
+    order_id: int 
+    exec_amount: float 
+    exec_price: float 
+    order_type: str 
+    order_price: float 
+    maker:int
+    fee: float
+    fee_currency: str
+    cid: int
 
 @dataclass
 class OrderTrade(_Type):
-    ID: int 
-    SYMBOL: str 
-    MTS_CREATE: int
-    ORDER_ID: int 
-    EXEC_AMOUNT: float 
-    EXEC_PRICE: float 
-    MAKER:int
-    FEE: float
-    FEE_CURRENCY: str
-    CID: int
+    id: int 
+    symbol: str 
+    mts_create: int
+    order_id: int 
+    exec_amount: float 
+    exec_price: float 
+    maker:int
+    fee: float
+    fee_currency: str
+    cid: int
 
 @dataclass
 class Ledger(_Type):
-    ID: int
-    CURRENCY: str 
-    MTS: int
-    AMOUNT: float
-    BALANCE: float
+    id: int
+    currency: str 
+    mts: int
+    amount: float
+    balance: float
     description: str
 
 @dataclass
+class FundingLoan(_Type):
+    id: int
+    symbol: str
+    side: int
+    mts_create: int
+    mts_update: int
+    amount: float
+    flags: int
+    status: str
+    rate: float
+    period: int
+    mts_opening: int
+    mts_last_payout: int
+    notify: int
+    hidden: int
+    renew: int
+    rate_real: float
+    no_close: int
+
+@dataclass
 class FundingCredit(_Type):
-    ID: int
-    SYMBOL: str
-    SIDE: int
-    MTS_CREATE: int
-    MTS_UPDATE: int
-    AMOUNT: float
-    FLAGS: int
-    STATUS: str
-    RATE: float
-    PERIOD: int
-    MTS_OPENING: int
-    MTS_LAST_PAYOUT: int
-    NOTIFY: int
-    HIDDEN: int
-    RENEW: int
-    RATE_REAL: float
-    NO_CLOSE: int
-    POSITION_PAIR: str
+    id: int
+    symbol: str
+    side: int
+    mts_create: int
+    mts_update: int
+    amount: float
+    flags: int
+    status: str
+    rate: float
+    period: int
+    mts_opening: int
+    mts_last_payout: int
+    notify: int
+    hidden: int
+    renew: int
+    rate_real: float
+    no_close: int
+    position_pair: str
 
 @dataclass
 class Transfer(_Type):
-    MTS: int
-    WALLET_FROM: str
-    WALLET_TO: str
-    CURRENCY: str
-    CURRENCY_TO: str
-    AMOUNT: int
+    mts: int
+    wallet_from: str
+    wallet_to: str
+    currency: str
+    currency_to: str
+    amount: int
 
 @dataclass
 class Withdrawal(_Type):
-    WITHDRAWAL_ID: int
-    METHOD: str
-    PAYMENT_ID: str
-    WALLET: str
-    AMOUNT: float
-    WITHDRAWAL_FEE: float
+    withdrawal_id: int
+    method: str
+    payment_id: str
+    wallet: str
+    amount: float
+    withdrawal_fee: float
 
 @dataclass
 class DepositAddress(_Type):
-    METHOD: str
-    CURRENCY_CODE: str
-    ADDRESS: str
-    POOL_ADDRESS: str
+    method: str
+    currency_code: str
+    address: str
+    pool_address: str
 
 @dataclass
 class Invoice(_Type):
-    INVOICE_HASH: str
-    INVOICE: str
-    AMOUNT: str
+    invoice_hash: str
+    invoice: str
+    amount: str
 
 @dataclass
 class Movement(_Type):
-    ID: str
-    CURRENCY: str
-    CURRENCY_NAME: str
-    MTS_STARTED: int
-    MTS_UPDATED: int
-    STATUS: str
-    AMOUNT: int
-    FEES: int
-    DESTINATION_ADDRESS: str
-    TRANSACTION_ID: str
-    WITHDRAW_TRANSACTION_NOTE: str
+    id: str
+    currency: str
+    currency_name: str
+    mts_started: int
+    mts_updated: int
+    status: str
+    amount: int
+    fees: int
+    destination_address: str
+    transaction_id: str
+    withdraw_transaction_note: str
     
 @dataclass
 class SymbolMarginInfo(_Type):
-    SYMBOL: str
-    TRADABLE_BALANCE: float
-    GROSS_BALANCE: float
-    BUY: float
-    SELL: float
+    symbol: str
+    tradable_balance: float
+    gross_balance: float
+    buy: float
+    sell: float
 
 @dataclass
 class BaseMarginInfo(_Type):
-    USER_PL: float
-    USER_SWAPS: float
-    MARGIN_BALANCE: float
-    MARGIN_NET: float
-    MARGIN_MIN: float
+    user_pl: float
+    user_swaps: float
+    margin_balance: float
+    margin_net: float
+    margin_min: float
 
 @dataclass
 class Claim(_Type):
-    SYMBOL: str
-    POSITION_STATUS: str
-    AMOUNT: float
-    BASE_PRICE: float
-    MARGIN_FUNDING: float
-    MARGIN_FUNDING_TYPE: int
-    POSITION_ID: int
-    MTS_CREATE: int
-    MTS_UPDATE: int
-    POS_TYPE: int
-    COLLATERAL: str
-    MIN_COLLATERAL: str
-    META: JSON
+    symbol: str
+    position_status: str
+    amount: float
+    base_price: float
+    margin_funding: float
+    margin_funding_type: int
+    position_id: int
+    mts_create: int
+    mts_update: int
+    pos_type: int
+    collateral: str
+    min_collateral: str
+    meta: JSON
 
 @dataclass
 class IncreaseInfo(_Type):
-    MAX_POS: int
-    CURRENT_POS: float
-    BASE_CURRENCY_BALANCE: float
-    TRADABLE_BALANCE_QUOTE_CURRENCY: float
-    TRADABLE_BALANCE_QUOTE_TOTAL: float
-    TRADABLE_BALANCE_BASE_CURRENCY: float
-    TRADABLE_BALANCE_BASE_TOTAL: float
-    FUNDING_AVAIL: float
-    FUNDING_VALUE: float
-    FUNDING_REQUIRED: float
-    FUNDING_VALUE_CURRENCY: str
-    FUNDING_REQUIRED_CURRENCY: str
+    max_pos: int
+    current_pos: float
+    base_currency_balance: float
+    tradable_balance_quote_currency: float
+    tradable_balance_quote_total: float
+    tradable_balance_base_currency: float
+    tradable_balance_base_total: float
+    funding_avail: float
+    funding_value: float
+    funding_required: float
+    funding_value_currency: str
+    funding_required_currency: str
 
 @dataclass
 class Increase(_Type):
-    SYMBOL: str
-    AMOUNT: float
-    BASE_PRICE: float
+    symbol: str
+    amount: float
+    base_price: float
 
 @dataclass
 class PositionHistory(_Type):
-    SYMBOL: str
-    STATUS: str
-    AMOUNT: float
-    BASE_PRICE: float
-    FUNDING: float
-    FUNDING_TYPE: int
-    POSITION_ID: int
-    MTS_CREATE: int
-    MTS_UPDATE: int
+    symbol: str
+    status: str
+    amount: float
+    base_price: float
+    funding: float
+    funding_type: int
+    position_id: int
+    mts_create: int
+    mts_update: int
 
 @dataclass
 class PositionSnapshot(_Type):
-    SYMBOL: str
-    STATUS: str
-    AMOUNT: float
-    BASE_PRICE: float
-    FUNDING: float
-    FUNDING_TYPE: int
-    POSITION_ID: int
-    MTS_CREATE: int
-    MTS_UPDATE: int
+    symbol: str
+    status: str
+    amount: float
+    base_price: float
+    funding: float
+    funding_type: int
+    position_id: int
+    mts_create: int
+    mts_update: int
 
 @dataclass
 class PositionAudit(_Type):
-    SYMBOL: str
-    STATUS: str
-    AMOUNT: float
-    BASE_PRICE: float
-    FUNDING: float
-    FUNDING_TYPE: int
-    POSITION_ID: int
-    MTS_CREATE: int
-    MTS_UPDATE: int
-    TYPE: int
-    COLLATERAL: float
-    COLLATERAL_MIN: float
-    META: JSON
+    symbol: str
+    status: str
+    amount: float
+    base_price: float
+    funding: float
+    funding_type: int
+    position_id: int
+    mts_create: int
+    mts_update: int
+    type: int
+    collateral: float
+    collateral_min: float
+    meta: JSON
 
 @dataclass
 class DerivativePositionCollateral(_Type):
-    STATUS: int
+    status: int
 
 @dataclass
 class DerivativePositionCollateralLimits(_Type):
-    MIN_COLLATERAL: float
-    MAX_COLLATERAL: float
+    min_collateral: float
+    max_collateral: float
 
 #endregion

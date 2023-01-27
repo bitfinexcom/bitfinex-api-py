@@ -27,5 +27,5 @@ print(f"Limits {limits}")
 
 # Update position collateral
 response = bfx.rest.auth.set_derivative_position_collateral(symbol="tBTCF0:USTF0", collateral=50)
-print(response.STATUS)
+print(response.status)
 

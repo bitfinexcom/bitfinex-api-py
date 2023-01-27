@@ -7,111 +7,111 @@ from .. notification import _Notification
 #region Serializers definition for Websocket Public Channels
 
 TradingPairTicker = generate_labeler_serializer("TradingPairTicker", klass=types.TradingPairTicker, labels=[
-    "BID",
-    "BID_SIZE",
-    "ASK",
-    "ASK_SIZE",
-    "DAILY_CHANGE",
-    "DAILY_CHANGE_RELATIVE",
-    "LAST_PRICE",
-    "VOLUME",
-    "HIGH",
-    "LOW"
+    "bid",
+    "bid_size",
+    "ask",
+    "ask_size",
+    "daily_change",
+    "daily_change_relative",
+    "last_price",
+    "volume",
+    "high",
+    "low"
 ])
 
 FundingCurrencyTicker = generate_labeler_serializer("FundingCurrencyTicker", klass=types.FundingCurrencyTicker, labels=[
-    "FRR",
-    "BID",
-    "BID_PERIOD",
-    "BID_SIZE",
-    "ASK",
-    "ASK_PERIOD",
-    "ASK_SIZE",
-    "DAILY_CHANGE",
-    "DAILY_CHANGE_RELATIVE",
-    "LAST_PRICE",
-    "VOLUME",
-    "HIGH",
-    "LOW"
+    "frr",
+    "bid",
+    "bid_period",
+    "bid_size",
+    "ask",
+    "ask_period",
+    "ask_size",
+    "daily_change",
+    "daily_change_relative",
+    "last_price",
+    "volume",
+    "high",
+    "low"
     "_PLACEHOLDER",
     "_PLACEHOLDER",
-    "FRR_AMOUNT_AVAILABLE"
+    "frr_amount_available"
 ])
 
 TradingPairTrade = generate_labeler_serializer("TradingPairTrade", klass=types.TradingPairTrade, labels=[ 
-    "ID", 
-    "MTS", 
-    "AMOUNT", 
-    "PRICE" 
+    "id", 
+    "mts", 
+    "amount", 
+    "price" 
 ])
 
 FundingCurrencyTrade = generate_labeler_serializer("FundingCurrencyTrade", klass=types.FundingCurrencyTrade, labels=[ 
-    "ID", 
-    "MTS", 
-    "AMOUNT", 
-    "RATE", 
-    "PERIOD" 
+    "id", 
+    "mts", 
+    "amount", 
+    "rate", 
+    "period" 
 ])
 
 TradingPairBook = generate_labeler_serializer("TradingPairBook", klass=types.TradingPairBook, labels=[
-    "PRICE", 
-    "COUNT", 
-    "AMOUNT"
+    "price", 
+    "count", 
+    "amount"
 ])
 
 FundingCurrencyBook = generate_labeler_serializer("FundingCurrencyBook", klass=types.FundingCurrencyBook, labels=[
-    "RATE", 
-    "PERIOD", 
-    "COUNT", 
-    "AMOUNT"
+    "rate", 
+    "period", 
+    "count", 
+    "amount"
 ])
 
 TradingPairRawBook = generate_labeler_serializer("TradingPairRawBook", klass=types.TradingPairRawBook, labels=[
-    "ORDER_ID", 
-    "PRICE", 
-    "AMOUNT"
+    "order_id", 
+    "price", 
+    "amount"
 ])
 
 FundingCurrencyRawBook = generate_labeler_serializer("FundingCurrencyRawBook", klass=types.FundingCurrencyRawBook, labels=[
-    "OFFER_ID", 
-    "PERIOD", 
-    "RATE", 
-    "AMOUNT"
+    "offer_id", 
+    "period", 
+    "rate", 
+    "amount"
 ])
 
 Candle = generate_labeler_serializer("Candle", klass=types.Candle, labels=[
-    "MTS", 
-    "OPEN", 
-    "CLOSE", 
-    "HIGH", 
-    "LOW", 
-    "VOLUME"
+    "mts", 
+    "open", 
+    "close", 
+    "high", 
+    "low", 
+    "volume"
 ])
 
 DerivativesStatus = generate_labeler_serializer("DerivativesStatus", klass=types.DerivativesStatus, labels=[
-    "TIME_MS",
+    "time_ms",
     "_PLACEHOLDER", 
-    "DERIV_PRICE",
-    "SPOT_PRICE",
+    "deriv_price",
+    "spot_price",
     "_PLACEHOLDER",
-    "INSURANCE_FUND_BALANCE",
+    "insurance_fund_balance",
     "_PLACEHOLDER",
-    "NEXT_FUNDING_EVT_TIMESTAMP_MS",
-    "NEXT_FUNDING_ACCRUED",
-    "NEXT_FUNDING_STEP",
+    "next_funding_evt_timestamp_ms",
+    "next_funding_accrued",
+    "next_funding_step",
     "_PLACEHOLDER",
-    "CURRENT_FUNDING"
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "MARK_PRICE",
+    "current_funding"
     "_PLACEHOLDER",
     "_PLACEHOLDER",
-    "OPEN_INTEREST",
+    "mark_price",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "open_interest",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
-    "CLAMP_MIN",
-    "CLAMP_MAX"
+    "clamp_min",
+    "clamp_max"
 ])
 
 #endregion
@@ -119,179 +119,179 @@ DerivativesStatus = generate_labeler_serializer("DerivativesStatus", klass=types
 #region Serializers definition for Websocket Authenticated Channels
 
 Order = generate_labeler_serializer("Order", klass=types.Order, labels=[
-    "ID",
-    "GID",
-    "CID",
-    "SYMBOL",
-    "MTS_CREATE", 
-    "MTS_UPDATE", 
-    "AMOUNT", 
-    "AMOUNT_ORIG", 
-    "ORDER_TYPE",
-    "TYPE_PREV",
-    "MTS_TIF",
+    "id",
+    "gid",
+    "cid",
+    "symbol",
+    "mts_create", 
+    "mts_update", 
+    "amount", 
+    "amount_orig", 
+    "order_type",
+    "type_prev",
+    "mts_tif",
     "_PLACEHOLDER",
-    "FLAGS",
-    "ORDER_STATUS",
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "PRICE",
-    "PRICE_AVG",
-    "PRICE_TRAILING",
-    "PRICE_AUX_LIMIT",
+    "flags",
+    "order_status",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "NOTIFY",
-    "HIDDEN", 
-    "PLACED_ID",
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "ROUTING",
+    "price",
+    "price_avg",
+    "price_trailing",
+    "price_aux_limit",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
-    "META"
+    "_PLACEHOLDER",
+    "notify",
+    "hidden", 
+    "placed_id",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "routing",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "meta"
 ])
 
 Position = generate_labeler_serializer("Position", klass=types.Position, labels=[
-    "SYMBOL", 
-    "STATUS", 
-    "AMOUNT", 
-    "BASE_PRICE", 
-    "MARGIN_FUNDING", 
-    "MARGIN_FUNDING_TYPE",
-    "PL",
-    "PL_PERC",
-    "PRICE_LIQ",
-    "LEVERAGE",
-    "FLAG",
-    "POSITION_ID",
-    "MTS_CREATE",
-    "MTS_UPDATE",
+    "symbol", 
+    "status", 
+    "amount", 
+    "base_price", 
+    "margin_funding", 
+    "margin_funding_type",
+    "pl",
+    "pl_perc",
+    "price_liq",
+    "leverage",
+    "flag",
+    "position_id",
+    "mts_create",
+    "mts_update",
     "_PLACEHOLDER",
-    "TYPE",
+    "type",
     "_PLACEHOLDER",
-    "COLLATERAL",
-    "COLLATERAL_MIN",
-    "META"
+    "collateral",
+    "collateral_min",
+    "meta"
 ])
 
 TradeExecuted = generate_labeler_serializer("TradeExecuted", klass=types.TradeExecuted, labels=[
-    "ID", 
-    "SYMBOL", 
-    "MTS_CREATE",
-    "ORDER_ID", 
-    "EXEC_AMOUNT", 
-    "EXEC_PRICE", 
-    "ORDER_TYPE", 
-    "ORDER_PRICE", 
-    "MAKER",
+    "id", 
+    "symbol", 
+    "mts_create",
+    "order_id", 
+    "exec_amount", 
+    "exec_price", 
+    "order_type", 
+    "order_price", 
+    "maker",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
-    "CID"
+    "cid"
 ])
 
 TradeExecutionUpdate = generate_labeler_serializer("TradeExecutionUpdate", klass=types.TradeExecutionUpdate, labels=[
-    "ID", 
-    "SYMBOL", 
-    "MTS_CREATE",
-    "ORDER_ID", 
-    "EXEC_AMOUNT", 
-    "EXEC_PRICE", 
-    "ORDER_TYPE", 
-    "ORDER_PRICE", 
-    "MAKER",
-    "FEE",
-    "FEE_CURRENCY",
-    "CID"
+    "id", 
+    "symbol", 
+    "mts_create",
+    "order_id", 
+    "exec_amount", 
+    "exec_price", 
+    "order_type", 
+    "order_price", 
+    "maker",
+    "fee",
+    "fee_currency",
+    "cid"
 ])
 
 FundingOffer = generate_labeler_serializer("FundingOffer", klass=types.FundingOffer, labels=[
-    "ID",
-    "SYMBOL",
-    "MTS_CREATED",
-    "MTS_UPDATED",
-    "AMOUNT",
-    "AMOUNT_ORIG",
-    "OFFER_TYPE",
+    "id",
+    "symbol",
+    "mts_created",
+    "mts_updated",
+    "amount",
+    "amount_orig",
+    "offer_type",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
-    "FLAGS",
-    "STATUS",
+    "flags",
+    "status",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
-    "RATE",
-    "PERIOD",
-    "NOTIFY",
-    "HIDDEN",
+    "rate",
+    "period",
+    "notify",
+    "hidden",
     "_PLACEHOLDER",
-    "RENEW",
+    "renew",
     "_PLACEHOLDER"
 ])
 
 FundingCredit = generate_labeler_serializer("FundingCredit", klass=types.FundingCredit, labels=[
-    "ID",
-    "SYMBOL",
-    "SIDE",
-    "MTS_CREATE",
-    "MTS_UPDATE",
-    "AMOUNT",
-    "FLAGS",
-    "STATUS",
+    "id",
+    "symbol",
+    "side",
+    "mts_create",
+    "mts_update",
+    "amount",
+    "flags",
+    "status",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
-    "RATE",
-    "PERIOD",
-    "MTS_OPENING",
-    "MTS_LAST_PAYOUT",
-    "NOTIFY",
-    "HIDDEN",
+    "rate",
+    "period",
+    "mts_opening",
+    "mts_last_payout",
+    "notify",
+    "hidden",
     "_PLACEHOLDER",
-    "RENEW",
-    "RATE_REAL",
-    "NO_CLOSE",
-    "POSITION_PAIR"
+    "renew",
+    "rate_real",
+    "no_close",
+    "position_pair"
 ])
 
 FundingLoan = generate_labeler_serializer("FundingLoan", klass=types.FundingLoan, labels=[
-    "ID",
-    "SYMBOL",
-    "SIDE",
-    "MTS_CREATE",
-    "MTS_UPDATE",
-    "AMOUNT",
-    "FLAGS",
-    "STATUS",
+    "id",
+    "symbol",
+    "side",
+    "mts_create",
+    "mts_update",
+    "amount",
+    "flags",
+    "status",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
-    "RATE",
-    "PERIOD",
-    "MTS_OPENING",
-    "MTS_LAST_PAYOUT",
-    "NOTIFY",
-    "HIDDEN",
+    "rate",
+    "period",
+    "mts_opening",
+    "mts_last_payout",
+    "notify",
+    "hidden",
     "_PLACEHOLDER",
-    "RENEW",
-    "RATE_REAL",
-    "NO_CLOSE"
+    "renew",
+    "rate_real",
+    "no_close"
 ])
 
 Wallet = generate_labeler_serializer("Wallet", klass=types.Wallet, labels=[
-    "WALLET_TYPE", 
-    "CURRENCY", 
-    "BALANCE", 
-    "UNSETTLED_INTEREST",
-    "BALANCE_AVAILABLE",
-    "DESCRIPTION",
-    "META"
+    "wallet_type", 
+    "currency", 
+    "balance", 
+    "unsettled_interest",
+    "balance_available",
+    "description",
+    "meta"
 ])
 
 BalanceInfo = generate_labeler_serializer("BalanceInfo", klass=types.BalanceInfo, labels=[
-    "AUM", 
-    "AUM_NET", 
+    "aum", 
+    "aum_net", 
 ])
 
 #endregion

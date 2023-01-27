@@ -15,4 +15,4 @@ print(increase_info)
 
 # increase a margin position
 notification = bfx.rest.auth.increase_position(symbol="tBTCUSD", amount=0.0001)
-print(notification.NOTIFY_INFO)
+print(notification.notify_info)

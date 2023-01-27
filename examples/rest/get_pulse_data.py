@@ -14,9 +14,9 @@ messages = bfx.rest.public.get_pulse_history(end=now, limit=100)
 
 for message in messages:
     print(f"Message: {message}")
-    print(message.CONTENT)
-    print(message.PROFILE.PICTURE)
+    print(message.content)
+    print(message.profile.picture)
 
 profile = bfx.rest.public.get_pulse_profile("News")
 print(f"Profile: {profile}")
-print(f"Profile picture: {profile.PICTURE}")
+print(f"Profile picture: {profile.picture}")
