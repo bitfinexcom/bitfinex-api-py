@@ -307,6 +307,26 @@ class Ledger(_Type):
     description: str
 
 @dataclass
+class FundingLoan(_Type):
+    id: int
+    symbol: str
+    side: int
+    mts_create: int
+    mts_update: int
+    amount: float
+    flags: int
+    status: str
+    rate: float
+    period: int
+    mts_opening: int
+    mts_last_payout: int
+    notify: int
+    hidden: int
+    renew: int
+    rate_real: float
+    no_close: int
+
+@dataclass
 class FundingCredit(_Type):
     id: int
     symbol: str

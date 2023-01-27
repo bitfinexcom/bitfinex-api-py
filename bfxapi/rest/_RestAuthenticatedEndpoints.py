@@ -148,6 +148,25 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.FundingOffer.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
 
+    def get_funding_loans(self, symbol: Optional[str] = None) -> List[FundingLoan]:
+        if symbol == None:
+            endpoint = "auth/r/funding/loans"
+        else: endpoint = f"auth/r/funding/loans/{symbol}"
+
+        return [ serializers.FundingLoan.parse(*sub_data) for sub_data in self._POST(endpoint) ]
+
+    def get_funding_loans_history(self, symbol: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingLoan]:
+        if symbol == None:
+            endpoint = "auth/r/funding/loans/hist"
+        else: endpoint = f"auth/r/funding/loans/{symbol}/hist"
+        
+        data = {
+            "start": start, "end": end,
+            "limit": limit
+        }
+
+        return [ serializers.FundingLoan.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
+
     def get_funding_credits(self, symbol: Optional[str] = None) -> List[FundingCredit]:
         if symbol == None:
             endpoint = "auth/r/funding/credits"

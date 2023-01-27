@@ -382,6 +382,31 @@ Ledger = generate_labeler_serializer("Ledger", klass=types.Ledger, labels=[
     "description"
 ])
 
+FundingLoan = generate_labeler_serializer("FundingLoan", klass=types.FundingLoan, labels=[
+    "id",
+    "symbol",
+    "side",
+    "mts_create",
+    "mts_update",
+    "amount",
+    "flags",
+    "status",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "rate",
+    "period",
+    "mts_opening",
+    "mts_last_payout",
+    "notify",
+    "hidden",
+    "_PLACEHOLDER",
+    "renew",
+    "rate_real",
+    "no_close"
+])
+
+
 FundingCredit = generate_labeler_serializer("FundingCredit", klass=types.FundingCredit, labels=[
     "id",
     "symbol",
