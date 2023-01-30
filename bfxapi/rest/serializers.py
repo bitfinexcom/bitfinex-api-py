@@ -355,6 +355,16 @@ Trade = generate_labeler_serializer("Trade", klass=types.Trade, labels=[
     "cid"
 ])
 
+FundingTrade = generate_labeler_serializer("FundingTrade", klass=types.FundingTrade, labels=[
+    "id",
+    "currency",
+    "mts_create",
+    "offer_id",
+    "amount",
+    "rate",
+    "period"
+])
+
 OrderTrade = generate_labeler_serializer("OrderTrade", klass=types.OrderTrade, labels=[
     "id",
     "pair",

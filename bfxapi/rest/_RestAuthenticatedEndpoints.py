@@ -99,6 +99,19 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.Trade.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
 
+    def get_funding_trades_history(self, symbol: Optional[str] = None, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingTrade]:
+        if symbol == None:
+            endpoint = "auth/r/funding/trades/hist"
+        else: endpoint = f"auth/r/funding/trades/{symbol}/hist"
+
+        data = {
+            "sort": sort,
+            "start": start, "end": end,
+            "limit": limit
+        }
+
+        return [ serializers.FundingTrade.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
+
     def get_order_trades(self, symbol: str, id: int) -> List[OrderTrade]:
         return [ serializers.OrderTrade.parse(*sub_data) for sub_data in self._POST(f"auth/r/order/{symbol}:{id}/trades") ]
 

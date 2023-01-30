@@ -284,6 +284,16 @@ class Trade(_Type):
     fee_currency: str
     cid: int
 
+@dataclass()
+class FundingTrade(_Type):
+    id: int
+    currency: str
+    mts_create: int
+    offer_id: int
+    amount: float
+    rate: float
+    period: int
+
 @dataclass
 class OrderTrade(_Type):
     id: int 
