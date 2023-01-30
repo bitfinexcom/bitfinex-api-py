@@ -133,8 +133,10 @@ class _RestAuthenticatedEndpoints(_Requests):
     def cancel_funding_offer(self, id: int) -> Notification[FundingOffer]:
         return serializers._Notification[FundingOffer](serializer=serializers.FundingOffer).parse(*self._POST("auth/w/funding/offer/cancel", data={ "id": id }))
 
-    def cancel_all_funding_offers(self, currency: str) -> Notification:
-        return serializers._Notification().parse(*self._POST("auth/w/funding/offer/cancel/all", data={ "currency": currency }))
+    def cancel_all_funding_offers(self, currency: str) -> Notification[Literal[None]]:
+        return serializers._Notification[Literal[None]](serializer=None).parse(
+            *self._POST("auth/w/funding/offer/cancel/all", data={ "currency": currency })
+        )
 
     def get_funding_offers_history(self, symbol: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingOffer]:
         if symbol == None:
@@ -187,7 +189,7 @@ class _RestAuthenticatedEndpoints(_Requests):
         return [ serializers.FundingCredit.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
 
     def submit_funding_close(self, id: int) -> Notification[Literal[None]]:
-        return serializers._Notification[Literal[None]]().parse(
+        return serializers._Notification[Literal[None]](serializer=None).parse(
             *self._POST("auth/w/funding/close", data={ "id": id })
         )
 
@@ -196,6 +198,13 @@ class _RestAuthenticatedEndpoints(_Requests):
             "status": int(status),
             "currency": currency, "amount": amount,
             "rate": rate, "period": period
+        }))
+
+    def submit_funding_toggle_keep(self, type: Literal["credit", "loan"], ids: Optional[List[int]] = None, changes: Optional[Dict[int, bool]] = None) -> Notification[Literal[None]]:
+        return serializers._Notification[Literal[None]](serializer=None).parse(*self._POST("auth/w/funding/keep", data={
+            "type": type,
+            "id": ids,
+            "changes": changes
         }))
 
     def submit_wallet_transfer(self, from_wallet: str, to_wallet: str, currency: str, currency_to: str, amount: Union[Decimal, float, str]) -> Notification[Transfer]:
