@@ -348,6 +348,13 @@ class FundingCredit(_Type):
     position_pair: str
 
 @dataclass
+class FundingAutoRenew(_Type):
+    currency: str
+    period: int
+    rate: float
+    threshold: float
+
+@dataclass
 class Transfer(_Type):
     mts: int
     wallet_from: str

@@ -191,6 +191,13 @@ class _RestAuthenticatedEndpoints(_Requests):
             *self._POST("auth/w/funding/close", data={ "id": id })
         )
 
+    def submit_funding_toggle_auto_renew(self, status: bool, currency: str, amount: Optional[str] = None, rate: Optional[int] = None, period: Optional[int] = None) -> Notification[FundingAutoRenew]:
+        return serializers._Notification[FundingAutoRenew](serializer=serializers.FundingAutoRenew).parse(*self._POST("auth/w/funding/auto", data={
+            "status": int(status),
+            "currency": currency, "amount": amount,
+            "rate": rate, "period": period
+        }))
+
     def submit_wallet_transfer(self, from_wallet: str, to_wallet: str, currency: str, currency_to: str, amount: Union[Decimal, float, str]) -> Notification[Transfer]:
         data = {
             "from": from_wallet, "to": to_wallet,

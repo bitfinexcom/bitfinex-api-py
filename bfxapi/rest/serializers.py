@@ -431,6 +431,13 @@ FundingCredit = generate_labeler_serializer("FundingCredit", klass=types.Funding
     "position_pair"
 ])
 
+FundingAutoRenew = generate_labeler_serializer("FundingAutoRenew", klass=types.FundingAutoRenew, labels=[
+    "currency",
+    "period",
+    "rate",
+    "threshold"
+])
+
 Transfer = generate_labeler_serializer("Transfer", klass=types.Transfer, labels=[
     "mts",
     "wallet_from",
