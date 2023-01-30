@@ -186,6 +186,11 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.FundingCredit.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
 
+    def submit_funding_close(self, id: int) -> Notification[Literal[None]]:
+        return serializers._Notification[Literal[None]]().parse(
+            *self._POST("auth/w/funding/close", data={ "id": id })
+        )
+
     def submit_wallet_transfer(self, from_wallet: str, to_wallet: str, currency: str, currency_to: str, amount: Union[Decimal, float, str]) -> Notification[Transfer]:
         data = {
             "from": from_wallet, "to": to_wallet,

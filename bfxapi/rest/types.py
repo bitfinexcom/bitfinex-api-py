@@ -268,7 +268,7 @@ class FundingOffer(_Type):
     notify: bool
     hidden: int
     renew: bool
-    
+
 @dataclass
 class Trade(_Type):
     id: int 
@@ -383,8 +383,8 @@ class Movement(_Type):
     id: str
     currency: str
     currency_name: str
-    mts_started: int
-    mts_updated: int
+    mts_start: int
+    mts_update: int
     status: str
     amount: int
     fees: int
