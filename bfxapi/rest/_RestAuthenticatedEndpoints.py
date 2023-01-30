@@ -188,6 +188,11 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.FundingCredit.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
 
+    def get_funding_info(self, key: str) -> FundingInfo:
+        response = self._POST(f"auth/r/info/funding/{key}")
+        
+        return serializers.FundingInfo.parse(*([response[1]] + response[2]))
+
     def submit_funding_close(self, id: int) -> Notification[Literal[None]]:
         return serializers._Notification[Literal[None]](serializer=None).parse(
             *self._POST("auth/w/funding/close", data={ "id": id })

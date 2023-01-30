@@ -438,6 +438,14 @@ FundingAutoRenew = generate_labeler_serializer("FundingAutoRenew", klass=types.F
     "threshold"
 ])
 
+FundingInfo = generate_labeler_serializer("FundingInfo", klass=types.FundingInfo, labels=[
+    "symbol",
+    "yield_loan",
+    "yield_lend",
+    "duration_loan",
+    "duration_lend"
+])
+
 Transfer = generate_labeler_serializer("Transfer", klass=types.Transfer, labels=[
     "mts",
     "wallet_from",
