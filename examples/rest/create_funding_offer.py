@@ -23,7 +23,7 @@ notification = bfx.rest.auth.submit_funding_offer(
 
 print("Offer notification:", notification)
 
-offers = bfx.rest.auth.get_active_funding_offers(symbol="fUSD")
+offers = bfx.rest.auth.get_funding_offers(symbol="fUSD")
 
 print("Offers:", offers)
 
