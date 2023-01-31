@@ -90,7 +90,7 @@ class Candle(_Type):
 
 @dataclass
 class DerivativesStatus(_Type):
-    time_ms: int
+    mts: int
     deriv_price: float
     spot_price: float
     insurance_fund_balance: float
@@ -170,13 +170,13 @@ class Trade(_Type):
 class FundingOffer(_Type):
     id: int
     symbol: str
-    mts_created: int
-    mts_updated: int
+    mts_create: int
+    mts_update: int
     amount: float
     amount_orig: float
     offer_type: str
     flags: int
-    status: str
+    offer_status: str
     rate: float
     period: int
     notify: int
@@ -200,7 +200,6 @@ class FundingCredit(_Type):
     notify: int
     hidden: int
     renew: int
-    rate_real: float
     no_close: int
     position_pair: str
 
@@ -221,7 +220,6 @@ class FundingLoan(_Type):
     notify: int
     hidden: int
     renew: int
-    rate_real: float
     no_close: int
 
 @dataclass
@@ -230,12 +228,12 @@ class Wallet(_Type):
     currency: str
     balance: float
     unsettled_interest: float
-    balance_available: float
-    description: str
-    meta: JSON
+    available_balance: float
+    last_change: str
+    trade_details: JSON
 
 @dataclass
-class BalanceInfo(_Type):
+class Balance(_Type):
     aum: float
     aum_net: float
 

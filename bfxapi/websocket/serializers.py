@@ -89,7 +89,7 @@ Candle = generate_labeler_serializer("Candle", klass=types.Candle, labels=[
 ])
 
 DerivativesStatus = generate_labeler_serializer("DerivativesStatus", klass=types.DerivativesStatus, labels=[
-    "time_ms",
+    "mts",
     "_PLACEHOLDER", 
     "deriv_price",
     "spot_price",
@@ -194,15 +194,15 @@ Trade = generate_labeler_serializer("Trade", klass=types.Trade, labels=[
 FundingOffer = generate_labeler_serializer("FundingOffer", klass=types.FundingOffer, labels=[
     "id",
     "symbol",
-    "mts_created",
-    "mts_updated",
+    "mts_create",
+    "mts_update",
     "amount",
     "amount_orig",
     "offer_type",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "flags",
-    "status",
+    "offer_status",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
@@ -235,7 +235,7 @@ FundingCredit = generate_labeler_serializer("FundingCredit", klass=types.Funding
     "hidden",
     "_PLACEHOLDER",
     "renew",
-    "rate_real",
+    "_PLACEHOLDER",
     "no_close",
     "position_pair"
 ])
@@ -260,7 +260,7 @@ FundingLoan = generate_labeler_serializer("FundingLoan", klass=types.FundingLoan
     "hidden",
     "_PLACEHOLDER",
     "renew",
-    "rate_real",
+    "_PLACEHOLDER",
     "no_close"
 ])
 
@@ -269,12 +269,12 @@ Wallet = generate_labeler_serializer("Wallet", klass=types.Wallet, labels=[
     "currency", 
     "balance", 
     "unsettled_interest",
-    "balance_available",
-    "description",
-    "meta"
+    "available_balance",
+    "last_change",
+    "trade_details"
 ])
 
-BalanceInfo = generate_labeler_serializer("BalanceInfo", klass=types.BalanceInfo, labels=[
+Balance = generate_labeler_serializer("Balance", klass=types.Balance, labels=[
     "aum", 
     "aum_net", 
 ])

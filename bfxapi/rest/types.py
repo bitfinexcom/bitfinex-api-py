@@ -198,16 +198,6 @@ class FxRate(_Type):
 #region Type hinting for Rest Authenticated Endpoints
 
 @dataclass
-class Wallet(_Type):
-    wallet_type: str
-    currency: str
-    balance: float
-    unsettled_interest: float
-    available_balance: float
-    last_change: str
-    trade_details: JSON
-
-@dataclass
 class Order(_Type):
     id: int
     gid: int
@@ -251,23 +241,6 @@ class Position(_Type):
     collateral: float
     collateral_min: float
     meta: JSON
-
-@dataclass
-class FundingOffer(_Type):
-    id: int
-    symbol: str
-    mts_create: int
-    mts_update: int
-    amount: float
-    amount_orig: float
-    offer_type: str
-    flags: int
-    offer_status: str
-    rate: float
-    period: int
-    notify: bool
-    hidden: int
-    renew: bool
 
 @dataclass
 class Trade(_Type):
@@ -317,24 +290,21 @@ class Ledger(_Type):
     description: str
 
 @dataclass
-class FundingLoan(_Type):
+class FundingOffer(_Type):
     id: int
     symbol: str
-    side: int
     mts_create: int
     mts_update: int
     amount: float
+    amount_orig: float
+    offer_type: str
     flags: int
-    status: str
+    offer_status: str
     rate: float
     period: int
-    mts_opening: int
-    mts_last_payout: int
     notify: int
     hidden: int
     renew: int
-    rate_real: float
-    no_close: int
 
 @dataclass
 class FundingCredit(_Type):
@@ -346,6 +316,7 @@ class FundingCredit(_Type):
     amount: float
     flags: int
     status: str
+    rate_type: str
     rate: float
     period: int
     mts_opening: int
@@ -353,9 +324,28 @@ class FundingCredit(_Type):
     notify: int
     hidden: int
     renew: int
-    rate_real: float
     no_close: int
     position_pair: str
+
+@dataclass
+class FundingLoan(_Type):
+    id: int
+    symbol: str
+    side: int
+    mts_create: int
+    mts_update: int
+    amount: float
+    flags: int
+    status: str
+    rate_type: str
+    rate: float
+    period: int
+    mts_opening: int
+    mts_last_payout: int
+    notify: int
+    hidden: int
+    renew: int
+    no_close: int
 
 @dataclass
 class FundingAutoRenew(_Type):
@@ -372,6 +362,16 @@ class FundingInfo(_Type):
     duration_loan: float
     duration_lend: float
 
+@dataclass
+class Wallet(_Type):
+    wallet_type: str
+    currency: str
+    balance: float
+    unsettled_interest: float
+    available_balance: float
+    last_change: str
+    trade_details: JSON
+    
 @dataclass
 class Transfer(_Type):
     mts: int

@@ -248,16 +248,6 @@ FxRate = generate_labeler_serializer("FxRate", klass=types.FxRate, labels=[
 
 #region Serializers definition for Rest Authenticated Endpoints
 
-Wallet = generate_labeler_serializer("Wallet", klass=types.Wallet, labels=[
-    "wallet_type", 
-    "currency", 
-    "balance", 
-    "unsettled_interest",
-    "available_balance",
-    "last_change",
-    "trade_details"
-])
-
 Order = generate_labeler_serializer("Order", klass=types.Order, labels=[
     "id",
     "gid",
@@ -316,30 +306,6 @@ Position = generate_labeler_serializer("Position", klass=types.Position, labels=
     "meta"
 ])
 
-FundingOffer = generate_labeler_serializer("FundingOffer", klass=types.FundingOffer, labels=[
-    "id",
-    "symbol",
-    "mts_create",
-    "mts_update",
-    "amount",
-    "amount_orig",
-    "offer_type",
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "flags",
-    "offer_status",
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "rate",
-    "period",
-    "notify",
-    "hidden",
-    "_PLACEHOLDER",
-    "renew",
-    "_PLACEHOLDER"
-])
-
 Trade = generate_labeler_serializer("Trade", klass=types.Trade, labels=[
     "id", 
     "pair", 
@@ -392,28 +358,28 @@ Ledger = generate_labeler_serializer("Ledger", klass=types.Ledger, labels=[
     "description"
 ])
 
-FundingLoan = generate_labeler_serializer("FundingLoan", klass=types.FundingLoan, labels=[
+FundingOffer = generate_labeler_serializer("FundingOffer", klass=types.FundingOffer, labels=[
     "id",
     "symbol",
-    "side",
     "mts_create",
     "mts_update",
     "amount",
+    "amount_orig",
+    "offer_type",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
     "flags",
-    "status",
+    "offer_status",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "rate",
     "period",
-    "mts_opening",
-    "mts_last_payout",
     "notify",
     "hidden",
     "_PLACEHOLDER",
     "renew",
-    "rate_real",
-    "no_close"
+    "_PLACEHOLDER"
 ])
 
 FundingCredit = generate_labeler_serializer("FundingCredit", klass=types.FundingCredit, labels=[
@@ -441,6 +407,30 @@ FundingCredit = generate_labeler_serializer("FundingCredit", klass=types.Funding
     "position_pair"
 ])
 
+FundingLoan = generate_labeler_serializer("FundingLoan", klass=types.FundingLoan, labels=[
+    "id",
+    "symbol",
+    "side",
+    "mts_create",
+    "mts_update",
+    "amount",
+    "flags",
+    "status",
+    "rate_type",
+    "_PLACEHOLDER",
+    "_PLACEHOLDER",
+    "rate",
+    "period",
+    "mts_opening",
+    "mts_last_payout",
+    "notify",
+    "hidden",
+    "_PLACEHOLDER",
+    "renew",
+    "_PLACEHOLDER",
+    "no_close"
+])
+
 FundingAutoRenew = generate_labeler_serializer("FundingAutoRenew", klass=types.FundingAutoRenew, labels=[
     "currency",
     "period",
@@ -454,6 +444,16 @@ FundingInfo = generate_labeler_serializer("FundingInfo", klass=types.FundingInfo
     "yield_lend",
     "duration_loan",
     "duration_lend"
+])
+
+Wallet = generate_labeler_serializer("Wallet", klass=types.Wallet, labels=[
+    "wallet_type", 
+    "currency", 
+    "balance", 
+    "unsettled_interest",
+    "available_balance",
+    "last_change",
+    "trade_details"
 ])
 
 Transfer = generate_labeler_serializer("Transfer", klass=types.Transfer, labels=[

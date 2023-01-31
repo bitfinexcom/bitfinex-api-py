@@ -139,7 +139,7 @@ class AuthenticatedChannelsHandler(object):
         ("fcs", "fcn", "fcu", "fcc",): serializers.FundingCredit,
         ("fls", "fln", "flu", "flc",): serializers.FundingLoan,
         ("ws", "wu",): serializers.Wallet,
-        ("bu",): serializers.BalanceInfo
+        ("bu",): serializers.Balance
     }
 
     EVENTS = [ 
