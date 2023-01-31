@@ -134,8 +134,7 @@ class AuthenticatedChannelsHandler(object):
     __serializers = {
         ("os", "on", "ou", "oc",): serializers.Order,
         ("ps", "pn", "pu", "pc",): serializers.Position,
-        ("te",): serializers.TradeExecuted,
-        ("tu",): serializers.TradeExecutionUpdate,
+        ("te", "tu"): serializers.Trade,
         ("fos", "fon", "fou", "foc",): serializers.FundingOffer,
         ("fcs", "fcn", "fcu", "fcc",): serializers.FundingCredit,
         ("fls", "fln", "flu", "flc",): serializers.FundingLoan,

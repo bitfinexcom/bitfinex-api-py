@@ -176,22 +176,7 @@ Position = generate_labeler_serializer("Position", klass=types.Position, labels=
     "meta"
 ])
 
-TradeExecuted = generate_labeler_serializer("TradeExecuted", klass=types.TradeExecuted, labels=[
-    "id", 
-    "symbol", 
-    "mts_create",
-    "order_id", 
-    "exec_amount", 
-    "exec_price", 
-    "order_type", 
-    "order_price", 
-    "maker",
-    "_PLACEHOLDER",
-    "_PLACEHOLDER",
-    "cid"
-])
-
-TradeExecutionUpdate = generate_labeler_serializer("TradeExecutionUpdate", klass=types.TradeExecutionUpdate, labels=[
+Trade = generate_labeler_serializer("Trade", klass=types.Trade, labels=[
     "id", 
     "symbol", 
     "mts_create",

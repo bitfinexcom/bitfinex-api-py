@@ -3,6 +3,7 @@ from .. exceptions import BfxBaseException
 __all__ = [
     "BfxRestException",
 
+    "ResourceNotFound",
     "RequestParametersError",
     "ResourceNotFound",
     "InvalidAuthenticationCredentials"

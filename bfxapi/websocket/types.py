@@ -152,7 +152,7 @@ class Position(_Type):
     meta: JSON
 
 @dataclass
-class TradeExecuted(_Type):
+class Trade(_Type):
     id: int 
     symbol: str 
     mts_create: int
@@ -162,21 +162,8 @@ class TradeExecuted(_Type):
     order_type: str 
     order_price: float 
     maker:int
-    cid: int
-
-@dataclass
-class TradeExecutionUpdate(_Type):
-    id: int 
-    symbol: str 
-    mts_create: int
-    order_id: int 
-    exec_amount: float 
-    exec_price: float 
-    order_type: str 
-    order_price: float 
-    maker:int
-    fee: float
-    fee_currency: str
+    fee: Optional[float]
+    fee_currency: Optional[str]
     cid: int
 
 @dataclass
