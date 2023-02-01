@@ -22,9 +22,6 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.Order.parse(*sub_data) for sub_data in self._POST(endpoint, data={ "id": ids }) ]
 
-    def get_positions(self) -> List[Position]:
-        return [ serializers.Position.parse(*sub_data) for sub_data in self._POST("auth/r/positions") ]
-
     def submit_order(self, type: OrderType, symbol: str, amount: Union[Decimal, float, str], 
                      price: Optional[Union[Decimal, float, str]] = None, lev: Optional[int] = None, 
                      price_trailing: Optional[Union[Decimal, float, str]] = None, price_aux_limit: Optional[Union[Decimal, float, str]] = None, price_oco_stop: Optional[Union[Decimal, float, str]] = None,
@@ -86,6 +83,9 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.Order.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
 
+    def get_order_trades(self, symbol: str, id: int) -> List[OrderTrade]:
+        return [ serializers.OrderTrade.parse(*sub_data) for sub_data in self._POST(f"auth/r/order/{symbol}:{id}/trades") ]
+
     def get_trades_history(self, symbol: Optional[str] = None, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Trade]:
         if symbol == None:
             endpoint = "auth/r/trades/hist"
@@ -99,22 +99,6 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.Trade.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
 
-    def get_funding_trades_history(self, symbol: Optional[str] = None, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingTrade]:
-        if symbol == None:
-            endpoint = "auth/r/funding/trades/hist"
-        else: endpoint = f"auth/r/funding/trades/{symbol}/hist"
-
-        data = {
-            "sort": sort,
-            "start": start, "end": end,
-            "limit": limit
-        }
-
-        return [ serializers.FundingTrade.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
-
-    def get_order_trades(self, symbol: str, id: int) -> List[OrderTrade]:
-        return [ serializers.OrderTrade.parse(*sub_data) for sub_data in self._POST(f"auth/r/order/{symbol}:{id}/trades") ]
-
     def get_ledgers(self, currency: str, category: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Ledger]:
         data = {
             "category": category,
@@ -123,6 +107,52 @@ class _RestAuthenticatedEndpoints(_Requests):
         }
 
         return [ serializers.Ledger.parse(*sub_data) for sub_data in self._POST(f"auth/r/ledgers/{currency}/hist", data=data) ]
+
+    def get_base_margin_info(self) -> BaseMarginInfo:
+        return serializers.BaseMarginInfo.parse(*(self._POST(f"auth/r/info/margin/base")[1]))
+
+    def get_symbol_margin_info(self, symbol: str) -> SymbolMarginInfo:
+        response = self._POST(f"auth/r/info/margin/{symbol}")
+
+        return serializers.SymbolMarginInfo.parse(*([response[1]] + response[2]))
+
+    def get_all_symbols_margin_info(self) -> List[SymbolMarginInfo]:
+        return [ serializers.SymbolMarginInfo.parse(*([sub_data[1]] + sub_data[2])) for sub_data in self._POST(f"auth/r/info/margin/sym_all") ]
+
+    def get_positions(self) -> List[Position]:
+       return [ serializers.Position.parse(*sub_data) for sub_data in self._POST("auth/r/positions") ]
+
+    def claim_position(self, id: int, amount: Optional[Union[Decimal, float, str]] = None) -> Notification[PositionClaim]:
+        return serializers._Notification[PositionClaim](serializer=serializers.PositionClaim).parse(
+            *self._POST("auth/w/position/claim", data={ "id": id, "amount": amount })
+        )
+
+    def increase_position(self, symbol: str, amount: Union[Decimal, float, str]) -> Notification[PositionIncrease]:
+        return serializers._Notification[PositionIncrease](serializer=serializers.PositionIncrease).parse(
+            *self._POST("auth/w/position/increase", data={ "symbol": symbol, "amount": amount })
+        )
+
+    def get_increase_position_info(self, symbol: str, amount: Union[Decimal, float, str]) -> PositionIncreaseInfo:
+        response = self._POST(f"auth/r/position/increase/info", data={ "symbol": symbol, "amount": amount })
+
+        return serializers.PositionIncreaseInfo.parse(*(
+            response[0] + [response[1][0]] + response[1][1] + [response[1][2]] + response[4] + response[5]
+        ))
+
+    def get_positions_history(self, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionHistory]:
+        return [ serializers.PositionHistory.parse(*sub_data) for sub_data in self._POST("auth/r/positions/hist", data={ "start": start, "end": end, "limit": limit }) ]
+
+    def get_positions_snapshot(self, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionSnapshot]:
+        return [ serializers.PositionSnapshot.parse(*sub_data) for sub_data in self._POST("auth/r/positions/snap", data={ "start": start, "end": end, "limit": limit }) ]
+
+    def get_positions_audit(self, ids: Optional[List[int]] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionAudit]:
+        return [ serializers.PositionAudit.parse(*sub_data) for sub_data in self._POST("auth/r/positions/audit", data={ "ids": ids, "start": start, "end": end, "limit": limit }) ]
+
+    def set_derivative_position_collateral(self, symbol: str, collateral: Union[Decimal, float, str]) -> DerivativePositionCollateral:
+        return serializers.DerivativePositionCollateral.parse(*(self._POST("auth/w/deriv/collateral/set", data={ "symbol": symbol, "collateral": collateral })[0]))
+
+    def get_derivative_position_collateral_limits(self, symbol: str) -> DerivativePositionCollateralLimits:
+        return serializers.DerivativePositionCollateralLimits.parse(*self._POST("auth/calc/deriv/collateral/limits", data={ "symbol": symbol }))
 
     def get_funding_offers(self, symbol: Optional[str] = None) -> List[FundingOffer]:
         endpoint = "auth/r/funding/offers"
@@ -150,6 +180,25 @@ class _RestAuthenticatedEndpoints(_Requests):
         return serializers._Notification[Literal[None]](serializer=None).parse(
             *self._POST("auth/w/funding/offer/cancel/all", data={ "currency": currency })
         )
+
+    def submit_funding_close(self, id: int) -> Notification[Literal[None]]:
+        return serializers._Notification[Literal[None]](serializer=None).parse(
+            *self._POST("auth/w/funding/close", data={ "id": id })
+        )
+
+    def toggle_auto_renew(self, status: bool, currency: str, amount: Optional[str] = None, rate: Optional[int] = None, period: Optional[int] = None) -> Notification[FundingAutoRenew]:
+        return serializers._Notification[FundingAutoRenew](serializer=serializers.FundingAutoRenew).parse(*self._POST("auth/w/funding/auto", data={
+            "status": int(status),
+            "currency": currency, "amount": amount,
+            "rate": rate, "period": period
+        }))
+
+    def toggle_keep(self, type: Literal["credit", "loan"], ids: Optional[List[int]] = None, changes: Optional[Dict[int, bool]] = None) -> Notification[Literal[None]]:
+        return serializers._Notification[Literal[None]](serializer=None).parse(*self._POST("auth/w/funding/keep", data={
+            "type": type,
+            "id": ids,
+            "changes": changes
+        }))
 
     def get_funding_offers_history(self, symbol: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingOffer]:
         if symbol == None:
@@ -201,31 +250,25 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return [ serializers.FundingCredit.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
 
+    def get_funding_trades_history(self, symbol: Optional[str] = None, sort: Optional[Sort] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[FundingTrade]:
+        if symbol == None:
+            endpoint = "auth/r/funding/trades/hist"
+        else: endpoint = f"auth/r/funding/trades/{symbol}/hist"
+
+        data = {
+            "sort": sort,
+            "start": start, "end": end,
+            "limit": limit
+        }
+
+        return [ serializers.FundingTrade.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
+
     def get_funding_info(self, key: str) -> FundingInfo:
         response = self._POST(f"auth/r/info/funding/{key}")
         
         return serializers.FundingInfo.parse(*([response[1]] + response[2]))
 
-    def submit_funding_close(self, id: int) -> Notification[Literal[None]]:
-        return serializers._Notification[Literal[None]](serializer=None).parse(
-            *self._POST("auth/w/funding/close", data={ "id": id })
-        )
-
-    def submit_funding_toggle_auto_renew(self, status: bool, currency: str, amount: Optional[str] = None, rate: Optional[int] = None, period: Optional[int] = None) -> Notification[FundingAutoRenew]:
-        return serializers._Notification[FundingAutoRenew](serializer=serializers.FundingAutoRenew).parse(*self._POST("auth/w/funding/auto", data={
-            "status": int(status),
-            "currency": currency, "amount": amount,
-            "rate": rate, "period": period
-        }))
-
-    def submit_funding_toggle_keep(self, type: Literal["credit", "loan"], ids: Optional[List[int]] = None, changes: Optional[Dict[int, bool]] = None) -> Notification[Literal[None]]:
-        return serializers._Notification[Literal[None]](serializer=None).parse(*self._POST("auth/w/funding/keep", data={
-            "type": type,
-            "id": ids,
-            "changes": changes
-        }))
-
-    def submit_wallet_transfer(self, from_wallet: str, to_wallet: str, currency: str, currency_to: str, amount: Union[Decimal, float, str]) -> Notification[Transfer]:
+    def transfer_between_wallets(self, from_wallet: str, to_wallet: str, currency: str, currency_to: str, amount: Union[Decimal, float, str]) -> Notification[Transfer]:
         data = {
             "from": from_wallet, "to": to_wallet,
             "currency": currency, "currency_to": currency_to,
@@ -234,13 +277,11 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return serializers._Notification[Transfer](serializer=serializers.Transfer).parse(*self._POST("auth/w/transfer", data=data))
 
-    def submit_wallet_withdraw(self, wallet: str, method: str, address: str, amount: Union[Decimal, float, str]) -> Notification[Withdrawal]:
-        data = {
+    def submit_wallet_withdrawal(self, wallet: str, method: str, address: str, amount: Union[Decimal, float, str]) -> Notification[Withdrawal]:
+        return serializers._Notification[Withdrawal](serializer=serializers.Withdrawal).parse(*self._POST("auth/w/withdraw", data={
             "wallet": wallet, "method": method,
             "address": address, "amount": amount,
-        }
-
-        return serializers._Notification[Withdrawal](serializer=serializers.Withdrawal).parse(*self._POST("auth/w/withdraw", data=data))
+        }))
 
     def get_deposit_address(self, wallet: str, method: str, renew: bool = False) -> Notification[DepositAddress]:
         data = {
@@ -251,7 +292,7 @@ class _RestAuthenticatedEndpoints(_Requests):
 
         return serializers._Notification[DepositAddress](serializer=serializers.DepositAddress).parse(*self._POST("auth/w/deposit/address", data=data))
 
-    def get_deposit_invoice(self, wallet: str, currency: str, amount: Union[Decimal, float, str]) -> Invoice:
+    def generate_deposit_invoice(self, wallet: str, currency: str, amount: Union[Decimal, float, str]) -> Invoice:
         data = {
             "wallet": wallet, "currency": currency,
             "amount": amount
@@ -270,42 +311,3 @@ class _RestAuthenticatedEndpoints(_Requests):
         }
 
         return [ serializers.Movement.parse(*sub_data) for sub_data in self._POST(endpoint, data=data) ]
-
-    def get_symbol_margin_info(self, symbol: str) -> SymbolMarginInfo:
-        response = self._POST(f"auth/r/info/margin/{symbol}")
-
-        return serializers.SymbolMarginInfo.parse(*([response[1]] + response[2]))
-    
-    def get_all_symbols_margin_info(self) -> List[SymbolMarginInfo]:
-        return [ serializers.SymbolMarginInfo.parse(*([sub_data[1]] + sub_data[2])) for sub_data in self._POST(f"auth/r/info/margin/sym_all") ]
-
-    def get_base_margin_info(self) -> BaseMarginInfo:
-        return serializers.BaseMarginInfo.parse(*(self._POST(f"auth/r/info/margin/base")[1]))
-
-    def claim_position(self, id: int, amount: Optional[Union[Decimal, float, str]] = None) -> Notification[Claim]:
-        return serializers._Notification[Claim](serializer=serializers.Claim).parse(*self._POST("auth/w/position/claim", data={ "id": id, "amount": amount }))
-
-    def get_increase_position_info(self, symbol: str, amount: Union[Decimal, float, str]) -> IncreaseInfo:
-        response = self._POST(f"auth/r/position/increase/info", data={ "symbol": symbol, "amount": amount })
-
-        return serializers.IncreaseInfo.parse(*(
-            response[0] + [response[1][0]] + response[1][1] + [response[1][2]] + response[4] + response[5]
-        ))
-
-    def increase_position(self, symbol: str, amount: Union[Decimal, float, str]) -> Notification[Increase]:
-        return serializers._Notification[Increase](serializer=serializers.Increase).parse(*self._POST("auth/w/position/increase", data={ "symbol": symbol, "amount": amount }))
-
-    def get_positions_history(self, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionHistory]:
-        return [ serializers.PositionHistory.parse(*sub_data) for sub_data in self._POST("auth/r/positions/hist", data={ "start": start, "end": end, "limit": limit }) ]
-    
-    def get_positions_snapshot(self, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionSnapshot]:
-        return [ serializers.PositionSnapshot.parse(*sub_data) for sub_data in self._POST("auth/r/positions/snap", data={ "start": start, "end": end, "limit": limit }) ]
-
-    def get_positions_audit(self, ids: Optional[List[int]] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionAudit]:
-        return [ serializers.PositionAudit.parse(*sub_data) for sub_data in self._POST("auth/r/positions/audit", data={ "ids": ids, "start": start, "end": end, "limit": limit }) ]
-
-    def set_derivative_position_collateral(self, symbol: str, collateral: Union[Decimal, float, str]) -> DerivativePositionCollateral:
-        return serializers.DerivativePositionCollateral.parse(*(self._POST("auth/w/deriv/collateral/set", data={ "symbol": symbol, "collateral": collateral })[0]))
-
-    def get_derivative_position_collateral_limits(self, symbol: str) -> DerivativePositionCollateralLimits:
-        return serializers.DerivativePositionCollateralLimits.parse(*self._POST("auth/calc/deriv/collateral/limits", data={ "symbol": symbol }))

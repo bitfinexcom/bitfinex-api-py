@@ -21,8 +21,8 @@ __types__ = [
     "FundingAutoRenew", "FundingInfo", "Wallet",
     "Transfer", "Withdrawal", "DepositAddress",
     "Invoice", "Movement", "SymbolMarginInfo",
-    "BaseMarginInfo", "Claim", "IncreaseInfo",
-    "Increase", "PositionHistory", "PositionSnapshot",
+    "BaseMarginInfo", "PositionClaim", "PositionIncreaseInfo",
+    "PositionIncrease", "PositionHistory", "PositionSnapshot",
     "PositionAudit", "DerivativePositionCollateral", "DerivativePositionCollateralLimits",
 ]
 
@@ -454,7 +454,7 @@ class BaseMarginInfo(_Type):
     margin_min: float
 
 @dataclass
-class Claim(_Type):
+class PositionClaim(_Type):
     symbol: str
     position_status: str
     amount: float
@@ -470,7 +470,7 @@ class Claim(_Type):
     meta: JSON
 
 @dataclass
-class IncreaseInfo(_Type):
+class PositionIncreaseInfo(_Type):
     max_pos: int
     current_pos: float
     base_currency_balance: float
@@ -485,7 +485,7 @@ class IncreaseInfo(_Type):
     funding_required_currency: str
 
 @dataclass
-class Increase(_Type):
+class PositionIncrease(_Type):
     symbol: str
     amount: float
     base_price: float

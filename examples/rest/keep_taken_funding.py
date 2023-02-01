@@ -15,7 +15,7 @@ loans = bfx.rest.auth.get_funding_loans(symbol="fUSD")
 for loan in loans:
     print(f"Loan {loan}")
 
-    notification = bfx.rest.auth.submit_funding_toggle_keep(
+    notification = bfx.rest.auth.toggle_keep(
         funding_type="loan",
         ids=[loan.id],
         changes={

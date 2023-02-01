@@ -10,7 +10,7 @@ bfx = Client(
     API_SECRET=os.getenv("BFX_API_SECRET")
 )
 
-notification = bfx.rest.auth.submit_funding_toggle_auto_renew(
+notification = bfx.rest.auth.toggle_auto_renew(
     status=True,
     currency="USD",
     amount="150",

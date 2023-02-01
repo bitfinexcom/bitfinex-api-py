@@ -19,8 +19,8 @@ __serializers__ = [
     "FundingAutoRenew", "FundingInfo", "Wallet",
     "Transfer", "Withdrawal", "DepositAddress",
     "Invoice", "Movement", "SymbolMarginInfo",
-    "BaseMarginInfo", "Claim", "IncreaseInfo",
-    "Increase", "PositionHistory", "PositionSnapshot",
+    "BaseMarginInfo", "PositionClaim", "PositionIncreaseInfo",
+    "PositionIncrease", "PositionHistory", "PositionSnapshot",
     "PositionAudit", "DerivativePositionCollateral", "DerivativePositionCollateralLimits",
 ]
 
@@ -557,7 +557,7 @@ BaseMarginInfo = generate_labeler_serializer("BaseMarginInfo", klass=types.BaseM
     "margin_min"
 ])
 
-Claim = generate_labeler_serializer("Claim", klass=types.Claim, labels=[
+PositionClaim = generate_labeler_serializer("PositionClaim", klass=types.PositionClaim, labels=[
     "symbol",
     "position_status",
     "amount",
@@ -580,7 +580,7 @@ Claim = generate_labeler_serializer("Claim", klass=types.Claim, labels=[
     "meta"
 ])
 
-IncreaseInfo = generate_labeler_serializer("IncreaseInfo", klass=types.IncreaseInfo, labels=[
+PositionIncreaseInfo = generate_labeler_serializer("PositionIncreaseInfo", klass=types.PositionIncreaseInfo, labels=[
     "max_pos",
     "current_pos",
     "base_currency_balance",
@@ -599,7 +599,7 @@ IncreaseInfo = generate_labeler_serializer("IncreaseInfo", klass=types.IncreaseI
     "funding_required_currency"
 ])
 
-Increase = generate_labeler_serializer("Increase", klass=types.Increase, labels=[
+PositionIncrease = generate_labeler_serializer("PositionIncrease", klass=types.PositionIncrease, labels=[
     "symbol",
     "_PLACEHOLDER",
     "amount",
