@@ -6,6 +6,17 @@ from ..labeler import _Type
 from ..notification import Notification
 from .. utils.encoder import JSON
 
+__types__ = [
+    "TradingPairTicker", "FundingCurrencyTicker", "TradingPairTrade",
+    "FundingCurrencyTrade", "TradingPairBook", "FundingCurrencyBook",
+    "TradingPairRawBook", "FundingCurrencyRawBook", "Candle",
+    "DerivativesStatus",
+
+    "Order", "Position", "Trade",
+    "FundingOffer", "FundingCredit", "FundingLoan",
+    "Wallet", "Balance",
+]
+
 #region Type hinting for Websocket Public Channels
 
 @dataclass
@@ -143,6 +154,7 @@ class Position(_Type):
     pl_perc: float
     price_liq: float
     leverage: float
+    flag: int
     position_id: int
     mts_create: int
     mts_update: int

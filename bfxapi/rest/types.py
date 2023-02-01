@@ -6,12 +6,32 @@ from .. labeler import _Type
 from .. notification import Notification
 from .. utils.encoder import JSON
 
+__types__ = [
+    "PlatformStatus", "TradingPairTicker", "FundingCurrencyTicker",
+    "TickersHistory", "TradingPairTrade", "FundingCurrencyTrade",
+    "TradingPairBook", "FundingCurrencyBook", "TradingPairRawBook",
+    "FundingCurrencyRawBook", "Statistic", "Candle",
+    "DerivativesStatus", "Liquidation", "Leaderboard",
+    "FundingStatistic", "PulseProfile", "PulseMessage",
+    "TradingMarketAveragePrice", "FundingMarketAveragePrice", "FxRate",
+
+    "Order", "Position", "Trade",
+    "FundingTrade", "OrderTrade", "Ledger",
+    "FundingOffer", "FundingCredit", "FundingLoan",
+    "FundingAutoRenew", "FundingInfo", "Wallet",
+    "Transfer", "Withdrawal", "DepositAddress",
+    "Invoice", "Movement", "SymbolMarginInfo",
+    "BaseMarginInfo", "Claim", "IncreaseInfo",
+    "Increase", "PositionHistory", "PositionSnapshot",
+    "PositionAudit", "DerivativePositionCollateral", "DerivativePositionCollateralLimits",
+]
+
 #region Type hinting for Rest Public Endpoints
 
 @dataclass
 class PlatformStatus(_Type):
     status: int
-
+    
 @dataclass
 class TradingPairTicker(_Type):
     symbol: Optional[str]

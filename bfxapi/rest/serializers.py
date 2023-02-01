@@ -4,6 +4,26 @@ from .. labeler import generate_labeler_serializer, generate_recursive_serialize
 
 from .. notification import _Notification
 
+__serializers__ = [
+    "PlatformStatus", "TradingPairTicker", "FundingCurrencyTicker",
+    "TickersHistory", "TradingPairTrade", "FundingCurrencyTrade",
+    "TradingPairBook", "FundingCurrencyBook", "TradingPairRawBook",
+    "FundingCurrencyRawBook", "Statistic", "Candle",
+    "DerivativesStatus", "Liquidation", "Leaderboard",
+    "FundingStatistic", "PulseProfile", "PulseMessage",
+    "TradingMarketAveragePrice", "FundingMarketAveragePrice", "FxRate",
+
+    "Order", "Position", "Trade",
+    "FundingTrade", "OrderTrade", "Ledger",
+    "FundingOffer", "FundingCredit", "FundingLoan",
+    "FundingAutoRenew", "FundingInfo", "Wallet",
+    "Transfer", "Withdrawal", "DepositAddress",
+    "Invoice", "Movement", "SymbolMarginInfo",
+    "BaseMarginInfo", "Claim", "IncreaseInfo",
+    "Increase", "PositionHistory", "PositionSnapshot",
+    "PositionAudit", "DerivativePositionCollateral", "DerivativePositionCollateralLimits",
+]
+
 #region Serializers definition for Rest Public Endpoints
 
 PlatformStatus = generate_labeler_serializer("PlatformStatus", klass=types.PlatformStatus, labels=[
@@ -308,7 +328,7 @@ Position = generate_labeler_serializer("Position", klass=types.Position, labels=
 
 Trade = generate_labeler_serializer("Trade", klass=types.Trade, labels=[
     "id", 
-    "pair", 
+    "symbol", 
     "mts_create", 
     "order_id", 
     "exec_amount", 
@@ -333,7 +353,7 @@ FundingTrade = generate_labeler_serializer("FundingTrade", klass=types.FundingTr
 
 OrderTrade = generate_labeler_serializer("OrderTrade", klass=types.OrderTrade, labels=[
     "id",
-    "pair",
+    "symbol",
     "mts_create",
     "order_id",
     "exec_amount",

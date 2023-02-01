@@ -28,6 +28,9 @@ class _Serializer(Generic[T]):
     def parse(self, *values: Any, skip: Optional[List[str]] = None) -> T:
         return cast(T, self.klass(**dict(self._serialize(*values, skip=skip))))
 
+    def get_labels(self) -> List[str]:
+        return [ label for label in self.__labels if label not in self.__IGNORE ]
+
 class _RecursiveSerializer(_Serializer, Generic[T]):
     def __init__(self, name: str, klass: Type[_Type], labels: List[str], serializers: Dict[str, _Serializer[Any]], IGNORE: List[str] = ["_PLACEHOLDER"]):
         super().__init__(name, klass, labels, IGNORE)

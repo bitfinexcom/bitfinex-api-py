@@ -4,6 +4,17 @@ from .. labeler import generate_labeler_serializer
 
 from .. notification import _Notification
 
+__serializers__ = [
+    "TradingPairTicker", "FundingCurrencyTicker", "TradingPairTrade",
+    "FundingCurrencyTrade", "TradingPairBook", "FundingCurrencyBook",
+    "TradingPairRawBook", "FundingCurrencyRawBook", "Candle",
+    "DerivativesStatus",
+
+    "Order", "Position", "Trade",
+    "FundingOffer", "FundingCredit", "FundingLoan",
+    "Wallet", "Balance",
+]
+
 #region Serializers definition for Websocket Public Channels
 
 TradingPairTicker = generate_labeler_serializer("TradingPairTicker", klass=types.TradingPairTicker, labels=[
@@ -32,7 +43,7 @@ FundingCurrencyTicker = generate_labeler_serializer("FundingCurrencyTicker", kla
     "last_price",
     "volume",
     "high",
-    "low"
+    "low",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "frr_amount_available"
@@ -100,7 +111,7 @@ DerivativesStatus = generate_labeler_serializer("DerivativesStatus", klass=types
     "next_funding_accrued",
     "next_funding_step",
     "_PLACEHOLDER",
-    "current_funding"
+    "current_funding",
     "_PLACEHOLDER",
     "_PLACEHOLDER",
     "mark_price",
