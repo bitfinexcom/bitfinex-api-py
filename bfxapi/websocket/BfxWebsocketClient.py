@@ -10,7 +10,7 @@ from ._BfxWebsocketInputs import _BfxWebsocketInputs
 from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
 from .exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported
 
-from ..utils.encoder import JSONEncoder
+from ..utils.JSONEncoder import JSONEncoder
 
 from ..utils.logger import Formatter, CustomLogger
 

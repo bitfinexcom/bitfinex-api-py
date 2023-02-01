@@ -4,7 +4,7 @@ from http import HTTPStatus
 from .enums import Error
 from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 
-from .. utils.encoder import JSONEncoder
+from ..utils.JSONEncoder import JSONEncoder
 
 class _Requests(object):
     def __init__(self, host, API_KEY = None, API_SECRET = None):

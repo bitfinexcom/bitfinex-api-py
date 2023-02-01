@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from .. labeler import _Type
 from .. notification import Notification
-from .. utils.encoder import JSON
+from ..utils.JSONEncoder import JSON
 
 __types__ = [
     "PlatformStatus", "TradingPairTicker", "FundingCurrencyTicker",
