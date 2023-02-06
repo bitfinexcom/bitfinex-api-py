@@ -175,14 +175,14 @@ class _RestPublicEndpoints(_Requests):
         return messages
 
     def get_trading_market_average_price(self, symbol: str, amount: Union[Decimal, float, str], price_limit: Optional[Union[Decimal, float, str]] = None) -> TradingMarketAveragePrice:
-        return serializers.TradingMarketAveragePrice.parse(*self._POST("calc/trade/avg", data={
+        return serializers.TradingMarketAveragePrice.parse(*self._POST("calc/trade/avg", body={
             "symbol": symbol, "amount": amount, "price_limit": price_limit
         }))
 
     def get_funding_market_average_price(self, symbol: str, amount: Union[Decimal, float, str], period: int, rate_limit: Optional[Union[Decimal, float, str]] = None) -> FundingMarketAveragePrice:
-        return serializers.FundingMarketAveragePrice.parse(*self._POST("calc/trade/avg", data={
+        return serializers.FundingMarketAveragePrice.parse(*self._POST("calc/trade/avg", body={
             "symbol": symbol, "amount": amount, "period": period, "rate_limit": rate_limit
         }))
 
     def get_fx_rate(self, ccy1: str, ccy2: str) -> FxRate:
-        return serializers.FxRate.parse(*self._POST("calc/fx", data={ "ccy1": ccy1, "ccy2": ccy2 }))
+        return serializers.FxRate.parse(*self._POST("calc/fx", body={ "ccy1": ccy1, "ccy2": ccy2 }))
