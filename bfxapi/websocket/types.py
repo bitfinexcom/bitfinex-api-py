@@ -6,17 +6,6 @@ from ..labeler import _Type
 from ..notification import Notification
 from ..utils.JSONEncoder import JSON
 
-__types__ = [
-    "TradingPairTicker", "FundingCurrencyTicker", "TradingPairTrade",
-    "FundingCurrencyTrade", "TradingPairBook", "FundingCurrencyBook",
-    "TradingPairRawBook", "FundingCurrencyRawBook", "Candle",
-    "DerivativesStatus",
-
-    "Order", "Position", "Trade",
-    "FundingOffer", "FundingCredit", "FundingLoan",
-    "Wallet", "Balance",
-]
-
 #region Type hinting for Websocket Public Channels
 
 @dataclass

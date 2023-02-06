@@ -4,5 +4,11 @@ from .test_websocket_serializers_and_types import TestWebsocketSerializersAndTyp
 
 NAME = "tests"
 
+def suite():
+    return unittest.TestSuite([
+        unittest.makeSuite(TestRestSerializersAndTypes),
+        unittest.makeSuite(TestWebsocketSerializersAndTypes),
+    ])
+    
 if __name__ == "__main__":
-    unittest.main()
+    unittest.TextTestRunner().run(suite())

@@ -6,26 +6,6 @@ from .. labeler import _Type
 from .. notification import Notification
 from ..utils.JSONEncoder import JSON
 
-__types__ = [
-    "PlatformStatus", "TradingPairTicker", "FundingCurrencyTicker",
-    "TickersHistory", "TradingPairTrade", "FundingCurrencyTrade",
-    "TradingPairBook", "FundingCurrencyBook", "TradingPairRawBook",
-    "FundingCurrencyRawBook", "Statistic", "Candle",
-    "DerivativesStatus", "Liquidation", "Leaderboard",
-    "FundingStatistic", "PulseProfile", "PulseMessage",
-    "TradingMarketAveragePrice", "FundingMarketAveragePrice", "FxRate",
-
-    "Order", "Position", "Trade",
-    "FundingTrade", "OrderTrade", "Ledger",
-    "FundingOffer", "FundingCredit", "FundingLoan",
-    "FundingAutoRenew", "FundingInfo", "Wallet",
-    "Transfer", "Withdrawal", "DepositAddress",
-    "Invoice", "Movement", "SymbolMarginInfo",
-    "BaseMarginInfo", "PositionClaim", "PositionIncreaseInfo",
-    "PositionIncrease", "PositionHistory", "PositionSnapshot",
-    "PositionAudit", "DerivativePositionCollateral", "DerivativePositionCollateralLimits",
-]
-
 #region Type hinting for Rest Public Endpoints
 
 @dataclass
