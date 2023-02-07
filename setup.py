@@ -3,7 +3,11 @@ from distutils.core import setup
 setup(
     name="bitfinex-api-py",
     version="3.0.0",
-    packages=[ "bfxapi", "bfxapi.websocket", "bfxapi.rest", "bfxapi.utils" ],
+    packages=[ 
+        "bfxapi", "bfxapi.utils",
+        "bfxapi.websocket", 
+        "bfxapi.rest", "bfxapi.rest.endpoints", "bfxapi.rest.middleware",
+    ],
     url="https://github.com/bitfinexcom/bitfinex-api-py",
     license="OSI Approved :: Apache Software License",
     author="Bitfinex",

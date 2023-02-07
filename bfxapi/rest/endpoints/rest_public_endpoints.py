@@ -1,15 +1,15 @@
 from typing import List, Union, Literal, Optional, Any, cast
 
-from .types import *
+from ..types import *
 
-from . import serializers
+from .. import serializers
 
-from .enums import Config, Sort
+from ..enums import Config, Sort
 from decimal import Decimal
 
-from ._Requests import _Requests
+from ..middleware import Middleware
 
-class _RestPublicEndpoints(_Requests):
+class RestPublicEndpoints(Middleware):
     def conf(self, config: Config) -> Any:
         return self._GET(f"conf/{config}")[0]
 

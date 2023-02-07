@@ -3,15 +3,15 @@ import time, hmac, hashlib, json, requests
 from typing import TYPE_CHECKING, Optional, Any
 
 from http import HTTPStatus
-from .enums import Error
-from .exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
+from ..enums import Error
+from ..exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 
-from ..utils.JSONEncoder import JSONEncoder
+from ...utils.JSONEncoder import JSONEncoder
 
 if TYPE_CHECKING:
     from requests.sessions import _Params
 
-class _Requests(object):
+class Middleware(object):
     def __init__(self, host: str, API_KEY: Optional[str] = None, API_SECRET: Optional[str] = None):
         self.host, self.API_KEY, self.API_SECRET = host, API_KEY, API_SECRET
 

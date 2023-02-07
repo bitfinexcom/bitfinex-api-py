@@ -1,16 +1,16 @@
-from typing import List, Union, Literal, Optional, Any, cast
+from typing import List, Union, Literal, Optional
 
-from .types import *
+from ..types import *
 
-from . import serializers
+from .. import serializers
 
-from .enums import Config, Sort, OrderType, FundingOfferType
+from ..enums import Sort, OrderType, FundingOfferType
 from decimal import Decimal
 from datetime import datetime
 
-from ._Requests import _Requests
+from ..middleware import Middleware
 
-class _RestAuthenticatedEndpoints(_Requests):
+class RestAuthenticatedEndpoints(Middleware):
     def get_wallets(self) -> List[Wallet]:
         return [ serializers.Wallet.parse(*sub_data) for sub_data in self._POST("auth/r/wallets") ]
 
