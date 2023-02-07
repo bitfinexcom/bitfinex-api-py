@@ -19,7 +19,7 @@ class _Serializer(Generic[T]):
         labels = list(filter(lambda label: label not in (skip or list()), self.__labels))
 
         if len(labels) > len(args):
-            raise LabelerSerializerException("<labels> and <*args> arguments should contain the same amount of elements.")
+            raise LabelerSerializerException(f"{self.name} -> <labels> and <*args> arguments should contain the same amount of elements.")
 
         for index, label in enumerate(labels):
             if label not in self.__IGNORE:
