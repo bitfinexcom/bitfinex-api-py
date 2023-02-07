@@ -1,10 +1,8 @@
 # python -c "import examples.rest.create_order"
 
 import os
-
 from bfxapi.client import Client, Constants
-from bfxapi.enums import OrderType
-from bfxapi.utils.flags import calculate_order_flags
+from bfxapi.enums import OrderType, Flag
 
 bfx = Client(
     REST_HOST=Constants.REST_HOST,
@@ -18,7 +16,7 @@ submitted_order = bfx.rest.auth.submit_order(
     symbol="tBTCUST", 
     amount="0.015", 
     price="10000", 
-    flags=calculate_order_flags(hidden=False)
+    flags=Flag.HIDDEN + Flag.OCO + Flag.CLOSE
 )
 
 print("Submit Order Notification:", submitted_order)

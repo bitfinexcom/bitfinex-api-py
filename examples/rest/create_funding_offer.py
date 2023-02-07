@@ -3,8 +3,7 @@
 import os
 
 from bfxapi.client import Client, Constants
-from bfxapi.enums import FundingOfferType
-from bfxapi.utils.flags import calculate_offer_flags
+from bfxapi.enums import FundingOfferType, Flag
 
 bfx = Client(
     REST_HOST=Constants.REST_HOST,
@@ -18,7 +17,7 @@ notification = bfx.rest.auth.submit_funding_offer(
     amount="123.45", 
     rate="0.001", 
     period=2, 
-    flags=calculate_offer_flags(hidden=True)
+    flags=Flag.HIDDEN
 )
 
 print("Offer notification:", notification)
