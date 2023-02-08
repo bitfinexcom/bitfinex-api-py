@@ -11,6 +11,9 @@ from datetime import datetime
 from ..middleware import Middleware
 
 class RestAuthenticatedEndpoints(Middleware):
+    def get_user_info(self) -> UserInfo:
+        return serializers.UserInfo.parse(*self._POST(f"auth/r/info/user"))
+
     def get_wallets(self) -> List[Wallet]:
         return [ serializers.Wallet.parse(*sub_data) for sub_data in self._POST("auth/r/wallets") ]
 

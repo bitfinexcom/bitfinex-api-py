@@ -14,7 +14,7 @@ notification = bfx.rest.auth.toggle_auto_renew(
     status=True,
     currency="USD",
     amount="150",
-    rate="0",
+    rate="0", # FRR
     period=2
 )
 

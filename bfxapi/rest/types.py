@@ -198,6 +198,37 @@ class FxRate(_Type):
 #region Type hinting for Rest Authenticated Endpoints
 
 @dataclass
+class UserInfo(_Type):
+    id: int
+    email: str
+    username: str
+    mts_account_create: int
+    verified: int
+    verification_level: int
+    timezone: str
+    locale: str
+    company: str
+    email_verified: int
+    mts_master_account_create: int
+    group_id: int
+    master_account_id: int
+    inherit_master_account_verification: int
+    is_group_master: int
+    group_withdraw_enabled: int
+    ppt_enabled: int
+    merchant_enabled: int
+    competition_enabled: int
+    two_factors_authentication_modes: List[str]
+    is_securities_master: int
+    securities_enabled: int
+    allow_disable_ctxswitch: int
+    ctxtswitch_disabled: int
+    time_last_login: int
+    comp_countries: List[str]
+    compl_countries_resid: List[str]
+    is_merchant_enterprise: int
+
+@dataclass
 class Order(_Type):
     id: int
     gid: int
