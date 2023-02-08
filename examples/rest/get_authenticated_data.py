@@ -19,6 +19,11 @@ def log_user_info():
     print(user_info)
 
 
+def log_login_history():
+    login_history = bfx.rest.auth.get_login_history()
+    print(login_history)
+
+
 def log_wallets():
     wallets = bfx.rest.auth.get_wallets()
     print("Wallets:")

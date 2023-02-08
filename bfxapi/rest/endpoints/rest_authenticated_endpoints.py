@@ -14,6 +14,15 @@ class RestAuthenticatedEndpoints(Middleware):
     def get_user_info(self) -> UserInfo:
         return serializers.UserInfo.parse(*self._POST(f"auth/r/info/user"))
 
+    def get_login_history(self) -> LoginHistory:
+        return [ serializers.LoginHistory.parse(*sub_data) for sub_data in self._POST("auth/r/logins/hist") ]
+
+    def get_balance_available_for_orders_or_offers(self, symbol: str, type: str, dir: Optional[int] = None, rate: Optional[str] = None, lev: Optional[str] = None) -> BalanceAvailable:
+        return serializers.BalanceAvailable.parse(*self._POST("auth/calc/order/avail", body={
+            "symbol": symbol, "type": type, "dir": dir,
+            "rate": rate, "lev": lev
+        }))
+
     def get_wallets(self) -> List[Wallet]:
         return [ serializers.Wallet.parse(*sub_data) for sub_data in self._POST("auth/r/wallets") ]
 

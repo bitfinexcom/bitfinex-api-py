@@ -229,6 +229,17 @@ class UserInfo(_Type):
     is_merchant_enterprise: int
 
 @dataclass
+class LoginHistory(_Type):
+    id: int
+    time: int
+    ip: str
+    extra_info: JSON
+
+@dataclass
+class BalanceAvailable(_Type):
+    amount: float
+
+@dataclass
 class Order(_Type):
     id: int
     gid: int
