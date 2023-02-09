@@ -1,6 +1,6 @@
 import time, hmac, hashlib, json, requests
 
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional, Any, cast
 
 from http import HTTPStatus
 from ..enums import Error
@@ -15,7 +15,7 @@ class Middleware(object):
     def __init__(self, host: str, API_KEY: Optional[str] = None, API_SECRET: Optional[str] = None):
         self.host, self.API_KEY, self.API_SECRET = host, API_KEY, API_SECRET
 
-    def __build_authentication_headers(self, endpoint: str, data: str):
+    def __build_authentication_headers(self, endpoint: str, data: Optional[str] = None):
         assert isinstance(self.API_KEY, str) and isinstance(self.API_SECRET, str), \
             "API_KEY and API_SECRET must be both str to call __build_authentication_headers"
 
@@ -69,7 +69,7 @@ class Middleware(object):
 
         data = response.json()
 
-        if len(data) and data[0] == "error":
+        if isinstance(data, list) and len(data) and data[0] == "error":
             if data[1] == Error.ERR_PARAMS:
                 raise RequestParametersError(f"The request was rejected with the following parameter error: <{data[2]}>")
 
