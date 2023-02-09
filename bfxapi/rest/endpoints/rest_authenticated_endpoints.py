@@ -125,8 +125,8 @@ class RestAuthenticatedEndpoints(Middleware):
 
     def get_symbol_margin_info(self, symbol: str) -> SymbolMarginInfo:
         response = self._POST(f"auth/r/info/margin/{symbol}")
-
-        return serializers.SymbolMarginInfo.parse(*([response[1]] + response[2]))
+        data = [response[1]] + response[2]
+        return serializers.SymbolMarginInfo.parse(*data)
 
     def get_all_symbols_margin_info(self) -> List[SymbolMarginInfo]:
         return [ serializers.SymbolMarginInfo.parse(*([sub_data[1]] + sub_data[2])) for sub_data in self._POST(f"auth/r/info/margin/sym_all") ]
@@ -146,10 +146,8 @@ class RestAuthenticatedEndpoints(Middleware):
 
     def get_increase_position_info(self, symbol: str, amount: Union[Decimal, float, str]) -> PositionIncreaseInfo:
         response = self._POST(f"auth/r/position/increase/info", body={ "symbol": symbol, "amount": amount })
-
-        return serializers.PositionIncreaseInfo.parse(*(
-            response[0] + [response[1][0]] + response[1][1] + [response[1][2]] + response[4] + response[5]
-        ))
+        data = response[0] + [response[1][0]] + response[1][1] + [response[1][2]] + response[4] + response[5]
+        return serializers.PositionIncreaseInfo.parse(*data)
 
     def get_positions_history(self, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[PositionHistory]:
         return [ serializers.PositionHistory.parse(*sub_data) for sub_data in self._POST("auth/r/positions/hist", body={ "start": start, "end": end, "limit": limit }) ]
@@ -277,8 +275,8 @@ class RestAuthenticatedEndpoints(Middleware):
 
     def get_funding_info(self, key: str) -> FundingInfo:
         response = self._POST(f"auth/r/info/funding/{key}")
-        
-        return serializers.FundingInfo.parse(*([response[1]] + response[2]))
+        data = [response[1]] + response[2]
+        return serializers.FundingInfo.parse(*data)
 
     def transfer_between_wallets(self, from_wallet: str, to_wallet: str, currency: str, currency_to: str, amount: Union[Decimal, float, str]) -> Notification[Transfer]:
         body = {
