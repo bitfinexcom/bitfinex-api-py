@@ -302,13 +302,13 @@ class RestAuthenticatedEndpoints(Middleware):
 
         return serializers._Notification[DepositAddress](serializers.DepositAddress).parse(*self._POST("auth/w/deposit/address", body=body))
 
-    def generate_deposit_invoice(self, wallet: str, currency: str, amount: Union[Decimal, float, str]) -> Invoice:
+    def generate_deposit_invoice(self, wallet: str, currency: str, amount: Union[Decimal, float, str]) -> LightningNetworkInvoice:
         body = {
             "wallet": wallet, "currency": currency,
             "amount": amount
         }
 
-        return serializers.Invoice.parse(*self._POST("auth/w/deposit/invoice", body=body))
+        return serializers.LightningNetworkInvoice.parse(*self._POST("auth/w/deposit/invoice", body=body))
 
     def get_movements(self, currency: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[Movement]:
         if currency == None:
@@ -321,3 +321,21 @@ class RestAuthenticatedEndpoints(Middleware):
         }
 
         return [ serializers.Movement.parse(*sub_data) for sub_data in self._POST(endpoint, body=body) ]
+
+    def submit_invoice(self, amount: Union[Decimal, float, str], currency: str, order_id: str, 
+                       customer_info: CustomerInfo, pay_currencies: List[str], duration: Optional[int] = None,
+                       webhook: Optional[str] = None, redirect_url: Optional[str] = None) -> InvoiceSubmission:
+        data = self._POST("auth/w/ext/pay/invoice/create", body={
+            "amount": amount, "currency": currency, "order_id": order_id,
+            "customer_info": customer_info, "pay_currencies": pay_currencies, "duration": duration,
+            "webhook": webhook, "redirect_url": redirect_url
+        })
+
+        if "customer_info" in data and data["customer_info"] != None:
+            data["customer_info"] = CustomerInfo(**data["customer_info"])
+
+        if "invoices" in data and data["invoices"] != None:
+            for index, invoice in enumerate(data["invoices"]):
+                data["invoices"][index] = Invoice(**invoice)
+        
+        return InvoiceSubmission(**data)

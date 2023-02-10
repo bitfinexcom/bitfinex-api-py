@@ -1,10 +1,12 @@
-from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Any
+from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Literal, Any
 
 from dataclasses import dataclass
 
+from types import SimpleNamespace
+
 from .. labeler import _Type
 from .. notification import Notification
-from ..utils.JSONEncoder import JSON
+from .. utils.JSONEncoder import JSON
 
 #region Type hinting for Rest Public Endpoints
 
@@ -440,7 +442,7 @@ class DepositAddress(_Type):
     pool_address: str
 
 @dataclass
-class Invoice(_Type):
+class LightningNetworkInvoice(_Type):
     invoice_hash: str
     invoice: str
     amount: str
@@ -560,5 +562,45 @@ class DerivativePositionCollateral(_Type):
 class DerivativePositionCollateralLimits(_Type):
     min_collateral: float
     max_collateral: float
+
+#endregion
+
+#region Type hinting for models which are not serializable
+
+@dataclass
+class InvoiceSubmission(_Type):
+    id: str
+    t: int
+    type: Literal["ECOMMERCE", "POS"]
+    duration: int
+    amount: float
+    currency: str
+    order_id: str
+    pay_currencies: List[str]
+    webhook: str
+    redirect_url: str
+    status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"]
+    customer_info: Optional["CustomerInfo"]
+    invoices: List["Invoice"]
+
+class CustomerInfo(SimpleNamespace):
+    nationality: str
+    resid_country: str
+    resid_state: str
+    resid_city: str
+    resid_zip_code: str
+    resid_street: str
+    resid_building_no: str
+    full_name: str
+    email: str
+    tos_accepted: bool
+
+class Invoice(SimpleNamespace):
+    amount: float
+    currency: str
+    pay_currency: str
+    pool_currency: str
+    address: str
+    ext: JSON
 
 #endregion

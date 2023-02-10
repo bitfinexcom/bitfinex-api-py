@@ -18,7 +18,7 @@ __serializers__ = [
     "FundingOffer", "FundingCredit", "FundingLoan",
     "FundingAutoRenew", "FundingInfo", "Wallet",
     "Transfer", "Withdrawal", "DepositAddress",
-    "Invoice", "Movement", "SymbolMarginInfo",
+    "LightningNetworkInvoice", "Movement", "SymbolMarginInfo",
     "BaseMarginInfo", "PositionClaim", "PositionIncreaseInfo",
     "PositionIncrease", "PositionHistory", "PositionSnapshot",
     "PositionAudit", "DerivativePositionCollateral", "DerivativePositionCollateralLimits",
@@ -581,7 +581,7 @@ DepositAddress = generate_labeler_serializer("DepositAddress", klass=types.Depos
     "pool_address"
 ])
 
-Invoice = generate_labeler_serializer("Invoice", klass=types.Invoice, labels=[
+LightningNetworkInvoice = generate_labeler_serializer("LightningNetworkInvoice", klass=types.LightningNetworkInvoice, labels=[
     "invoice_hash",
     "invoice",
     "_PLACEHOLDER",
