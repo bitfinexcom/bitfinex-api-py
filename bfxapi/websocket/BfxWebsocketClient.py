@@ -38,7 +38,8 @@ class BfxWebsocketClient(object):
         self.host, self.websocket, self.event_emitter = host, None, AsyncIOEventEmitter()
 
         self.event_emitter.add_listener("error", 
-            lambda exception: self.logger.error("\n" + str().join(traceback.format_exception(type(exception), exception, exception.__traceback__))[:-1])
+            lambda exception: self.logger.error(str(exception) + "\n" + 
+                str().join(traceback.format_exception(type(exception), exception, exception.__traceback__))[:-1])
         )
 
         self.API_KEY, self.API_SECRET, self.filter, self.authentication = API_KEY, API_SECRET, filter, False
@@ -52,7 +53,8 @@ class BfxWebsocketClient(object):
         self.logger = CustomLogger("BfxWebsocketClient", logLevel=log_level)
 
         if buckets > BfxWebsocketClient.MAXIMUM_BUCKETS_AMOUNT:
-            self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_BUCKETS_AMOUNT} buckets from the same connection ({buckets} in use), the server could momentarily block the client with <429 Too Many Requests>.")
+            self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_BUCKETS_AMOUNT} buckets from the same \
+                connection ({buckets} in use), the server could momentarily block the client with <429 Too Many Requests>.")
 
     def run(self):
         return asyncio.run(self.start())
