@@ -19,8 +19,6 @@ customer_info: CustomerInfo = CustomerInfo(
     resid_street="Timechain",
     full_name="Satoshi",
     email="satoshi3@bitfinex.com",
-    tos_accepted=None,
-    resid_building_no=None
 )
 
 print(bfx.rest.auth.submit_invoice(
