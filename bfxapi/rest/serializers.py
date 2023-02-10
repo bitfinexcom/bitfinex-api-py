@@ -13,6 +13,7 @@ __serializers__ = [
     "FundingStatistic", "PulseProfile", "PulseMessage",
     "TradingMarketAveragePrice", "FundingMarketAveragePrice", "FxRate",
 
+    "UserInfo", "LoginHistory", "BalanceAvailable",
     "Order", "Position", "Trade",
     "FundingTrade", "OrderTrade", "Ledger",
     "FundingOffer", "FundingCredit", "FundingLoan",

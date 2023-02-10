@@ -224,8 +224,8 @@ class UserInfo(_Type):
     is_securities_master: int
     securities_enabled: int
     allow_disable_ctxswitch: int
-    ctxtswitch_disabled: int
     time_last_login: int
+    ctxtswitch_disabled: int
     comp_countries: List[str]
     compl_countries_resid: List[str]
     is_merchant_enterprise: int
