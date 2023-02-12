@@ -15,8 +15,8 @@ def _scheme(data: T, adapter: Callable[[str], str]) -> T:
         return cast(T, { adapter(key): _scheme(value, adapter) for key, value in data.items() })
     else: return data
 
-def to_snake_case_keys(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+def to_snake_case_keys(dictionary: T) -> T:
     return _scheme(dictionary, _to_snake_case)
 
-def to_camel_case_keys(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+def to_camel_case_keys(dictionary: T) -> T:
     return _scheme(dictionary, _to_camel_case)

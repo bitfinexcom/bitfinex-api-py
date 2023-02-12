@@ -14,12 +14,15 @@ def compose(*decorators):
 
 def partial(cls):
     def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            self.__setattr__(key, value)
-
         for annotation in self.__annotations__.keys():
             if annotation not in kwargs:
                 self.__setattr__(annotation, None)
+            else: self.__setattr__(annotation, kwargs[annotation])
+
+            kwargs.pop(annotation, None)
+
+        if len(kwargs) != 0:
+            raise TypeError(f"{cls.__name__}.__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
 
     cls.__init__ = __init__
 

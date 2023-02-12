@@ -26,10 +26,10 @@ class RestMerchantEndpoints(Middleware):
         return InvoiceSubmission.parse(data)
 
     def get_invoices(self, id: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[InvoiceSubmission]:
-        return [ InvoiceSubmission.parse(sub_data) for sub_data in self._POST("auth/r/ext/pay/invoices", body={
+        return [ InvoiceSubmission.parse(sub_data) for sub_data in to_snake_case_keys(self._POST("auth/r/ext/pay/invoices", body={
             "id": id, "start": start, "end": end, 
             "limit": limit
-        }) ]
+        })) ]
 
     def get_invoice_count_stats(self, status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"], format: str) -> List[InvoiceStats]:
         return [ InvoiceStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/count", body={ "status": status, "format": format }) ]
@@ -38,13 +38,13 @@ class RestMerchantEndpoints(Middleware):
         return [ InvoiceStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/earning", body={ "currency": currency, "format": format }) ]
 
     def complete_invoice(self, id: str, pay_currency: str, deposit_id: Optional[int] = None, ledger_id: Optional[int] = None) -> InvoiceSubmission:
-        return InvoiceSubmission.parse(self._POST("auth/w/ext/pay/invoice/complete", body={
+        return InvoiceSubmission.parse(to_snake_case_keys(self._POST("auth/w/ext/pay/invoice/complete", body={
             "id": id, "payCcy": pay_currency, "depositId": deposit_id, 
             "ledgerId": ledger_id
-        }))
+        })))
 
     def expire_invoice(self, id: str) -> InvoiceSubmission:
-        return InvoiceSubmission.parse(self._POST("auth/w/ext/pay/invoice/expire", body={ "id": id }))
+        return InvoiceSubmission.parse(to_snake_case_keys(self._POST("auth/w/ext/pay/invoice/expire", body={ "id": id })))
 
     def get_currency_conversion_list(self) -> List[CurrencyConversion]:
         return [
