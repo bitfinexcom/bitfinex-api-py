@@ -563,7 +563,7 @@ class DerivativePositionCollateralLimits(_Type):
 
 #endregion
 
-#region Type hinting for models which are not serializable
+#region Type hinting for Rest Merchant Endpoints
 
 @compose(dataclass, partial)
 class InvoiceSubmission(_Type):

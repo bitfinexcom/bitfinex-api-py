@@ -20,7 +20,7 @@ customer_info = {
     "email": "satoshi3@bitfinex.com"
 }
 
-invoice = bfx.rest.auth.submit_invoice(
+invoice = bfx.rest.merchant.submit_invoice(
     amount=1,
     currency="USD",
     duration=864000,
@@ -29,15 +29,15 @@ invoice = bfx.rest.auth.submit_invoice(
     pay_currencies=["ETH"]
 )
 
-print(bfx.rest.auth.get_invoices())
+print(bfx.rest.merchant.get_invoices())
 
-print(bfx.rest.auth.get_invoice_count_stats(status="CREATED", format="Y"))
+print(bfx.rest.merchant.get_invoice_count_stats(status="CREATED", format="Y"))
 
-print(bfx.rest.auth.get_invoice_earning_stats(currency="USD", format="Y"))
+print(bfx.rest.merchant.get_invoice_earning_stats(currency="USD", format="Y"))
 
-print(bfx.rest.auth.get_currency_conversion_list())
+print(bfx.rest.merchant.get_currency_conversion_list())
 
-print(bfx.rest.auth.complete_invoice(
+print(bfx.rest.merchant.complete_invoice(
     id=invoice.id,
     pay_currency="ETH",
     deposit_id=1
