@@ -564,26 +564,30 @@ class DerivativePositionCollateralLimits(_Type):
 #endregion
 
 #region Type hinting for models which are not serializable
+
 @compose(dataclass, partial)
 class InvoiceSubmission(_Type):
     id: str
     t: int
+    merchant_name: str
     type: Literal["ECOMMERCE", "POS"]
     duration: int
     amount: float
     currency: str
     order_id: str
     pay_currencies: List[str]
-    webhook: str
-    redirect_url: str
     status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"]
     customer_info: Optional["CustomerInfo"]
+    payment: Optional["Payment"]
     invoices: List["Invoice"]
 
     @classmethod
     def parse(cls, data: Dict[str, Any]) -> "InvoiceSubmission":
         if "customer_info" in data and data["customer_info"] != None:
             data["customer_info"] = CustomerInfo(**data["customer_info"])
+
+        if "payment" in data and data["payment"] != None:
+            data["payment"] = Payment(**data["payment"])
 
         if "invoices" in data and data["invoices"] != None:
             for index, invoice in enumerate(data["invoices"]):
@@ -595,7 +599,6 @@ class InvoiceSubmission(_Type):
 class CustomerInfo(_Type):
     nationality: str
     resid_country: str
-    resid_state: str
     resid_city: str
     resid_zip_code: str
     resid_street: str
@@ -603,6 +606,23 @@ class CustomerInfo(_Type):
     full_name: str
     email: str
     tos_accepted: bool
+
+@compose(dataclass, partial)
+class Payment(_Type):
+    transaction_id: str
+    amount: str
+    currency: str
+    method: str
+    status: str
+    confirmations: int
+    created: str
+    updated: str
+    deposit_id: int
+    ledger_id: int
+    force_completed: bool
+    amount_diff: str
+    additional_payments: JSON
+    additional_payment: JSON
 
 @compose(dataclass, partial)
 class Invoice(_Type):
@@ -614,13 +634,14 @@ class Invoice(_Type):
     ext: JSON
 
 @dataclass
-class InvoiceCountStats(_Type):
+class InvoiceStats(_Type):
     time: str
     count: float
 
 @dataclass
-class InvoiceEarningStats(_Type):
-    time: str
-    count: float
+class CurrencyConversion(_Type):
+    base_currency: str
+    convert_currency: str
+    created: int
 
 #endregion

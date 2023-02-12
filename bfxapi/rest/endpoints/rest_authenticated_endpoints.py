@@ -347,8 +347,26 @@ class RestAuthenticatedEndpoints(Middleware):
             "limit": limit
         }) ]
 
-    def get_invoice_count_stats(self, status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"], format: str) -> List[InvoiceCountStats]:
-        return [ InvoiceCountStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/count", body={ "status": status, "format": format }) ]
+    def get_invoice_count_stats(self, status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"], format: str) -> List[InvoiceStats]:
+        return [ InvoiceStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/count", body={ "status": status, "format": format }) ]
 
-    def get_invoice_earning_stats(self, currency: str, format: str) -> List[InvoiceEarningStats]:
-        return [ InvoiceEarningStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/earning", body={ "currency": currency, "format": format }) ]
+    def get_invoice_earning_stats(self, currency: str, format: str) -> List[InvoiceStats]:
+        return [ InvoiceStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/earning", body={ "currency": currency, "format": format }) ]
+
+    def complete_invoice(self, id: str, pay_currency: str, deposit_id: Optional[int] = None, ledger_id: Optional[int] = None) -> InvoiceSubmission:
+        return InvoiceSubmission.parse(self._POST("auth/w/ext/pay/invoice/complete", body={
+            "id": id, "payCcy": pay_currency, "depositId": deposit_id, 
+            "ledgerId": ledger_id
+        }))
+
+    def expire_invoice(self, id: str) -> InvoiceSubmission:
+        return InvoiceSubmission.parse(self._POST("auth/w/ext/pay/invoice/expire", body={ "id": id }))
+
+    def get_currency_conversion_list(self) -> List[CurrencyConversion]:
+        return [
+            CurrencyConversion(
+                base_currency=sub_data["baseCcy"], 
+                convert_currency=sub_data["convertCcy"], 
+                created=sub_data["created"]
+            ) for sub_data in self._POST("auth/r/ext/pay/settings/convert/list")
+        ]
