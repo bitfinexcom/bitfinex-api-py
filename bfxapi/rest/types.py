@@ -564,7 +564,6 @@ class DerivativePositionCollateralLimits(_Type):
 #endregion
 
 #region Type hinting for models which are not serializable
-
 @compose(dataclass, partial)
 class InvoiceSubmission(_Type):
     id: str
@@ -590,7 +589,7 @@ class InvoiceSubmission(_Type):
             for index, invoice in enumerate(data["invoices"]):
                 data["invoices"][index] = Invoice(**invoice)
 
-        return cls(**data)
+        return InvoiceSubmission(**data)
 
 @compose(dataclass, partial)
 class CustomerInfo(_Type):
@@ -613,5 +612,10 @@ class Invoice(_Type):
     pool_currency: str
     address: str
     ext: JSON
+
+@dataclass
+class InvoiceCountStats(_Type):
+    time: str
+    count: float
 
 #endregion

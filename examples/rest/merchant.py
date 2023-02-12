@@ -28,3 +28,7 @@ print(bfx.rest.auth.submit_invoice(
     customer_info=customer_info,
     pay_currencies=["ETH"]
 ))
+
+print(bfx.rest.auth.get_invoices())
+
+print(bfx.rest.auth.get_invoice_count_stats(status="CREATED", format="Y"))

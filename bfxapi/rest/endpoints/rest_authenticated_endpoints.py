@@ -340,3 +340,12 @@ class RestAuthenticatedEndpoints(Middleware):
         data = to_snake_case_keys(self._POST("auth/w/ext/pay/invoice/create", body=body))
         
         return InvoiceSubmission.parse(data)
+
+    def get_invoices(self, id: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[InvoiceSubmission]:
+        return [ InvoiceSubmission.parse(sub_data) for sub_data in self._POST("auth/r/ext/pay/invoices", body={
+            "id": id, "start": start, "end": end, 
+            "limit": limit
+        }) ]
+
+    def get_invoice_count_stats(self, status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"], format: str) -> List[InvoiceCountStats]:
+        return [ InvoiceCountStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/count", body={  "status": status, "format": format }) ]
