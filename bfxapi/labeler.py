@@ -4,6 +4,27 @@ from typing import Type, Generic, TypeVar, Iterable, Optional, Dict, List, Tuple
 
 T = TypeVar("T", bound="_Type")
 
+def compose(*decorators):
+    def wrapper(function):
+        for decorator in reversed(decorators): 
+            function = decorator(function)
+        return function
+
+    return wrapper
+
+def partial(cls):
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            self.__setattr__(key, value)
+
+        for annotation in self.__annotations__.keys():
+            if annotation not in kwargs:
+                self.__setattr__(annotation, None)
+
+    cls.__init__ = __init__
+
+    return cls
+
 class _Type(object):
     """
     Base class for any dataclass serializable by the _Serializer generic class.

@@ -2,9 +2,7 @@ from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Literal,
 
 from dataclasses import dataclass
 
-from types import SimpleNamespace
-
-from .. labeler import _Type
+from .. labeler import _Type, partial, compose
 from .. notification import Notification
 from .. utils.JSONEncoder import JSON
 
@@ -567,7 +565,7 @@ class DerivativePositionCollateralLimits(_Type):
 
 #region Type hinting for models which are not serializable
 
-@dataclass
+@compose(dataclass, partial)
 class InvoiceSubmission(_Type):
     id: str
     t: int
@@ -583,7 +581,19 @@ class InvoiceSubmission(_Type):
     customer_info: Optional["CustomerInfo"]
     invoices: List["Invoice"]
 
-class CustomerInfo(SimpleNamespace):
+    @classmethod
+    def parse(cls, data: Dict[str, Any]) -> "InvoiceSubmission":
+        if "customer_info" in data and data["customer_info"] != None:
+            data["customer_info"] = CustomerInfo(**data["customer_info"])
+
+        if "invoices" in data and data["invoices"] != None:
+            for index, invoice in enumerate(data["invoices"]):
+                data["invoices"][index] = Invoice(**invoice)
+
+        return cls(**data)
+
+@compose(dataclass, partial)
+class CustomerInfo(_Type):
     nationality: str
     resid_country: str
     resid_state: str
@@ -595,7 +605,8 @@ class CustomerInfo(SimpleNamespace):
     email: str
     tos_accepted: bool
 
-class Invoice(SimpleNamespace):
+@compose(dataclass, partial)
+class Invoice(_Type):
     amount: float
     currency: str
     pay_currency: str

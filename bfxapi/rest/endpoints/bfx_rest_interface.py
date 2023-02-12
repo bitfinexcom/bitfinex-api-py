@@ -1,7 +1,5 @@
 from typing import Optional
-
 from .rest_public_endpoints import RestPublicEndpoints
-
 from .rest_authenticated_endpoints import RestAuthenticatedEndpoints
 
 class BfxRestInterface(object):

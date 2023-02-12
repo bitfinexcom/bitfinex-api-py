@@ -25,8 +25,7 @@ class JSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.encode(self, _convert_float_to_str(obj))
 
     def default(self, obj: Any) -> Any:
-        if isinstance(obj, SimpleNamespace): return _convert_float_to_str(vars(obj))
-        elif isinstance(obj, Decimal): return format(obj, "f")
+        if isinstance(obj, Decimal): return format(obj, "f")
         elif isinstance(obj, datetime): return str(obj)
 
         return json.JSONEncoder.default(self, obj)

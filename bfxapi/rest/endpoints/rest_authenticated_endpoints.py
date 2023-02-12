@@ -1,14 +1,20 @@
 from typing import List, Union, Literal, Optional
-
-from ..types import *
-
-from .. import serializers
-
-from ..enums import Sort, OrderType, FundingOfferType
 from decimal import Decimal
 from datetime import datetime
 
-from ..middleware import Middleware
+from .. types import *
+
+from .. import serializers
+from .. enums import Sort, OrderType, FundingOfferType
+from .. middleware import Middleware
+
+from ... utils.camel_and_snake_case_adapters import to_snake_case_keys, to_camel_case_keys
+
+_CustomerInfo = TypedDict("_CustomerInfo", {
+    "nationality": str, "resid_country": str, "resid_city": str, 
+    "resid_zip_code": str, "resid_street": str, "resid_building_no": str, 
+    "full_name": str, "email": str, "tos_accepted": bool
+})
 
 class RestAuthenticatedEndpoints(Middleware):
     def get_user_info(self) -> UserInfo:
@@ -323,19 +329,14 @@ class RestAuthenticatedEndpoints(Middleware):
         return [ serializers.Movement.parse(*sub_data) for sub_data in self._POST(endpoint, body=body) ]
 
     def submit_invoice(self, amount: Union[Decimal, float, str], currency: str, order_id: str, 
-                       customer_info: CustomerInfo, pay_currencies: List[str], duration: Optional[int] = None,
+                       customer_info: _CustomerInfo, pay_currencies: List[str], duration: Optional[int] = None,
                        webhook: Optional[str] = None, redirect_url: Optional[str] = None) -> InvoiceSubmission:
-        data = self._POST("auth/w/ext/pay/invoice/create", body={
+        body = to_camel_case_keys({
             "amount": amount, "currency": currency, "order_id": order_id,
             "customer_info": customer_info, "pay_currencies": pay_currencies, "duration": duration,
             "webhook": webhook, "redirect_url": redirect_url
         })
 
-        if "customer_info" in data and data["customer_info"] != None:
-            data["customer_info"] = CustomerInfo(**data["customer_info"])
-
-        if "invoices" in data and data["invoices"] != None:
-            for index, invoice in enumerate(data["invoices"]):
-                data["invoices"][index] = Invoice(**invoice)
+        data = to_snake_case_keys(self._POST("auth/w/ext/pay/invoice/create", body=body))
         
-        return InvoiceSubmission(**data)
+        return InvoiceSubmission.parse(data)

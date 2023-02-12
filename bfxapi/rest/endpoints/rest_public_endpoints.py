@@ -1,13 +1,11 @@
 from typing import List, Union, Literal, Optional, Any, cast
-
-from ..types import *
-
-from .. import serializers
-
-from ..enums import Config, Sort
 from decimal import Decimal
 
-from ..middleware import Middleware
+from .. types import *
+
+from .. import serializers
+from .. enums import Config, Sort
+from .. middleware import Middleware
 
 class RestPublicEndpoints(Middleware):
     def conf(self, config: Config) -> Any:
