@@ -618,4 +618,9 @@ class InvoiceCountStats(_Type):
     time: str
     count: float
 
+@dataclass
+class InvoiceEarningStats(_Type):
+    time: str
+    count: float
+
 #endregion

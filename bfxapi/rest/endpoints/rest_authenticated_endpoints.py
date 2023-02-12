@@ -348,4 +348,7 @@ class RestAuthenticatedEndpoints(Middleware):
         }) ]
 
     def get_invoice_count_stats(self, status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"], format: str) -> List[InvoiceCountStats]:
-        return [ InvoiceCountStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/count", body={  "status": status, "format": format }) ]
+        return [ InvoiceCountStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/count", body={ "status": status, "format": format }) ]
+
+    def get_invoice_earning_stats(self, currency: str, format: str) -> List[InvoiceEarningStats]:
+        return [ InvoiceEarningStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/earning", body={ "currency": currency, "format": format }) ]

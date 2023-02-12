@@ -32,3 +32,5 @@ print(bfx.rest.auth.submit_invoice(
 print(bfx.rest.auth.get_invoices())
 
 print(bfx.rest.auth.get_invoice_count_stats(status="CREATED", format="Y"))
+
+print(bfx.rest.auth.get_invoice_earning_stats(currency="USD", format="Y"))
