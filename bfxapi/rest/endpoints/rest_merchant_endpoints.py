@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from .. types import *
 from .. middleware import Middleware
-from ... utils.camel_and_snake_case_adapters import to_snake_case_keys, to_camel_case_keys
+from ...utils.camel_and_snake_case_helpers import to_snake_case_keys, to_camel_case_keys
 
 _CustomerInfo = TypedDict("_CustomerInfo", {
     "nationality": str, "resid_country": str, "resid_city": str, 
