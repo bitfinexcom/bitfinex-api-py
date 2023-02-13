@@ -575,13 +575,13 @@ class InvoiceSubmission(_Type):
     currency: str
     order_id: str
     pay_currencies: List[str]
-    webhook: Optional[str]
-    redirect_url: Optional[str]
+    webhook: str
+    redirect_url: str
     status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"]
-    customer_info: Optional["CustomerInfo"]
+    customer_info: "CustomerInfo"
     invoices: List["Invoice"]
-    payment: Optional["Payment"]
-    additional_payments: Optional[List["Payment"]]
+    payment: "Payment"
+    additional_payments: List["Payment"]
     merchant_name: str
 
     @classmethod
@@ -605,11 +605,11 @@ class InvoiceSubmission(_Type):
     class CustomerInfo:
         nationality: str
         resid_country: str
-        resid_state: Optional[str]
+        resid_state: str
         resid_city: str
         resid_zip_code: str
         resid_street: str
-        resid_building_no: Optional[str]
+        resid_building_no: str
         full_name: str
         email: str
         tos_accepted: bool
@@ -633,10 +633,10 @@ class InvoiceSubmission(_Type):
         confirmations: int
         created_at: str
         updated_at: str
-        deposit_id: Optional[int]
-        ledger_id: Optional[int]
-        force_completed: Optional[bool]
-        amount_diff: Optional[str]
+        deposit_id: int
+        ledger_id: int
+        force_completed: bool
+        amount_diff: str
 
 @dataclass
 class InvoiceStats(_Type):
