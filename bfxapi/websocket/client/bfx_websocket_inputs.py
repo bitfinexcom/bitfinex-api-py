@@ -2,10 +2,10 @@ from decimal import Decimal
 from datetime import datetime
 
 from typing import Union, Optional, List, Tuple
-from .types import JSON
-from .enums import OrderType, FundingOfferType
+from ..types import JSON
+from ..enums import OrderType, FundingOfferType
 
-class _BfxWebsocketInputs(object):
+class BfxWebsocketInputs(object):
     def __init__(self, __handle_websocket_input):
         self.__handle_websocket_input = __handle_websocket_input
 

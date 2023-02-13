@@ -4,15 +4,17 @@ from typing import Literal, TypeVar, Callable, cast
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from ._BfxWebsocketBucket import _HEARTBEAT, F, _require_websocket_connection, _BfxWebsocketBucket
+from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, BfxWebsocketBucket
 
-from ._BfxWebsocketInputs import _BfxWebsocketInputs
-from .handlers import Channels, PublicChannelsHandler, AuthenticatedChannelsHandler
-from .exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported
+from .bfx_websocket_inputs import BfxWebsocketInputs
+from ..handlers import PublicChannelsHandler, AuthenticatedChannelsHandler
+from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported
 
-from ..utils.JSONEncoder import JSONEncoder
+from ..enums import Channels
 
-from ..utils.logger import Formatter, CustomLogger
+from ...utils.JSONEncoder import JSONEncoder
+
+from ...utils.logger import Formatter, CustomLogger
 
 def _require_websocket_authentication(function: F) -> F:
     async def wrapper(self, *args, **kwargs):
@@ -24,7 +26,7 @@ def _require_websocket_authentication(function: F) -> F:
     return cast(F, wrapper)
 
 class BfxWebsocketClient(object):
-    VERSION = _BfxWebsocketBucket.VERSION
+    VERSION = BfxWebsocketBucket.VERSION
 
     MAXIMUM_BUCKETS_AMOUNT = 20
 
@@ -46,9 +48,9 @@ class BfxWebsocketClient(object):
 
         self.handler = AuthenticatedChannelsHandler(event_emitter=self.event_emitter)
 
-        self.buckets = [ _BfxWebsocketBucket(self.host, self.event_emitter, self.__bucket_open_signal) for _ in range(buckets) ]
+        self.buckets = [ BfxWebsocketBucket(self.host, self.event_emitter, self.__bucket_open_signal) for _ in range(buckets) ]
 
-        self.inputs = _BfxWebsocketInputs(self.__handle_websocket_input)
+        self.inputs = BfxWebsocketInputs(self.__handle_websocket_input)
 
         self.logger = CustomLogger("BfxWebsocketClient", logLevel=log_level)
 

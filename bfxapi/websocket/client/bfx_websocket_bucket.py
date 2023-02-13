@@ -2,9 +2,9 @@ import json, uuid, websockets
 
 from typing import Literal, TypeVar, Callable, cast
 
-from .handlers import PublicChannelsHandler
+from ..handlers import PublicChannelsHandler
 
-from .exceptions import ConnectionNotOpen, TooManySubscriptions, OutdatedClientVersion
+from ..exceptions import ConnectionNotOpen, TooManySubscriptions, OutdatedClientVersion
 
 _HEARTBEAT = "hb"
 
@@ -19,7 +19,7 @@ def _require_websocket_connection(function: F) -> F:
 
     return cast(F, wrapper)
 
-class _BfxWebsocketBucket(object):
+class BfxWebsocketBucket(object):
     VERSION = 2
 
     MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
@@ -42,8 +42,8 @@ class _BfxWebsocketBucket(object):
                     message = json.loads(message)
 
                     if isinstance(message, dict) and message["event"] == "info" and "version" in message:
-                        if _BfxWebsocketBucket.VERSION != message["version"]:
-                            raise OutdatedClientVersion(f"Mismatch between the client version and the server version. Update the library to the latest version to continue (client version: {_BfxWebsocketBucket.VERSION}, server version: {message['version']}).")
+                        if BfxWebsocketBucket.VERSION != message["version"]:
+                            raise OutdatedClientVersion(f"Mismatch between the client version and the server version. Update the library to the latest version to continue (client version: {BfxWebsocketBucket.VERSION}, server version: {message['version']}).")
                     elif isinstance(message, dict) and message["event"] == "subscribed" and (chanId := message["chanId"]):
                         self.pendings = [ pending for pending in self.pendings if pending["subId"] != message["subId"] ]
                         self.subscriptions[chanId] = message
@@ -60,7 +60,7 @@ class _BfxWebsocketBucket(object):
 
     @_require_websocket_connection
     async def _subscribe(self, channel, subId=None, **kwargs):
-        if len(self.subscriptions) + len(self.pendings) == _BfxWebsocketBucket.MAXIMUM_SUBSCRIPTIONS_AMOUNT:
+        if len(self.subscriptions) + len(self.pendings) == BfxWebsocketBucket.MAXIMUM_SUBSCRIPTIONS_AMOUNT:
             raise TooManySubscriptions("The client has reached the maximum number of subscriptions.")
 
         subscription = {

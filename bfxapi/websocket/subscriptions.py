@@ -1,12 +1,18 @@
-from typing import TypedDict, Optional
+from typing import TypedDict, Union, Optional
 
 __all__ = [
+    "Subscription",
+
     "Ticker",
     "Trades",
     "Book",
     "Candles",
     "Status"
 ]
+
+_Header = TypedDict("_Header", { "event": str, "channel": str, "subId": str })
+
+Subscription = Union["Ticker", "Trades", "Book", "Candles", "Status"]
 
 class Ticker(TypedDict):
     chanId: int; symbol: str
