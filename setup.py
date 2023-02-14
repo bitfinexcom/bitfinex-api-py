@@ -5,7 +5,7 @@ setup(
     version="3.0.0",
     packages=[ 
         "bfxapi", "bfxapi.utils",
-        "bfxapi.websocket", 
+        "bfxapi.websocket", "bfxapi.websocket.client", "bfxapi.websocket.handlers", 
         "bfxapi.rest", "bfxapi.rest.endpoints", "bfxapi.rest.middleware",
     ],
     url="https://github.com/bitfinexcom/bitfinex-api-py",

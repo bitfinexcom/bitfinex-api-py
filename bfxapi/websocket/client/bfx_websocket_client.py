@@ -1,6 +1,6 @@
-import traceback, json, asyncio, hmac, hashlib, time, uuid, websockets
+import traceback, json, asyncio, hmac, hashlib, time, websockets
 
-from typing import Literal, TypeVar, Callable, cast
+from typing import cast
 
 from pyee.asyncio import AsyncIOEventEmitter
 
@@ -9,8 +9,6 @@ from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, 
 from .bfx_websocket_inputs import BfxWebsocketInputs
 from ..handlers import PublicChannelsHandler, AuthenticatedChannelsHandler
 from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported
-
-from ..enums import Channels
 
 from ...utils.JSONEncoder import JSONEncoder
 
@@ -36,27 +34,27 @@ class BfxWebsocketClient(object):
         *AuthenticatedChannelsHandler.EVENTS
     ]
 
-    def __init__(self, host, buckets=5, log_level = "WARNING", API_KEY=None, API_SECRET=None, filter=None):
+    def __init__(self, host, API_KEY = None, API_SECRET = None, filter = None, buckets = 5, log_level = "WARNING"):
         self.host, self.websocket, self.event_emitter = host, None, AsyncIOEventEmitter()
-
-        self.event_emitter.add_listener("error", 
-            lambda exception: self.logger.error(str(exception) + "\n" + 
-                str().join(traceback.format_exception(type(exception), exception, exception.__traceback__))[:-1])
-        )
 
         self.API_KEY, self.API_SECRET, self.filter, self.authentication = API_KEY, API_SECRET, filter, False
 
         self.handler = AuthenticatedChannelsHandler(event_emitter=self.event_emitter)
 
-        self.buckets = [ BfxWebsocketBucket(self.host, self.event_emitter, self.__bucket_open_signal) for _ in range(buckets) ]
-
-        self.inputs = BfxWebsocketInputs(self.__handle_websocket_input)
-
         self.logger = CustomLogger("BfxWebsocketClient", logLevel=log_level)
+
+        self.event_emitter.add_listener("error", 
+            lambda exception: self.logger.error(f"{type(exception).__name__}: {str(exception)}" + "\n" + 
+                str().join(traceback.format_exception(type(exception), exception, exception.__traceback__))[:-1])
+        )
 
         if buckets > BfxWebsocketClient.MAXIMUM_BUCKETS_AMOUNT:
             self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_BUCKETS_AMOUNT} buckets from the same \
                 connection ({buckets} in use), the server could momentarily block the client with <429 Too Many Requests>.")
+
+        self.buckets = [ BfxWebsocketBucket(self.host, self.event_emitter, self.__bucket_open_signal) for _ in range(buckets) ]
+
+        self.inputs = BfxWebsocketInputs(self.__handle_websocket_input)
 
     def run(self):
         return asyncio.run(self.start())
@@ -136,24 +134,34 @@ class BfxWebsocketClient(object):
         if all(bucket.websocket != None and bucket.websocket.open == True for bucket in self.buckets):
             self.event_emitter.emit("open")
 
-    def on(self, event, callback = None):
-        if event not in BfxWebsocketClient.EVENTS:
-            raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events print BfxWebsocketClient.EVENTS")
+    def on(self, *events, callback = None):
+        for event in events:
+            if event not in BfxWebsocketClient.EVENTS:
+                raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events print BfxWebsocketClient.EVENTS")
 
         if callback != None:
-            return self.event_emitter.on(event, callback)
+            for event in events:
+                self.event_emitter.on(event, callback)
 
-        def handler(function):
-            self.event_emitter.on(event, function)
-        return handler 
+        if callback == None:
+            def handler(function):
+                for event in events:
+                    self.event_emitter.on(event, function)
 
-    def once(self, event, callback = None):
-        if event not in BfxWebsocketClient.EVENTS:
-            raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events print BfxWebsocketClient.EVENTS")
+            return handler 
+
+    def once(self, *events, callback = None):
+        for event in events:
+            if event not in BfxWebsocketClient.EVENTS:
+                raise EventNotSupported(f"Event <{event}> is not supported. To get a list of available events print BfxWebsocketClient.EVENTS")
 
         if callback != None:
-            return self.event_emitter.once(event, callback)
+            for event in events:
+                self.event_emitter.once(event, callback)
 
-        def handler(function):
-            self.event_emitter.once(event, function)
-        return handler 
+        if callback == None:
+            def handler(function):
+                for event in events:
+                    self.event_emitter.once(event, function)
+
+            return handler 
