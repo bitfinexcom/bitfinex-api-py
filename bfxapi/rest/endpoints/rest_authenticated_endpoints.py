@@ -1,4 +1,4 @@
-from typing import List, Union, Literal, Optional
+from typing import List, Tuple, Union, Literal, Optional
 from decimal import Decimal
 from datetime import datetime
 

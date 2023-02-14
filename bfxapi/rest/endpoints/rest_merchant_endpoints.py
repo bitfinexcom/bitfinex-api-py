@@ -1,4 +1,5 @@
-from typing import List, Union, Literal, Optional
+from typing import TypedDict, List, Union, Literal, Optional
+
 from decimal import Decimal
 
 from .. types import *

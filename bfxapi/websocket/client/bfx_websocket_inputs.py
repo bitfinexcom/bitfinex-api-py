@@ -2,8 +2,8 @@ from decimal import Decimal
 from datetime import datetime
 
 from typing import Union, Optional, List, Tuple
-from ..types import JSON
-from ..enums import OrderType, FundingOfferType
+from .. enums import OrderType, FundingOfferType
+from ... utils.JSONEncoder import JSON
 
 class BfxWebsocketInputs(object):
     def __init__(self, __handle_websocket_input):

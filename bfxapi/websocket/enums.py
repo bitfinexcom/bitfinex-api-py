@@ -1,4 +1,4 @@
-from ..enums import *
+from .. enums import *
 
 class Channels(str, Enum):
     TICKER = "ticker"
