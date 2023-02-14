@@ -1,10 +1,8 @@
-from typing import List
-
-from ..types import *
-
 from .. import serializers
 
-from ..exceptions import BfxWebsocketException
+from .. types import *
+
+from .. exceptions import HandlerNotFound
 
 class AuthenticatedChannelsHandler(object):
     __abbreviations = {
@@ -37,7 +35,7 @@ class AuthenticatedChannelsHandler(object):
         *list(__abbreviations.values()) 
     ]
 
-    def __init__(self, event_emitter, strict = False):
+    def __init__(self, event_emitter, strict = True):
         self.event_emitter, self.strict = event_emitter, strict
 
     def handle(self, type, stream):
@@ -52,20 +50,20 @@ class AuthenticatedChannelsHandler(object):
                     return self.event_emitter.emit(event, [ serializer.parse(*substream) for substream in stream ])
 
                 return self.event_emitter.emit(event, serializer.parse(*stream))
-        
-        if self.strict == True:
-            raise BfxWebsocketException(f"Event of type <{type}> not found in self.__handlers.")
+
+        if self.strict:
+            raise HandlerNotFound(f"No handler found for event of type <{type}>.")
     
     def __notification(self, stream):
         type, serializer = "notification", serializers._Notification(serializer=None)
 
         if stream[1] == "on-req" or stream[1] == "ou-req" or stream[1] == "oc-req":
-            type, serializer = f"{stream[1]}-notification", serializers._Notification[Order](serializer=serializers.Order)
+            type, serializer = f"{stream[1]}-notification", serializers._Notification(serializer=serializers.Order)
 
         if stream[1] == "oc_multi-req":
-            type, serializer = f"{stream[1]}-notification", serializers._Notification[List[Order]](serializer=serializers.Order, iterate=True)
+            type, serializer = f"{stream[1]}-notification", serializers._Notification(serializer=serializers.Order, iterate=True)
 
         if stream[1] == "fon-req" or stream[1] == "foc-req":
-            type, serializer = f"{stream[1]}-notification", serializers._Notification[FundingOffer](serializer=serializers.FundingOffer)
+            type, serializer = f"{stream[1]}-notification", serializers._Notification(serializer=serializers.FundingOffer)
 
         return self.event_emitter.emit(type, serializer.parse(*stream))

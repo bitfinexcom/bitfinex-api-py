@@ -1,8 +1,8 @@
-from ..types import *
-
 from .. import serializers
 
-from ..enums import Channels
+from .. types import *
+
+from .. exceptions import HandlerNotFound
 
 class PublicChannelsHandler(object):
     EVENTS = [
@@ -13,22 +13,25 @@ class PublicChannelsHandler(object):
         "derivatives_status_update",
     ]
 
-    def __init__(self, event_emitter):
-        self.event_emitter = event_emitter
+    def __init__(self, event_emitter, strict = True):
+        self.event_emitter, self.strict = event_emitter, strict
 
         self.__handlers = {
-            Channels.TICKER: self.__ticker_channel_handler,
-            Channels.TRADES: self.__trades_channel_handler,
-            Channels.BOOK: self.__book_channel_handler,
-            Channels.CANDLES: self.__candles_channel_handler,
-            Channels.STATUS: self.__status_channel_handler
+            "ticker": self.__ticker_channel_handler,
+            "trades": self.__trades_channel_handler,
+            "book": self.__book_channel_handler,
+            "candles": self.__candles_channel_handler,
+            "status": self.__status_channel_handler
         }
 
     def handle(self, subscription, *stream):
         _clear = lambda dictionary, *args: { key: value for key, value in dictionary.items() if key not in args }
 
-        if channel := subscription["channel"] or channel in self.__handlers.keys():
+        if (channel := subscription["channel"]) and channel in self.__handlers.keys():
             return self.__handlers[channel](_clear(subscription, "event", "channel", "subId"), *stream)
+
+        if self.strict:
+            raise HandlerNotFound(f"No handler found for channel <{subscription['channel']}>.")
 
     def __ticker_channel_handler(self, subscription, *stream):
         if subscription["symbol"].startswith("t"):
@@ -46,7 +49,7 @@ class PublicChannelsHandler(object):
             )
 
     def __trades_channel_handler(self, subscription, *stream):
-        if type := stream[0] or type in [ "te", "tu", "fte", "ftu" ]:
+        if (type := stream[0]) and type in [ "te", "tu", "fte", "ftu" ]:
             if subscription["symbol"].startswith("t"):
                 return self.event_emitter.emit(
                     { "te": "t_trade_executed", "tu": "t_trade_execution_update" }[type],
