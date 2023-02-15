@@ -28,7 +28,7 @@ class PublicChannelsHandler(object):
         _clear = lambda dictionary, *args: { key: value for key, value in dictionary.items() if key not in args }
 
         if (channel := subscription["channel"]) and channel in self.__handlers.keys():
-            return self.__handlers[channel](_clear(subscription, "event", "channel", "subId"), *stream)
+            return self.__handlers[channel](_clear(subscription, "event", "channel", "chanId"), *stream)
 
         if self.strict:
             raise HandlerNotFound(f"No handler found for channel <{subscription['channel']}>.")

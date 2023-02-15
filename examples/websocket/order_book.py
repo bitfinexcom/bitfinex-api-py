@@ -7,7 +7,7 @@ from typing import List
 from bfxapi import Client, Constants
 
 from bfxapi.websocket import subscriptions
-from bfxapi.websocket.enums import Channels, Error
+from bfxapi.websocket.enums import Channel, Error
 from bfxapi.websocket.types import TradingPairBook
 
 class OrderBook(object):
@@ -47,7 +47,7 @@ def on_wss_error(code: Error, msg: str):
 @bfx.wss.on("open")
 async def on_open():
     for symbol in SYMBOLS:
-        await bfx.wss.subscribe(Channels.BOOK, symbol=symbol)
+        await bfx.wss.subscribe(Channel.BOOK, symbol=symbol)
 
 @bfx.wss.on("subscribed")
 def on_subscribed(subscription):

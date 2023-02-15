@@ -2,13 +2,17 @@ import traceback, json, asyncio, hmac, hashlib, time, websockets
 
 from typing import cast
 
+from collections import namedtuple
+
+from datetime import datetime
+
 from pyee.asyncio import AsyncIOEventEmitter
 
 from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, BfxWebsocketBucket
 
 from .bfx_websocket_inputs import BfxWebsocketInputs
 from ..handlers import PublicChannelsHandler, AuthenticatedChannelsHandler
-from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported
+from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
 from ...utils.JSONEncoder import JSONEncoder
 
@@ -16,7 +20,7 @@ from ...utils.logger import Formatter, CustomLogger
 
 def _require_websocket_authentication(function: F) -> F:
     async def wrapper(self, *args, **kwargs):
-        if self.authentication == False:
+        if hasattr(self, "authentication") and self.authentication == False:
             raise WebsocketAuthenticationRequired("To perform this action you need to authenticate using your API_KEY and API_SECRET.")
     
         await _require_websocket_connection(function)(self, *args, **kwargs)
@@ -26,7 +30,7 @@ def _require_websocket_authentication(function: F) -> F:
 class BfxWebsocketClient(object):
     VERSION = BfxWebsocketBucket.VERSION
 
-    MAXIMUM_BUCKETS_AMOUNT = 20
+    MAXIMUM_CONNECTIONS_AMOUNT = 20
 
     EVENTS = [
         "open", "subscribed", "authenticated", "wss-error",
@@ -34,10 +38,12 @@ class BfxWebsocketClient(object):
         *AuthenticatedChannelsHandler.EVENTS
     ]
 
-    def __init__(self, host, API_KEY = None, API_SECRET = None, filter = None, buckets = 5, log_level = "WARNING"):
+    def __init__(self, host, API_KEY = None, API_SECRET = None, filter = None, log_level = "WARNING"):
         self.host, self.websocket, self.event_emitter = host, None, AsyncIOEventEmitter()
 
-        self.API_KEY, self.API_SECRET, self.filter, self.authentication = API_KEY, API_SECRET, filter, False
+        self.API_KEY, self.API_SECRET, self.filter = API_KEY, API_SECRET, filter
+
+        self.inputs = BfxWebsocketInputs(handle_websocket_input=self.__handle_websocket_input)
 
         self.handler = AuthenticatedChannelsHandler(event_emitter=self.event_emitter)
 
@@ -48,36 +54,58 @@ class BfxWebsocketClient(object):
                 str().join(traceback.format_exception(type(exception), exception, exception.__traceback__))[:-1])
         )
 
-        if buckets > BfxWebsocketClient.MAXIMUM_BUCKETS_AMOUNT:
-            self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_BUCKETS_AMOUNT} buckets from the same \
-                connection ({buckets} in use), the server could momentarily block the client with <429 Too Many Requests>.")
+    def run(self, connections = 5):
+        return asyncio.run(self.start(connections))
 
-        self.buckets = [ BfxWebsocketBucket(self.host, self.event_emitter, self.__bucket_open_signal) for _ in range(buckets) ]
+    async def start(self, connections = 5):
+        if connections > BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT:
+            self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT} buckets from the same " +
+                f"connection ({connections} in use), the server could momentarily block the client with <429 Too Many Requests>.")
 
-        self.inputs = BfxWebsocketInputs(self.__handle_websocket_input)
+        self.on_open_events = [ asyncio.Event() for _ in range(connections)  ]
 
-    def run(self):
-        return asyncio.run(self.start())
+        self.buckets = [ 
+            BfxWebsocketBucket(self.host, self.event_emitter, self.on_open_events[index]) 
+                for index in range(connections) 
+        ]
 
-    async def start(self):
         tasks = [ bucket._connect(index) for index, bucket in enumerate(self.buckets) ]
         
-        if self.API_KEY != None and self.API_SECRET != None:
-            tasks.append(self.__connect(self.API_KEY, self.API_SECRET, self.filter))
+        tasks.append(self.__connect(self.API_KEY, self.API_SECRET, self.filter))
 
         await asyncio.gather(*tasks)
 
     async def __connect(self, API_KEY, API_SECRET, filter=None):
+        Reconnection = namedtuple("Reconnection", ["status", "code", "timestamp"])
+
+        reconnection = Reconnection(status=False, code=0, timestamp=None)
+
         async for websocket in websockets.connect(self.host):
-            self.websocket = websocket
-            
-            await self.__authenticate(API_KEY, API_SECRET, filter)
+            self.websocket, self.authentication = websocket, False
+
+            if (await asyncio.gather(*[ on_open_event.wait() for on_open_event in self.on_open_events ])):
+                self.event_emitter.emit("open")
+
+            if self.API_KEY != None and self.API_SECRET != None:
+                await self.__authenticate(API_KEY=API_KEY, API_SECRET=API_SECRET, filter=filter)
 
             try:
                 async for message in websocket:
+                    if reconnection.status == True:
+                        self.logger.warning(f"Reconnect Attempt Successful (error <{reconnection.code}>): The " +
+                            f"client has been offline for a total of {datetime.now() - reconnection.timestamp} " +
+                                f"(first reconnection attempt: {reconnection.timestamp:%d-%m-%Y at %H:%M:%S}).")
+
+                        reconnection = Reconnection(status=False, code=0, timestamp=None)
+
                     message = json.loads(message)
 
-                    if isinstance(message, dict) and message["event"] == "auth":
+                    if isinstance(message, dict) and message["event"] == "info" and "version" in message:
+                        if BfxWebsocketClient.VERSION != message["version"]:
+                            raise OutdatedClientVersion(f"Mismatch between the client version and the server version. " +
+                                f"Update the library to the latest version to continue (client version: {BfxWebsocketClient.VERSION}, " +
+                                    f"server version: {message['version']}).")
+                    elif isinstance(message, dict) and message["event"] == "auth":
                         if message["status"] == "OK":
                             self.event_emitter.emit("authenticated", message); self.authentication = True
                         else: raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
@@ -85,8 +113,13 @@ class BfxWebsocketClient(object):
                         self.event_emitter.emit("wss-error", message["code"], message["msg"])
                     elif isinstance(message, list) and (chanId := message[0]) == 0 and message[1] != _HEARTBEAT:
                         self.handler.handle(message[1], message[2])
-            except websockets.ConnectionClosedError: continue
-            finally: await self.websocket.wait_closed(); break
+            except websockets.ConnectionClosedError as error:
+                self.logger.error(f"Connection terminated due to an error (status code: <{error.code}>) -> {str(error)}. Attempting to reconnect...")
+                reconnection = Reconnection(status=True, code=error.code, timestamp=datetime.now()); 
+                continue
+                        
+            if reconnection.status == False:
+                await self.websocket.wait_closed(); break
 
     async def __authenticate(self, API_KEY, API_SECRET, filter=None):
         data = { "event": "auth", "filter": filter, "apiKey": API_KEY }
@@ -129,10 +162,6 @@ class BfxWebsocketClient(object):
     @_require_websocket_authentication
     async def __handle_websocket_input(self, input, data):
         await self.websocket.send(json.dumps([ 0, input, None, data], cls=JSONEncoder))
-
-    def __bucket_open_signal(self, index):
-        if all(bucket.websocket != None and bucket.websocket.open == True for bucket in self.buckets):
-            self.event_emitter.emit("open")
 
     def on(self, *events, callback = None):
         for event in events:
