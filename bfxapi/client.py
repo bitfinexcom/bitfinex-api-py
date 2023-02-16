@@ -1,7 +1,7 @@
 from .rest import BfxRestInterface
 from .websocket import BfxWebsocketClient
 
-from typing import Optional
+from typing import List, Optional
 
 from enum import Enum
 
@@ -21,8 +21,15 @@ class Client(object):
             WSS_HOST: str = Constants.WSS_HOST,
             API_KEY: Optional[str] = None,
             API_SECRET: Optional[str] = None,
+            filter: Optional[List[str]] = None,
             log_level: str = "WARNING"
     ):
+        credentials = { 
+            "API_KEY": API_KEY, 
+            "API_SECRET": API_SECRET, 
+            "filter": filter 
+        }
+
         self.rest = BfxRestInterface(
             host=REST_HOST,
             API_KEY=API_KEY,
@@ -31,7 +38,6 @@ class Client(object):
 
         self.wss = BfxWebsocketClient(
             host=WSS_HOST, 
-            API_KEY=API_KEY, 
-            API_SECRET=API_SECRET, 
+            credentials=credentials, 
             log_level=log_level
         )

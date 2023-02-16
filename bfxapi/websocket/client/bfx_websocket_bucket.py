@@ -63,9 +63,12 @@ class BfxWebsocketBucket(object):
                         self.event_emitter.emit("wss-error", message["code"], message["msg"])
                     elif isinstance(message, list) and (chanId := message[0]) and message[1] != _HEARTBEAT:
                         self.handler.handle(self.subscriptions[chanId], *message[1:])
-            except websockets.ConnectionClosedError: self.on_open_event.clear(); reconnection = True; continue
+            except websockets.ConnectionClosedError: 
+                self.on_open_event.clear()
+                reconnection = True 
+                continue
             
-            await self.websocket.wait_closed(); break
+            break
 
     @_require_websocket_connection
     async def _subscribe(self, channel, subId=None, **kwargs):
