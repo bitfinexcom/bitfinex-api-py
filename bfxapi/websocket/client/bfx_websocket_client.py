@@ -108,7 +108,9 @@ class BfxWebsocketClient(object):
                                 f"Update the library to the latest version to continue (client version: {BfxWebsocketClient.VERSION}, " +
                                     f"server version: {message['version']}).")
                     elif isinstance(message, dict) and message["event"] == "info" and message["code"] == 20051:
-                        raise websockets.ConnectionClosedError(rcvd=None, sent=None)
+                        rcvd = websockets.frames.Close(code=1012, reason="Stop/Restart Websocket Server (please reconnect).")
+
+                        raise websockets.ConnectionClosedError(rcvd=rcvd, sent=None)
                     elif isinstance(message, dict) and message["event"] == "auth":
                         if message["status"] == "OK":
                             self.event_emitter.emit("authenticated", message); self.authentication = True
@@ -130,9 +132,9 @@ class BfxWebsocketClient(object):
 
             def next(self):
                 backoff_delay = self.peek()
-
                 __backoff_delay = self.__backoff_delay * self.__backoff_factor
                 self.__backoff_delay = min(__backoff_delay, _Delay.BACKOFF_MAX)
+
                 return backoff_delay
             
             def peek(self):
@@ -146,9 +148,14 @@ class BfxWebsocketClient(object):
             try:
                 await _connection()
             except (websockets.ConnectionClosedError, socket.gaierror) as error:
-                if isinstance(error, websockets.ConnectionClosedError) and error.code == 1006:
-                    self.logger.error("Connection lost: no close frame received " 
-                        + "or sent (1006). Attempting to reconnect...")
+                if isinstance(error, websockets.ConnectionClosedError) and (error.code == 1006 or error.code == 1012):                    
+                    if error.code == 1006:
+                        self.logger.error("Connection lost: no close frame received " 
+                            + "or sent (1006). Attempting to reconnect...")
+
+                    if error.code == 1012:
+                        self.logger.info("WSS server is about to restart, reconnection "
+                            + "required (client received 20051). Attempt in progress...")
                     
                     reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now()); 
                 
