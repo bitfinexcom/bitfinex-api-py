@@ -78,7 +78,7 @@ class BfxWebsocketClient(object):
     async def __connect(self, credentials = None):
         Reconnection = namedtuple("Reconnection", ["status", "attempts", "timestamp"])
 
-        reconnection = Reconnection(status=False, attempts=0, timestamp=None)
+        reconnection, delay = Reconnection(status=False, attempts=0, timestamp=None), None
 
         async def _connection():
             nonlocal reconnection
@@ -137,8 +137,6 @@ class BfxWebsocketClient(object):
                 return (self.__backoff_delay == _Delay.BACKOFF_MIN) \
                     and self.__initial_delay or self.__backoff_delay
 
-        delay = _Delay(backoff_factor=1.618)
-
         while True:
             if reconnection.status == True:
                 await asyncio.sleep(delay.next())
@@ -151,6 +149,8 @@ class BfxWebsocketClient(object):
                         + "or sent (1006). Attempting to reconnect...")
                     
                     reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now()); 
+                
+                    delay = _Delay(backoff_factor=1.618)
                 elif isinstance(error, socket.gaierror) and reconnection.status == True:
                     self.logger.warning(f"Reconnection attempt no.{reconnection.attempts} has failed. "
                         + f"Next reconnection attempt in ~{round(delay.peek()):.1f} seconds." 
@@ -184,9 +184,9 @@ class BfxWebsocketClient(object):
 
         await self.buckets[index]._subscribe(channel, **kwargs)
 
-    async def unsubscribe(self, chanId):
+    async def unsubscribe(self, subId):
         for bucket in self.buckets:
-            if chanId in bucket.subscriptions.keys():
+            if (chanId := bucket._get_chan_id(subId)):
                 await bucket._unsubscribe(chanId=chanId)
 
     async def close(self, code=1000, reason=str()):

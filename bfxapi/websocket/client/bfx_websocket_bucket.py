@@ -37,6 +37,8 @@ class BfxWebsocketBucket(object):
         async for websocket in websockets.connect(self.host):
             self.websocket = websocket
 
+            self.on_open_event.set()
+
             if reconnection == True or (reconnection := False):
                 for pending in self.pendings:
                     await self.websocket.send(json.dumps(pending))
@@ -45,8 +47,6 @@ class BfxWebsocketBucket(object):
                     await self._subscribe(**subscription)
 
                 self.subscriptions.clear()
-
-            self.on_open_event.set()
 
             try:
                 async for message in websocket:
@@ -63,11 +63,14 @@ class BfxWebsocketBucket(object):
                         self.event_emitter.emit("wss-error", message["code"], message["msg"])
                     elif isinstance(message, list) and (chanId := message[0]) and message[1] != _HEARTBEAT:
                         self.handler.handle(self.subscriptions[chanId], *message[1:])
-            except websockets.ConnectionClosedError: 
-                self.on_open_event.clear()
-                reconnection = True 
-                continue
-            
+            except websockets.ConnectionClosedError as error: 
+                if error.code == 1006:
+                    self.on_open_event.clear()
+                    reconnection = True 
+                    continue
+
+                raise error
+
             break
 
     @_require_websocket_connection
@@ -97,3 +100,8 @@ class BfxWebsocketBucket(object):
     @_require_websocket_connection
     async def _close(self, code=1000, reason=str()):
         await self.websocket.close(code=code, reason=reason)
+
+    def _get_chan_id(self, subId):
+        for subscription in self.subscriptions.values():
+            if subscription["subId"] == subId:
+                return subscription["chanId"]
