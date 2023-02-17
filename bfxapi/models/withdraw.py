@@ -10,7 +10,7 @@ class WithdrawModel:
     METHOD = 2
     WALLET = 4
     AMOUNT = 5
-    FEE = 7
+    FEE = 8
 
 class Withdraw:
     """
