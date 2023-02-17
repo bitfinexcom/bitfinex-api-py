@@ -2,12 +2,12 @@
 
 import os
 
-from bfxapi.client import Client, Constants
+from bfxapi.client import Client, WSS_HOST
 from bfxapi.websocket.enums import Error, OrderType
 from bfxapi.websocket.types import Notification, Order
 
 bfx = Client(
-    WSS_HOST=Constants.WSS_HOST,
+    WSS_HOST=WSS_HOST,
     API_KEY=os.getenv("BFX_API_KEY"),
     API_SECRET=os.getenv("BFX_API_SECRET")
 )

@@ -1,11 +1,11 @@
 # python -c "import examples.rest.create_order"
 
 import os
-from bfxapi.client import Client, Constants
+from bfxapi.client import Client, REST_HOST
 from bfxapi.enums import OrderType, Flag
 
 bfx = Client(
-    REST_HOST=Constants.REST_HOST,
+    REST_HOST=REST_HOST,
     API_KEY=os.getenv("BFX_API_KEY"),
     API_SECRET=os.getenv("BFX_API_SECRET")
 )

@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from typing import List
 
-from bfxapi import Client, Constants
+from bfxapi import Client, PUB_WSS_HOST
 
 from bfxapi.websocket import subscriptions
 from bfxapi.websocket.enums import Channel, Error
@@ -38,7 +38,7 @@ SYMBOLS = [ "tBTCUSD", "tLTCUSD", "tLTCBTC", "tETHUSD", "tETHBTC" ]
 
 raw_order_book = RawOrderBook(symbols=SYMBOLS)
 
-bfx = Client(WSS_HOST=Constants.PUB_WSS_HOST)
+bfx = Client(WSS_HOST=PUB_WSS_HOST)
 
 @bfx.wss.on("wss-error")
 def on_wss_error(code: Error, msg: str):
