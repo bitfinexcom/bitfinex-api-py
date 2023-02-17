@@ -22,7 +22,7 @@ class Client(object):
             API_KEY: Optional[str] = None,
             API_SECRET: Optional[str] = None,
             filter: Optional[List[str]] = None,
-            log_level: str = "WARNING"
+            log_level: str = "INFO"
     ):
         credentials = { 
             "API_KEY": API_KEY, 

@@ -16,7 +16,7 @@ from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationC
 
 from ...utils.JSONEncoder import JSONEncoder
 
-from ...utils.logger import Formatter, CustomLogger
+from ...utils.logger import ColoredLogger
 
 def _require_websocket_authentication(function: F) -> F:
     async def wrapper(self, *args, **kwargs):
@@ -38,7 +38,7 @@ class BfxWebsocketClient(object):
         *AuthenticatedChannelsHandler.EVENTS
     ]
 
-    def __init__(self, host, credentials = None, log_level = "WARNING"):
+    def __init__(self, host, credentials = None, log_level = "INFO"):
         self.websocket = None
 
         self.host, self.credentials, self.event_emitter = host, credentials, AsyncIOEventEmitter()
@@ -47,7 +47,7 @@ class BfxWebsocketClient(object):
 
         self.handler = AuthenticatedChannelsHandler(event_emitter=self.event_emitter)
 
-        self.logger = CustomLogger("BfxWebsocketClient", logLevel=log_level)
+        self.logger = ColoredLogger("BfxWebsocketClient", level=log_level)
 
         self.event_emitter.add_listener("error", 
             lambda exception: self.logger.error(f"{type(exception).__name__}: {str(exception)}" + "\n" + 
@@ -85,9 +85,9 @@ class BfxWebsocketClient(object):
 
             async with websockets.connect(self.host) as websocket:
                 if reconnection.status == True:
-                    self.logger.info(f"Reconnect attempt successful (attempt N°{reconnection.attempts}): The " +
+                    self.logger.info(f"Reconnect attempt successful (attempt no.{reconnection.attempts}): The " +
                         f"client has been offline for a total of {datetime.now() - reconnection.timestamp} " +
-                            f"(first reconnection attempt: {reconnection.timestamp:%d-%m-%Y at %H:%M:%S}).")
+                            f"(connection lost at: {reconnection.timestamp:%d-%m-%Y at %H:%M:%S}).")
 
                     reconnection = Reconnection(status=False, attempts=0, timestamp=None)
 
