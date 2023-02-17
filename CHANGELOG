@@ -1,6 +1,9 @@
 2.0.6
 -) Added id field to _parse_trade
 
+2.0.5
+-) Show correct fees for withdraws
+
 2.0.4
 -) Added missing ID to ledgers.py
 
