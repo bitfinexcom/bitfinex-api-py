@@ -107,6 +107,8 @@ class BfxWebsocketClient(object):
                             raise OutdatedClientVersion(f"Mismatch between the client version and the server version. " +
                                 f"Update the library to the latest version to continue (client version: {BfxWebsocketClient.VERSION}, " +
                                     f"server version: {message['version']}).")
+                    elif isinstance(message, dict) and message["event"] == "info" and message["code"] == 20051:
+                        raise websockets.ConnectionClosedError(rcvd=None, sent=None)
                     elif isinstance(message, dict) and message["event"] == "auth":
                         if message["status"] == "OK":
                             self.event_emitter.emit("authenticated", message); self.authentication = True
