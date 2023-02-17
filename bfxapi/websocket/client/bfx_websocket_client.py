@@ -96,8 +96,8 @@ class BfxWebsocketClient(object):
                 if await asyncio.gather(*[on_open_event.wait() for on_open_event in self.on_open_events]):
                     self.event_emitter.emit("open")
 
-                if self.credentials != None:
-                    await self.__authenticate(**self.credentials)
+                if credentials and credentials["API_KEY"] and credentials["API_SECRET"]:
+                    await self.__authenticate(**credentials)
 
                 async for message in websocket:
                     message = json.loads(message)

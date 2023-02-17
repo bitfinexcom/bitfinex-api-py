@@ -10,7 +10,7 @@ bfx = Client(WSS_HOST=Constants.PUB_WSS_HOST)
 
 @bfx.wss.on("t_ticker_update")
 def on_t_ticker_update(subscription: subscriptions.Ticker, data: TradingPairTicker):
-    print(f"Subscription with channel ID: {subscription['chanId']}")
+    print(f"Subscription with subId: {subscription['subId']}")
 
     print(f"Data: {data}")
 
