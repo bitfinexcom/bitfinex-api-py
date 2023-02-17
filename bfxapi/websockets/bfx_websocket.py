@@ -61,6 +61,7 @@ def _parse_trade_snapshot_item(tData, symbol):
 
 def _parse_trade(tData, symbol):
     return {
+        'id': tData[0],
         'mts': tData[1],
         'price': tData[3],
         'amount': tData[2],
