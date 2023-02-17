@@ -1,11 +1,11 @@
-import os
+# python -c "import examples.rest.create_order"
 
-from bfxapi.client import Client, Constants
-from bfxapi.enums import OrderType
-from bfxapi.utils.flags import calculate_order_flags
+import os
+from bfxapi.client import Client, REST_HOST
+from bfxapi.enums import OrderType, Flag
 
 bfx = Client(
-    REST_HOST=Constants.REST_HOST,
+    REST_HOST=REST_HOST,
     API_KEY=os.getenv("BFX_API_KEY"),
     API_SECRET=os.getenv("BFX_API_SECRET")
 )
@@ -16,14 +16,14 @@ submitted_order = bfx.rest.auth.submit_order(
     symbol="tBTCUST", 
     amount="0.015", 
     price="10000", 
-    flags=calculate_order_flags(hidden=False)
+    flags=Flag.HIDDEN + Flag.OCO + Flag.CLOSE
 )
 
 print("Submit Order Notification:", submitted_order)
 
 # Update it
 updated_order = bfx.rest.auth.update_order(
-    id=submitted_order["NOTIFY_INFO"]["ID"], 
+    id=submitted_order.notify_info.id,
     amount="0.020", 
     price="10100"
 )
@@ -31,6 +31,6 @@ updated_order = bfx.rest.auth.update_order(
 print("Update Order Notification:", updated_order)
 
 # Delete it
-canceled_order = bfx.rest.auth.cancel_order(id=submitted_order["NOTIFY_INFO"]["ID"])
+canceled_order = bfx.rest.auth.cancel_order(id=submitted_order.notify_info.id)
 
 print("Cancel Order Notification:", canceled_order)

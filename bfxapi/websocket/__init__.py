@@ -1,1 +1,3 @@
-from .BfxWebsocketClient import BfxWebsocketClient
+from .client import BfxWebsocketClient, BfxWebsocketBucket, BfxWebsocketInputs
+
+NAME = "websocket"
