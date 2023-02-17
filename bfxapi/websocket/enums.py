@@ -1,6 +1,6 @@
-from ..enums import *
+from .. enums import *
 
-class Channels(str, Enum):
+class Channel(str, Enum):
     TICKER = "ticker"
     TRADES = "trades"
     BOOK = "book"

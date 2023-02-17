@@ -59,3 +59,10 @@ class InvalidAuthenticationCredentials(BfxWebsocketException):
     """
 
     pass
+
+class HandlerNotFound(BfxWebsocketException):
+    """
+    This error indicates that a handler was not found for an incoming message.
+    """
+
+    pass

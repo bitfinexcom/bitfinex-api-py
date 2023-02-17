@@ -25,7 +25,7 @@ class RestPublicEndpoints(Middleware):
         if isinstance(pairs, str) and pairs == "ALL":
             return [ cast(TradingPairTicker, sub_data) for sub_data in self.get_tickers([ "ALL" ]) if cast(str, sub_data.symbol).startswith("t") ]
 
-        data = self.get_tickers([ "t" + pair for pair in pairs ])
+        data = self.get_tickers([ pair for pair in pairs ])
 
         return cast(List[TradingPairTicker], data)
 
@@ -33,7 +33,7 @@ class RestPublicEndpoints(Middleware):
         if isinstance(currencies, str) and currencies == "ALL":
             return [ cast(FundingCurrencyTicker, sub_data) for sub_data in self.get_tickers([ "ALL" ]) if cast(str, sub_data.symbol).startswith("f") ]
 
-        data = self.get_tickers([ "f" + currency for currency in currencies ])
+        data = self.get_tickers([ currency for currency in currencies ])
 
         return cast(List[FundingCurrencyTicker], data)
 
@@ -52,25 +52,25 @@ class RestPublicEndpoints(Middleware):
 
     def get_t_trades(self, pair: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> List[TradingPairTrade]:
         params = { "limit": limit, "start": start, "end": end, "sort": sort }
-        data = self._GET(f"trades/{'t' + pair}/hist", params=params)
+        data = self._GET(f"trades/{pair}/hist", params=params)
         return [ serializers.TradingPairTrade.parse(*sub_data) for sub_data in data ]
 
     def get_f_trades(self, currency: str, limit: Optional[int] = None, start: Optional[str] = None, end: Optional[str] = None, sort: Optional[Sort] = None) -> List[FundingCurrencyTrade]:
         params = { "limit": limit, "start": start, "end": end, "sort": sort }
-        data = self._GET(f"trades/{'f' + currency}/hist", params=params)
+        data = self._GET(f"trades/{currency}/hist", params=params)
         return [ serializers.FundingCurrencyTrade.parse(*sub_data) for sub_data in data ]
 
     def get_t_book(self, pair: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> List[TradingPairBook]:
-        return [ serializers.TradingPairBook.parse(*sub_data) for sub_data in self._GET(f"book/{'t' + pair}/{precision}", params={ "len": len }) ]
+        return [ serializers.TradingPairBook.parse(*sub_data) for sub_data in self._GET(f"book/{pair}/{precision}", params={ "len": len }) ]
 
     def get_f_book(self, currency: str, precision: Literal["P0", "P1", "P2", "P3", "P4"], len: Optional[Literal[1, 25, 100]] = None) -> List[FundingCurrencyBook]:
-        return [ serializers.FundingCurrencyBook.parse(*sub_data) for sub_data in self._GET(f"book/{'f' + currency}/{precision}", params={ "len": len }) ]
+        return [ serializers.FundingCurrencyBook.parse(*sub_data) for sub_data in self._GET(f"book/{currency}/{precision}", params={ "len": len }) ]
 
     def get_t_raw_book(self, pair: str, len: Optional[Literal[1, 25, 100]] = None) -> List[TradingPairRawBook]:
-        return [ serializers.TradingPairRawBook.parse(*sub_data) for sub_data in self._GET(f"book/{'t' + pair}/R0", params={ "len": len }) ]
+        return [ serializers.TradingPairRawBook.parse(*sub_data) for sub_data in self._GET(f"book/{pair}/R0", params={ "len": len }) ]
 
     def get_f_raw_book(self, currency: str, len: Optional[Literal[1, 25, 100]] = None) -> List[FundingCurrencyRawBook]:
-        return [ serializers.FundingCurrencyRawBook.parse(*sub_data) for sub_data in self._GET(f"book/{'f' + currency}/R0", params={ "len": len }) ]
+        return [ serializers.FundingCurrencyRawBook.parse(*sub_data) for sub_data in self._GET(f"book/{currency}/R0", params={ "len": len }) ]
 
     def get_stats_hist(
         self, 

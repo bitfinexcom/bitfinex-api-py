@@ -2,8 +2,6 @@ import json
 from decimal import Decimal
 from datetime import datetime
 
-from types import SimpleNamespace
-
 from typing import Type, List, Dict, Union, Any
 
 JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]

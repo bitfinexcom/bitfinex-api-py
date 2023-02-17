@@ -1,4 +1,4 @@
-from typing import Type, Tuple, List, Dict, TypedDict, Union, Optional, Literal, Any
+from typing import List, Dict, Optional, Literal, Any
 
 from dataclasses import dataclass
 
@@ -575,69 +575,68 @@ class InvoiceSubmission(_Type):
     currency: str
     order_id: str
     pay_currencies: List[str]
-    webhook: Optional[str]
-    redirect_url: Optional[str]
+    webhook: str
+    redirect_url: str
     status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"]
-    customer_info: Optional["_CustomerInfo"]
-    invoices: List["_Invoice"]
-    payment: Optional["_Payment"]
-    additional_payments: Optional[List["_Payment"]]
-    
+    customer_info: "CustomerInfo"
+    invoices: List["Invoice"]
+    payment: "Payment"
+    additional_payments: List["Payment"]
     merchant_name: str
 
     @classmethod
     def parse(cls, data: Dict[str, Any]) -> "InvoiceSubmission":
         if "customer_info" in data and data["customer_info"] != None:
-            data["customer_info"] = _CustomerInfo(**data["customer_info"])
+            data["customer_info"] = InvoiceSubmission.CustomerInfo(**data["customer_info"])
 
         for index, invoice in enumerate(data["invoices"]):
-            data["invoices"][index] = _Invoice(**invoice)
+            data["invoices"][index] = InvoiceSubmission.Invoice(**invoice)
 
         if "payment" in data and data["payment"] != None:
-            data["payment"] = _Payment(**data["payment"])
+            data["payment"] = InvoiceSubmission.Payment(**data["payment"])
 
         if "additional_payments" in data and data["additional_payments"] != None:
             for index, additional_payment in enumerate(data["additional_payments"]):
-                data["additional_payments"][index] = _Payment(**additional_payment)
+                data["additional_payments"][index] = InvoiceSubmission.Payment(**additional_payment)
 
         return InvoiceSubmission(**data)
 
-@compose(dataclass, partial)
-class _CustomerInfo:
-    nationality: str
-    resid_country: str
-    resid_state: Optional[str]
-    resid_city: str
-    resid_zip_code: str
-    resid_street: str
-    resid_building_no: Optional[str]
-    full_name: str
-    email: str
-    tos_accepted: bool
+    @compose(dataclass, partial)
+    class CustomerInfo:
+        nationality: str
+        resid_country: str
+        resid_state: str
+        resid_city: str
+        resid_zip_code: str
+        resid_street: str
+        resid_building_no: str
+        full_name: str
+        email: str
+        tos_accepted: bool
 
-@compose(dataclass, partial)
-class _Invoice:
-    amount: float
-    currency: str
-    pay_currency: str
-    pool_currency: str
-    address: str
-    ext: JSON
+    @compose(dataclass, partial)
+    class Invoice:
+        amount: float
+        currency: str
+        pay_currency: str
+        pool_currency: str
+        address: str
+        ext: JSON
 
-@compose(dataclass, partial)
-class _Payment:
-    txid: str
-    amount: float
-    currency: str
-    method: str
-    status: Literal["CREATED", "COMPLETED", "PROCESSING"]
-    confirmations: int
-    created_at: str
-    updated_at: str
-    deposit_id: Optional[int]
-    ledger_id: Optional[int]
-    force_completed: Optional[bool]
-    amount_diff: Optional[str]
+    @compose(dataclass, partial)
+    class Payment:
+        txid: str
+        amount: float
+        currency: str
+        method: str
+        status: Literal["CREATED", "COMPLETED", "PROCESSING"]
+        confirmations: int
+        created_at: str
+        updated_at: str
+        deposit_id: int
+        ledger_id: int
+        force_completed: bool
+        amount_diff: str
 
 @dataclass
 class InvoiceStats(_Type):

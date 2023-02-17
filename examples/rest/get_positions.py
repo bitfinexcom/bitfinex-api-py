@@ -3,10 +3,10 @@
 import os
 import time
 
-from bfxapi.client import Client, Constants
+from bfxapi.client import Client, REST_HOST
 
 bfx = Client(
-    REST_HOST=Constants.REST_HOST,
+    REST_HOST=REST_HOST,
     API_KEY=os.getenv("BFX_API_KEY"),
     API_SECRET=os.getenv("BFX_API_SECRET")
 )

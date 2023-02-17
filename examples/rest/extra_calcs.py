@@ -1,9 +1,9 @@
 # python -c "import examples.rest.extra_calcs"
 
-from bfxapi.client import Client, Constants
+from bfxapi.client import Client, REST_HOST
 
 bfx = Client(
-    REST_HOST=Constants.REST_HOST
+    REST_HOST=REST_HOST
 )
 
 t_symbol_response = bfx.rest.public.get_trading_market_average_price(
