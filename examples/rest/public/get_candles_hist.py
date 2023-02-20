@@ -1,10 +1,8 @@
-# python -c "import examples.rest.get_candles_hist"
+# python -c "import examples.rest.public.get_candles_hist"
 
-from bfxapi.client import Client, REST_HOST
+from bfxapi import Client, PUB_REST_HOST
 
-bfx = Client(
-    REST_HOST=REST_HOST
-)
+bfx = Client(REST_HOST=PUB_REST_HOST)
 
 print(f"Candles: {bfx.rest.public.get_candles_hist(symbol='tBTCUSD')}")
 
