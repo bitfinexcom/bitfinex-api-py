@@ -201,7 +201,7 @@ class RestAuthenticatedEndpoints(Middleware):
             "rate": rate, "period": period
         }))
 
-    def toggle_keep(self, type: Literal["credit", "loan"], ids: Optional[List[int]] = None, changes: Optional[Dict[int, bool]] = None) -> Notification[Literal[None]]:
+    def toggle_keep_funding(self, type: Literal["credit", "loan"], ids: Optional[List[int]] = None, changes: Optional[Dict[int, Literal[1, 2]]] = None) -> Notification[Literal[None]]:
         return serializers._Notification[Literal[None]](None).parse(*self._POST("auth/w/funding/keep", body={
             "type": type,
             "id": ids,

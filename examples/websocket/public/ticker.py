@@ -1,4 +1,4 @@
-# python -c "import examples.websocket.ticker"
+# python -c "import examples.websocket.public.ticker"
 
 from bfxapi import Client, PUB_WSS_HOST
 
