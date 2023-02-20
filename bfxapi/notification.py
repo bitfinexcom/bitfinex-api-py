@@ -9,13 +9,13 @@ class Notification(_Type, Generic[T]):
     mts: int
     type: str 
     message_id: Optional[int]
-    notify_info: T
+    data: T
     code: Optional[int]
     status: str
     text: str
 
 class _Notification(_Serializer, Generic[T]):
-    __LABELS = [ "mts", "type", "message_id", "_PLACEHOLDER", "notify_info", "code", "status", "text" ]
+    __LABELS = [ "mts", "type", "message_id", "_PLACEHOLDER", "data", "code", "status", "text" ]
 
     def __init__(self, serializer: Optional[_Serializer] = None, is_iterable: bool = False):
         super().__init__("Notification", Notification, _Notification.__LABELS, IGNORE = [ "_PLACEHOLDER" ])
@@ -26,13 +26,13 @@ class _Notification(_Serializer, Generic[T]):
         notification = cast(Notification[T], Notification(**dict(self._serialize(*values))))
 
         if isinstance(self.serializer, _Serializer):
-            NOTIFY_INFO = cast(List[Any], notification.notify_info)
+            data = cast(List[Any], notification.data)
 
             if self.is_iterable == False:
-                if len(NOTIFY_INFO) == 1 and isinstance(NOTIFY_INFO[0], list):
-                    NOTIFY_INFO = NOTIFY_INFO[0]
+                if len(data) == 1 and isinstance(data[0], list):
+                    data = data[0]
 
-                notification.notify_info = cast(T, self.serializer.klass(**dict(self.serializer._serialize(*NOTIFY_INFO, skip=skip))))
-            else: notification.notify_info = cast(T, [ self.serializer.klass(**dict(self.serializer._serialize(*data, skip=skip))) for data in NOTIFY_INFO ])
+                notification.data = cast(T, self.serializer.klass(**dict(self.serializer._serialize(*data, skip=skip))))
+            else: notification.data = cast(T, [ self.serializer.klass(**dict(self.serializer._serialize(*sub_data, skip=skip))) for sub_data in data ])
 
         return notification

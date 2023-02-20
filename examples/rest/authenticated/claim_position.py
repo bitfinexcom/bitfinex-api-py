@@ -15,5 +15,5 @@ bfx = Client(
 # Claims all active positions
 for position in bfx.rest.auth.get_positions():
     notification: Notification[PositionClaim] = bfx.rest.auth.claim_position(position.position_id)
-    claim: PositionClaim = notification.notify_info
+    claim: PositionClaim = notification.data
     print(f"Position: {position} | PositionClaim: {claim}")

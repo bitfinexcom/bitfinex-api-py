@@ -23,7 +23,7 @@ submit_order_notification: Notification[Order] = bfx.rest.auth.submit_order(
 
 print("Submit order notification:", submit_order_notification)
 
-order: Order = submit_order_notification.notify_info
+order: Order = submit_order_notification.data
 
 # Update its amount and its price
 update_order_notification: Notification[Order] = bfx.rest.auth.update_order(

@@ -22,23 +22,23 @@ A: Notification[Transfer] = bfx.rest.auth.transfer_between_wallets(
     from_wallet="exchange", to_wallet="funding", from_currency="ETH", 
         to_currency="ETH", amount=0.001)
 
-print("Transfer:", A.notify_info)
+print("Transfer:", A.data)
 
 # Retrieves the deposit address for bitcoin currency in exchange wallet.
 B: Notification[DepositAddress] = bfx.rest.auth.get_deposit_address(
     wallet="exchange", method="bitcoin", renew=False)
 
-print("Deposit address:", B.notify_info)
+print("Deposit address:", B.data)
 
 # Generates a lightning network deposit invoice
 C: Notification[LightningNetworkInvoice] = bfx.rest.auth.generate_deposit_invoice(
     wallet="funding", currency="LNX", amount=0.001)
 
-print("Lightning network invoice:", C.notify_info)
+print("Lightning network invoice:", C.data)
 
 # Withdraws 1.0 UST from user's exchange wallet to address 0x742d35Cc6634C0532925a3b844Bc454e4438f44e
 D: Notification[Withdrawal] = bfx.rest.auth.submit_wallet_withdrawal(
     wallet="exchange", method="tetheruse", address="0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
         amount=1.0)
 
-print("Withdrawal:", D.notify_info)
+print("Withdrawal:", D.data)

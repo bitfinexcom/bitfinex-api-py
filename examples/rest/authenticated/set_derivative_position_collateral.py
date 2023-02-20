@@ -20,7 +20,7 @@ submit_order_notification = bfx.rest.auth.submit_order(
     lev=10
 )
 
-print("New Order:", submit_order_notification.notify_info)
+print("New Order:", submit_order_notification.data)
 
 # Update the amount of collateral for tBTCF0:USTF0 derivative position
 derivative_position_collateral: DerivativePositionCollateral = \
