@@ -1,9 +1,9 @@
-# python -c "import examples.websocket.create_order"
+# python -c "import examples.websocket.authenticated.submit_order"
 
 import os
 
-from bfxapi.client import Client, WSS_HOST
-from bfxapi.websocket.enums import Error, OrderType
+from bfxapi import Client, WSS_HOST
+from bfxapi.enums import Error, OrderType
 from bfxapi.websocket.types import Notification, Order
 
 bfx = Client(
@@ -18,7 +18,7 @@ def on_wss_error(code: Error, msg: str):
 
 @bfx.wss.on("authenticated")
 async def on_authenticated(event):
-    print(f"Authentication: {event}.")
+    print(f"Authentication: {event}")
 
     await bfx.wss.inputs.submit_order(
         type=OrderType.EXCHANGE_LIMIT,

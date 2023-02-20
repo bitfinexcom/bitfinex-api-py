@@ -1,4 +1,4 @@
-# python -c "import examples.websocket.trades"
+# python -c "import examples.websocket.public.trades"
 
 from bfxapi import Client, PUB_WSS_HOST
 from bfxapi.websocket.enums import Error, Channel

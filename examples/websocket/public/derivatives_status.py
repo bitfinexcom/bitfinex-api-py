@@ -1,4 +1,4 @@
-# python -c "import examples.websocket.derivatives_status"
+# python -c "import examples.websocket.public.derivatives_status"
 
 from bfxapi import Client, PUB_WSS_HOST
 from bfxapi.websocket.enums import Error, Channel
