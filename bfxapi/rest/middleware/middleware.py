@@ -19,7 +19,7 @@ class Middleware(object):
         assert isinstance(self.API_KEY, str) and isinstance(self.API_SECRET, str), \
             "API_KEY and API_SECRET must be both str to call __build_authentication_headers"
 
-        nonce = str(int(time.time()) * 1000)
+        nonce = int(round(time.time() * 1000000))
 
         if data == None:
             path = f"/api/v2/{endpoint}{nonce}"
