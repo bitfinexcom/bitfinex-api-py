@@ -1,8 +1,0 @@
-language: python
-python:
-  - "3.8.2"
-install:
-  - python3.8 -m pip install -r requirements.txt
-script:
-  - pylint --rcfile=pylint.rc bfxapi
-  - pytest

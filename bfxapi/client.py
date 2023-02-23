@@ -1,24 +1,31 @@
-"""
-This module exposes the core bitfinex clients which includes both
-a websocket client and a rest interface client
-"""
+from .rest import BfxRestInterface
+from .websocket import BfxWebsocketClient
+from .urls import REST_HOST, WSS_HOST
 
-# pylint: disable-all
+from typing import List, Optional
 
-from .websockets.bfx_websocket import BfxWebsocket
-from .rest.bfx_rest import BfxRest
-from .constants import *
+class Client(object):
+    def __init__(
+            self,
+            REST_HOST: str = REST_HOST,
+            WSS_HOST: str = WSS_HOST,
+            API_KEY: Optional[str] = None,
+            API_SECRET: Optional[str] = None,
+            filter: Optional[List[str]] = None,
+            log_level: str = "INFO"
+    ):
+        credentials = None
 
-class Client:
-    """
-    The bfx client exposes rest and websocket objects
-    """
+        if API_KEY and API_SECRET:
+            credentials = { "API_KEY": API_KEY, "API_SECRET": API_SECRET, "filter": filter }
 
-    def __init__(self, API_KEY=None, API_SECRET=None, rest_host=REST_HOST,
-                 ws_host=WS_HOST, create_event_emitter=None, logLevel='INFO', dead_man_switch=False,
-                 ws_capacity=25, channel_filter=[], *args, **kwargs):
-        self.ws = BfxWebsocket(API_KEY=API_KEY, API_SECRET=API_SECRET, host=ws_host,
-                               logLevel=logLevel, dead_man_switch=dead_man_switch, channel_filter=channel_filter,
-                               ws_capacity=ws_capacity, create_event_emitter=create_event_emitter, *args, **kwargs)
-        self.rest = BfxRest(API_KEY=API_KEY, API_SECRET=API_SECRET, host=rest_host,
-                            logLevel=logLevel, *args, **kwargs)
+        self.rest = BfxRestInterface(
+            host=REST_HOST,
+            credentials=credentials
+        )
+
+        self.wss = BfxWebsocketClient(
+            host=WSS_HOST, 
+            credentials=credentials, 
+            log_level=log_level
+        )

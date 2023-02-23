@@ -1,14 +1,6 @@
-"""
-This module is used to interact with the bitfinex api
-"""
+from .client import Client
 
-from .version import __version__
-from .client import Client, PUB_REST_HOST, PUB_WS_HOST, REST_HOST, WS_HOST
-from .models import (Order, Trade, OrderBook, Subscription, Wallet,
-                     Position, FundingLoan, FundingOffer, FundingCredit,
-                     Movement)
-from .websockets.generic_websocket import GenericWebsocket, Socket
-from .websockets.bfx_websocket import BfxWebsocket
-from .utils.decimal import Decimal
+from .urls import REST_HOST, PUB_REST_HOST, STAGING_REST_HOST, \
+    WSS_HOST, PUB_WSS_HOST, STAGING_WSS_HOST
 
-NAME = 'bfxapi'
+NAME = "bfxapi"

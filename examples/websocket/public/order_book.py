@@ -1,0 +1,65 @@
+# python -c "import examples.websocket.public.order_book"
+
+from collections import OrderedDict
+
+from typing import List
+
+from bfxapi import Client, PUB_WSS_HOST
+
+from bfxapi.websocket import subscriptions
+from bfxapi.websocket.enums import Channel, Error
+from bfxapi.websocket.types import TradingPairBook
+
+class OrderBook(object):
+    def __init__(self, symbols: List[str]):
+        self.__order_book = {
+            symbol: { 
+                "bids": OrderedDict(), "asks": OrderedDict() 
+            } for symbol in symbols
+        }
+            
+    def update(self, symbol: str, data: TradingPairBook) -> None:
+        price, count, amount = data.price, data.count, data.amount
+
+        kind = (amount > 0) and "bids" or "asks"
+
+        if count > 0:
+            self.__order_book[symbol][kind][price] = { 
+                "price": price, 
+                "count": count,
+                "amount": amount 
+            }
+
+        if count == 0:
+            if price in self.__order_book[symbol][kind]:
+                del self.__order_book[symbol][kind][price]
+
+SYMBOLS = [ "tBTCUSD", "tLTCUSD", "tLTCBTC", "tETHUSD", "tETHBTC" ]
+
+order_book = OrderBook(symbols=SYMBOLS)
+
+bfx = Client(WSS_HOST=PUB_WSS_HOST)
+
+@bfx.wss.on("wss-error")
+def on_wss_error(code: Error, msg: str):
+    print(code, msg)
+
+@bfx.wss.on("open")
+async def on_open():
+    for symbol in SYMBOLS:
+        await bfx.wss.subscribe(Channel.BOOK, symbol=symbol)
+
+@bfx.wss.on("subscribed")
+def on_subscribed(subscription):
+    print(f"Subscription successful for pair <{subscription['pair']}>")
+
+@bfx.wss.on("t_book_snapshot")
+def on_t_book_snapshot(subscription: subscriptions.Book, snapshot: List[TradingPairBook]):
+    for data in snapshot:
+        order_book.update(subscription["symbol"], data)
+
+@bfx.wss.on("t_book_update")
+def on_t_book_update(subscription: subscriptions.Book, data: TradingPairBook):
+    order_book.update(subscription["symbol"], data)
+
+bfx.wss.run()

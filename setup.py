@@ -1,60 +1,51 @@
-"""A setuptools based setup module.
-See:
-https://packaging.python.org/guides/distributing-packages-using-setuptools/
-https://github.com/pypa/sampleproject
-"""
+from distutils.core import setup
 
-# Always prefer setuptools over distutils
-from setuptools import setup, find_packages
-from os import path
-
-here = path.abspath(path.dirname(__file__))
 setup(
-    name='bitfinex-api-py',
-    version='2.0.6',
-    description='Official Bitfinex Python API',
-    long_description='A Python reference implementation of the Bitfinex API for both REST and websocket interaction',
-    long_description_content_type='text/markdown',
-    url='https://github.com/bitfinexcom/bitfinex-api-py',
-    author='Bitfinex',
-    author_email='support@bitfinex.com',
+    name="bitfinex-api-py",
+    version="3.0.0b1",
+    description="Official Bitfinex Python API",
+    long_description="A Python reference implementation of the Bitfinex API for both REST and websocket interaction",
+    long_description_content_type="text/markdown",
+    url="https://github.com/bitfinexcom/bitfinex-api-py",
+    author="Bitfinex",
+    author_email="support@bitfinex.com",
+    license="Apache-2.0",
     classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
-        'Development Status :: 5 - Production/Stable',
+        "Development Status :: 4 - Beta",
 
-        # Project Audience
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
-        # Project License
-        'License :: OSI Approved :: Apache Software License',
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: Build Tools",
 
-        # Python versions (not enforced)
-        'Programming Language :: Python :: 3.0',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        "License :: OSI Approved :: Apache-2.0",
+
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
-    keywords='bitfinex,api,trading',
-    packages=find_packages(exclude=['examples', 'tests', 'docs']),
-    # Python versions (enforced)
-    python_requires='>=3.0.0, <4',
-    # deps installed by pip
-    install_requires=[
-        'asyncio~=3.0',
-        'websockets>=8,<10',
-        'aiohttp~=3.0',
-        'pyee~=8.0'
-    ],
+    keywords="bitfinex,api,trading",
     project_urls={
-        'Bug Reports': 'https://github.com/bitfinexcom/bitfinex-api-py/issues',
-        'Source': 'https://github.com/bitfinexcom/bitfinex-api-py',
+        "Bug Reports": "https://github.com/bitfinexcom/bitfinex-api-py/issues",
+        "Source": "https://github.com/bitfinexcom/bitfinex-api-py",
     },
+    packages=[ 
+        "bfxapi", "bfxapi.utils",
+        "bfxapi.websocket", "bfxapi.websocket.client", "bfxapi.websocket.handlers", 
+        "bfxapi.rest", "bfxapi.rest.endpoints", "bfxapi.rest.middleware",
+    ],
+    install_requires=[
+        "certifi~=2022.12.7",
+        "charset-normalizer~=2.1.1",
+        "idna~=3.4",
+        "mypy~=0.991",
+        "mypy-extensions~=0.4.3",
+        "pyee~=9.0.4",
+        "requests~=2.28.1",
+        "tomli~=2.0.1",
+        "types-requests~=2.28.11.5",
+        "types-urllib3~=1.26.25.4",
+        "typing_extensions~=4.4.0",
+        "urllib3~=1.26.13",
+        "websockets~=10.4",
+    ],
+    python_requires=">=3.8"
 )
