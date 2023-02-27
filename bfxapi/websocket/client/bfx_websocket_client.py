@@ -174,9 +174,9 @@ class BfxWebsocketClient(object):
     async def __authenticate(self, API_KEY, API_SECRET, filter=None):
         data = { "event": "auth", "filter": filter, "apiKey": API_KEY }
 
-        data["authNonce"] = int(round(time.time() * 1_000_000))
+        data["authNonce"] = str(round(time.time() * 1_000_000))
 
-        data["authPayload"] = "AUTH" + str(data["authNonce"])
+        data["authPayload"] = "AUTH" + data["authNonce"]
 
         data["authSig"] = hmac.new(
             API_SECRET.encode("utf8"),
