@@ -31,6 +31,19 @@ class RestMerchantEndpoints(Middleware):
             "id": id, "start": start, "end": end, 
             "limit": limit
         })) ]
+    
+    def get_invoices_paginated(self, page: int = 1, page_size: int = 10, sort: Literal["asc", "desc"] = "asc",
+                               sort_field: Literal["t", "amount", "status"] = "t", status: Optional[List[Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"]]] = None, fiat: Optional[List[str]] = None,
+                               crypto: Optional[List[str]] = None, id: Optional[str] = None, order_id: Optional[str] = None) -> InvoicePage:    
+        body = to_camel_case_keys({
+            "page": page, "page_size": page_size, "sort": sort,
+            "sort_field": sort_field, "status": status, "fiat": fiat,
+            "crypto": crypto, "id": id, "order_id": order_id
+        })
+
+        data = to_snake_case_keys(self._POST("auth/r/ext/pay/invoices/paginated", body=body))
+        
+        return InvoicePage.parse(data)
 
     def get_invoice_count_stats(self, status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"], format: str) -> List[InvoiceStats]:
         return [ InvoiceStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/count", body={ "status": status, "format": format }) ]

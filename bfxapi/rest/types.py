@@ -639,6 +639,23 @@ class InvoiceSubmission(_Type):
         amount_diff: str
 
 @dataclass
+class InvoicePage(_Type):
+    page: int
+    page_size: int
+    sort: Literal["asc", "desc"]
+    sort_field: Literal["t", "amount", "status"]
+    total_pages: int
+    total_items: int
+    items: List[InvoiceSubmission]
+
+    @classmethod
+    def parse(cls, data: Dict[str, Any]) -> "InvoicePage":
+        for index, item in enumerate(data["items"]):
+            data["items"][index] = InvoiceSubmission.parse(item)
+
+        return InvoicePage(**data)
+
+@dataclass
 class InvoiceStats(_Type):
     time: str
     count: float

@@ -41,3 +41,5 @@ print(bfx.rest.merchant.complete_invoice(
 ))
 
 print(bfx.rest.merchant.get_invoices(limit=25))
+
+print(bfx.rest.merchant.get_invoices_paginated(page=1, page_size=60, sort="asc", sort_field="t"))
