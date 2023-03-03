@@ -1,3 +1,7 @@
+.vscode
+*.pyc
+*.log
+
 __pycache__
 
 dist
