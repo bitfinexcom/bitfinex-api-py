@@ -639,6 +639,23 @@ class InvoiceSubmission(_Type):
         amount_diff: str
 
 @dataclass
+class InvoicePage(_Type):
+    page: int
+    page_size: int
+    sort: Literal["asc", "desc"]
+    sort_field: Literal["t", "amount", "status"]
+    total_pages: int
+    total_items: int
+    items: List[InvoiceSubmission]
+
+    @classmethod
+    def parse(cls, data: Dict[str, Any]) -> "InvoicePage":
+        for index, item in enumerate(data["items"]):
+            data["items"][index] = InvoiceSubmission.parse(item)
+
+        return InvoicePage(**data)
+
+@dataclass
 class InvoiceStats(_Type):
     time: str
     count: float
@@ -648,5 +665,33 @@ class CurrencyConversion(_Type):
     base_currency: str
     convert_currency: str
     created: int
+
+@dataclass
+class MerchantDeposit(_Type):
+    id: int
+    invoice_id: Optional[str]
+    order_id: Optional[str]
+    type: Literal["ledger", "deposit"]
+    amount: float
+    t: int
+    txid: str
+    currency: str
+    method: str
+    pay_method: str
+
+@dataclass
+class MerchantUnlinkedDeposit(_Type):
+    id: int
+    method: str
+    currency: str
+    created_at: int
+    updated_at: int
+    amount: float
+    fee: float
+    txid: str
+    address: str
+    payment_id: Optional[int]
+    status: str
+    note: Optional[str]
 
 #endregion
