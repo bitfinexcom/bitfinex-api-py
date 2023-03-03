@@ -21,7 +21,7 @@ class Config(str, Enum):
     INFO_PAIR_FUTURES = "pub:info:pair:futures"
     INFO_TX_STATUS = "pub:info:tx:status"
 
-    SPEC_MARGIN = "pub:spec:margin",
+    SPEC_MARGIN = "pub:spec:margin"
     FEES = "pub:fees"
 
 class Precision(str, Enum):
@@ -34,3 +34,13 @@ class Precision(str, Enum):
 class Sort(int, Enum):
     ASCENDING = +1
     DESCENDING = -1
+
+class MerchantSettingsKey(str, Enum):
+    PREFERRED_FIAT = "bfx_pay_preferred_fiat"
+    RECOMMEND_STORE = "bfx_pay_recommend_store"
+    NOTIFY_PAYMENT_COMPLETED = "bfx_pay_notify_payment_completed"
+    NOTIFY_PAYMENT_COMPLETED_EMAIL = "bfx_pay_notify_payment_completed_email"
+    NOTIFY_AUTOCONVERT_EXECUTED = "bfx_pay_notify_autoconvert_executed"
+    DUST_BALANCE_UI = "bfx_pay_dust_balance_ui"
+    MERCHANT_CUSTOMER_SUPPORT_URL = "bfx_pay_merchant_customer_support_url"
+    MERCHANT_UNDERPAID_THRESHOLD = "bfx_pay_merchant_underpaid_threshold"

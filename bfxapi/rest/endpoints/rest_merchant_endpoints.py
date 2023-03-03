@@ -1,9 +1,11 @@
-from typing import TypedDict, List, Union, Literal, Optional
+from typing import TypedDict, List, Union, Literal, Optional, Any
 
 from decimal import Decimal
 
 from .. types import *
+from .. enums import MerchantSettingsKey
 from .. middleware import Middleware
+
 from ...utils.camel_and_snake_case_helpers import to_snake_case_keys, to_camel_case_keys
 
 _CustomerInfo = TypedDict("_CustomerInfo", {
@@ -80,3 +82,22 @@ class RestMerchantEndpoints(Middleware):
             "baseCcy": base_currency,
             "convertCcy": convert_currency
         }))
+    
+    def set_merchant_settings(self, key: MerchantSettingsKey, val: Any) -> bool:
+        return bool(self._POST("auth/w/ext/pay/settings/set", body={ "key": key, "val": val }))
+    
+    def get_merchant_settings(self, key: MerchantSettingsKey) -> Any:
+        return self._POST("auth/r/ext/pay/settings/get", body={ "key": key })
+    
+    def list_merchant_settings(self, keys: List[MerchantSettingsKey] = list()) -> Dict[MerchantSettingsKey, Any]:
+        return self._POST("auth/r/ext/pay/settings/list", body={ "keys": keys })
+    
+    def get_deposits(self, start: int, end: int, ccy: Optional[str] = None, unlinked: Optional[bool] = None) -> List[MerchantDeposit]:
+        return [ MerchantDeposit(**sub_data) for sub_data in to_snake_case_keys(self._POST("auth/r/ext/pay/deposits", body={
+            "from": start, "to": end, "ccy": ccy, "unlinked": unlinked
+        })) ]
+    
+    def get_unlinked_deposits(self, ccy: str, start: Optional[int] = None, end: Optional[int] = None) -> List[MerchantUnlinkedDeposit]:
+        return [ MerchantUnlinkedDeposit(**sub_data) for sub_data in to_snake_case_keys(self._POST("/auth/r/ext/pay/deposits/unlinked", body={
+            "ccy": ccy, "start": start, "end": end
+        })) ]

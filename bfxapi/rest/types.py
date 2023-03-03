@@ -666,4 +666,32 @@ class CurrencyConversion(_Type):
     convert_currency: str
     created: int
 
+@dataclass
+class MerchantDeposit(_Type):
+    id: int
+    invoice_id: Optional[str]
+    order_id: Optional[str]
+    type: Literal["ledger", "deposit"]
+    amount: float
+    t: int
+    txid: str
+    currency: str
+    method: str
+    pay_method: str
+
+@dataclass
+class MerchantUnlinkedDeposit(_Type):
+    id: int
+    method: str
+    currency: str
+    created_at: int
+    updated_at: int
+    amount: float
+    fee: float
+    txid: str
+    address: str
+    payment_id: Optional[int]
+    status: str
+    note: Optional[str]
+
 #endregion
