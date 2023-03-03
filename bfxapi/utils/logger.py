@@ -1,21 +1,8 @@
-import logging
+import logging, sys
 
 BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 
-RESET_SEQ = "\033[0m"
-
-COLOR_SEQ = "\033[1;%dm"
-ITALIC_COLOR_SEQ = "\033[3;%dm"
-UNDERLINE_COLOR_SEQ = "\033[4;%dm"
-
-BOLD_SEQ = "\033[1m"
-
-def formatter_message(message, use_color = True):
-    if use_color:
-        message = message.replace("$RESET", RESET_SEQ).replace("$BOLD", BOLD_SEQ)
-    else:
-        message = message.replace("$RESET", "").replace("$BOLD", "")
-    return message
+COLOR_SEQ, ITALIC_COLOR_SEQ = "\033[1;%dm", "\033[3;%dm"
 
 COLORS = {
     "DEBUG": CYAN,
@@ -24,29 +11,41 @@ COLORS = {
     "ERROR": RED
 }
 
-class _ColoredFormatter(logging.Formatter):
+RESET_SEQ = "\033[0m"
+
+class _ColorFormatter(logging.Formatter):
     def __init__(self, msg, use_color = True):
         logging.Formatter.__init__(self, msg, "%d-%m-%Y %H:%M:%S")
+
         self.use_color = use_color
 
     def format(self, record):
         levelname = record.levelname
         if self.use_color and levelname in COLORS:
-            levelname_color = COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
-            record.levelname = levelname_color
-        record.name = ITALIC_COLOR_SEQ % (30 + BLACK) + record.name + RESET_SEQ
+            record.name = ITALIC_COLOR_SEQ % (30 + BLACK) + record.name + RESET_SEQ
+            record.levelname = COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
         return logging.Formatter.format(self, record)
 
-class ColoredLogger(logging.Logger):
-    FORMAT = "[$BOLD%(name)s$RESET] [%(asctime)s] [%(levelname)s] %(message)s"
-    
-    COLOR_FORMAT = formatter_message(FORMAT, True)
+class ColorLogger(logging.Logger):
+    FORMAT = "[%(name)s] [%(levelname)s] [%(asctime)s] %(message)s"
     
     def __init__(self, name, level):
         logging.Logger.__init__(self, name, level)                
 
-        colored_formatter = _ColoredFormatter(self.COLOR_FORMAT)
-        console = logging.StreamHandler()
-        console.setFormatter(colored_formatter)
+        colored_formatter = _ColorFormatter(self.FORMAT, use_color=True)
+        console = logging.StreamHandler(stream=sys.stderr)
+        console.setFormatter(fmt=colored_formatter)
 
-        self.addHandler(console)
+        self.addHandler(hdlr=console)
+
+class FileLogger(logging.Logger):
+    FORMAT = "[%(name)s] [%(levelname)s] [%(asctime)s] %(message)s"
+    
+    def __init__(self, name, level, filename):
+        logging.Logger.__init__(self, name, level)                
+
+        formatter = logging.Formatter(self.FORMAT)
+        fh = logging.FileHandler(filename=filename)
+        fh.setFormatter(fmt=formatter)
+
+        self.addHandler(hdlr=fh)

@@ -16,7 +16,7 @@ from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationC
 
 from ...utils.JSONEncoder import JSONEncoder
 
-from ...utils.logger import ColoredLogger
+from ...utils.logger import ColorLogger, FileLogger
 
 def _require_websocket_authentication(function: F) -> F:
     async def wrapper(self, *args, **kwargs):
@@ -38,7 +38,7 @@ class BfxWebsocketClient(object):
         *AuthenticatedChannelsHandler.EVENTS
     ]
 
-    def __init__(self, host, credentials = None, log_level = "INFO"):
+    def __init__(self, host, credentials = None, log_filename = None, log_level = "INFO"):
         self.websocket = None
 
         self.host, self.credentials, self.event_emitter = host, credentials, AsyncIOEventEmitter()
@@ -47,7 +47,9 @@ class BfxWebsocketClient(object):
 
         self.handler = AuthenticatedChannelsHandler(event_emitter=self.event_emitter)
 
-        self.logger = ColoredLogger("BfxWebsocketClient", level=log_level)
+        if log_filename == None:
+            self.logger = ColorLogger("BfxWebsocketClient", level=log_level)
+        else: self.logger = FileLogger("BfxWebsocketClient", level=log_level, filename=log_filename)
 
         self.event_emitter.add_listener("error", 
             lambda exception: self.logger.error(f"{type(exception).__name__}: {str(exception)}" + "\n" + 

@@ -12,6 +12,7 @@ class Client(object):
             API_KEY: Optional[str] = None,
             API_SECRET: Optional[str] = None,
             filter: Optional[List[str]] = None,
+            log_filename: Optional[str] = None,
             log_level: str = "INFO"
     ):
         credentials = None
@@ -26,6 +27,7 @@ class Client(object):
 
         self.wss = BfxWebsocketClient(
             host=WSS_HOST, 
-            credentials=credentials, 
+            credentials=credentials,
+            log_filename=log_filename, 
             log_level=log_level
         )
