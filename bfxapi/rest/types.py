@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from .. labeler import _Type, partial, compose
 from .. notification import Notification
-from .. utils.JSONEncoder import JSON
+from ..utils.json_encoder import JSON
 
 #region Type hinting for Rest Public Endpoints
 

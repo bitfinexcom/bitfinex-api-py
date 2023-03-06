@@ -6,7 +6,7 @@ from http import HTTPStatus
 from ..enums import Error
 from ..exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 
-from ...utils.JSONEncoder import JSONEncoder
+from ...utils.json_encoder import JSONEncoder
 
 if TYPE_CHECKING:
     from requests.sessions import _Params

@@ -14,7 +14,7 @@ from .bfx_websocket_inputs import BfxWebsocketInputs
 from ..handlers import PublicChannelsHandler, AuthenticatedChannelsHandler
 from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, OutdatedClientVersion
 
-from ...utils.JSONEncoder import JSONEncoder
+from ...utils.json_encoder import JSONEncoder
 
 from ...utils.logger import ColorLogger, FileLogger
 

@@ -7,9 +7,10 @@ ignore=examples
 [MESSAGES CONTROL]
 
 disable=
+    multiple-imports,
     missing-docstring,
     too-few-public-methods,
-    dangerous-default-value
+    dangerous-default-value,
 
 [FORMAT]
 

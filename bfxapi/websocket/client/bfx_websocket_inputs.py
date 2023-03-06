@@ -3,7 +3,7 @@ from datetime import datetime
 
 from typing import Union, Optional, List, Tuple
 from .. enums import OrderType, FundingOfferType
-from ... utils.JSONEncoder import JSON
+from ...utils.json_encoder import JSON
 
 class BfxWebsocketInputs(object):
     def __init__(self, handle_websocket_input):
