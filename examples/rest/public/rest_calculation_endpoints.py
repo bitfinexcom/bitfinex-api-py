@@ -4,7 +4,7 @@ from bfxapi import Client, PUB_REST_HOST
 
 from bfxapi.rest.types import TradingMarketAveragePrice, FundingMarketAveragePrice, FxRate
 
-bfx = Client(REST_HOST=PUB_REST_HOST)
+bfx = Client(rest_host=PUB_REST_HOST)
 
 trading_market_average_price: TradingMarketAveragePrice = bfx.rest.public.get_trading_market_average_price(
     symbol="tBTCUSD",

@@ -6,7 +6,7 @@ from bfxapi import Client, PUB_REST_HOST
 
 from bfxapi.rest.types import List, PulseMessage, PulseProfile
 
-bfx = Client(REST_HOST=PUB_REST_HOST)
+bfx = Client(rest_host=PUB_REST_HOST)
 
 # POSIX timestamp in milliseconds (check https://currentmillis.com/)
 end = datetime.datetime(2020, 5, 2).timestamp() * 1000 

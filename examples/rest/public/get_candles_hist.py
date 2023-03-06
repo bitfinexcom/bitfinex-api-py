@@ -2,7 +2,7 @@
 
 from bfxapi import Client, PUB_REST_HOST
 
-bfx = Client(REST_HOST=PUB_REST_HOST)
+bfx = Client(rest_host=PUB_REST_HOST)
 
 print(f"Candles: {bfx.rest.public.get_candles_hist(symbol='tBTCUSD')}")
 

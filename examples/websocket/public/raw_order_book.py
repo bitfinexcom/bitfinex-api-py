@@ -38,7 +38,7 @@ SYMBOLS = [ "tBTCUSD", "tLTCUSD", "tLTCBTC", "tETHUSD", "tETHBTC" ]
 
 raw_order_book = RawOrderBook(symbols=SYMBOLS)
 
-bfx = Client(WSS_HOST=PUB_WSS_HOST)
+bfx = Client(wss_host=PUB_WSS_HOST)
 
 @bfx.wss.on("wss-error")
 def on_wss_error(code: Error, msg: str):

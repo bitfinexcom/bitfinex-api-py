@@ -7,9 +7,9 @@ from bfxapi.enums import Error
 from bfxapi.websocket.types import List, Wallet
 
 bfx = Client(
-    API_KEY=os.getenv("BFX_API_KEY"),
-    API_SECRET=os.getenv("BFX_API_SECRET"),
-    filter=["wallet"]
+    api_key=os.getenv("BFX_API_KEY"),
+    api_secret=os.getenv("BFX_API_SECRET"),
+    filters=["wallet"]
 )
 
 @bfx.wss.on("wss-error")

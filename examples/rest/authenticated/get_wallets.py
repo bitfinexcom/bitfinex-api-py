@@ -9,9 +9,9 @@ from bfxapi.rest.types import List, Wallet, Transfer, \
         Notification
 
 bfx = Client(
-    REST_HOST=REST_HOST,
-    API_KEY=os.getenv("BFX_API_KEY"),
-    API_SECRET=os.getenv("BFX_API_SECRET")
+    rest_host=REST_HOST,
+    api_key=os.getenv("BFX_API_KEY"),
+    api_secret=os.getenv("BFX_API_SECRET")
 )
 
 # Gets all user's available wallets

@@ -6,7 +6,7 @@ from bfxapi.websocket.types import DerivativesStatus
 
 from bfxapi.websocket import subscriptions
 
-bfx = Client(WSS_HOST=PUB_WSS_HOST)
+bfx = Client(wss_host=PUB_WSS_HOST)
 
 @bfx.wss.on("derivatives_status_update")
 def on_derivatives_status_update(subscription: subscriptions.Status, data: DerivativesStatus):

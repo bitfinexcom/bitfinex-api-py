@@ -6,7 +6,7 @@ from bfxapi.websocket.types import Candle, TradingPairTrade
 
 from bfxapi.websocket import subscriptions
 
-bfx = Client(WSS_HOST=PUB_WSS_HOST)
+bfx = Client(wss_host=PUB_WSS_HOST)
 
 @bfx.wss.on("candles_update")
 def on_candles_update(subscription: subscriptions.Candles, candle: Candle):

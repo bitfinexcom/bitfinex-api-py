@@ -4,7 +4,7 @@ from bfxapi import Client, PUB_REST_HOST
 from bfxapi.rest.enums import Sort
 from bfxapi.rest.types import List, TradingPairTrade,  FundingCurrencyTrade
 
-bfx = Client(REST_HOST=PUB_REST_HOST)
+bfx = Client(rest_host=PUB_REST_HOST)
 
 t_trades: List[TradingPairTrade] = bfx.rest.public.get_t_trades("tBTCUSD", \
     limit=15, sort=Sort.ASCENDING)

@@ -4,7 +4,7 @@ from bfxapi import Client, PUB_REST_HOST
 
 from bfxapi.rest.enums import Config
 
-bfx = Client(REST_HOST=PUB_REST_HOST)
+bfx = Client(rest_host=PUB_REST_HOST)
 
 print("Available configs:", [ config.value for config in Config ])
 

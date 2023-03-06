@@ -173,8 +173,8 @@ class BfxWebsocketClient(object):
             if reconnection.status == False:
                 break
 
-    async def __authenticate(self, API_KEY, API_SECRET, filter=None):
-        data = { "event": "auth", "filter": filter, "apiKey": API_KEY }
+    async def __authenticate(self, API_KEY, API_SECRET, filters=None):
+        data = { "event": "auth", "filter": filters, "apiKey": API_KEY }
 
         data["authNonce"] = str(round(time.time() * 1_000_000))
 

@@ -7,9 +7,9 @@ from bfxapi.enums import Error, OrderType
 from bfxapi.websocket.types import Notification, Order
 
 bfx = Client(
-    WSS_HOST=WSS_HOST,
-    API_KEY=os.getenv("BFX_API_KEY"),
-    API_SECRET=os.getenv("BFX_API_SECRET")
+    wss_host=WSS_HOST,
+    api_key=os.getenv("BFX_API_KEY"),
+    api_secret=os.getenv("BFX_API_SECRET")
 )
 
 @bfx.wss.on("wss-error")

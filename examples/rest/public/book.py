@@ -5,7 +5,7 @@ from bfxapi import Client, PUB_REST_HOST
 from bfxapi.rest.types import List, TradingPairBook, TradingPairRawBook, \
     FundingCurrencyBook, FundingCurrencyRawBook
 
-bfx = Client(REST_HOST=PUB_REST_HOST)
+bfx = Client(rest_host=PUB_REST_HOST)
 
 t_book: List[TradingPairBook] = bfx.rest.public.get_t_book("tBTCUSD", precision="P0", len=25)
 

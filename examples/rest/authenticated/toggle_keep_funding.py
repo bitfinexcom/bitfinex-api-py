@@ -7,9 +7,9 @@ from bfxapi import Client, REST_HOST
 from bfxapi.rest.types import List, FundingLoan, Notification
 
 bfx = Client(
-    REST_HOST=REST_HOST,
-    API_KEY=os.getenv("BFX_API_KEY"),
-    API_SECRET=os.getenv("BFX_API_SECRET")
+    rest_host=REST_HOST,
+    api_key=os.getenv("BFX_API_KEY"),
+    api_secret=os.getenv("BFX_API_SECRET")
 )
 
 loans: List[FundingLoan] = bfx.rest.auth.get_funding_loans(symbol="fUSD")
