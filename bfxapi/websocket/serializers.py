@@ -2,6 +2,7 @@ from . import types
 
 from .. labeler import generate_labeler_serializer
 
+#pylint: disable-next=unused-import
 from .. notification import _Notification
 
 __serializers__ = [
@@ -49,14 +50,14 @@ FundingCurrencyTicker = generate_labeler_serializer("FundingCurrencyTicker", kla
     "frr_amount_available"
 ])
 
-TradingPairTrade = generate_labeler_serializer("TradingPairTrade", klass=types.TradingPairTrade, labels=[ 
+TradingPairTrade = generate_labeler_serializer("TradingPairTrade", klass=types.TradingPairTrade, labels=[
     "id", 
     "mts", 
     "amount", 
     "price" 
 ])
 
-FundingCurrencyTrade = generate_labeler_serializer("FundingCurrencyTrade", klass=types.FundingCurrencyTrade, labels=[ 
+FundingCurrencyTrade = generate_labeler_serializer("FundingCurrencyTrade", klass=types.FundingCurrencyTrade, labels=[
     "id", 
     "mts", 
     "amount", 
