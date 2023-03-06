@@ -1,3 +1,5 @@
+#pylint: disable=dangerous-default-value
+
 from typing import Type, Generic, TypeVar, Iterable, Optional, Dict, List, Tuple, Any, cast
 
 from .exceptions import LabelerSerializerException

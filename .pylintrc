@@ -10,7 +10,6 @@ disable=
     multiple-imports,
     missing-docstring,
     too-few-public-methods,
-    dangerous-default-value,
 
 [FORMAT]
 
