@@ -1,10 +1,10 @@
-import json, uuid, websockets
-
 from typing import Literal, TypeVar, Callable, cast
+
+import json, uuid, websockets
 
 from ..handlers import PublicChannelsHandler
 
-from ..exceptions import ConnectionNotOpen, TooManySubscriptions, OutdatedClientVersion
+from ..exceptions import ConnectionNotOpen, TooManySubscriptions
 
 _HEARTBEAT = "hb"
 
@@ -12,14 +12,14 @@ F = TypeVar("F", bound=Callable[..., Literal[None]])
 
 def _require_websocket_connection(function: F) -> F:
     async def wrapper(self, *args, **kwargs):
-        if self.websocket == None or self.websocket.open == False:
+        if self.websocket is None or not self.websocket.open:
             raise ConnectionNotOpen("No open connection with the server.")
-    
+
         await function(self, *args, **kwargs)
 
     return cast(F, wrapper)
 
-class BfxWebsocketBucket(object):
+class BfxWebsocketBucket:
     VERSION = 2
 
     MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
@@ -27,11 +27,12 @@ class BfxWebsocketBucket(object):
     def __init__(self, host, event_emitter, on_open_event):
         self.host, self.event_emitter, self.on_open_event = host, event_emitter, on_open_event
 
-        self.websocket, self.subscriptions, self.pendings = None, dict(), list()
+        self.websocket, self.subscriptions, self.pendings = None, {}, []
 
         self.handler = PublicChannelsHandler(event_emitter=self.event_emitter)
 
-    async def _connect(self, index):
+    #pylint: disable-next=unused-argument
+    async def connect(self, index):
         reconnection = False
 
         async for websocket in websockets.connect(self.host):
@@ -39,12 +40,12 @@ class BfxWebsocketBucket(object):
 
             self.on_open_event.set()
 
-            if reconnection == True or (reconnection := False):
+            if reconnection or (reconnection := False):
                 for pending in self.pendings:
                     await self.websocket.send(json.dumps(pending))
 
                 for _, subscription in self.subscriptions.items():
-                    await self._subscribe(**subscription)
+                    await self.subscribe(**subscription)
 
                 self.subscriptions.clear()
 
@@ -52,21 +53,21 @@ class BfxWebsocketBucket(object):
                 async for message in websocket:
                     message = json.loads(message)
 
-                    if isinstance(message, dict) and message["event"] == "subscribed" and (chanId := message["chanId"]):
+                    if isinstance(message, dict) and message["event"] == "subscribed" and (chan_id := message["chanId"]):
                         self.pendings = [ pending for pending in self.pendings if pending["subId"] != message["subId"] ]
-                        self.subscriptions[chanId] = message
+                        self.subscriptions[chan_id] = message
                         self.event_emitter.emit("subscribed", message)
-                    elif isinstance(message, dict) and message["event"] == "unsubscribed" and (chanId := message["chanId"]):
+                    elif isinstance(message, dict) and message["event"] == "unsubscribed" and (chan_id := message["chanId"]):
                         if message["status"] == "OK":
-                            del self.subscriptions[chanId]
+                            del self.subscriptions[chan_id]
                     elif isinstance(message, dict) and message["event"] == "error":
                         self.event_emitter.emit("wss-error", message["code"], message["msg"])
-                    elif isinstance(message, list) and (chanId := message[0]) and message[1] != _HEARTBEAT:
-                        self.handler.handle(self.subscriptions[chanId], *message[1:])
-            except websockets.ConnectionClosedError as error: 
+                    elif isinstance(message, list) and (chan_id := message[0]) and message[1] != _HEARTBEAT:
+                        self.handler.handle(self.subscriptions[chan_id], *message[1:])
+            except websockets.ConnectionClosedError as error:
                 if error.code == 1006:
                     self.on_open_event.clear()
-                    reconnection = True 
+                    reconnection = True
                     continue
 
                 raise error
@@ -74,7 +75,7 @@ class BfxWebsocketBucket(object):
             break
 
     @_require_websocket_connection
-    async def _subscribe(self, channel, subId=None, **kwargs):
+    async def subscribe(self, channel, sub_id=None, **kwargs):
         if len(self.subscriptions) + len(self.pendings) == BfxWebsocketBucket.MAXIMUM_SUBSCRIPTIONS_AMOUNT:
             raise TooManySubscriptions("The client has reached the maximum number of subscriptions.")
 
@@ -83,7 +84,7 @@ class BfxWebsocketBucket(object):
 
             "event": "subscribe",
             "channel": channel,
-            "subId": subId or str(uuid.uuid4()),
+            "subId": sub_id or str(uuid.uuid4()),
         }
 
         self.pendings.append(subscription)
@@ -91,17 +92,17 @@ class BfxWebsocketBucket(object):
         await self.websocket.send(json.dumps(subscription))
 
     @_require_websocket_connection
-    async def _unsubscribe(self, chanId):
+    async def unsubscribe(self, chan_id):
         await self.websocket.send(json.dumps({
             "event": "unsubscribe",
-            "chanId": chanId
+            "chanId": chan_id
         }))
 
     @_require_websocket_connection
-    async def _close(self, code=1000, reason=str()):
+    async def close(self, code=1000, reason=str()):
         await self.websocket.close(code=code, reason=reason)
 
-    def _get_chan_id(self, subId):
+    def get_chan_id(self, sub_id):
         for subscription in self.subscriptions.values():
-            if subscription["subId"] == subId:
+            if subscription["subId"] == sub_id:
                 return subscription["chanId"]

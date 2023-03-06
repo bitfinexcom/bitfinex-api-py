@@ -46,8 +46,8 @@ class TestLabeler(unittest.TestCase):
             F: bool
 
         inner = generate_labeler_serializer("Inner", Inner, ["F"])
-        middle = generate_recursive_serializer("Middle", Middle, ["D", "E"], { "E": inner })
-        outer = generate_recursive_serializer("Outer", Outer, ["A", "B", "C"], { "C": middle })
+        middle = generate_recursive_serializer("Middle", Middle, ["D", "E"], serializers={ "E": inner })
+        outer = generate_recursive_serializer("Outer", Outer, ["A", "B", "C"], serializers={ "C": middle })
 
         self.assertEqual(outer.parse(10, 45.5, [ "Y", [ True ] ]), Outer(10, 45.5, Middle("Y", Inner(True))),
             msg="_RecursiveSerializer should produce the right result.")

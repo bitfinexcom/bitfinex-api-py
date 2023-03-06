@@ -10,7 +10,17 @@ disable=
     multiple-imports,
     missing-docstring,
     too-few-public-methods,
+    too-many-instance-attributes,
+    dangerous-default-value,
+    inconsistent-return-statements,
+    logging-not-lazy
 
 [FORMAT]
 
 max-line-length=130
+
+good-names=id,on
+
+[TYPECHECK]
+
+generated-members=websockets

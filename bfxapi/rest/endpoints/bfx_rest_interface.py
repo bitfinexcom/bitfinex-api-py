@@ -9,7 +9,7 @@ class BfxRestInterface(object):
 
     def __init__(self, host, credentials = None):
         API_KEY, API_SECRET = credentials and \
-            (credentials["API_KEY"], credentials["API_SECRET"]) or (None, None)
+            (credentials["api_key"], credentials["api_secret"]) or (None, None)
 
         self.public = RestPublicEndpoints(host=host)       
         self.auth = RestAuthenticatedEndpoints(host=host, API_KEY=API_KEY, API_SECRET=API_SECRET)

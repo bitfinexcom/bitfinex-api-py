@@ -1,5 +1,3 @@
-#pylint: disable=inconsistent-return-statements
-
 from .. import serializers
 
 from .. exceptions import HandlerNotFound

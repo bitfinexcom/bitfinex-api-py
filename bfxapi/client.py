@@ -19,7 +19,7 @@ class Client:
         credentials = None
 
         if api_key and api_secret:
-            credentials = { "API_KEY": api_key, "API_SECRET": api_secret, "filters": filters }
+            credentials = { "api_key": api_key, "api_secret": api_secret, "filters": filters }
 
         self.rest = BfxRestInterface(
             host=rest_host,
