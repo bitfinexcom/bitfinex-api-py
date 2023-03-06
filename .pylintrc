@@ -1,6 +1,6 @@
 [MAIN]
 
-py-version = 3.8.0
+py-version=3.8.0
 
 ignore=examples
 
@@ -8,4 +8,9 @@ ignore=examples
 
 disable=
     missing-docstring,
-    too-few-public-methods
+    too-few-public-methods,
+    dangerous-default-value
+
+[FORMAT]
+
+max-line-length=120
