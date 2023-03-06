@@ -25,24 +25,24 @@ class TestLabeler(unittest.TestCase):
         self.assertListEqual(serializer.get_labels(), [ "A", "B", "C" ],
             msg="_Serializer::get_labels() should return the right list of labels.")
 
-        with self.assertRaises(LabelerSerializerException, 
+        with self.assertRaises(LabelerSerializerException,
                 msg="_Serializer should raise LabelerSerializerException if given fewer arguments than the serializer labels."):
-                    serializer.parse(5, 65.0, "X")
+            serializer.parse(5, 65.0, "X")
 
     def test_generate_recursive_serializer(self):
         @dataclass
-        class Outer(_Type): 
+        class Outer(_Type):
             A: int
             B: float
             C: "Middle"
 
         @dataclass
-        class Middle(_Type): 
+        class Middle(_Type):
             D: str
             E: "Inner"
 
         @dataclass
-        class Inner(_Type): 
+        class Inner(_Type):
             F: bool
 
         inner = generate_labeler_serializer("Inner", Inner, ["F"])

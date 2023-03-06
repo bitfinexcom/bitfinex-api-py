@@ -75,7 +75,7 @@ class BfxWebsocketClient:
         for index in range(connections):
             self.buckets += [BfxWebsocketBucket(self.host, self.event_emitter, self.on_open_events[index])]
 
-        tasks = [ bucket.connect(index) for index, bucket in enumerate(self.buckets) ]
+        tasks = [ bucket.connect() for bucket in self.buckets ]
 
         tasks.append(self.__connect())
 

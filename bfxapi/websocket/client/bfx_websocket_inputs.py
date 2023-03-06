@@ -1,4 +1,4 @@
-#pylint: disable=invalid-name,redefined-builtin,too-many-arguments
+#pylint: disable=redefined-builtin,too-many-arguments
 
 from decimal import Decimal
 from datetime import datetime

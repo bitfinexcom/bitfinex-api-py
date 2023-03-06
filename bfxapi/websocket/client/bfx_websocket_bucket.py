@@ -31,8 +31,7 @@ class BfxWebsocketBucket:
 
         self.handler = PublicChannelsHandler(event_emitter=self.event_emitter)
 
-    #pylint: disable-next=unused-argument
-    async def connect(self, index):
+    async def connect(self):
         reconnection = False
 
         async for websocket in websockets.connect(self.host):
