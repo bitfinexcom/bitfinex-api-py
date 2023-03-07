@@ -1,3 +1,5 @@
+#pylint: disable=duplicate-code
+
 #pylint: disable-next=wildcard-import,unused-wildcard-import
 from typing import *
 

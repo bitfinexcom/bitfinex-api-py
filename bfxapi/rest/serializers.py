@@ -1,3 +1,5 @@
+#pylint: disable=duplicate-code
+
 from . import types
 
 from .. labeler import generate_labeler_serializer, generate_recursive_serializer
