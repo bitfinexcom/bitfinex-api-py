@@ -1,4 +1,4 @@
-#pylint: disable=redefined-builtin,too-many-arguments
+#pylint: disable=redefined-builtin
 
 from decimal import Decimal
 from datetime import datetime
@@ -15,6 +15,7 @@ class BfxWebsocketInputs:
                     type: OrderType,
                     symbol: str,
                     amount: Union[Decimal, float, str],
+                    *,
                     price: Optional[Union[Decimal, float, str]] = None,
                     lev: Optional[int] = None,
                     price_trailing: Optional[Union[Decimal, float, str]] = None,
@@ -35,6 +36,7 @@ class BfxWebsocketInputs:
 
     async def update_order(self,
                     id: int,
+                    *,
                     amount: Optional[Union[Decimal, float, str]] = None,
                     price: Optional[Union[Decimal, float, str]] = None,
                     cid: Optional[int] = None,
@@ -54,6 +56,7 @@ class BfxWebsocketInputs:
         })
 
     async def cancel_order(self,
+                    *,
                     id: Optional[int] = None,
                     cid: Optional[int] = None,
                     cid_date: Optional[str] = None):
@@ -62,6 +65,7 @@ class BfxWebsocketInputs:
         })
 
     async def cancel_order_multi(self,
+                    *,
                     ids: Optional[List[int]] = None,
                     cids: Optional[List[Tuple[int, str]]] = None,
                     gids: Optional[List[int]] = None,
@@ -71,12 +75,14 @@ class BfxWebsocketInputs:
             "all": int(all)
         })
 
+    #pylint: disable-next=too-many-arguments
     async def submit_funding_offer(self,
                     type: FundingOfferType,
                     symbol: str,
                     amount: Union[Decimal, float, str],
                     rate: Union[Decimal, float, str],
                     period: int,
+                    *,
                     flags: Optional[int] = 0):
         await self.__handle_websocket_input("fon", {
             "type": type, "symbol": symbol, "amount": amount,

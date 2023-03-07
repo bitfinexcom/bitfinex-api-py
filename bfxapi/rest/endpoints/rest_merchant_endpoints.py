@@ -24,12 +24,12 @@ class RestMerchantEndpoints(Middleware):
             "webhook": webhook, "redirect_url": redirect_url
         })
 
-        data = to_snake_case_keys(self._POST("auth/w/ext/pay/invoice/create", body=body))
+        data = to_snake_case_keys(self._post("auth/w/ext/pay/invoice/create", body=body))
         
         return InvoiceSubmission.parse(data)
 
     def get_invoices(self, id: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None, limit: Optional[int] = None) -> List[InvoiceSubmission]:
-        return [ InvoiceSubmission.parse(sub_data) for sub_data in to_snake_case_keys(self._POST("auth/r/ext/pay/invoices", body={
+        return [ InvoiceSubmission.parse(sub_data) for sub_data in to_snake_case_keys(self._post("auth/r/ext/pay/invoices", body={
             "id": id, "start": start, "end": end, 
             "limit": limit
         })) ]
@@ -43,24 +43,24 @@ class RestMerchantEndpoints(Middleware):
             "crypto": crypto, "id": id, "order_id": order_id
         })
 
-        data = to_snake_case_keys(self._POST("auth/r/ext/pay/invoices/paginated", body=body))
+        data = to_snake_case_keys(self._post("auth/r/ext/pay/invoices/paginated", body=body))
         
         return InvoicePage.parse(data)
 
     def get_invoice_count_stats(self, status: Literal["CREATED", "PENDING", "COMPLETED", "EXPIRED"], format: str) -> List[InvoiceStats]:
-        return [ InvoiceStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/count", body={ "status": status, "format": format }) ]
+        return [ InvoiceStats(**sub_data) for sub_data in self._post("auth/r/ext/pay/invoice/stats/count", body={ "status": status, "format": format }) ]
 
     def get_invoice_earning_stats(self, currency: str, format: str) -> List[InvoiceStats]:
-        return [ InvoiceStats(**sub_data) for sub_data in self._POST("auth/r/ext/pay/invoice/stats/earning", body={ "currency": currency, "format": format }) ]
+        return [ InvoiceStats(**sub_data) for sub_data in self._post("auth/r/ext/pay/invoice/stats/earning", body={ "currency": currency, "format": format }) ]
 
     def complete_invoice(self, id: str, pay_currency: str, deposit_id: Optional[int] = None, ledger_id: Optional[int] = None) -> InvoiceSubmission:
-        return InvoiceSubmission.parse(to_snake_case_keys(self._POST("auth/w/ext/pay/invoice/complete", body={
+        return InvoiceSubmission.parse(to_snake_case_keys(self._post("auth/w/ext/pay/invoice/complete", body={
             "id": id, "payCcy": pay_currency, "depositId": deposit_id, 
             "ledgerId": ledger_id
         })))
 
     def expire_invoice(self, id: str) -> InvoiceSubmission:
-        return InvoiceSubmission.parse(to_snake_case_keys(self._POST("auth/w/ext/pay/invoice/expire", body={ "id": id })))
+        return InvoiceSubmission.parse(to_snake_case_keys(self._post("auth/w/ext/pay/invoice/expire", body={ "id": id })))
 
     def get_currency_conversion_list(self) -> List[CurrencyConversion]:
         return [
@@ -68,36 +68,36 @@ class RestMerchantEndpoints(Middleware):
                 base_currency=sub_data["baseCcy"], 
                 convert_currency=sub_data["convertCcy"], 
                 created=sub_data["created"]
-            ) for sub_data in self._POST("auth/r/ext/pay/settings/convert/list")
+            ) for sub_data in self._post("auth/r/ext/pay/settings/convert/list")
         ]
 
     def add_currency_conversion(self, base_currency: str, convert_currency: str) -> bool:
-        return bool(self._POST("auth/w/ext/pay/settings/convert/create", body={
+        return bool(self._post("auth/w/ext/pay/settings/convert/create", body={
             "baseCcy": base_currency,
             "convertCcy": convert_currency
         }))
 
     def remove_currency_conversion(self, base_currency: str, convert_currency: str) -> bool:
-        return bool(self._POST("auth/w/ext/pay/settings/convert/remove", body={
+        return bool(self._post("auth/w/ext/pay/settings/convert/remove", body={
             "baseCcy": base_currency,
             "convertCcy": convert_currency
         }))
     
     def set_merchant_settings(self, key: MerchantSettingsKey, val: Any) -> bool:
-        return bool(self._POST("auth/w/ext/pay/settings/set", body={ "key": key, "val": val }))
+        return bool(self._post("auth/w/ext/pay/settings/set", body={ "key": key, "val": val }))
     
     def get_merchant_settings(self, key: MerchantSettingsKey) -> Any:
-        return self._POST("auth/r/ext/pay/settings/get", body={ "key": key })
+        return self._post("auth/r/ext/pay/settings/get", body={ "key": key })
     
     def list_merchant_settings(self, keys: List[MerchantSettingsKey] = list()) -> Dict[MerchantSettingsKey, Any]:
-        return self._POST("auth/r/ext/pay/settings/list", body={ "keys": keys })
+        return self._post("auth/r/ext/pay/settings/list", body={ "keys": keys })
     
     def get_deposits(self, start: int, end: int, ccy: Optional[str] = None, unlinked: Optional[bool] = None) -> List[MerchantDeposit]:
-        return [ MerchantDeposit(**sub_data) for sub_data in to_snake_case_keys(self._POST("auth/r/ext/pay/deposits", body={
+        return [ MerchantDeposit(**sub_data) for sub_data in to_snake_case_keys(self._post("auth/r/ext/pay/deposits", body={
             "from": start, "to": end, "ccy": ccy, "unlinked": unlinked
         })) ]
     
     def get_unlinked_deposits(self, ccy: str, start: Optional[int] = None, end: Optional[int] = None) -> List[MerchantUnlinkedDeposit]:
-        return [ MerchantUnlinkedDeposit(**sub_data) for sub_data in to_snake_case_keys(self._POST("/auth/r/ext/pay/deposits/unlinked", body={
+        return [ MerchantUnlinkedDeposit(**sub_data) for sub_data in to_snake_case_keys(self._post("/auth/r/ext/pay/deposits/unlinked", body={
             "ccy": ccy, "start": start, "end": end
         })) ]

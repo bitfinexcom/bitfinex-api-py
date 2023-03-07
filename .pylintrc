@@ -10,6 +10,7 @@ disable=
     multiple-imports,
     missing-docstring,
     too-few-public-methods,
+    too-many-public-methods,
     too-many-instance-attributes,
     dangerous-default-value,
     inconsistent-return-statements,
@@ -19,7 +20,7 @@ disable=
 
 max-line-length=120
 
-good-names=id,on,pl,t,A,B,C,D,E,F
+good-names=id,on,pl,t,ip,tf,A,B,C,D,E,F
 
 [TYPECHECK]
 

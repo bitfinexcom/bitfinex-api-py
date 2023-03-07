@@ -29,6 +29,27 @@ def _require_websocket_authentication(function: F) -> F:
 
     return cast(F, wrapper)
 
+class _Delay:
+    BACKOFF_MIN, BACKOFF_MAX = 1.92, 60.0
+
+    BACKOFF_INITIAL = 5.0
+
+    def __init__(self, backoff_factor):
+        self.__backoff_factor = backoff_factor
+        self.__backoff_delay = _Delay.BACKOFF_MIN
+        self.__initial_delay = random.random() * _Delay.BACKOFF_INITIAL
+
+    def next(self):
+        backoff_delay = self.peek()
+        __backoff_delay = self.__backoff_delay * self.__backoff_factor
+        self.__backoff_delay = min(__backoff_delay, _Delay.BACKOFF_MAX)
+
+        return backoff_delay
+
+    def peek(self):
+        return (self.__backoff_delay == _Delay.BACKOFF_MIN) \
+            and self.__initial_delay or self.__backoff_delay
+
 class BfxWebsocketClient:
     VERSION = BfxWebsocketBucket.VERSION
 
@@ -134,27 +155,6 @@ class BfxWebsocketClient:
                     if isinstance(message, list):
                         if message[0] == 0 and message[1] != _HEARTBEAT:
                             self.handler.handle(message[1], message[2])
-
-        class _Delay:
-            BACKOFF_MIN, BACKOFF_MAX = 1.92, 60.0
-
-            BACKOFF_INITIAL = 5.0
-
-            def __init__(self, backoff_factor):
-                self.__backoff_factor = backoff_factor
-                self.__backoff_delay = _Delay.BACKOFF_MIN
-                self.__initial_delay = random.random() * _Delay.BACKOFF_INITIAL
-
-            def next(self):
-                backoff_delay = self.peek()
-                __backoff_delay = self.__backoff_delay * self.__backoff_factor
-                self.__backoff_delay = min(__backoff_delay, _Delay.BACKOFF_MAX)
-
-                return backoff_delay
-
-            def peek(self):
-                return (self.__backoff_delay == _Delay.BACKOFF_MIN) \
-                    and self.__initial_delay or self.__backoff_delay
 
         while True:
             if reconnection.status:

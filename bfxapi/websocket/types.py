@@ -3,10 +3,10 @@ from typing import *
 
 from dataclasses import dataclass
 
+from .. labeler import _Type
+
 #pylint: disable-next=unused-import
 from .. notification import Notification
-
-from .. labeler import _Type
 
 from ..utils.json_encoder import JSON
 
