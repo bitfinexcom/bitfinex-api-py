@@ -17,7 +17,7 @@ disable=
 
 [FORMAT]
 
-max-line-length=130
+max-line-length=120
 
 good-names=id,on,pl,t,A,B,C,D,E,F
 

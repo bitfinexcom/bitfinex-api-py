@@ -66,8 +66,8 @@ class BfxWebsocketClient:
     async def start(self, connections = 5):
         if connections > BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT:
             self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT} "
-                    + f"buckets from the same connection ({connections} in use), the server could momentarily block the "
-                        + "client with <429 Too Many Requests>.")
+                    + f"buckets from the same connection ({connections} in use), the server could momentarily "
+                        + "block the client with <429 Too Many Requests>.")
 
         for _ in range(connections):
             self.on_open_events.append(asyncio.Event())
@@ -109,25 +109,31 @@ class BfxWebsocketClient:
                 async for message in websocket:
                     message = json.loads(message)
 
-                    if isinstance(message, dict) and message["event"] == "info" and "version" in message:
-                        if BfxWebsocketClient.VERSION != message["version"]:
-                            raise OutdatedClientVersion("Mismatch between the client version and the server version. "
-                                + "Update the library to the latest version to continue (client version: "
-                                    + f"{BfxWebsocketClient.VERSION}, server version: {message['version']}).")
-                    elif isinstance(message, dict) and message["event"] == "info" and message["code"] == 20051:
-                        rcvd = websockets.frames.Close(code=1012, reason="Stop/Restart Websocket Server (please reconnect).")
+                    if isinstance(message, dict):
+                        if message["event"] == "info" and "version" in message:
+                            if BfxWebsocketClient.VERSION != message["version"]:
+                                raise OutdatedClientVersion("Mismatch between the client version and the server "
+                                    + "version. Update the library to the latest version to continue (client version: "
+                                        + f"{BfxWebsocketClient.VERSION}, server version: {message['version']}).")
+                        elif message["event"] == "info" and message["code"] == 20051:
+                            rcvd = websockets.frames.Close(code=1012,
+                                reason="Stop/Restart Websocket Server (please reconnect).")
 
-                        raise websockets.ConnectionClosedError(rcvd=rcvd, sent=None)
-                    elif isinstance(message, dict) and message["event"] == "auth":
-                        if message["status"] == "OK":
+                            raise websockets.ConnectionClosedError(rcvd=rcvd, sent=None)
+                        elif message["event"] == "auth":
+                            if message["status"] != "OK":
+                                raise InvalidAuthenticationCredentials(
+                                    "Cannot authenticate with given API-KEY and API-SECRET.")
+
                             self.event_emitter.emit("authenticated", message)
 
                             self.authentication = True
-                        else: raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
-                    elif isinstance(message, dict) and message["event"] == "error":
-                        self.event_emitter.emit("wss-error", message["code"], message["msg"])
-                    elif isinstance(message, list) and message[0] == 0 and message[1] != _HEARTBEAT:
-                        self.handler.handle(message[1], message[2])
+                        elif message["event"] == "error":
+                            self.event_emitter.emit("wss-error", message["code"], message["msg"])
+
+                    if isinstance(message, list):
+                        if message[0] == 0 and message[1] != _HEARTBEAT:
+                            self.handler.handle(message[1], message[2])
 
         class _Delay:
             BACKOFF_MIN, BACKOFF_MAX = 1.92, 60.0
@@ -171,8 +177,8 @@ class BfxWebsocketClient:
                     delay = _Delay(backoff_factor=1.618)
                 elif isinstance(error, socket.gaierror) and reconnection.status:
                     self.logger.warning(f"Reconnection attempt no.{reconnection.attempts} has failed. "
-                        + f"Next reconnection attempt in ~{round(delay.peek()):.1f} seconds."
-                            + f"(at the moment the client has been offline for {datetime.now() - reconnection.timestamp})")
+                        + f"Next reconnection attempt in ~{round(delay.peek()):.1f} seconds. (at the moment "
+                            + f"the client has been offline for {datetime.now() - reconnection.timestamp})")
 
                     reconnection = reconnection._replace(attempts=reconnection.attempts + 1)
                 else: raise error

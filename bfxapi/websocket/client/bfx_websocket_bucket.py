@@ -52,17 +52,23 @@ class BfxWebsocketBucket:
                 async for message in websocket:
                     message = json.loads(message)
 
-                    if isinstance(message, dict) and message["event"] == "subscribed" and (chan_id := message["chanId"]):
-                        self.pendings = [ pending for pending in self.pendings if pending["subId"] != message["subId"] ]
-                        self.subscriptions[chan_id] = message
-                        self.event_emitter.emit("subscribed", message)
-                    elif isinstance(message, dict) and message["event"] == "unsubscribed" and (chan_id := message["chanId"]):
-                        if message["status"] == "OK":
-                            del self.subscriptions[chan_id]
-                    elif isinstance(message, dict) and message["event"] == "error":
-                        self.event_emitter.emit("wss-error", message["code"], message["msg"])
-                    elif isinstance(message, list) and (chan_id := message[0]) and message[1] != _HEARTBEAT:
-                        self.handler.handle(self.subscriptions[chan_id], *message[1:])
+                    if isinstance(message, dict):
+                        if message["event"] == "subscribed" and (chan_id := message["chanId"]):
+                            self.pendings = \
+                                [ pending for pending in self.pendings if pending["subId"] != message["subId"] ]
+
+                            self.subscriptions[chan_id] = message
+
+                            self.event_emitter.emit("subscribed", message)
+                        elif message["event"] == "unsubscribed" and (chan_id := message["chanId"]):
+                            if message["status"] == "OK":
+                                del self.subscriptions[chan_id]
+                        elif message["event"] == "error":
+                            self.event_emitter.emit("wss-error", message["code"], message["msg"])
+
+                    if isinstance(message, list):
+                        if (chan_id := message[0]) and message[1] != _HEARTBEAT:
+                            self.handler.handle(self.subscriptions[chan_id], *message[1:])
             except websockets.ConnectionClosedError as error:
                 if error.code == 1006:
                     self.on_open_event.clear()
