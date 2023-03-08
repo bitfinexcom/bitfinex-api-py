@@ -26,5 +26,6 @@ PR fixes the following issue:
 - [ ] My changes generate no new warnings;
 - [ ] I have added tests that prove my fix is effective or that my feature works;
 - [ ] New and existing unit tests pass locally with my changes;
-- [ ] Mypy does not return any errors or warnings if runned on the root package;
+- [ ] Mypy returns no errors or warnings when run on the root package;
+- [ ] Pylint returns a score of 10.00/10.00 when run on the root package;
 - [ ] I have updated the library version and updated the CHANGELOG;
