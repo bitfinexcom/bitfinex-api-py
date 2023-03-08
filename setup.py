@@ -27,7 +27,7 @@ setup(
         "Bug Reports": "https://github.com/bitfinexcom/bitfinex-api-py/issues",
         "Source": "https://github.com/bitfinexcom/bitfinex-api-py",
     },
-    packages=[ 
+    packages=[
         "bfxapi", "bfxapi.utils",
         "bfxapi.websocket", "bfxapi.websocket.client", "bfxapi.websocket.handlers", 
         "bfxapi.rest", "bfxapi.rest.endpoints", "bfxapi.rest.middleware",
