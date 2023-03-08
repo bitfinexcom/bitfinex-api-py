@@ -17,6 +17,10 @@ disable=
     dangerous-default-value,
     inconsistent-return-statements,
 
+[SIMILARITIES]
+
+min-similarity-lines=6
+
 [VARIABLES]
 
 allowed-redefined-builtins=type,dir,id,all,format,len

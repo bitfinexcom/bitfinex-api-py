@@ -786,12 +786,15 @@ SymbolMarginInfo = generate_labeler_serializer(
     name="SymbolMarginInfo",
     klass=types.SymbolMarginInfo,
     labels=[
+        "_PLACEHOLDER",
         "symbol",
         "tradable_balance",
         "gross_balance",
         "buy",
         "sell"
-    ]
+    ],
+
+    flat=True
 )
 
 BaseMarginInfo = generate_labeler_serializer(
@@ -849,11 +852,15 @@ PositionIncreaseInfo = generate_labeler_serializer(
         "_PLACEHOLDER",
         "_PLACEHOLDER",
         "funding_avail",
+        "_PLACEHOLDER",
+        "_PLACEHOLDER",
         "funding_value",
         "funding_required",
         "funding_value_currency",
         "funding_required_currency"
-    ]
+    ],
+
+    flat=True
 )
 
 PositionIncrease = generate_labeler_serializer(

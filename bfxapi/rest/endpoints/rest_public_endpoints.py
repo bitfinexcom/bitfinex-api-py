@@ -49,10 +49,10 @@ class RestPublicEndpoints(Middleware):
         return cast(List[FundingCurrencyTicker], data)
 
     def get_t_ticker(self, pair: str) -> TradingPairTicker:
-        return serializers.TradingPairTicker.parse(*self._get(f"ticker/{pair}"), skip=["symbol"])
+        return serializers.TradingPairTicker.parse(*([pair] + self._get(f"ticker/{pair}")))
 
     def get_f_ticker(self, currency: str) -> FundingCurrencyTicker:
-        return serializers.FundingCurrencyTicker.parse(*self._get(f"ticker/{currency}"), skip=["symbol"])
+        return serializers.FundingCurrencyTicker.parse(*([currency] + self._get(f"ticker/{currency}")))
 
     def get_tickers_history(self,
                             symbols: List[str],
@@ -183,7 +183,7 @@ class RestPublicEndpoints(Middleware):
                                        limit: Optional[int] = None) -> List[DerivativesStatus]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
         data = self._get(f"status/{type}/{symbol}/hist", params=params)
-        return [ serializers.DerivativesStatus.parse(*sub_data, skip=[ "key" ]) for sub_data in data ]
+        return [ serializers.DerivativesStatus.parse(*([symbol] + sub_data)) for sub_data in data ]
 
     def get_liquidations(self,
                          *,

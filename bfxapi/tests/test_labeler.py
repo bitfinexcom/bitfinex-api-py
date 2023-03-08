@@ -21,9 +21,6 @@ class TestLabeler(unittest.TestCase):
         self.assertEqual(serializer.parse(5, None, 65.0, None, "X"), Test(5, 65.0, "X"),
             msg="_Serializer should produce the right result.")
 
-        self.assertEqual(serializer.parse(None, 65.0, None, "X", skip=[ "A" ]), Test(None, 65.0, "X"),
-            msg="_Serializer should produce the right result when skip parameter is given.")
-
         self.assertListEqual(serializer.get_labels(), [ "A", "B", "C" ],
             msg="_Serializer::get_labels() should return the right list of labels.")
 

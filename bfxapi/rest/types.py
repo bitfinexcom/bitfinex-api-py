@@ -20,7 +20,7 @@ class PlatformStatus(_Type):
 
 @dataclass
 class TradingPairTicker(_Type):
-    symbol: Optional[str]
+    symbol: str
     bid: float
     bid_size: float
     ask: float
@@ -34,7 +34,7 @@ class TradingPairTicker(_Type):
 
 @dataclass
 class FundingCurrencyTicker(_Type):
-    symbol: Optional[str]
+    symbol: str
     frr: float
     bid: float
     bid_period: int
@@ -114,7 +114,7 @@ class Candle(_Type):
 
 @dataclass
 class DerivativesStatus(_Type):
-    key: Optional[str]
+    key: str
     mts: int
     deriv_price: float
     spot_price: float
@@ -466,7 +466,7 @@ class Movement(_Type):
 
 @dataclass
 class SymbolMarginInfo(_Type):
-    symbol: Optional[str]
+    symbol: str
     tradable_balance: float
     gross_balance: float
     buy: float

@@ -145,7 +145,7 @@ class RestAuthenticatedEndpoints(Middleware):
             endpoint = "auth/r/orders/hist"
         else: endpoint = f"auth/r/orders/{symbol}/hist"
 
-        body = { 
+        body = {
             "id": ids, "start": start, "end": end, 
             "limit": limit 
         }
@@ -185,7 +185,7 @@ class RestAuthenticatedEndpoints(Middleware):
                     start: Optional[str] = None,
                     end: Optional[str] = None,
                     limit: Optional[int] = None) -> List[Ledger]:
-        body = { 
+        body = {
             "category": category, "start": start, "end": end, 
             "limit": limit 
         }
@@ -199,11 +199,10 @@ class RestAuthenticatedEndpoints(Middleware):
 
     def get_symbol_margin_info(self, symbol: str) -> SymbolMarginInfo:
         return serializers.SymbolMarginInfo \
-            .parse(*(self._post(f"auth/r/info/margin/{symbol}")[2]), \
-                skip=["symbol"])
+            .parse(*self._post(f"auth/r/info/margin/{symbol}"))
 
     def get_all_symbols_margin_info(self) -> List[SymbolMarginInfo]:
-        return [ serializers.SymbolMarginInfo.parse(*([sub_data[1]] + sub_data[2])) \
+        return [ serializers.SymbolMarginInfo.parse(*sub_data) \
             for sub_data in self._post("auth/r/info/margin/sym_all") ]
 
     def get_positions(self) -> List[Position]:
@@ -223,6 +222,13 @@ class RestAuthenticatedEndpoints(Middleware):
                           amount: Union[Decimal, float, str]) -> Notification[PositionIncrease]:
         return _Notification[PositionIncrease](serializers.PositionIncrease) \
             .parse(*self._post("auth/w/position/increase", \
+                body={ "symbol": symbol, "amount": amount }))
+
+    def get_increase_position_info(self,
+                                   symbol: str,
+                                   amount: Union[Decimal, float, str]) -> PositionIncreaseInfo:
+        return serializers.PositionIncreaseInfo \
+            .parse(*self._post("auth/r/position/increase/info", \
                 body={ "symbol": symbol, "amount": amount }))
 
     def get_positions_history(self,
@@ -249,7 +255,7 @@ class RestAuthenticatedEndpoints(Middleware):
                             start: Optional[str] = None,
                             end: Optional[str] = None,
                             limit: Optional[int] = None) -> List[PositionAudit]:
-        body = { 
+        body = {
             "ids": ids, "start": start, "end": end, 
             "limit": limit 
         }

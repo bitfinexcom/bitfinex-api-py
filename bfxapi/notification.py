@@ -22,7 +22,7 @@ class _Notification(_Serializer, Generic[T]):
 
         self.serializer, self.is_iterable = serializer, is_iterable
 
-    def parse(self, *values: Any, skip: Optional[List[str]] = None) -> Notification[T]:
+    def parse(self, *values: Any) -> Notification[T]:
         notification = cast(Notification[T], Notification(**dict(self._serialize(*values))))
 
         if isinstance(self.serializer, _Serializer):
@@ -32,7 +32,7 @@ class _Notification(_Serializer, Generic[T]):
                 if len(data) == 1 and isinstance(data[0], list):
                     data = data[0]
 
-                notification.data = self.serializer.parse(*data, skip=skip)
-            else: notification.data = cast(T, [ self.serializer.parse(*sub_data, skip=skip) for sub_data in data ])
+                notification.data = self.serializer.parse(*data)
+            else: notification.data = cast(T, [ self.serializer.parse(*sub_data) for sub_data in data ])
 
         return notification
