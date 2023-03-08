@@ -2,7 +2,7 @@
 
 import os
 
-from bfxapi import Client, REST_HOST 
+from bfxapi import Client, REST_HOST
 
 from bfxapi.rest.types import InvoiceSubmission
 

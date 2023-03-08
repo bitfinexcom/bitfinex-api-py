@@ -2,7 +2,7 @@
 
 import os
 
-from bfxapi import Client, REST_HOST 
+from bfxapi import Client, REST_HOST
 
 from bfxapi.rest.enums import MerchantSettingsKey
 
@@ -15,7 +15,7 @@ bfx = Client(
 if not bfx.rest.merchant.set_merchant_settings(MerchantSettingsKey.RECOMMEND_STORE, 1):
     print(f"Cannot set <{MerchantSettingsKey.RECOMMEND_STORE}> to <1>.")
 
-print(f"The current <{MerchantSettingsKey.PREFERRED_FIAT}> value is:", 
+print(f"The current <{MerchantSettingsKey.PREFERRED_FIAT}> value is:",
     bfx.rest.merchant.get_merchant_settings(MerchantSettingsKey.PREFERRED_FIAT))
 
 settings = bfx.rest.merchant.list_merchant_settings([
