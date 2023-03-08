@@ -14,11 +14,11 @@ bfx = Client(
 
 # Submit a new funding offer
 notification: Notification[FundingOffer] = bfx.rest.auth.submit_funding_offer(
-    type=FundingOfferType.LIMIT, 
-    symbol="fUSD", 
-    amount=123.45, 
-    rate=0.001, 
-    period=2, 
+    type=FundingOfferType.LIMIT,
+    symbol="fUSD",
+    amount=123.45,
+    rate=0.001,
+    period=2,
     flags=Flag.HIDDEN
 )
 
