@@ -1,11 +1,8 @@
 [MAIN]
-
 py-version=3.8.0
-
 ignore=examples
 
 [MESSAGES CONTROL]
-
 disable=
     multiple-imports,
     missing-docstring,
@@ -18,27 +15,20 @@ disable=
     inconsistent-return-statements,
 
 [SIMILARITIES]
-
 min-similarity-lines=6
 
 [VARIABLES]
-
 allowed-redefined-builtins=type,dir,id,all,format,len
 
 [FORMAT]
-
 max-line-length=120
-
 expected-line-ending-format=LF
 
 [BASIC]
-
 good-names=id,on,pl,t,ip,tf,A,B,C,D,E,F
 
 [TYPECHECK]
-
 generated-members=websockets
 
 [STRING]
-
 check-quote-consistency=yes
