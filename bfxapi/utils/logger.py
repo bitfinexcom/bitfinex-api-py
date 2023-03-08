@@ -28,24 +28,24 @@ class _ColorFormatter(logging.Formatter):
 
 class ColorLogger(logging.Logger):
     FORMAT = "[%(name)s] [%(levelname)s] [%(asctime)s] %(message)s"
-    
+
     def __init__(self, name, level):
-        logging.Logger.__init__(self, name, level)                
+        logging.Logger.__init__(self, name, level)
 
         colored_formatter = _ColorFormatter(self.FORMAT, use_color=True)
-        console = logging.StreamHandler(stream=sys.stderr)
-        console.setFormatter(fmt=colored_formatter)
+        handler = logging.StreamHandler(stream=sys.stderr)
+        handler.setFormatter(fmt=colored_formatter)
 
-        self.addHandler(hdlr=console)
+        self.addHandler(hdlr=handler)
 
 class FileLogger(logging.Logger):
     FORMAT = "[%(name)s] [%(levelname)s] [%(asctime)s] %(message)s"
-    
+
     def __init__(self, name, level, filename):
-        logging.Logger.__init__(self, name, level)                
+        logging.Logger.__init__(self, name, level)
 
         formatter = logging.Formatter(self.FORMAT)
-        fh = logging.FileHandler(filename=filename)
-        fh.setFormatter(fmt=formatter)
+        handler = logging.FileHandler(filename=filename)
+        handler.setFormatter(fmt=formatter)
 
-        self.addHandler(hdlr=fh)
+        self.addHandler(hdlr=handler)

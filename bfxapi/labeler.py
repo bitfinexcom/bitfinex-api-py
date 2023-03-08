@@ -1,12 +1,12 @@
-from .exceptions import LabelerSerializerException
+from typing import Type, Generic, TypeVar, Iterable, Dict, List, Tuple, Any, cast
 
-from typing import Type, Generic, TypeVar, Iterable, Optional, Dict, List, Tuple, Any, cast
+from .exceptions import LabelerSerializerException
 
 T = TypeVar("T", bound="_Type")
 
 def compose(*decorators):
     def wrapper(function):
-        for decorator in reversed(decorators): 
+        for decorator in reversed(decorators):
             function = decorator(function)
         return function
 
@@ -28,50 +28,70 @@ def partial(cls):
 
     return cls
 
-class _Type(object):
+class _Type:
     """
     Base class for any dataclass serializable by the _Serializer generic class.
     """
 
-    pass
-
 class _Serializer(Generic[T]):
-    def __init__(self, name: str, klass: Type[_Type], labels: List[str], IGNORE: List[str] = [ "_PLACEHOLDER" ]):
-        self.name, self.klass, self.__labels, self.__IGNORE = name, klass, labels, IGNORE
+    def __init__(self, name: str, klass: Type[_Type], labels: List[str],
+                 *, flat: bool = False, ignore: List[str] = [ "_PLACEHOLDER" ]):
+        self.name, self.klass, self.__labels, self.__flat, self.__ignore = name, klass, labels, flat, ignore
 
-    def _serialize(self, *args: Any, skip: Optional[List[str]] = None) -> Iterable[Tuple[str, Any]]:
-        labels = list(filter(lambda label: label not in (skip or list()), self.__labels))
+    def _serialize(self, *args: Any) -> Iterable[Tuple[str, Any]]:
+        if self.__flat:
+            args = tuple(_Serializer.__flatten(list(args)))
 
-        if len(labels) > len(args):
-            raise LabelerSerializerException(f"{self.name} -> <labels> and <*args> arguments should contain the same amount of elements.")
+        if len(self.__labels) > len(args):
+            raise LabelerSerializerException(f"{self.name} -> <labels> and <*args> " \
+                "arguments should contain the same amount of elements.")
 
-        for index, label in enumerate(labels):
-            if label not in self.__IGNORE:
+        for index, label in enumerate(self.__labels):
+            if label not in self.__ignore:
                 yield label, args[index]
 
-    def parse(self, *values: Any, skip: Optional[List[str]] = None) -> T:
-        return cast(T, self.klass(**dict(self._serialize(*values, skip=skip))))
+    def parse(self, *values: Any) -> T:
+        return cast(T, self.klass(**dict(self._serialize(*values))))
 
     def get_labels(self) -> List[str]:
-        return [ label for label in self.__labels if label not in self.__IGNORE ]
+        return [ label for label in self.__labels if label not in self.__ignore ]
+
+    @classmethod
+    def __flatten(cls, array: List[Any]) -> List[Any]:
+        if len(array) == 0:
+            return array
+
+        if isinstance(array[0], list):
+            return cls.__flatten(array[0]) + cls.__flatten(array[1:])
+
+        return array[:1] + cls.__flatten(array[1:])
 
 class _RecursiveSerializer(_Serializer, Generic[T]):
-    def __init__(self, name: str, klass: Type[_Type], labels: List[str], serializers: Dict[str, _Serializer[Any]], IGNORE: List[str] = ["_PLACEHOLDER"]):
-        super().__init__(name, klass, labels, IGNORE)
+    def __init__(self, name: str, klass: Type[_Type], labels: List[str],
+                 *, serializers: Dict[str, _Serializer[Any]],
+                     flat: bool = False, ignore: List[str] = [ "_PLACEHOLDER" ]):
+        super().__init__(name, klass, labels, flat=flat, ignore=ignore)
 
         self.serializers = serializers
 
-    def parse(self, *values: Any, skip: Optional[List[str]] = None) -> T:
-        serialization = dict(self._serialize(*values, skip=skip))
+    def parse(self, *values: Any) -> T:
+        serialization = dict(self._serialize(*values))
 
         for key in serialization:
             if key in self.serializers.keys():
-                serialization[key] = self.serializers[key].parse(*serialization[key], skip=skip)
+                serialization[key] = self.serializers[key].parse(*serialization[key])
 
         return cast(T, self.klass(**serialization))
 
-def generate_labeler_serializer(name: str, klass: Type[T], labels: List[str], IGNORE: List[str] = [ "_PLACEHOLDER" ]) -> _Serializer[T]:
-    return _Serializer[T](name, klass, labels, IGNORE)
+def generate_labeler_serializer(name: str, klass: Type[T], labels: List[str],
+                                *, flat: bool = False, ignore: List[str] = [ "_PLACEHOLDER" ]
+                               ) -> _Serializer[T]:
+    return _Serializer[T](name, klass, labels, \
+        flat=flat, ignore=ignore)
 
-def generate_recursive_serializer(name: str, klass: Type[T], labels: List[str], serializers: Dict[str, _Serializer[Any]], IGNORE: List[str] = [ "_PLACEHOLDER" ]) -> _RecursiveSerializer[T]:
-    return _RecursiveSerializer[T](name, klass, labels, serializers, IGNORE)
+def generate_recursive_serializer(name: str, klass: Type[T], labels: List[str],
+                                  *, serializers: Dict[str, _Serializer[Any]],
+                                      flat: bool = False, ignore: List[str] = [ "_PLACEHOLDER" ]
+                                 ) -> _RecursiveSerializer[T]:
+    return _RecursiveSerializer[T](name, klass, labels, \
+        serializers=serializers, flat=flat, ignore=ignore)

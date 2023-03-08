@@ -10,21 +10,21 @@ from bfxapi.websocket import subscriptions
 from bfxapi.websocket.enums import Channel, Error
 from bfxapi.websocket.types import TradingPairRawBook
 
-class RawOrderBook(object):
+class RawOrderBook:
     def __init__(self, symbols: List[str]):
         self.__raw_order_book = {
-            symbol: { 
+            symbol: {
                 "bids": OrderedDict(), "asks": OrderedDict() 
             } for symbol in symbols
         }
-            
+
     def update(self, symbol: str, data: TradingPairRawBook) -> None:
         order_id, price, amount = data.order_id, data.price, data.amount
 
-        kind = (amount > 0) and "bids" or "asks"
+        kind = "bids" if amount > 0 else "asks"
 
         if price > 0:
-            self.__raw_order_book[symbol][kind][order_id] = { 
+            self.__raw_order_book[symbol][kind][order_id] = {
                 "order_id": order_id,
                 "price": price, 
                 "amount": amount 

@@ -15,9 +15,9 @@ bfx = Client(
 # Submit a new order
 submit_order_notification: Notification[Order] = bfx.rest.auth.submit_order(
     type=OrderType.EXCHANGE_LIMIT,
-    symbol="tBTCUST", 
-    amount=0.015, 
-    price=10000, 
+    symbol="tBTCUST",
+    amount=0.015,
+    price=10000,
     flags=Flag.HIDDEN + Flag.OCO + Flag.CLOSE
 )
 
@@ -28,7 +28,7 @@ order: Order = submit_order_notification.data
 # Update its amount and its price
 update_order_notification: Notification[Order] = bfx.rest.auth.update_order(
     id=order.id,
-    amount=0.020, 
+    amount=0.020,
     price=10150
 )
 

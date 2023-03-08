@@ -2,6 +2,8 @@
 *.pyc
 *.log
 
+bitfinex_api_py.egg-info
+
 __pycache__
 
 dist

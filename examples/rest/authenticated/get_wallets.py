@@ -19,8 +19,8 @@ wallets: List[Wallet] = bfx.rest.auth.get_wallets()
 
 # Transfers funds (0.001 ETH) from exchange wallet to funding wallet
 A: Notification[Transfer] = bfx.rest.auth.transfer_between_wallets(
-    from_wallet="exchange", to_wallet="funding", from_currency="ETH", 
-        to_currency="ETH", amount=0.001)
+    from_wallet="exchange", to_wallet="funding", currency="ETH",
+        currency_to="ETH", amount=0.001)
 
 print("Transfer:", A.data)
 

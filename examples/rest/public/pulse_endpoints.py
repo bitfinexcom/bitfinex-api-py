@@ -9,7 +9,7 @@ from bfxapi.rest.types import List, PulseMessage, PulseProfile
 bfx = Client(rest_host=PUB_REST_HOST)
 
 # POSIX timestamp in milliseconds (check https://currentmillis.com/)
-end = datetime.datetime(2020, 5, 2).timestamp() * 1000 
+end = datetime.datetime(2020, 5, 2).timestamp() * 1000
 
 # Retrieves 25 pulse messages up to 2020/05/02
 messages: List[PulseMessage] = bfx.rest.public.get_pulse_history(end=end, limit=25)

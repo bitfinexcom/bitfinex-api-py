@@ -1,10 +1,16 @@
+#pylint: disable=duplicate-code
+
+#pylint: disable-next=wildcard-import,unused-wildcard-import
 from typing import *
 
 from dataclasses import dataclass
 
 from .. labeler import _Type
+
+#pylint: disable-next=unused-import
 from .. notification import Notification
-from .. utils.JSONEncoder import JSON
+
+from ..utils.json_encoder import JSON
 
 #region Type hinting for Websocket Public Channels
 
@@ -40,43 +46,43 @@ class FundingCurrencyTicker(_Type):
 
 @dataclass
 class TradingPairTrade(_Type):
-    id: int 
-    mts: int 
-    amount: float 
+    id: int
+    mts: int
+    amount: float
     price: float
 
 @dataclass
 class FundingCurrencyTrade(_Type):
-    id: int 
-    mts: int 
-    amount: float 
-    rate: float 
+    id: int
+    mts: int
+    amount: float
+    rate: float
     period: int
 
 @dataclass
 class TradingPairBook(_Type):
-    price: float 
-    count: int 
+    price: float
+    count: int
     amount: float
 
 @dataclass
 class FundingCurrencyBook(_Type):
-    rate: float 
-    period: int 
-    count: int 
+    rate: float
+    period: int
+    count: int
     amount: float
 
-@dataclass    
+@dataclass
 class TradingPairRawBook(_Type):
     order_id: int
-    price: float 
+    price: float
     amount: float
 
-@dataclass      
+@dataclass
 class FundingCurrencyRawBook(_Type):
-    offer_id: int 
-    period: int 
-    rate: float 
+    offer_id: int
+    period: int
+    rate: float
     amount: float
 
 @dataclass
@@ -154,14 +160,14 @@ class Position(_Type):
 
 @dataclass
 class Trade(_Type):
-    id: int 
-    symbol: str 
+    id: int
+    symbol: str
     mts_create: int
-    order_id: int 
-    exec_amount: float 
-    exec_price: float 
-    order_type: str 
-    order_price: float 
+    order_id: int
+    exec_amount: float
+    exec_price: float
+    order_type: str
+    order_price: float
     maker:int
     fee: Optional[float]
     fee_currency: Optional[str]

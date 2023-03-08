@@ -1,20 +1,26 @@
+#pylint: disable=duplicate-code
+
+#pylint: disable-next=wildcard-import,unused-wildcard-import
 from typing import *
 
 from dataclasses import dataclass
 
 from .. labeler import _Type, partial, compose
+
+#pylint: disable-next=unused-import
 from .. notification import Notification
-from .. utils.JSONEncoder import JSON
+
+from ..utils.json_encoder import JSON
 
 #region Type hinting for Rest Public Endpoints
 
 @dataclass
 class PlatformStatus(_Type):
     status: int
-    
+
 @dataclass
 class TradingPairTicker(_Type):
-    symbol: Optional[str]
+    symbol: str
     bid: float
     bid_size: float
     ask: float
@@ -28,7 +34,7 @@ class TradingPairTicker(_Type):
 
 @dataclass
 class FundingCurrencyTicker(_Type):
-    symbol: Optional[str]
+    symbol: str
     frr: float
     bid: float
     bid_period: int
@@ -53,43 +59,43 @@ class TickersHistory(_Type):
 
 @dataclass
 class TradingPairTrade(_Type):
-    id: int 
-    mts: int 
-    amount: float 
+    id: int
+    mts: int
+    amount: float
     price: float
 
 @dataclass
 class FundingCurrencyTrade(_Type):
-    id: int 
-    mts: int 
-    amount: float 
-    rate: float 
+    id: int
+    mts: int
+    amount: float
+    rate: float
     period: int
 
 @dataclass
 class TradingPairBook(_Type):
-    price: float 
-    count: int 
+    price: float
+    count: int
     amount: float
-    
+
 @dataclass
 class FundingCurrencyBook(_Type):
-    rate: float 
-    period: int 
-    count: int 
+    rate: float
+    period: int
+    count: int
     amount: float
 
-@dataclass        
+@dataclass
 class TradingPairRawBook(_Type):
     order_id: int
-    price: float 
+    price: float
     amount: float
 
-@dataclass           
+@dataclass
 class FundingCurrencyRawBook(_Type):
-    offer_id: int 
-    period: int 
-    rate: float 
+    offer_id: int
+    period: int
+    rate: float
     amount: float
 
 @dataclass
@@ -108,7 +114,7 @@ class Candle(_Type):
 
 @dataclass
 class DerivativesStatus(_Type):
-    key: Optional[str]
+    key: str
     mts: int
     deriv_price: float
     spot_price: float
@@ -142,7 +148,7 @@ class Leaderboard(_Type):
     twitter_handle: Optional[str]
 
 @dataclass
-class FundingStatistic(_Type): 
+class FundingStatistic(_Type):
     timestamp: int
     frr: float
     avg_period: float
@@ -286,14 +292,14 @@ class Position(_Type):
 
 @dataclass
 class Trade(_Type):
-    id: int 
-    symbol: str 
+    id: int
+    symbol: str
     mts_create: int
-    order_id: int 
-    exec_amount: float 
-    exec_price: float 
-    order_type: str 
-    order_price: float 
+    order_id: int
+    exec_amount: float
+    exec_price: float
+    order_type: str
+    order_price: float
     maker:int
     fee: float
     fee_currency: str
@@ -311,12 +317,12 @@ class FundingTrade(_Type):
 
 @dataclass
 class OrderTrade(_Type):
-    id: int 
-    symbol: str 
+    id: int
+    symbol: str
     mts_create: int
-    order_id: int 
-    exec_amount: float 
-    exec_price: float 
+    order_id: int
+    exec_amount: float
+    exec_price: float
     maker:int
     fee: float
     fee_currency: str
@@ -325,7 +331,7 @@ class OrderTrade(_Type):
 @dataclass
 class Ledger(_Type):
     id: int
-    currency: str 
+    currency: str
     mts: int
     amount: float
     balance: float
@@ -398,7 +404,6 @@ class FundingAutoRenew(_Type):
 
 @dataclass()
 class FundingInfo(_Type):
-    symbol: str
     yield_loan: float
     yield_lend: float
     duration_loan: float
@@ -413,7 +418,7 @@ class Wallet(_Type):
     available_balance: float
     last_change: str
     trade_details: JSON
-    
+
 @dataclass
 class Transfer(_Type):
     mts: int
@@ -458,7 +463,7 @@ class Movement(_Type):
     destination_address: str
     transaction_id: str
     withdraw_transaction_note: str
-    
+
 @dataclass
 class SymbolMarginInfo(_Type):
     symbol: str
@@ -586,16 +591,16 @@ class InvoiceSubmission(_Type):
 
     @classmethod
     def parse(cls, data: Dict[str, Any]) -> "InvoiceSubmission":
-        if "customer_info" in data and data["customer_info"] != None:
+        if "customer_info" in data and data["customer_info"] is not None:
             data["customer_info"] = InvoiceSubmission.CustomerInfo(**data["customer_info"])
 
         for index, invoice in enumerate(data["invoices"]):
             data["invoices"][index] = InvoiceSubmission.Invoice(**invoice)
 
-        if "payment" in data and data["payment"] != None:
+        if "payment" in data and data["payment"] is not None:
             data["payment"] = InvoiceSubmission.Payment(**data["payment"])
 
-        if "additional_payments" in data and data["additional_payments"] != None:
+        if "additional_payments" in data and data["additional_payments"] is not None:
             for index, additional_payment in enumerate(data["additional_payments"]):
                 data["additional_payments"][index] = InvoiceSubmission.Payment(**additional_payment)
 

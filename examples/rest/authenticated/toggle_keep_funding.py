@@ -16,7 +16,7 @@ loans: List[FundingLoan] = bfx.rest.auth.get_funding_loans(symbol="fUSD")
 
 # Set every loan's keep funding status to <off> (1: <on>, 2: <off>)
 notification: Notification[None] = bfx.rest.auth.toggle_keep_funding(
-    funding_type="loan",
+    type="loan",
     ids=[ loan.id for loan in loans ],
     changes={ loan.id: 2 for loan in loans }
 )

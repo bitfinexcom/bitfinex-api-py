@@ -15,7 +15,7 @@ def on_t_ticker_update(subscription: subscriptions.Ticker, data: TradingPairTick
     print(f"Data: {data}")
 
 @bfx.wss.once("open")
-async def open():
+async def on_open():
     await bfx.wss.subscribe(Channel.TICKER, symbol="tBTCUSD")
 
 bfx.wss.run()

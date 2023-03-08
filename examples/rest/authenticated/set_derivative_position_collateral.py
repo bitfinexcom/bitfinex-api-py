@@ -32,5 +32,5 @@ print("Status:", bool(derivative_position_collateral.status))
 derivative_position_collateral_limits: DerivativePositionCollateralLimits = \
     bfx.rest.auth.get_derivative_position_collateral_limits(symbol="tBTCF0:USTF0")
 
-print(f"Minimum collateral: {derivative_position_collateral_limits.min_collateral} | \
-    Maximum collateral: {derivative_position_collateral_limits.max_collateral}")
+print(f"Minimum collateral: {derivative_position_collateral_limits.min_collateral} | " \
+    f"Maximum collateral: {derivative_position_collateral_limits.max_collateral}")

@@ -15,12 +15,14 @@ _Header = TypedDict("_Header", { "event": Literal["subscribed"], "channel": str,
 Subscription = Union["Ticker", "Trades", "Book", "Candles", "Status"]
 
 class Ticker(TypedDict):
-    subId: str; symbol: str
+    subId: str
+    symbol: str
     pair: Optional[str]
     currency: Optional[str]
 
 class Trades(TypedDict):
-    subId: str; symbol: str
+    subId: str
+    symbol: str
     pair: Optional[str]
     currency: Optional[str]
 
