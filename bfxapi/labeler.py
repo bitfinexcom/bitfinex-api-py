@@ -39,7 +39,10 @@ class _Serializer(Generic[T]):
         self.name, self.klass, self.__labels, self.__ignore = name, klass, labels, ignore
 
     def _serialize(self, *args: Any, skip: Optional[List[str]] = None) -> Iterable[Tuple[str, Any]]:
-        labels = list(filter(lambda label: label not in (skip or []), self.__labels))
+        labels, skips = [], []
+
+        for label in self.__labels:
+            (labels, skips)[label in (skip or [])].append(label)
 
         if len(labels) > len(args):
             raise LabelerSerializerException(f"{self.name} -> <labels> and <*args> " \
@@ -48,6 +51,9 @@ class _Serializer(Generic[T]):
         for index, label in enumerate(labels):
             if label not in self.__ignore:
                 yield label, args[index]
+
+        for skip in skips:
+            yield skip, None
 
     def parse(self, *values: Any, skip: Optional[List[str]] = None) -> T:
         return cast(T, self.klass(**dict(self._serialize(*values, skip=skip))))

@@ -676,7 +676,6 @@ FundingInfo = generate_labeler_serializer(
     name="FundingInfo",
     klass=types.FundingInfo,
     labels=[
-        "symbol",
         "yield_loan",
         "yield_lend",
         "duration_loan",

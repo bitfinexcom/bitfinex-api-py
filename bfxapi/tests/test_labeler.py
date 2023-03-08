@@ -1,5 +1,7 @@
 import unittest
 
+from typing import Optional
+
 from dataclasses import dataclass
 from ..exceptions import LabelerSerializerException
 from ..labeler import _Type, generate_labeler_serializer, generate_recursive_serializer
@@ -8,7 +10,7 @@ class TestLabeler(unittest.TestCase):
     def test_generate_labeler_serializer(self):
         @dataclass
         class Test(_Type):
-            A: int
+            A: Optional[int]
             B: float
             C: str
 
@@ -19,7 +21,7 @@ class TestLabeler(unittest.TestCase):
         self.assertEqual(serializer.parse(5, None, 65.0, None, "X"), Test(5, 65.0, "X"),
             msg="_Serializer should produce the right result.")
 
-        self.assertEqual(serializer.parse(5, 65.0, "X", skip=[ "_PLACEHOLDER" ]), Test(5, 65.0, "X"),
+        self.assertEqual(serializer.parse(None, 65.0, None, "X", skip=[ "A" ]), Test(None, 65.0, "X"),
             msg="_Serializer should produce the right result when skip parameter is given.")
 
         self.assertListEqual(serializer.get_labels(), [ "A", "B", "C" ],

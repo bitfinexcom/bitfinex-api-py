@@ -404,7 +404,6 @@ class FundingAutoRenew(_Type):
 
 @dataclass()
 class FundingInfo(_Type):
-    symbol: str
     yield_loan: float
     yield_lend: float
     duration_loan: float
@@ -467,7 +466,7 @@ class Movement(_Type):
 
 @dataclass
 class SymbolMarginInfo(_Type):
-    symbol: str
+    symbol: Optional[str]
     tradable_balance: float
     gross_balance: float
     buy: float

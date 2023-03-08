@@ -24,10 +24,11 @@ from ...utils.json_encoder import JSON
 
 class RestAuthenticatedEndpoints(Middleware):
     def get_user_info(self) -> UserInfo:
-        return serializers.UserInfo.parse(*self._post("auth/r/info/user"))
+        return serializers.UserInfo \
+            .parse(*self._post("auth/r/info/user"))
 
     def get_login_history(self) -> List[LoginHistory]:
-        return [ serializers.LoginHistory.parse(*sub_data) \
+        return [ serializers.LoginHistory.parse(*sub_data)
             for sub_data in self._post("auth/r/logins/hist") ]
 
     def get_balance_available_for_orders_or_offers(self,
@@ -37,10 +38,13 @@ class RestAuthenticatedEndpoints(Middleware):
                                                    dir: Optional[int] = None,
                                                    rate: Optional[str] = None,
                                                    lev: Optional[str] = None) -> BalanceAvailable:
-        return serializers.BalanceAvailable.parse(*self._post("auth/calc/order/avail", body={
+        body = {
             "symbol": symbol, "type": type, "dir": dir,
             "rate": rate, "lev": lev
-        }))
+        }
+
+        return serializers.BalanceAvailable \
+            .parse(*self._post("auth/calc/order/avail", body=body))
 
     def get_wallets(self) -> List[Wallet]:
         return [ serializers.Wallet.parse(*sub_data) \
@@ -50,10 +54,9 @@ class RestAuthenticatedEndpoints(Middleware):
                    *,
                    symbol: Optional[str] = None,
                    ids: Optional[List[str]] = None) -> List[Order]:
-        endpoint = "auth/r/orders"
-
-        if symbol is not None:
-            endpoint += f"/{symbol}"
+        if symbol is None:
+            endpoint = "auth/r/orders"
+        else: endpoint = f"auth/r/orders/{symbol}"
 
         return [ serializers.Order.parse(*sub_data) \
             for sub_data in self._post(endpoint, body={ "id": ids }) ]
@@ -75,13 +78,14 @@ class RestAuthenticatedEndpoints(Middleware):
                      meta: Optional[JSON] = None) -> Notification[Order]:
         body = {
             "type": type, "symbol": symbol, "amount": amount,
-            "price": price, "lev": lev,
-            "price_trailing": price_trailing, "price_aux_limit": price_aux_limit, "price_oco_stop": price_oco_stop,
-            "gid": gid, "cid": cid,
-            "flags": flags, "tif": tif, "meta": meta
+            "price": price, "lev": lev, "price_trailing": price_trailing,
+            "price_aux_limit": price_aux_limit, "price_oco_stop": price_oco_stop, "gid": gid,
+            "cid": cid, "flags": flags, "tif": tif,
+            "meta": meta
         }
 
-        return _Notification[Order](serializers.Order).parse(*self._post("auth/w/order/submit", body=body))
+        return _Notification[Order](serializers.Order) \
+            .parse(*self._post("auth/w/order/submit", body=body))
 
     def update_order(self,
                      id: int,
@@ -112,14 +116,9 @@ class RestAuthenticatedEndpoints(Middleware):
                      id: Optional[int] = None,
                      cid: Optional[int] = None,
                      cid_date: Optional[str] = None) -> Notification[Order]:
-        body = {
-            "id": id, 
-            "cid": cid, 
-            "cid_date": cid_date 
-        }
-
         return _Notification[Order](serializers.Order) \
-            .parse(*self._post("auth/w/order/cancel", body=body))
+            .parse(*self._post("auth/w/order/cancel", \
+                body={ "id": id, "cid": cid, "cid_date": cid_date }))
 
     def cancel_order_multi(self,
                            *,
@@ -128,10 +127,7 @@ class RestAuthenticatedEndpoints(Middleware):
                            gids: Optional[List[int]] = None,
                            all: bool = False) -> Notification[List[Order]]:
         body = {
-            "ids": ids,
-            "cids": cids,
-            "gids": gids,
-
+            "ids": ids, "cids": cids, "gids": gids, 
             "all": int(all)
         }
 
@@ -149,13 +145,13 @@ class RestAuthenticatedEndpoints(Middleware):
             endpoint = "auth/r/orders/hist"
         else: endpoint = f"auth/r/orders/{symbol}/hist"
 
-        body = {
-            "id": ids,
-            "start": start, "end": end,
-            "limit": limit
+        body = { 
+            "id": ids, "start": start, "end": end, 
+            "limit": limit 
         }
 
-        return [ serializers.Order.parse(*sub_data) for sub_data in self._post(endpoint, body=body) ]
+        return [ serializers.Order.parse(*sub_data) \
+            for sub_data in self._post(endpoint, body=body) ]
 
     def get_order_trades(self,
                          symbol: str,
@@ -175,12 +171,12 @@ class RestAuthenticatedEndpoints(Middleware):
         else: endpoint = f"auth/r/trades/{symbol}/hist"
 
         body = {
-            "sort": sort,
-            "start": start, "end": end,
+            "sort": sort, "start": start, "end": end,
             "limit": limit
         }
 
-        return [ serializers.Trade.parse(*sub_data) for sub_data in self._post(endpoint, body=body) ]
+        return [ serializers.Trade.parse(*sub_data) \
+            for sub_data in self._post(endpoint, body=body) ]
 
     def get_ledgers(self,
                     currency: str,
@@ -189,49 +185,45 @@ class RestAuthenticatedEndpoints(Middleware):
                     start: Optional[str] = None,
                     end: Optional[str] = None,
                     limit: Optional[int] = None) -> List[Ledger]:
-        body = {
-            "category": category,
-            "start": start, "end": end,
-            "limit": limit
+        body = { 
+            "category": category, "start": start, "end": end, 
+            "limit": limit 
         }
 
         return [ serializers.Ledger.parse(*sub_data) \
             for sub_data in self._post(f"auth/r/ledgers/{currency}/hist", body=body) ]
 
     def get_base_margin_info(self) -> BaseMarginInfo:
-        return serializers.BaseMarginInfo.parse(*(self._post("auth/r/info/margin/base")[1]))
+        return serializers.BaseMarginInfo \
+            .parse(*(self._post("auth/r/info/margin/base")[1]))
 
     def get_symbol_margin_info(self, symbol: str) -> SymbolMarginInfo:
-        response = self._post(f"auth/r/info/margin/{symbol}")
-        data = [response[1]] + response[2]
-        return serializers.SymbolMarginInfo.parse(*data)
+        return serializers.SymbolMarginInfo \
+            .parse(*(self._post(f"auth/r/info/margin/{symbol}")[2]), \
+                skip=["symbol"])
 
     def get_all_symbols_margin_info(self) -> List[SymbolMarginInfo]:
         return [ serializers.SymbolMarginInfo.parse(*([sub_data[1]] + sub_data[2])) \
             for sub_data in self._post("auth/r/info/margin/sym_all") ]
 
     def get_positions(self) -> List[Position]:
-        return [ serializers.Position.parse(*sub_data) for sub_data in self._post("auth/r/positions") ]
+        return [ serializers.Position.parse(*sub_data) \
+            for sub_data in self._post("auth/r/positions") ]
 
     def claim_position(self,
                        id: int,
                        *,
                        amount: Optional[Union[Decimal, float, str]] = None) -> Notification[PositionClaim]:
         return _Notification[PositionClaim](serializers.PositionClaim) \
-            .parse(*self._post("auth/w/position/claim", body={ "id": id, "amount": amount }))
+            .parse(*self._post("auth/w/position/claim", \
+                body={ "id": id, "amount": amount }))
 
     def increase_position(self,
                           symbol: str,
                           amount: Union[Decimal, float, str]) -> Notification[PositionIncrease]:
         return _Notification[PositionIncrease](serializers.PositionIncrease) \
-            .parse(*self._post("auth/w/position/increase", body={ "symbol": symbol, "amount": amount }))
-
-    def get_increase_position_info(self,
-                                   symbol: str,
-                                   amount: Union[Decimal, float, str]) -> PositionIncreaseInfo:
-        response = self._post("auth/r/position/increase/info", body={ "symbol": symbol, "amount": amount })
-        data = response[0] + [response[1][0]] + response[1][1] + [response[1][2]] + response[4] + response[5]
-        return serializers.PositionIncreaseInfo.parse(*data)
+            .parse(*self._post("auth/w/position/increase", \
+                body={ "symbol": symbol, "amount": amount }))
 
     def get_positions_history(self,
                               *,
@@ -257,29 +249,32 @@ class RestAuthenticatedEndpoints(Middleware):
                             start: Optional[str] = None,
                             end: Optional[str] = None,
                             limit: Optional[int] = None) -> List[PositionAudit]:
+        body = { 
+            "ids": ids, "start": start, "end": end, 
+            "limit": limit 
+        }
+
         return [ serializers.PositionAudit.parse(*sub_data) \
-            for sub_data in self._post("auth/r/positions/audit", \
-                body={ "ids": ids, "start": start, "end": end, "limit": limit }) ]
+            for sub_data in self._post("auth/r/positions/audit", body=body) ]
 
     def set_derivative_position_collateral(self,
                                            symbol: str,
                                            collateral: Union[Decimal, float, str]) -> DerivativePositionCollateral:
-        body = { "symbol": symbol, "collateral": collateral }
-        response = self._post("auth/w/deriv/collateral/set", body=body)
-        return serializers.DerivativePositionCollateral.parse(*(response)[0])
+        return serializers.DerivativePositionCollateral \
+            .parse(*(self._post("auth/w/deriv/collateral/set", \
+                body={ "symbol": symbol, "collateral": collateral })[0]))
 
     def get_derivative_position_collateral_limits(self, symbol: str) -> DerivativePositionCollateralLimits:
-        body = { "symbol": symbol }
-        response = self._post("auth/calc/deriv/collateral/limit", body=body)
-        return serializers.DerivativePositionCollateralLimits.parse(*response)
+        return serializers.DerivativePositionCollateralLimits \
+            .parse(*self._post("auth/calc/deriv/collateral/limit", body={ "symbol": symbol }))
 
     def get_funding_offers(self, *, symbol: Optional[str] = None) -> List[FundingOffer]:
-        endpoint = "auth/r/funding/offers"
+        if symbol is None:
+            endpoint = "auth/r/funding/offers"
+        else: endpoint = f"auth/r/funding/offers/{symbol}"
 
-        if symbol is not None:
-            endpoint += f"/{symbol}"
-
-        return [ serializers.FundingOffer.parse(*sub_data) for sub_data in self._post(endpoint) ]
+        return [ serializers.FundingOffer.parse(*sub_data) \
+            for sub_data in self._post(endpoint) ]
 
     #pylint: disable-next=too-many-arguments
     def submit_funding_offer(self,
@@ -292,8 +287,7 @@ class RestAuthenticatedEndpoints(Middleware):
                              flags: Optional[int] = 0) -> Notification[FundingOffer]:
         body = {
             "type": type, "symbol": symbol, "amount": amount,
-            "rate": rate, "period": period, 
-            "flags": flags
+            "rate": rate, "period": period, "flags": flags
         }
 
         return _Notification[FundingOffer](serializers.FundingOffer) \
@@ -318,22 +312,22 @@ class RestAuthenticatedEndpoints(Middleware):
                           amount: Optional[str] = None,
                           rate: Optional[int] = None,
                           period: Optional[int] = None) -> Notification[FundingAutoRenew]:
+        body = {
+            "status": int(status), "currency": currency, "amount": amount,
+            "rate": rate, "period": period
+        }
+
         return _Notification[FundingAutoRenew](serializers.FundingAutoRenew) \
-            .parse(*self._post("auth/w/funding/auto", body={
-                "status": int(status), "currency": currency, "amount": amount,
-                "rate": rate, "period": period
-            }))
+            .parse(*self._post("auth/w/funding/auto", body=body))
 
     def toggle_keep_funding(self,
                             type: Literal["credit", "loan"],
                             *,
                             ids: Optional[List[int]] = None,
                             changes: Optional[Dict[int, Literal[1, 2]]] = None) -> Notification[Literal[None]]:
-        return _Notification[Literal[None]](None).parse(*self._post("auth/w/funding/keep", body={
-            "type": type,
-            "id": ids,
-            "changes": changes
-        }))
+        return _Notification[Literal[None]](None) \
+            .parse(*self._post("auth/w/funding/keep", \
+                body={ "type": type, "id": ids, "changes": changes }))
 
     def get_funding_offers_history(self,
                                    *,
@@ -345,19 +339,17 @@ class RestAuthenticatedEndpoints(Middleware):
             endpoint = "auth/r/funding/offers/hist"
         else: endpoint = f"auth/r/funding/offers/{symbol}/hist"
 
-        body = {
-            "start": start, "end": end,
-            "limit": limit
-        }
-
-        return [ serializers.FundingOffer.parse(*sub_data) for sub_data in self._post(endpoint, body=body) ]
+        return [ serializers.FundingOffer.parse(*sub_data) \
+            for sub_data in self._post(endpoint, \
+                body={ "start": start, "end": end, "limit": limit }) ]
 
     def get_funding_loans(self, *, symbol: Optional[str] = None) -> List[FundingLoan]:
         if symbol is None:
             endpoint = "auth/r/funding/loans"
         else: endpoint = f"auth/r/funding/loans/{symbol}"
 
-        return [ serializers.FundingLoan.parse(*sub_data) for sub_data in self._post(endpoint) ]
+        return [ serializers.FundingLoan.parse(*sub_data) \
+            for sub_data in self._post(endpoint) ]
 
     def get_funding_loans_history(self,
                                   *,
@@ -369,19 +361,17 @@ class RestAuthenticatedEndpoints(Middleware):
             endpoint = "auth/r/funding/loans/hist"
         else: endpoint = f"auth/r/funding/loans/{symbol}/hist"
 
-        body = {
-            "start": start, "end": end,
-            "limit": limit
-        }
-
-        return [ serializers.FundingLoan.parse(*sub_data) for sub_data in self._post(endpoint, body=body) ]
+        return [ serializers.FundingLoan.parse(*sub_data) \
+            for sub_data in self._post(endpoint, \
+                body={ "start": start, "end": end, "limit": limit }) ]
 
     def get_funding_credits(self, *, symbol: Optional[str] = None) -> List[FundingCredit]:
         if symbol is None:
             endpoint = "auth/r/funding/credits"
         else: endpoint = f"auth/r/funding/credits/{symbol}"
 
-        return [ serializers.FundingCredit.parse(*sub_data) for sub_data in self._post(endpoint) ]
+        return [ serializers.FundingCredit.parse(*sub_data) \
+            for sub_data in self._post(endpoint) ]
 
     def get_funding_credits_history(self,
                                     *,
@@ -393,12 +383,9 @@ class RestAuthenticatedEndpoints(Middleware):
             endpoint = "auth/r/funding/credits/hist"
         else: endpoint = f"auth/r/funding/credits/{symbol}/hist"
 
-        body = {
-            "start": start, "end": end,
-            "limit": limit
-        }
-
-        return [ serializers.FundingCredit.parse(*sub_data) for sub_data in self._post(endpoint, body=body) ]
+        return [ serializers.FundingCredit.parse(*sub_data) \
+            for sub_data in self._post(endpoint, \
+                body={ "start": start, "end": end, "limit": limit }) ]
 
     def get_funding_trades_history(self,
                                    *,
@@ -412,17 +399,15 @@ class RestAuthenticatedEndpoints(Middleware):
         else: endpoint = f"auth/r/funding/trades/{symbol}/hist"
 
         body = {
-            "sort": sort,
-            "start": start, "end": end,
-            "limit": limit
-        }
+            "sort": sort, "start": start, "end": end, 
+            "limit": limit }
 
-        return [ serializers.FundingTrade.parse(*sub_data) for sub_data in self._post(endpoint, body=body) ]
+        return [ serializers.FundingTrade.parse(*sub_data) \
+            for sub_data in self._post(endpoint, body=body) ]
 
     def get_funding_info(self, key: str) -> FundingInfo:
-        response = self._post(f"auth/r/info/funding/{key}")
-        data = [response[1]] + response[2]
-        return serializers.FundingInfo.parse(*data)
+        return serializers.FundingInfo \
+            .parse(*(self._post(f"auth/r/info/funding/{key}")[2]))
 
     #pylint: disable-next=too-many-arguments
     def transfer_between_wallets(self,
@@ -432,9 +417,8 @@ class RestAuthenticatedEndpoints(Middleware):
                                  currency_to: str,
                                  amount: Union[Decimal, float, str]) -> Notification[Transfer]:
         body = {
-            "from": from_wallet, "to": to_wallet,
-            "currency": currency, "currency_to": currency_to,
-            "amount": amount
+            "from": from_wallet, "to": to_wallet, "currency": currency, 
+            "currency_to": currency_to, "amount": amount
         }
 
         return _Notification[Transfer](serializers.Transfer) \
@@ -445,28 +429,29 @@ class RestAuthenticatedEndpoints(Middleware):
                                  method: str,
                                  address: str,
                                  amount: Union[Decimal, float, str]) -> Notification[Withdrawal]:
+        body = {
+            "wallet": wallet, "method": method, "address": address, 
+            "amount": amount
+        }
+
         return _Notification[Withdrawal](serializers.Withdrawal) \
-            .parse(*self._post("auth/w/withdraw", body={
-                "wallet": wallet, "method": method, "address": address, 
-                "amount": amount,
-            }))
+            .parse(*self._post("auth/w/withdraw", body=body))
 
     def get_deposit_address(self,
                             wallet: str,
                             method: str,
                             renew: bool = False) -> Notification[DepositAddress]:
         return _Notification[DepositAddress](serializers.DepositAddress) \
-            .parse(*self._post("auth/w/deposit/address", body={
-                "wallet": wallet, "method": method, "renew": int(renew)
-            }))
+            .parse(*self._post("auth/w/deposit/address", \
+                body={ "wallet": wallet, "method": method, "renew": int(renew) }))
 
     def generate_deposit_invoice(self,
                                  wallet: str,
                                  currency: str,
                                  amount: Union[Decimal, float, str]) -> LightningNetworkInvoice:
-        return serializers.LightningNetworkInvoice.parse(*self._post("auth/w/deposit/invoice", body={
-            "wallet": wallet, "currency": currency, "amount": amount
-        }))
+        return serializers.LightningNetworkInvoice \
+            .parse(*self._post("auth/w/deposit/invoice", \
+                body={ "wallet": wallet, "currency": currency, "amount": amount }))
 
     def get_movements(self,
                       *,
@@ -478,9 +463,6 @@ class RestAuthenticatedEndpoints(Middleware):
             endpoint = "auth/r/movements/hist"
         else: endpoint = f"auth/r/movements/{currency}/hist"
 
-        body = {
-            "start": start, "end": end,
-            "limit": limit
-        }
-
-        return [ serializers.Movement.parse(*sub_data) for sub_data in self._post(endpoint, body=body) ]
+        return [ serializers.Movement.parse(*sub_data) \
+            for sub_data in self._post(endpoint, \
+                body={ "start": start, "end": end, "limit": limit }) ]
