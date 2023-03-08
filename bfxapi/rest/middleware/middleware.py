@@ -53,12 +53,12 @@ class Middleware:
 
         if len(data) and data[0] == "error":
             if data[1] == Error.ERR_PARAMS:
-                raise RequestParametersError("The request was rejected with the "
-                    + f"following parameter error: <{data[2]}>")
+                raise RequestParametersError("The request was rejected with the " \
+                    f"following parameter error: <{data[2]}>")
 
             if data[1] is None or data[1] == Error.ERR_UNK or data[1] == Error.ERR_GENERIC:
-                raise UnknownGenericError("The server replied to the request with "
-                    + f"a generic error with message: <{data[2]}>.")
+                raise UnknownGenericError("The server replied to the request with " \
+                    f"a generic error with message: <{data[2]}>.")
 
         return data
 
@@ -86,14 +86,14 @@ class Middleware:
 
         if isinstance(data, list) and len(data) and data[0] == "error":
             if data[1] == Error.ERR_PARAMS:
-                raise RequestParametersError("The request was rejected with the "
-                    + f"following parameter error: <{data[2]}>")
+                raise RequestParametersError("The request was rejected with the " \
+                    f"following parameter error: <{data[2]}>")
 
             if data[1] == Error.ERR_AUTH_FAIL:
                 raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
 
             if data[1] is None or data[1] == Error.ERR_UNK or data[1] == Error.ERR_GENERIC:
-                raise UnknownGenericError("The server replied to the request with "
-                    + f"a generic error with message: <{data[2]}>.")
+                raise UnknownGenericError("The server replied to the request with " \
+                    f"a generic error with message: <{data[2]}>.")
 
         return data

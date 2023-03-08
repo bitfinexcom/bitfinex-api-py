@@ -9,12 +9,13 @@ ignore=examples
 disable=
     multiple-imports,
     missing-docstring,
+    logging-not-lazy,
+    logging-fstring-interpolation,
     too-few-public-methods,
     too-many-public-methods,
     too-many-instance-attributes,
     dangerous-default-value,
     inconsistent-return-statements,
-    logging-not-lazy
 
 [FORMAT]
 

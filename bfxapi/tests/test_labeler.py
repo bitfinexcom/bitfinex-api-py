@@ -26,8 +26,8 @@ class TestLabeler(unittest.TestCase):
             msg="_Serializer::get_labels() should return the right list of labels.")
 
         with self.assertRaises(LabelerSerializerException,
-                msg="_Serializer should raise LabelerSerializerException if given "
-                    + "fewer arguments than the serializer labels."):
+                msg="_Serializer should raise LabelerSerializerException if given " \
+                        "fewer arguments than the serializer labels."):
             serializer.parse(5, 65.0, "X")
 
     def test_generate_recursive_serializer(self):

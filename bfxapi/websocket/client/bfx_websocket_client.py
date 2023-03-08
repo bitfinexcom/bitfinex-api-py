@@ -22,8 +22,8 @@ from ...utils.logger import ColorLogger, FileLogger
 def _require_websocket_authentication(function: F) -> F:
     async def wrapper(self, *args, **kwargs):
         if hasattr(self, "authentication") and not self.authentication:
-            raise WebsocketAuthenticationRequired("To perform this action you need to authenticate " +
-                "using your API_KEY and API_SECRET.")
+            raise WebsocketAuthenticationRequired("To perform this action you need to " \
+                "authenticate using your API_KEY and API_SECRET.")
 
         await _require_websocket_connection(function)(self, *args, **kwargs)
 
@@ -86,9 +86,9 @@ class BfxWebsocketClient:
 
     async def start(self, connections = 5):
         if connections > BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT:
-            self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT} "
-                    + f"buckets from the same connection ({connections} in use), the server could momentarily "
-                        + "block the client with <429 Too Many Requests>.")
+            self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT} " \
+                    f"buckets from the same connection ({connections} in use), the server could momentarily " \
+                        "block the client with <429 Too Many Requests>.")
 
         for _ in range(connections):
             self.on_open_events.append(asyncio.Event())
@@ -113,9 +113,9 @@ class BfxWebsocketClient:
 
             async with websockets.connect(self.host) as websocket:
                 if reconnection.status:
-                    self.logger.info(f"Reconnect attempt successful (attempt no.{reconnection.attempts}): The "
-                        + f"client has been offline for a total of {datetime.now() - reconnection.timestamp} "
-                            + f"(connection lost at: {reconnection.timestamp:%d-%m-%Y at %H:%M:%S}).")
+                    self.logger.info(f"Reconnect attempt successful (attempt no.{reconnection.attempts}): The " \
+                        f"client has been offline for a total of {datetime.now() - reconnection.timestamp} " \
+                            f"(connection lost at: {reconnection.timestamp:%d-%m-%Y at %H:%M:%S}).")
 
                     reconnection = Reconnection(status=False, attempts=0, timestamp=None)
 
@@ -133,9 +133,9 @@ class BfxWebsocketClient:
                     if isinstance(message, dict):
                         if message["event"] == "info" and "version" in message:
                             if BfxWebsocketClient.VERSION != message["version"]:
-                                raise OutdatedClientVersion("Mismatch between the client version and the server "
-                                    + "version. Update the library to the latest version to continue (client version: "
-                                        + f"{BfxWebsocketClient.VERSION}, server version: {message['version']}).")
+                                raise OutdatedClientVersion("Mismatch between the client version and the server " \
+                                    "version. Update the library to the latest version to continue (client version: " \
+                                        f"{BfxWebsocketClient.VERSION}, server version: {message['version']}).")
                         elif message["event"] == "info" and message["code"] == 20051:
                             rcvd = websockets.frames.Close(code=1012,
                                 reason="Stop/Restart Websocket Server (please reconnect).")
@@ -165,20 +165,20 @@ class BfxWebsocketClient:
             except (websockets.ConnectionClosedError, socket.gaierror) as error:
                 if isinstance(error, websockets.ConnectionClosedError) and error.code in (1006, 1012):
                     if error.code == 1006:
-                        self.logger.error("Connection lost: no close frame received "
-                            + "or sent (1006). Attempting to reconnect...")
+                        self.logger.error("Connection lost: no close frame received " \
+                            "or sent (1006). Attempting to reconnect...")
 
                     if error.code == 1012:
-                        self.logger.info("WSS server is about to restart, reconnection "
-                            + "required (client received 20051). Attempt in progress...")
+                        self.logger.info("WSS server is about to restart, reconnection " \
+                            "required (client received 20051). Attempt in progress...")
 
                     reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now())
 
                     delay = _Delay(backoff_factor=1.618)
                 elif isinstance(error, socket.gaierror) and reconnection.status:
-                    self.logger.warning(f"Reconnection attempt no.{reconnection.attempts} has failed. "
-                        + f"Next reconnection attempt in ~{round(delay.peek()):.1f} seconds. (at the moment "
-                            + f"the client has been offline for {datetime.now() - reconnection.timestamp})")
+                    self.logger.warning(f"Reconnection attempt no.{reconnection.attempts} has failed. " \
+                        f"Next reconnection attempt in ~{round(delay.peek()):.1f} seconds. (at the moment " \
+                            f"the client has been offline for {datetime.now() - reconnection.timestamp})")
 
                     reconnection = reconnection._replace(attempts=reconnection.attempts + 1)
                 else: raise error
@@ -231,8 +231,8 @@ class BfxWebsocketClient:
     def on(self, *events, callback = None):
         for event in events:
             if event not in BfxWebsocketClient.EVENTS:
-                raise EventNotSupported(f"Event <{event}> is not supported. To get a list "
-                            + "of available events print BfxWebsocketClient.EVENTS")
+                raise EventNotSupported(f"Event <{event}> is not supported. To get a list " \
+                            "of available events print BfxWebsocketClient.EVENTS")
 
         if callback is not None:
             for event in events:
@@ -248,8 +248,8 @@ class BfxWebsocketClient:
     def once(self, *events, callback = None):
         for event in events:
             if event not in BfxWebsocketClient.EVENTS:
-                raise EventNotSupported(f"Event <{event}> is not supported. To get a list "
-                            + "of available events print BfxWebsocketClient.EVENTS")
+                raise EventNotSupported(f"Event <{event}> is not supported. To get a list " \
+                            "of available events print BfxWebsocketClient.EVENTS")
 
         if callback is not None:
             for event in events:
