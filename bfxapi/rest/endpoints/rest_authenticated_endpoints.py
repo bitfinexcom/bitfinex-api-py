@@ -1,5 +1,3 @@
-#pylint: disable=redefined-builtin
-
 from typing import Dict, List, Tuple, Union, Literal, Optional
 from decimal import Decimal
 from datetime import datetime

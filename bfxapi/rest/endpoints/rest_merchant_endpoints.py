@@ -1,5 +1,3 @@
-#pylint: disable=redefined-builtin
-
 from typing import TypedDict, Dict, List, Union, Literal, Optional, Any
 
 from decimal import Decimal

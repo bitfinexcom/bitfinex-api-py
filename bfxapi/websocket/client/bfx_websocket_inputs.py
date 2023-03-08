@@ -1,5 +1,3 @@
-#pylint: disable=redefined-builtin
-
 from decimal import Decimal
 from datetime import datetime
 
