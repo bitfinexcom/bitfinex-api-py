@@ -11,6 +11,7 @@
 PR fixes the following issue: 
 
 ## Type of change
+<!-- Select the most suitable choice and remove the others from the checklist -->
 
 - [ ] Bug fix (non-breaking change which fixes an issue);
 - [ ] New feature (non-breaking change which adds functionality);
