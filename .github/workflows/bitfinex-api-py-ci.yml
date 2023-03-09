@@ -18,14 +18,14 @@ jobs:
     steps: 
       - uses: actions/checkout@v3
       - name: Set up Python 3.8
-      - uses: actions/setup-python@v4
+        uses: actions/setup-python@v4
         with:
           python-version: '3.8'
       - name: Install bitfinex-api-py's dependencies
-      - run: python -m pip install -r dev-requirements.txt
+        run: python -m pip install -r dev-requirements.txt
       - name: Lint the project with pylint (and fail if score is lower than 10.00/10.00)
-      - run: python -m pylint bfxapi
+        run: python -m pylint bfxapi
       - name: Run mypy to check the correctness of type hinting (and fail if any error or warning is found)
-      - run: python -m mypy bfxapi
+        run: python -m mypy bfxapi
       - name: Execute project's unit tests (unittest)
-      - run: python -m unittest bfxapi.tests
+        run: python -m unittest bfxapi.tests
