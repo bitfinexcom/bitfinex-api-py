@@ -62,11 +62,9 @@ class BfxWebsocketClient:
     ]
 
     def __init__(self, host, credentials = None, log_filename = None, log_level = "INFO"):
-        self.websocket = None
+        self.websocket, self.buckets, self.authentication = None, [], False
 
         self.host, self.credentials, self.event_emitter = host, credentials, AsyncIOEventEmitter()
-
-        self.on_open_events, self.buckets, self.authentication = [], [], False
 
         self.inputs = BfxWebsocketInputs(handle_websocket_input=self.__handle_websocket_input)
 
@@ -95,14 +93,9 @@ class BfxWebsocketClient:
                         "block the client with <429 Too Many Requests>.")
 
         for _ in range(connections):
-            self.on_open_events.append(asyncio.Event())
+            self.buckets += [BfxWebsocketBucket(self.host, self.event_emitter)]
 
-        for index in range(connections):
-            self.buckets += [BfxWebsocketBucket(self.host, self.event_emitter, self.on_open_events[index])]
-
-        tasks = [ bucket.connect() for bucket in self.buckets ]
-
-        tasks.append(self.__connect())
+        tasks = [ bucket.connect() for bucket in self.buckets ] + [ self.__connect() ]
 
         await asyncio.gather(*tasks)
 
@@ -125,8 +118,8 @@ class BfxWebsocketClient:
 
                 self.websocket, self.authentication = websocket, False
 
-                if len(self.on_open_events) == 0 or \
-                        (await asyncio.gather(*[on_open_event.wait() for on_open_event in self.on_open_events])):
+                if len(self.buckets) == 0 or \
+                        (await asyncio.gather(*[bucket.on_open_event.wait() for bucket in self.buckets])):
                     self.event_emitter.emit("open")
 
                 if self.credentials:

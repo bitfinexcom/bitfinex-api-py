@@ -1,6 +1,6 @@
 from typing import Literal, TypeVar, Callable, cast
 
-import json, uuid, websockets
+import asyncio, json, uuid, websockets
 
 from ..handlers import PublicChannelsHandler
 
@@ -24,8 +24,8 @@ class BfxWebsocketBucket:
 
     MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
 
-    def __init__(self, host, event_emitter, on_open_event):
-        self.host, self.event_emitter, self.on_open_event = host, event_emitter, on_open_event
+    def __init__(self, host, event_emitter):
+        self.host, self.event_emitter, self.on_open_event = host, event_emitter, asyncio.locks.Event()
 
         self.websocket, self.subscriptions, self.pendings = None, {}, []
 
