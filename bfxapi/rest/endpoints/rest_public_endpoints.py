@@ -239,10 +239,10 @@ class RestPublicEndpoints(Middleware):
         data = self._get(f"funding/stats/{symbol}/hist", params=params)
         return [ serializers.FundingStatistic.parse(*sub_data) for sub_data in data ]
 
-    def get_pulse_profile(self, nickname: str) -> PulseProfile:
+    def get_pulse_profile_details(self, nickname: str) -> PulseProfile:
         return serializers.PulseProfile.parse(*self._get(f"pulse/profile/{nickname}"))
 
-    def get_pulse_history(self, *, end: Optional[str] = None, limit: Optional[int] = None) -> List[PulseMessage]:
+    def get_pulse_message_history(self, *, end: Optional[str] = None, limit: Optional[int] = None) -> List[PulseMessage]:
         messages = []
 
         for subdata in self._get("pulse/hist", params={ "end": end, "limit": limit }):

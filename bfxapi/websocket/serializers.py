@@ -149,7 +149,7 @@ DerivativesStatus = generate_labeler_serializer(
         "_PLACEHOLDER",
         "insurance_fund_balance",
         "_PLACEHOLDER",
-        "next_funding_evt_timestamp_ms",
+        "next_funding_evt_mts",
         "next_funding_accrued",
         "next_funding_step",
         "_PLACEHOLDER",

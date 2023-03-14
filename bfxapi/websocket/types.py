@@ -88,10 +88,10 @@ class FundingCurrencyRawBook(_Type):
 @dataclass
 class Candle(_Type):
     mts: int
-    open: float
-    close: float
-    high: float
-    low: float
+    open: int
+    close: int
+    high: int
+    low: int
     volume: float
 
 @dataclass
@@ -100,7 +100,7 @@ class DerivativesStatus(_Type):
     deriv_price: float
     spot_price: float
     insurance_fund_balance: float
-    next_funding_evt_timestamp_ms: int
+    next_funding_evt_mts: int
     next_funding_accrued: float
     next_funding_step: int
     current_funding: float
