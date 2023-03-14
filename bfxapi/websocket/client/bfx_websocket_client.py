@@ -13,7 +13,7 @@ from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, 
 from .bfx_websocket_inputs import BfxWebsocketInputs
 from ..handlers import PublicChannelsHandler, AuthenticatedChannelsHandler
 from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, \
-    OutdatedClientVersion
+    ZeroConnectionsError, OutdatedClientVersion
 
 from ...utils.json_encoder import JSONEncoder
 
@@ -85,6 +85,10 @@ class BfxWebsocketClient:
         return asyncio.run(self.start(connections))
 
     async def start(self, connections = 5):
+        if connections == 0:
+            self.logger.info("With connections set to 0 it will not be possible to subscribe to any public channel. " \
+                    "Attempting a subscription will cause a ZeroConnectionsError to be thrown.")
+
         if connections > BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT:
             self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT} " \
                     f"buckets from the same connection ({connections} in use), the server could momentarily " \
@@ -121,7 +125,8 @@ class BfxWebsocketClient:
 
                 self.websocket, self.authentication = websocket, False
 
-                if await asyncio.gather(*[on_open_event.wait() for on_open_event in self.on_open_events]):
+                if len(self.on_open_events) == 0 or \
+                        (await asyncio.gather(*[on_open_event.wait() for on_open_event in self.on_open_events])):
                     self.event_emitter.emit("open")
 
                 if self.credentials:
@@ -202,6 +207,9 @@ class BfxWebsocketClient:
         await self.websocket.send(json.dumps(data))
 
     async def subscribe(self, channel, **kwargs):
+        if len(self.buckets) == 0:
+            raise ZeroConnectionsError("Unable to subscribe: the number of connections must be greater than 0.")
+
         counters = [ len(bucket.pendings) + len(bucket.subscriptions) for bucket in self.buckets ]
 
         index = counters.index(min(counters))
