@@ -242,7 +242,10 @@ class RestPublicEndpoints(Middleware):
     def get_pulse_profile_details(self, nickname: str) -> PulseProfile:
         return serializers.PulseProfile.parse(*self._get(f"pulse/profile/{nickname}"))
 
-    def get_pulse_message_history(self, *, end: Optional[str] = None, limit: Optional[int] = None) -> List[PulseMessage]:
+    def get_pulse_message_history(self,
+                                  *,
+                                  end: Optional[str] = None,
+                                  limit: Optional[int] = None) -> List[PulseMessage]:
         messages = []
 
         for subdata in self._get("pulse/hist", params={ "end": end, "limit": limit }):
