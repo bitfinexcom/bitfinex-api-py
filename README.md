@@ -25,9 +25,13 @@ Provide your API-KEY/API-SECRET, and manage your account and funds at your own r
 2. [Basic Usage](#basic-usage)
 3. [Using the WebSocket client](#using-the-websocket-client)
     * [Running the client](#running-the-client)
+    * [Connection multiplexing](#connection-multiplexing)
     * [Subscribing to public channels](#subscribing-to-public-channels)
     * [Listening to events](#listening-to-events)
+    * [Main events](#main-events)
+    * [Reconnection in case of network failure](#reconnection-in-case-of-network-failure)
     * [Authentication with API-KEY and API-SECRET](#authentication-with-api-key-and-api-secret)
+    * [Configuring the custom logger](#configuring-the-custom-logger)
 4. [Building the source code](#building-the-source-code)
     * [Testing (with unittest)](#testing-with-unittest)
     * [Linting the project with pylint](#linting-the-project-with-pylint)
@@ -67,46 +71,68 @@ PUB_WSS_HOST | wss://api-pub.bitfinex.com/ws/2 | Recommended for connections tha
 
 ### Running the client
 
+The client can be run using `BfxWebSocketClient::run`:
+```python
+bfx.wss.run()
+```
+
+If an event loop is already running, users can start the client with `BfxWebSocketClient::start`:
+```python
+await bfx.wss.start()
+```
+
+### Connection multiplexing
+
+`BfxWebSocketClient::run` and `BfxWebSocketClient::start` accept a `connections` argument:
+```python
+bfx.wss.run(connections=3)
+```
+
+`connections` indicates the number of connections to run concurrently (through connection multiplexing).
+
+Each of these connections can handle up to 25 subscriptions to public channels. \
+So, using `N` connections will allow the client to handle at most `N * 25` subscriptions. \
+You should always use the minimum number of connections necessary to handle all the subscriptions that will be made.
+
+For example, if you know that your application will subscribe to 75 public channels, 75 / 25 = 3 connections will be enough to handle all the subscriptions.
+
+The default number of connections is 5; therefore, if the `connections` argument is not given, the client will be able to handle a maximum of 25 * 5 = 125 subscriptions.
+
+Keep in mind that using a large number of connections could slow down the client performance.
+
+The use of more than 20 connections is not recommended.
+
 ### Subscribing to public channels
 
-Users can subscribe to public channels using the coroutine `BfxWebSocketClient::subscribe`:
+Users can subscribe to public channels using `BfxWebSocketClient::subscribe`:
 ```python
 await bfx.wss.subscribe("ticker", symbol="tBTCUSD")
 ```
 
 #### Setting a custom `sub_id`
 
-The client generates a random and unique `sub_id` for each subscription. \
-However, it is possible to force this value by using the `sub_id` argument:
+The client generates a random `sub_id` for each subscription. \
+These values must be unique, as the client uses them to identify subscriptions. \
+However, it is possible to force this value by passing a custom `sub_id` to `BfxWebSocketClient::subscribe`:
 
 ```python
 await bfx.wss.subscribe("candles", key="trade:1m:tBTCUSD", sub_id="507f1f77bcf86cd799439011")
-```
-
-#### Using the `Channel` enumeration
-
-`Channel` is an enumeration that contains the names of all the available public channels:
-```python
-from bfxapi.websocket.enums import Channel
-```
-
-You can use `Channel` while subscribing to a new public channel:
-```python
-await bfx.wss.subscribe(Channel.CANDLES, key="trade:1m:tBTCUSD", sub_id="507f1f77bcf86cd799439011")
 ```
 
 ### Listening to events
 
 Whenever the WebSocket client receives data, it will emit a specific event. \
 Users can either ignore those events or listen for them by registering callback functions. \
-To add a listener for a specific event, users can use the `BfxWebSocketClient::on` decorator:
+These callback functions can also be asynchronous; in fact the client fully supports coroutines ([`asyncio`](https://docs.python.org/3/library/asyncio.html)).
+
+To add a listener for a specific event, users can use the decorator `BfxWebSocketClient::on`:
 ```python
 @bfx.wss.on("candles_update")
 def on_candles_update(sub: subscriptions.Candles, candle: Candle):
     print(f"Candle update for key <{sub['key']}>: {candle}")
 ```
 
-The same can be achieved without using decorators:
+The same can be done without using decorators:
 ```python
 bfx.wss.on("candles_update", callback=on_candles_update)
 ```
@@ -116,44 +142,31 @@ You can pass any number of events to register for the same callback function:
 bfx.wss.on("t_ticker_update", "f_ticker_update", callback=on_ticker_update)
 ```
 
-> **NOTE:** Callback functions can be either synchronous or asynchronous, in fact the client fully support coroutines (`asyncio`).
+### Main events
 
-#### The `open` event
+### Reconnection in case of network failure
 
-When the connection to the server is established, the client will emit the `open` event. \
-This is the right place for all bootstrap activities, including subscribing to public channels.
+In case of network failure, the client will keep waiting until it is able to restore the connection with the server.
 
+The client will try to reconnect with exponential backoff; the backoff delay starts at three seconds and increases up to one minute.
+
+After a successful reconnection attempt, the client will emit the `reconnection` event.
+
+This event accepts two arguments: \
+`attemps` (`int`) which is the number of reconnection attempts (including the successful one), \
+`timedelta` (`datetime.timedelta`) which contains the amount of time the client has been down.
+
+Users can use this event for a variety of things, such as sending a notification if the client has been down for too long:
 ```python
-@bfx.wss.once("open")
-async def on_open():
-    await bfx.wss.subscribe(Channel.TICKER, symbol="tBTCUSD")
-```
-
-#### The `authenticated` event
-
-
-If authentication succeeds, the client will emit the `authenticated` event. \
-All operations that require authentication must be performed after the emission of this event. \
-The `data` argument contains information regarding the authentication, such as the `userId`, the `auth_id`, etc...
-
-```python
-@bfx.wss.once("authenticated")
-def on_authenticated(data):
-    print(f"Successful login for user <{data['userId']}>.)
-```
-
-#### Using `BfxWebSocketClient::once` instead of `BfxWebSocketClient::on`
-
-For events that are expected to be emitted only once, it is highly recommended to use `BfxWebSocketClient::once`. \
-This prevents the client from emitting those events again, for example, after the connection is re-established following a network failure:
-
-```python
-@bfx.wss.once("t_book_snapshot")
-def on_t_book_snapshot(sub: subscriptions.Book, snapshot: List[TradingPairBook]):
-    print(f"The snapshot ({sub['symbol']}) contains {len(snapshot)} price points.")
+@bfx.wss.on("reconnection")
+async def on_reconnection(attempts: int, timedelta: datetime.timedelta):
+    if timedelta.total_seconds() >= 60 * 60: # 60s * 60s = 3600s = 1h
+        await bfx.wss.notify(f"The client has been down for {timedelta}.")
 ```
 
 ### Authentication with API-KEY and API-SECRET
+
+### Configuring the custom logger
 
 ## Building the source code
 
