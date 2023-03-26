@@ -21,24 +21,6 @@ Provide your API-KEY/API-SECRET, and manage your account and funds at your own r
 
 ---
 
-1. [Installation](#installation)
-2. [Basic Usage](#basic-usage)
-3. [Using the WebSocket client](#using-the-websocket-client)
-    * [Running the client](#running-the-client)
-    * [Connection multiplexing](#connection-multiplexing)
-    * [Subscribing to public channels](#subscribing-to-public-channels)
-    * [Listening to events](#listening-to-events)
-    * [Main events](#main-events)
-    * [Reconnection in case of network failure](#reconnection-in-case-of-network-failure)
-    * [Authentication with API-KEY and API-SECRET](#authentication-with-api-key-and-api-secret)
-    * [Configuring the custom logger](#configuring-the-custom-logger)
-4. [Building the source code](#building-the-source-code)
-    * [Testing (with unittest)](#testing-with-unittest)
-    * [Linting the project with pylint](#linting-the-project-with-pylint)
-    * [Using mypy to ensure correct type-hinting](#using-mypy-to-ensure-correct-type-hinting)
-5. [How to contribute](#how-to-contribute)
-    * [License](#license)
-
 ## Installation
 
 To install the latest beta release of `bitfinex-api-py`:
@@ -52,7 +34,34 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
 
 ## Basic usage
 
-## Using the WebSocket client
+---
+
+### Index
+
+* [WebSocket Client documentation](#websocket-client-documentation)
+* [Building the source code](#building-the-source-code)
+* [How to contribute](#how-to-contribute)
+
+---
+
+# WebSocket Client documentation
+
+1. [Instantiating the client](#instantiating-the-client)
+    * [Authentication](#authentication)
+    * [Configuring the logger](#configuring-the-logger)
+2. [Running the client](#running-the-client)
+    * [Closing the client](#closing-the-client)
+    * [Connection multiplexing](#connection-multiplexing)
+3. [Subscribing to public channels](#subscribing-to-public-channels)
+    * [Setting a custom `sub_id`](#setting-a-custom-sub_id)
+4. [Listening to events](#listening-to-events)
+5. [Events](#events)
+    * [`open`](#open)
+    * [`authenticated`](#authenticated)
+6. [Sending custom notifications](#sending-custom-notifications)
+7. [Handling reconnections in case of network failure](#handling-reconnections-in-case-of-network-failure)
+
+## Instantiating the client
 
 ```python
 bfx = Client(wss_host=PUB_WSS_HOST)
@@ -69,7 +78,29 @@ PUB_WSS_HOST | wss://api-pub.bitfinex.com/ws/2 | Recommended for connections tha
 
 > **NOTE:** The `wss_host` parameter is optional, and the default value is WSS_HOST.
 
-### Running the client
+### Authentication
+
+### Configuring the logger
+
+`log_filename` (`Optional[str]`, default: `None`): \
+Relative path of the file where to save the logs the client will emit. \
+If not given, the client will emit logs on `stdout` (`stderr` for errors and warnings).
+
+`log_level` (`str`, default: `"INFO"`): \
+Available log levels are (in order): `ERROR`, `WARNING`, `INFO` and `DEBUG`. \
+The client will only log messages whose level is lower than or equal to `log_level`. \
+For example, if `log_level=WARNING`, the client will only log errors and warnings.
+
+```python
+bfx = Client(
+    [...],
+    log_filename="2023-03-26.log",
+    log_level="WARNING"
+)
+```
+
+
+## Running the client
 
 The client can be run using `BfxWebSocketClient::run`:
 ```python
@@ -79,6 +110,12 @@ bfx.wss.run()
 If an event loop is already running, users can start the client with `BfxWebSocketClient::start`:
 ```python
 await bfx.wss.start()
+```
+
+### Closing the client
+
+```python
+await bfx.wss.close(code=1001, reason="Going Away")
 ```
 
 ### Connection multiplexing
@@ -102,14 +139,14 @@ Keep in mind that using a large number of connections could slow down the client
 
 The use of more than 20 connections is not recommended.
 
-### Subscribing to public channels
+## Subscribing to public channels
 
 Users can subscribe to public channels using `BfxWebSocketClient::subscribe`:
 ```python
 await bfx.wss.subscribe("ticker", symbol="tBTCUSD")
 ```
 
-#### Setting a custom `sub_id`
+### Setting a custom `sub_id`
 
 The client generates a random `sub_id` for each subscription. \
 These values must be unique, as the client uses them to identify subscriptions. \
@@ -119,7 +156,7 @@ However, it is possible to force this value by passing a custom `sub_id` to `Bfx
 await bfx.wss.subscribe("candles", key="trade:1m:tBTCUSD", sub_id="507f1f77bcf86cd799439011")
 ```
 
-### Listening to events
+## Listening to events
 
 Whenever the WebSocket client receives data, it will emit a specific event. \
 Users can either ignore those events or listen for them by registering callback functions. \
@@ -142,9 +179,48 @@ You can pass any number of events to register for the same callback function:
 bfx.wss.on("t_ticker_update", "f_ticker_update", callback=on_ticker_update)
 ```
 
-### Main events
+## Events
 
-### Reconnection in case of network failure
+### `open`:
+
+When the connection with the server is established, the client will emit the `open` event. \
+This is the right place for all bootstrap activities, including subscribing to public channels.
+
+```python
+@bfx.wss.on("open")
+async def on_open():
+    await bfx.wss.subscribe(Channel.TICKER, symbol="tBTCUSD")
+```
+
+### `authenticated`:
+
+If authentication succeeds, the client will emit the `authenticated` event. \
+All operations that require authentication must be performed after the emission of this event. \
+The `data` argument contains information regarding the authentication, such as the `userId`, the `auth_id`, etc...
+
+```python
+@bfx.wss.on("authenticated")
+def on_authenticated(data: Dict[str, Any]):
+    print(f"Successful login for user <{data['userId']}>.)
+```
+
+## Sending custom notifications
+
+**Sending custom notifications requires user authentication.**
+
+Users can send custom notifications using `BfxWebSocketClient::notify`:
+```python
+await bfx.wss.notify({ "foo": 1 })
+```
+
+The server broadcasts custom notifications to each of its clients:
+```python
+@bfx.wss.on("notification")
+def on_notification(notification: Notification[Any]):
+    print(notification.data) # { "foo": 1 }
+```
+
+## Handling reconnections in case of network failure
 
 In case of network failure, the client will keep waiting until it is able to restore the connection with the server.
 
@@ -164,21 +240,21 @@ async def on_reconnection(attempts: int, timedelta: datetime.timedelta):
         await bfx.wss.notify(f"The client has been down for {timedelta}.")
 ```
 
-### Authentication with API-KEY and API-SECRET
+---
 
-### Configuring the custom logger
+# Building the source code
 
-## Building the source code
+## Testing (with unittest)
 
-### Testing (with unittest)
+## Linting the project with pylint
 
-### Linting the project with pylint
+## Using mypy to ensure correct type-hinting
 
-### Using mypy to ensure correct type-hinting
+---
 
-## How to contribute
+# How to contribute
 
-### License
+## License
 This project is released under the `Apache License 2.0`.
 
 The complete license can be found here: https://www.apache.org/licenses/LICENSE-2.0.
