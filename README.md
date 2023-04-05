@@ -50,16 +50,14 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
     * [Authentication](#authentication)
     * [Configuring the logger](#configuring-the-logger)
 2. [Running the client](#running-the-client)
-    * [Closing the client](#closing-the-client)
-    * [Connection multiplexing](#connection-multiplexing)
+    * [Closing the connection](#closing-the-connection)
 3. [Subscribing to public channels](#subscribing-to-public-channels)
     * [Setting a custom `sub_id`](#setting-a-custom-sub_id)
 4. [Listening to events](#listening-to-events)
-5. [Events](#events)
-    * [`open`](#open)
-    * [`authenticated`](#authenticated)
-6. [Sending custom notifications](#sending-custom-notifications)
-7. [Handling reconnections in case of network failure](#handling-reconnections-in-case-of-network-failure)
+5. [Advanced Features](#advanced-features)
+    * [Connection multiplexing](#connection-multiplexing)
+    * [Sending custom notifications](#sending-custom-notifications)
+    * [Handling reconnections in case of network failure](#handling-reconnections-in-case-of-network-failure)
 
 ## Instantiating the client
 
@@ -73,8 +71,10 @@ The `bfxapi` package exports 2 constants to quickly set this URL:
 
 Constant | URL | When to use
 --- | --- | ---
-WSS_HOST | wss://api.bitfinex.com/ws/2 | Suitable for all situations, with support for authentication.
-PUB_WSS_HOST | wss://api-pub.bitfinex.com/ws/2 | Recommended for connections that do not require authentication.
+WSS_HOST | wss://api.bitfinex.com/ws/2 | Suitable for all situations, supports authentication.
+PUB_WSS_HOST | wss://api-pub.bitfinex.com/ws/2 | For public uses only, doesn't support authentication.
+
+PUB_WSS_HOST is recommended over WSS_HOST for applications that don't require authentication.
 
 > **NOTE:** The `wss_host` parameter is optional, and the default value is WSS_HOST.
 
@@ -99,7 +99,6 @@ bfx = Client(
 )
 ```
 
-
 ## Running the client
 
 The client can be run using `BfxWebSocketClient::run`:
@@ -112,32 +111,34 @@ If an event loop is already running, users can start the client with `BfxWebSock
 await bfx.wss.start()
 ```
 
-### Closing the client
+If the client succeeds in connecting to the server, it will emit the `open` event. \
+This is the right place for all bootstrap activities, such as subscribing to public channels. \
+To learn more about events and public channels, see [Listening to events](#listening-to-events) and [Subscribing to public channels](#subscribing-to-public-channels).
 
+```python
+@bfx.wss.on("open")
+async def on_open():
+    await bfx.wss.subscribe(Channel.TICKER, symbol="tBTCUSD")
+```
+
+### Closing the connection
+
+Users can close the connection with the WebSocket server using `BfxWebSocketClient::close`:
+```python
+await bfx.wss.close()
+```
+
+A custom [close code number](https://www.iana.org/assignments/websocket/websocket.xhtml#close-code-number) (along with a verbose reason) can be given as a parameter:
 ```python
 await bfx.wss.close(code=1001, reason="Going Away")
 ```
 
-### Connection multiplexing
-
-`BfxWebSocketClient::run` and `BfxWebSocketClient::start` accept a `connections` argument:
+After closing the connection, the client will emit the `disconnection` event:
 ```python
-bfx.wss.run(connections=3)
+@bfx.wss.on("disconnection")
+def on_disconnection(code: int, reason: str):
+    print(f"Closing connection with code: <{code}>. Reason: {reason}.")
 ```
-
-`connections` indicates the number of connections to run concurrently (through connection multiplexing).
-
-Each of these connections can handle up to 25 subscriptions to public channels. \
-So, using `N` connections will allow the client to handle at most `N * 25` subscriptions. \
-You should always use the minimum number of connections necessary to handle all the subscriptions that will be made.
-
-For example, if you know that your application will subscribe to 75 public channels, 75 / 25 = 3 connections will be enough to handle all the subscriptions.
-
-The default number of connections is 5; therefore, if the `connections` argument is not given, the client will be able to handle a maximum of 25 * 5 = 125 subscriptions.
-
-Keep in mind that using a large number of connections could slow down the client performance.
-
-The use of more than 20 connections is not recommended.
 
 ## Subscribing to public channels
 
@@ -179,32 +180,30 @@ You can pass any number of events to register for the same callback function:
 bfx.wss.on("t_ticker_update", "f_ticker_update", callback=on_ticker_update)
 ```
 
-## Events
+## Advanced features
 
-### `open`:
+### Connection multiplexing
 
-When the connection with the server is established, the client will emit the `open` event. \
-This is the right place for all bootstrap activities, including subscribing to public channels.
-
+`BfxWebSocketClient::run` and `BfxWebSocketClient::start` accept a `connections` argument:
 ```python
-@bfx.wss.on("open")
-async def on_open():
-    await bfx.wss.subscribe(Channel.TICKER, symbol="tBTCUSD")
+bfx.wss.run(connections=3)
 ```
 
-### `authenticated`:
+`connections` indicates the number of connections to run concurrently (through connection multiplexing).
 
-If authentication succeeds, the client will emit the `authenticated` event. \
-All operations that require authentication must be performed after the emission of this event. \
-The `data` argument contains information regarding the authentication, such as the `userId`, the `auth_id`, etc...
+Each of these connections can handle up to 25 subscriptions to public channels. \
+So, using `N` connections will allow the client to handle at most `N * 25` subscriptions. \
+You should always use the minimum number of connections necessary to handle all the subscriptions that will be made.
 
-```python
-@bfx.wss.on("authenticated")
-def on_authenticated(data: Dict[str, Any]):
-    print(f"Successful login for user <{data['userId']}>.)
-```
+For example, if you know that your application will subscribe to 75 public channels, 75 / 25 = 3 connections will be enough to handle all the subscriptions.
 
-## Sending custom notifications
+The default number of connections is 5; therefore, if the `connections` argument is not given, the client will be able to handle a maximum of 25 * 5 = 125 subscriptions.
+
+Keep in mind that using a large number of connections could slow down the client performance.
+
+The use of more than 20 connections is not recommended.
+
+### Sending custom notifications
 
 **Sending custom notifications requires user authentication.**
 
@@ -213,14 +212,18 @@ Users can send custom notifications using `BfxWebSocketClient::notify`:
 await bfx.wss.notify({ "foo": 1 })
 ```
 
-The server broadcasts custom notifications to each of its clients:
+Any data can be sent along with a custom notification.
+
+Custom notifications are broadcast by the server on all user's open connections. \
+So, each custom notification will be sent to every online client of the current user. \
+Whenever a client receives a custom notification, it will emit the `notification` event:
 ```python
 @bfx.wss.on("notification")
 def on_notification(notification: Notification[Any]):
     print(notification.data) # { "foo": 1 }
 ```
 
-## Handling reconnections in case of network failure
+### Handling reconnections in case of network failure
 
 In case of network failure, the client will keep waiting until it is able to restore the connection with the server.
 
