@@ -128,7 +128,7 @@ Users can close the connection with the WebSocket server using `BfxWebSocketClie
 await bfx.wss.close()
 ```
 
-A custom [close code number](https://www.iana.org/assignments/websocket/websocket.xhtml#close-code-number) (along with a verbose reason) can be given as a parameter:
+A custom [close code number](https://www.iana.org/assignments/websocket/websocket.xhtml#close-code-number), along with a verbose reason, can be given as parameters:
 ```python
 await bfx.wss.close(code=1001, reason="Going Away")
 ```
@@ -145,6 +145,14 @@ def on_disconnection(code: int, reason: str):
 Users can subscribe to public channels using `BfxWebSocketClient::subscribe`:
 ```python
 await bfx.wss.subscribe("ticker", symbol="tBTCUSD")
+```
+
+On each successful subscription, the client will emit the `subscribed` event:
+```python
+@bfx.wss.on("subscribed")
+def on_subscribed(subscription: subscriptions.Subscription):
+    if subscription["channel"] == "ticker":
+        print(f"{subscription['symbol']}: {subscription['subId']}") # tBTCUSD: f2757df2-7e11-4244-9bb7-a53b7343bef8
 ```
 
 ### Setting a custom `sub_id`
