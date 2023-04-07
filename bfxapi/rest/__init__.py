@@ -1,1 +1,2 @@
-NAME = 'rest'
+from .endpoints import BfxRestInterface, RestPublicEndpoints, RestAuthenticatedEndpoints, \
+                    RestMerchantEndpoints

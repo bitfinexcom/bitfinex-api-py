@@ -1,175 +1,271 @@
-# Bitfinex Trading Library for Python - Bitcoin, Ethereum, Ripple and more
+# bitfinex-api-py (v3-beta)
 
-![https://api.travis-ci.org/bitfinexcom/bitfinex-api-py.svg?branch=master](https://api.travis-ci.org/bitfinexcom/bitfinex-api-py.svg?branch=master)
+Official implementation of the [Bitfinex APIs (V2)](https://docs.bitfinex.com/docs) for `Python 3.8+`.
 
-A Python reference implementation of the Bitfinex API for both REST and websocket interaction.
+> **DISCLAIMER:** \
+Production use of v3.0.0b1 (and all future beta versions) is HIGHLY discouraged. \
+Beta versions should not be used in applications which require user authentication. \
+Provide your API-KEY/API-SECRET, and manage your account and funds at your own risk.
 
-# Features
-- Official implementation
-- Websocket V2 and Rest V2
-- Connection multiplexing
-- Order and wallet management
-- All market data feeds
+### Features
+- User-friendly implementations for 75+ public and authenticated REST endpoints.
+    * A complete list of available REST endpoints can be found [here](https://docs.bitfinex.com/reference).
+- New WebSocket client to ensure fast, secure and persistent connections.
+    * Support for all public channels + authenticated events and inputs (a list can be found [here](https://docs.bitfinex.com/docs/ws-public)).
+    * Automatic reconnection system in case of network failure (both client and server side).
+        - The WebSocket client logs every reconnection failure, success and attempt (as well as other events).
+    * Connection multiplexing to allow subscribing to a large number of public channels (without affecting performances).
+        - The WebSocket server sets a limit of 25 subscriptions per connection, connection multiplexing allows the WebSocket client to bypass this limit.
+- Full type-hinting and type-checking support with [`mypy`](https://github.com/python/mypy). 
+    * This allow text editors to show helpful hints about the value of a variable: ![example](https://i.imgur.com/aDjapcN.png "Type-hinting example on a random code snippet")
+
+---
 
 ## Installation
 
-Clone package into PYTHONPATH:
-```sh
-git clone https://github.com/bitfinexcom/bitfinex-api-py.git
-cd bitfinex-api-py
+To install the latest beta release of `bitfinex-api-py`:
+```bash
+python3 -m pip install --pre bitfinex-api-py
+```
+To install a specific beta version:
+```bash
+python3 -m pip install bitfinex-api-py==3.0.0b1
 ```
 
-Or via pip:
-```sh
-python3 -m pip install bitfinex-api-py
-```
+## Basic usage
 
-Run the trades/candles example:
-```sh
-cd bfxapi/examples/ws
-python3 subscribe_trades_candles.py
-```
+---
 
-## Quickstart
+### Index
+
+* [WebSocket Client documentation](#websocket-client-documentation)
+* [Building the source code](#building-the-source-code)
+* [How to contribute](#how-to-contribute)
+
+---
+
+# WebSocket Client documentation
+
+1. [Instantiating the client](#instantiating-the-client)
+    * [Authentication](#authentication)
+    * [Configuring the logger](#configuring-the-logger)
+2. [Running the client](#running-the-client)
+    * [Closing the connection](#closing-the-connection)
+3. [Subscribing to public channels](#subscribing-to-public-channels)
+    * [Setting a custom `sub_id`](#setting-a-custom-sub_id)
+4. [Listening to events](#listening-to-events)
+5. [Advanced Features](#advanced-features)
+    * [Connection multiplexing](#connection-multiplexing)
+    * [Sending custom notifications](#sending-custom-notifications)
+    * [Handling reconnections in case of network failure](#handling-reconnections-in-case-of-network-failure)
+
+## Instantiating the client
 
 ```python
-import os
-import sys
-from bfxapi import Client, Order
-
-bfx = Client(
-  API_KEY='<YOUR_API_KEY>',
-  API_SECRET='<YOUR_API_SECRET>'
-)
-
-@bfx.ws.on('authenticated')
-async def submit_order(auth_message):
-  await bfx.ws.submit_order('tBTCUSD', 19000, 0.01, Order.Type.EXCHANGE_MARKET)
-
-bfx.ws.run()
+bfx = Client(wss_host=PUB_WSS_HOST)
 ```
 
-## Docs
+`Client::wss` contains an instance of `BfxWebSocketClient` (core implementation of the WebSocket client). \
+The `wss_host` argument is used to indicate the URL to which the WebSocket client should connect. \
+The `bfxapi` package exports 2 constants to quickly set this URL:
 
-* <b>[V2 Rest](docs/rest_v2.md)</b> - Documentation
-* <b>[V2 Websocket](docs/ws_v2.md)</b> - Documentation
+Constant | URL | When to use
+--- | --- | ---
+WSS_HOST | wss://api.bitfinex.com/ws/2 | Suitable for all situations, supports authentication.
+PUB_WSS_HOST | wss://api-pub.bitfinex.com/ws/2 | For public uses only, doesn't support authentication.
 
-## Examples
+PUB_WSS_HOST is recommended over WSS_HOST for applications that don't require authentication.
 
-#### Authenticate
+> **NOTE:** The `wss_host` parameter is optional, and the default value is WSS_HOST.
 
-```python
-bfx = Client(
-  API_KEY='<YOUR_API_KEY>',
-  API_SECRET='<YOUR_API_SECRET>'
-)
+### Authentication
 
-@bfx.ws.on('authenticated')
-async def do_something():
-  print ("Success!")
+### Configuring the logger
 
-bfx.ws.run()
-```
+`log_filename` (`Optional[str]`, default: `None`): \
+Relative path of the file where to save the logs the client will emit. \
+If not given, the client will emit logs on `stdout` (`stderr` for errors and warnings).
 
-#### Subscribe to trades
-
-```python
-from bfxapi import Client
-
-bfx = Client(
-  API_KEY=API_KEY,
-  API_SECRET=API_SECRET
-)
-
-@bfx.ws.on('new_trade')
-def log_trade(trade):
-  print ("New trade: {}".format(trade))
-
-@bfx.ws.on('connected')
-def start():
-  bfx.ws.subscribe('trades', 'tBTCUSD')
-
-bfx.ws.run()
-```
-
-#### Withdraw from wallet via REST
+`log_level` (`str`, default: `"INFO"`): \
+Available log levels are (in order): `ERROR`, `WARNING`, `INFO` and `DEBUG`. \
+The client will only log messages whose level is lower than or equal to `log_level`. \
+For example, if `log_level=WARNING`, the client will only log errors and warnings.
 
 ```python
 bfx = Client(
-  API_KEY=API_KEY,
-  API_SECRET=API_SECRET,
-  logLevel='DEBUG'
+    [...],
+    log_filename="2023-03-26.log",
+    log_level="WARNING"
 )
-response = await bfx.rest.submit_wallet_withdraw("exchange", "tetheruse", 5, "0xc5bbb852f82c24327693937d4012f496cff7eddf")
-print ("Address: ", response.notify_info)
 ```
-See the <b>[examples](https://github.com/bitfinexcom/bitfinex-api-py/tree/master/examples)</b> directory for more, like:
 
-- [Creating/updating an order](https://github.com/bitfinexcom/bitfinex-api-py/blob/master/bfxapi/examples/ws/send_order.py)
-- [Subscribing to orderbook updates](https://github.com/bitfinexcom/bitfinex-api-py/blob/master/bfxapi/examples/ws/resubscribe_orderbook.py)
-- [Withdrawing crypto](https://github.com/bitfinexcom/bitfinex-api-py/blob/master/bfxapi/examples/rest/transfer_wallet.py)
-- [Submitting a funding offer](https://github.com/bitfinexcom/bitfinex-api-py/blob/master/bfxapi/examples/rest/create_funding.py)
+## Running the client
 
-For more info on how to use this library please see the example scripts in the `bfxapi/examples` directory. Here you will find usage of all interface exposed functions for both the rest and websocket.
-
-Also please see [this medium article](https://medium.com/@Bitfinex/15f201ad20d4) for a tutorial.
-
-## FAQ
-
-### Is there any rate limiting?
-
-For a Websocket connection there is no limit to the number of requests sent down the connection (unlimited order operations) however an account can only create 15 new connections every 5 mins and each connection is only able to subscribe to 30 inbound data channels. Fortunately this library handles all of the load balancing/multiplexing for channels and will automatically create/destroy new connections when needed, however the user may still encounter the max connections rate limiting error.
-
-For rest the base limit per-user is 1,000 orders per 5 minute interval, and is shared between all account API connections. It increases proportionally to your trade volume based on the following formula:
-
-1000 + (TOTAL_PAIRS_PLATFORM * 60 * 5) / (250000000 / USER_VOL_LAST_30d)
-
-Where TOTAL_PAIRS_PLATFORM is the number of pairs on the Bitfinex platform (currently ~101) and USER_VOL_LAST_30d is in USD.
-
-### Will I always receive an `on` packet?
-
-No; if your order fills immediately, the first packet referencing the order will be an `oc` signaling the order has closed. If the order fills partially immediately after creation, an `on` packet will arrive with a status of `PARTIALLY FILLED...`
-
-For example, if you submit a `LIMIT` buy for 0.2 BTC and it is added to the order book, an `on` packet will arrive via ws2. After a partial fill of 0.1 BTC, an `ou` packet will arrive, followed by a final `oc` after the remaining 0.1 BTC fills.
-
-On the other hand, if the order fills immediately for 0.2 BTC, you will only receive an `oc` packet.
-
-### My websocket won't connect!
-
-Did you call `client.Connect()`? :)
-
-### nonce too small
-
-I make multiple parallel request and I receive an error that the nonce is too small. What does it mean?
-
-Nonces are used to guard against replay attacks. When multiple HTTP requests arrive at the API with the wrong nonce, e.g. because of an async timing issue, the API will reject the request.
-
-If you need to go parallel, you have to use multiple API keys right now.
-
-### How do `te` and `tu` messages differ?
-
-A `te` packet is sent first to the client immediately after a trade has been matched & executed, followed by a `tu` message once it has completed processing. During times of high load, the `tu` message may be noticably delayed, and as such only the `te` message should be used for a realtime feed.
-
-### What are the sequence numbers for?
-
-If you enable sequencing on v2 of the WS API, each incoming packet will have a public sequence number at the end, along with an auth sequence number in the case of channel `0` packets. The public seq numbers increment on each packet, and the auth seq numbers increment on each authenticated action (new orders, etc). These values allow you to verify that no packets have been missed/dropped, since they always increase monotonically.
-
-### What is the difference between R* and P* order books?
-
-Order books with precision `R0` are considered 'raw' and contain entries for each order submitted to the book, whereas `P*` books contain entries for each price level (which aggregate orders).
-
-
-## Contributing
-
-1. Fork it ( https://github.com/[my-github-username]/bitfinex/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
-
-### Publish to Pypi
-
+The client can be run using `BfxWebSocketClient::run`:
+```python
+bfx.wss.run()
 ```
-python setup.py sdist
-twine upload dist/*
+
+If an event loop is already running, users can start the client with `BfxWebSocketClient::start`:
+```python
+await bfx.wss.start()
 ```
+
+If the client succeeds in connecting to the server, it will emit the `open` event. \
+This is the right place for all bootstrap activities, such as subscribing to public channels. \
+To learn more about events and public channels, see [Listening to events](#listening-to-events) and [Subscribing to public channels](#subscribing-to-public-channels).
+
+```python
+@bfx.wss.on("open")
+async def on_open():
+    await bfx.wss.subscribe(Channel.TICKER, symbol="tBTCUSD")
+```
+
+### Closing the connection
+
+Users can close the connection with the WebSocket server using `BfxWebSocketClient::close`:
+```python
+await bfx.wss.close()
+```
+
+A custom [close code number](https://www.iana.org/assignments/websocket/websocket.xhtml#close-code-number), along with a verbose reason, can be given as parameters:
+```python
+await bfx.wss.close(code=1001, reason="Going Away")
+```
+
+After closing the connection, the client will emit the `disconnection` event:
+```python
+@bfx.wss.on("disconnection")
+def on_disconnection(code: int, reason: str):
+    print(f"Closing connection with code: <{code}>. Reason: {reason}.")
+```
+
+## Subscribing to public channels
+
+Users can subscribe to public channels using `BfxWebSocketClient::subscribe`:
+```python
+await bfx.wss.subscribe("ticker", symbol="tBTCUSD")
+```
+
+On each successful subscription, the client will emit the `subscribed` event:
+```python
+@bfx.wss.on("subscribed")
+def on_subscribed(subscription: subscriptions.Subscription):
+    if subscription["channel"] == "ticker":
+        print(f"{subscription['symbol']}: {subscription['subId']}") # tBTCUSD: f2757df2-7e11-4244-9bb7-a53b7343bef8
+```
+
+### Setting a custom `sub_id`
+
+The client generates a random `sub_id` for each subscription. \
+These values must be unique, as the client uses them to identify subscriptions. \
+However, it is possible to force this value by passing a custom `sub_id` to `BfxWebSocketClient::subscribe`:
+
+```python
+await bfx.wss.subscribe("candles", key="trade:1m:tBTCUSD", sub_id="507f1f77bcf86cd799439011")
+```
+
+## Listening to events
+
+Whenever the WebSocket client receives data, it will emit a specific event. \
+Users can either ignore those events or listen for them by registering callback functions. \
+These callback functions can also be asynchronous; in fact the client fully supports coroutines ([`asyncio`](https://docs.python.org/3/library/asyncio.html)).
+
+To add a listener for a specific event, users can use the decorator `BfxWebSocketClient::on`:
+```python
+@bfx.wss.on("candles_update")
+def on_candles_update(sub: subscriptions.Candles, candle: Candle):
+    print(f"Candle update for key <{sub['key']}>: {candle}")
+```
+
+The same can be done without using decorators:
+```python
+bfx.wss.on("candles_update", callback=on_candles_update)
+```
+
+You can pass any number of events to register for the same callback function:
+```python
+bfx.wss.on("t_ticker_update", "f_ticker_update", callback=on_ticker_update)
+```
+
+## Advanced features
+
+### Connection multiplexing
+
+`BfxWebSocketClient::run` and `BfxWebSocketClient::start` accept a `connections` argument:
+```python
+bfx.wss.run(connections=3)
+```
+
+`connections` indicates the number of connections to run concurrently (through connection multiplexing).
+
+Each of these connections can handle up to 25 subscriptions to public channels. \
+So, using `N` connections will allow the client to handle at most `N * 25` subscriptions. \
+You should always use the minimum number of connections necessary to handle all the subscriptions that will be made.
+
+For example, if you know that your application will subscribe to 75 public channels, 75 / 25 = 3 connections will be enough to handle all the subscriptions.
+
+The default number of connections is 5; therefore, if the `connections` argument is not given, the client will be able to handle a maximum of 25 * 5 = 125 subscriptions.
+
+Keep in mind that using a large number of connections could slow down the client performance.
+
+The use of more than 20 connections is not recommended.
+
+### Sending custom notifications
+
+**Sending custom notifications requires user authentication.**
+
+Users can send custom notifications using `BfxWebSocketClient::notify`:
+```python
+await bfx.wss.notify({ "foo": 1 })
+```
+
+Any data can be sent along with a custom notification.
+
+Custom notifications are broadcast by the server on all user's open connections. \
+So, each custom notification will be sent to every online client of the current user. \
+Whenever a client receives a custom notification, it will emit the `notification` event:
+```python
+@bfx.wss.on("notification")
+def on_notification(notification: Notification[Any]):
+    print(notification.data) # { "foo": 1 }
+```
+
+### Handling reconnections in case of network failure
+
+In case of network failure, the client will keep waiting until it is able to restore the connection with the server.
+
+The client will try to reconnect with exponential backoff; the backoff delay starts at three seconds and increases up to one minute.
+
+After a successful reconnection attempt, the client will emit the `reconnection` event.
+
+This event accepts two arguments: \
+`attemps` (`int`) which is the number of reconnection attempts (including the successful one), \
+`timedelta` (`datetime.timedelta`) which contains the amount of time the client has been down.
+
+Users can use this event for a variety of things, such as sending a notification if the client has been down for too long:
+```python
+@bfx.wss.on("reconnection")
+async def on_reconnection(attempts: int, timedelta: datetime.timedelta):
+    if timedelta.total_seconds() >= 60 * 60: # 60s * 60s = 3600s = 1h
+        await bfx.wss.notify(f"The client has been down for {timedelta}.")
+```
+
+---
+
+# Building the source code
+
+## Testing (with unittest)
+
+## Linting the project with pylint
+
+## Using mypy to ensure correct type-hinting
+
+---
+
+# How to contribute
+
+## License
+This project is released under the `Apache License 2.0`.
+
+The complete license can be found here: https://www.apache.org/licenses/LICENSE-2.0.
