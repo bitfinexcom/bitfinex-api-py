@@ -52,6 +52,7 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
 2. [Running the client](#running-the-client)
     * [Closing the connection](#closing-the-connection)
 3. [Subscribing to public channels](#subscribing-to-public-channels)
+    * [Unsubscribing from a public channel](#unsubscribing-from-a-public-channel)
     * [Setting a custom `sub_id`](#setting-a-custom-sub_id)
 4. [Listening to events](#listening-to-events)
 5. [Advanced Features](#advanced-features)
@@ -153,6 +154,16 @@ On each successful subscription, the client will emit the `subscribed` event:
 def on_subscribed(subscription: subscriptions.Subscription):
     if subscription["channel"] == "ticker":
         print(f"{subscription['symbol']}: {subscription['subId']}") # tBTCUSD: f2757df2-7e11-4244-9bb7-a53b7343bef8
+```
+
+### Unsubscribing from a public channel
+
+It is possible to unsubscribe from a public channel at any time. \
+Unsubscribing from a public channel prevents the client from receiving any more data from it. \
+This can be done using `BfxWebSocketClient::unsubscribe`, and passing the `sub_id` of the public channel you want to unsubscribe from:
+
+```python
+await bfx.wss.unsubscribe(sub_id="f2757df2-7e11-4244-9bb7-a53b7343bef8")
 ```
 
 ### Setting a custom `sub_id`
