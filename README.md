@@ -38,17 +38,17 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
 
 ### Index
 
-* [WebSocket Client documentation](#websocket-client-documentation)
+* [WebSocket client documentation](#websocket-client-documentation)
 * [Building the source code](#building-the-source-code)
 * [How to contribute](#how-to-contribute)
 
 ---
 
-# WebSocket Client documentation
+# WebSocket client documentation
 
 1. [Instantiating the client](#instantiating-the-client)
     * [Authentication](#authentication)
-    * [Configuring the logger](#configuring-the-logger)
+        - [Filtering](#filtering)
 2. [Running the client](#running-the-client)
     * [Closing the connection](#closing-the-connection)
 3. [Subscribing to public channels](#subscribing-to-public-channels)
@@ -81,24 +81,56 @@ PUB_WSS_HOST is recommended over WSS_HOST for applications that don't require au
 
 ### Authentication
 
-### Configuring the logger
+Users can authenticate in their accounts by providing a pair of API-KEY and API-SECRET:
+```python
+bfx = Client(
+    [...],
+    api_key=os.getenv("BFX_API_KEY"),
+    api_secret=os.getenv("BFX_API_SECRET")
+)
+```
 
-`log_filename` (`Optional[str]`, default: `None`): \
-Relative path of the file where to save the logs the client will emit. \
-If not given, the client will emit logs on `stdout` (`stderr` for errors and warnings).
+If authentication succeeds, the client will emit the `authenticated` event. \
+All operations that require authentication must be performed after the emission of this event. \
+The `data` argument contains information regarding the authentication, such as the `userId`, the `auth_id`, etc...
 
-`log_level` (`str`, default: `"INFO"`): \
-Available log levels are (in order): `ERROR`, `WARNING`, `INFO` and `DEBUG`. \
-The client will only log messages whose level is lower than or equal to `log_level`. \
-For example, if `log_level=WARNING`, the client will only log errors and warnings.
+```python
+@bfx.wss.on("authenticated")
+def on_authenticated(data: Dict[str, Any]):
+    print(f"Successful login for user <{data['userId']}>.")
+```
+
+> **NOTE:** A guide on how to create, edit and revoke API-KEYs and API-SECRETs can be found [here](https://support.bitfinex.com/hc/en-us/articles/115003363429-How-to-create-and-revoke-a-Bitfinex-API-Key).
+
+
+#### Filtering
+
+`Client` accepts a `filters` argument, which you can use to select which channels the client should subscribe to:
 
 ```python
 bfx = Client(
     [...],
-    log_filename="2023-03-26.log",
-    log_level="WARNING"
+    api_key=os.getenv("BFX_API_KEY"),
+    api_secret=os.getenv("BFX_API_SECRET"),
+    filters=[ "wallet" ]
 )
 ```
+
+If `filters` is not given, the client will subscribe to all channels.
+
+Filters can be very useful both for safety reasons and for lightening network traffic (by excluding useless channels). \
+Ideally, you should always use `filters`, selecting only the channels your application will actually use. \
+Below, you can find a complete list of available filters (and the events they will emit):
+
+Filter | Subscribes the client to... | Available events are...
+--- | --- | ---
+trading | All channels regarding the user's orders, positions and trades (all trading pairs). | `order_snapshot`, `order_new`, `order_update`, `order_cancel`, `position_snapshot`, `position_new`, `position_update`, `position_close`, `trade_execution`, `trade_execution_update`
+trading-tBTCUSD | All channels regarding the user's orders, positions and trades (tBTCUSD). | `order_snapshot`, `order_new`, `order_update`, `order_cancel`, `position_snapshot`, `position_new`, `position_update`, `position_close`, `trade_executed`, `trade_execution_update`
+funding | All channels regarding the user's offers, credits and loans (all funding currencies). | `funding_offer_snapshot`, `funding_offer_new`, `funding_offer_update`, `funding_offer_cancel`, `funding_credit_snapshot`, `funding_credit_new`, `funding_credit_update`, `funding_credit_close`, `funding_loan_snapshot`, `funding_loan_new`, `funding_loan_update`, `funding_loan_close`
+funding-fBTC | All channels regarding the user's offers, credits and loans (fBTC). | `funding_offer_snapshot`, `funding_offer_new`, `funding_offer_update`, `funding_offer_cancel`, `funding_credit_snapshot`, `funding_credit_new`, `funding_credit_update`, `funding_credit_close`, `funding_loan_snapshot`, `funding_loan_new`, `funding_loan_update`, `funding_loan_close`
+wallet | All channels regarding user's exchange, trading and deposit wallets. | `wallet_snapshot`, `wallet_update`
+wallet-exchange-BTC | Channel regarding user's BTC exchange wallet. | `wallet_snapshot`, `wallet_update`
+balance | Channel regarding user's balances (tradable balance, etc...). | `balance_update`
 
 ## Running the client
 
