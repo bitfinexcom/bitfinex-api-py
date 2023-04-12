@@ -36,7 +36,7 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
 
 ---
 
-### Index
+## Index
 
 * [WebSocket client documentation](#websocket-client-documentation)
 * [Building the source code](#building-the-source-code)
@@ -48,17 +48,17 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
 
 1. [Instantiating the client](#instantiating-the-client)
     * [Authentication](#authentication)
-        - [Filtering](#filtering)
+        - [Filtering the channels](#filtering-the-channels)
 2. [Running the client](#running-the-client)
     * [Closing the connection](#closing-the-connection)
 3. [Subscribing to public channels](#subscribing-to-public-channels)
     * [Unsubscribing from a public channel](#unsubscribing-from-a-public-channel)
     * [Setting a custom `sub_id`](#setting-a-custom-sub_id)
 4. [Listening to events](#listening-to-events)
-5. [Advanced Features](#advanced-features)
-    * [Connection multiplexing](#connection-multiplexing)
-    * [Sending custom notifications](#sending-custom-notifications)
-    * [Handling reconnections in case of network failure](#handling-reconnections-in-case-of-network-failure)
+
+### Advanced features
+* [Sending custom notifications](#sending-custom-notifications)
+* [Setting up connection multiplexing](#setting-up-connection-multiplexing)
 
 ## Instantiating the client
 
@@ -71,7 +71,7 @@ The `wss_host` argument is used to indicate the URL to which the WebSocket clien
 The `bfxapi` package exports 2 constants to quickly set this URL:
 
 Constant | URL | When to use
---- | --- | ---
+:--- | :--- | :---
 WSS_HOST | wss://api.bitfinex.com/ws/2 | Suitable for all situations, supports authentication.
 PUB_WSS_HOST | wss://api-pub.bitfinex.com/ws/2 | For public uses only, doesn't support authentication.
 
@@ -91,8 +91,8 @@ bfx = Client(
 ```
 
 If authentication succeeds, the client will emit the `authenticated` event. \
-All operations that require authentication must be performed after the emission of this event. \
-The `data` argument contains information regarding the authentication, such as the `userId`, the `auth_id`, etc...
+All operations that require authentication will fail if run before the emission of this event. \
+The `data` argument contains various information about the authentication, such as the `userId`, the `auth_id`, etc...
 
 ```python
 @bfx.wss.on("authenticated")
@@ -100,12 +100,24 @@ def on_authenticated(data: Dict[str, Any]):
     print(f"Successful login for user <{data['userId']}>.")
 ```
 
+`data` can also be useful for checking API-KEY's permissions:
+
+```python
+@bfx.wss.on("authenticated")
+def on_authenticated(data: Dict[str, Any]):
+    if not data["caps"]["orders"]["read"]:
+        raise Exception("This application requires read permissions on orders.")
+
+    if not data["caps"]["positions"]["write"]:
+        raise Exception("This application requires write permissions on positions.")
+```
+
 > **NOTE:** A guide on how to create, edit and revoke API-KEYs and API-SECRETs can be found [here](https://support.bitfinex.com/hc/en-us/articles/115003363429-How-to-create-and-revoke-a-Bitfinex-API-Key).
 
 
-#### Filtering
+#### Filtering the channels
 
-`Client` accepts a `filters` argument, which you can use to select which channels the client should subscribe to:
+It is possible to select which channels the client should subscribe to using the `filters` argument:
 
 ```python
 bfx = Client(
@@ -116,21 +128,17 @@ bfx = Client(
 )
 ```
 
-If `filters` is not given, the client will subscribe to all channels.
-
-Filters can be very useful both for safety reasons and for lightening network traffic (by excluding useless channels). \
+Filtering can be very useful both for safety reasons and for lightening network traffic (by excluding useless channels). \
 Ideally, you should always use `filters`, selecting only the channels your application will actually use. \
-Below, you can find a complete list of available filters (and the events they will emit):
+Below, you can find a complete list of available filters (and the channels they will subscribe the client to):
 
 Filter | Subscribes the client to... | Available events are...
---- | --- | ---
+:--- | :--- | :---
 trading | All channels regarding the user's orders, positions and trades (all trading pairs). | `order_snapshot`, `order_new`, `order_update`, `order_cancel`, `position_snapshot`, `position_new`, `position_update`, `position_close`, `trade_execution`, `trade_execution_update`
 trading-tBTCUSD | All channels regarding the user's orders, positions and trades (tBTCUSD). | `order_snapshot`, `order_new`, `order_update`, `order_cancel`, `position_snapshot`, `position_new`, `position_update`, `position_close`, `trade_executed`, `trade_execution_update`
 funding | All channels regarding the user's offers, credits and loans (all funding currencies). | `funding_offer_snapshot`, `funding_offer_new`, `funding_offer_update`, `funding_offer_cancel`, `funding_credit_snapshot`, `funding_credit_new`, `funding_credit_update`, `funding_credit_close`, `funding_loan_snapshot`, `funding_loan_new`, `funding_loan_update`, `funding_loan_close`
 funding-fBTC | All channels regarding the user's offers, credits and loans (fBTC). | `funding_offer_snapshot`, `funding_offer_new`, `funding_offer_update`, `funding_offer_cancel`, `funding_credit_snapshot`, `funding_credit_new`, `funding_credit_update`, `funding_credit_close`, `funding_loan_snapshot`, `funding_loan_new`, `funding_loan_update`, `funding_loan_close`
 wallet | All channels regarding user's exchange, trading and deposit wallets. | `wallet_snapshot`, `wallet_update`
-wallet-exchange-BTC | Channel regarding user's BTC exchange wallet. | `wallet_snapshot`, `wallet_update`
-balance | Channel regarding user's balances (tradable balance, etc...). | `balance_update`
 
 ## Running the client
 
@@ -231,30 +239,9 @@ You can pass any number of events to register for the same callback function:
 bfx.wss.on("t_ticker_update", "f_ticker_update", callback=on_ticker_update)
 ```
 
-## Advanced features
+# Advanced features
 
-### Connection multiplexing
-
-`BfxWebSocketClient::run` and `BfxWebSocketClient::start` accept a `connections` argument:
-```python
-bfx.wss.run(connections=3)
-```
-
-`connections` indicates the number of connections to run concurrently (through connection multiplexing).
-
-Each of these connections can handle up to 25 subscriptions to public channels. \
-So, using `N` connections will allow the client to handle at most `N * 25` subscriptions. \
-You should always use the minimum number of connections necessary to handle all the subscriptions that will be made.
-
-For example, if you know that your application will subscribe to 75 public channels, 75 / 25 = 3 connections will be enough to handle all the subscriptions.
-
-The default number of connections is 5; therefore, if the `connections` argument is not given, the client will be able to handle a maximum of 25 * 5 = 125 subscriptions.
-
-Keep in mind that using a large number of connections could slow down the client performance.
-
-The use of more than 20 connections is not recommended.
-
-### Sending custom notifications
+## Sending custom notifications
 
 **Sending custom notifications requires user authentication.**
 
@@ -274,25 +261,26 @@ def on_notification(notification: Notification[Any]):
     print(notification.data) # { "foo": 1 }
 ```
 
-### Handling reconnections in case of network failure
+## Setting up connection multiplexing
 
-In case of network failure, the client will keep waiting until it is able to restore the connection with the server.
-
-The client will try to reconnect with exponential backoff; the backoff delay starts at three seconds and increases up to one minute.
-
-After a successful reconnection attempt, the client will emit the `reconnection` event.
-
-This event accepts two arguments: \
-`attemps` (`int`) which is the number of reconnection attempts (including the successful one), \
-`timedelta` (`datetime.timedelta`) which contains the amount of time the client has been down.
-
-Users can use this event for a variety of things, such as sending a notification if the client has been down for too long:
+`BfxWebSocketClient::run` and `BfxWebSocketClient::start` accept a `connections` argument:
 ```python
-@bfx.wss.on("reconnection")
-async def on_reconnection(attempts: int, timedelta: datetime.timedelta):
-    if timedelta.total_seconds() >= 60 * 60: # 60s * 60s = 3600s = 1h
-        await bfx.wss.notify(f"The client has been down for {timedelta}.")
+bfx.wss.run(connections=3)
 ```
+
+`connections` indicates the number of connections to run concurrently (through connection multiplexing).
+
+Each of these connections can handle up to 25 subscriptions to public channels. \
+So, using `N` connections will allow the client to handle at most `N * 25` subscriptions. \
+You should always use the minimum number of connections necessary to handle all the subscriptions that will be made.
+
+For example, if you know that your application will subscribe to 75 public channels, 75 / 25 = 3 connections will be enough to handle all the subscriptions.
+
+The default number of connections is 5; therefore, if the `connections` argument is not given, the client will be able to handle a maximum of 25 * 5 = 125 subscriptions.
+
+Keep in mind that using a large number of connections could slow down the client performance.
+
+The use of more than 20 connections is not recommended.
 
 ---
 
