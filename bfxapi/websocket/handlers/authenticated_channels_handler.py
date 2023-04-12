@@ -61,7 +61,7 @@ class AuthenticatedChannelsHandler:
             event, serializer = f"{stream[1]}-notification", _Notification(serializer=serializers.Order)
 
         if stream[1] == "oc_multi-req":
-            event, serializer = f"{stream[1]}-notification", _Notification(serializer=serializers.Order, iterate=True)
+            event, serializer = f"{stream[1]}-notification", _Notification(serializer=serializers.Order, is_iterable=True)
 
         if stream[1] == "fon-req" or stream[1] == "foc-req":
             event, serializer = f"{stream[1]}-notification", _Notification(serializer=serializers.FundingOffer)
