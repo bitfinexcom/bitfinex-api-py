@@ -39,7 +39,7 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
 ## Index
 
 * [WebSocket client documentation](#websocket-client-documentation)
-* [Building the source code](#building-the-source-code)
+* [Building from source code](#building-from-source-code)
 * [How to contribute](#how-to-contribute)
 
 ---
@@ -284,9 +284,41 @@ The use of more than 20 connections is not recommended.
 
 ---
 
-# Building the source code
+# Building from source code
+
+**Building from source code requires Python 3.8+**
+
+Make sure to clone the right branch of the repository (`v3-beta`):
+
+```bash
+git clone -b v3-beta --single-branch https://github.com/bitfinexcom/bitfinex-api-py.git
+```
+
+### Installing the dependencies
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+If you are willing to contribute to the project, you'll need the correct versions of [`pylint`](https://github.com/pylint-dev/pylint) and [`mypy`](https://github.com/python/mypy).
+
+You can get both by installing the dependencies in `dev-requirements.txt`:
+
+```bash
+python3 -m pip install -r dev-requirements.txt
+```
+
+### Optional steps
+
+1. [Testing (with unittest)](#testing-with-unittest)
+2. [Linting the project with pylint](#linting-the-project-with-pylint)
+3. [Using mypy to ensure correct type-hinting](#using-mypy-to-ensure-correct-type-hinting)
 
 ## Testing (with unittest)
+
+```bash
+python3 -m unittest -v bfxapi.tests
+```
 
 ## Linting the project with pylint
 
