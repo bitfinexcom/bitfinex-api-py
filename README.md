@@ -16,7 +16,7 @@ Provide your API-KEY/API-SECRET, and manage your account and funds at your own r
         - The WebSocket client logs every reconnection failure, success and attempt (as well as other events).
     * Connection multiplexing to allow subscribing to a large number of public channels (without affecting performances).
         - The WebSocket server sets a limit of 25 subscriptions per connection, connection multiplexing allows the WebSocket client to bypass this limit.
-- Full type-hinting and type-checking support with [`mypy`](https://github.com/python/mypy). 
+- Full type hinting and type checking support with [`mypy`](https://github.com/python/mypy). 
     * This allow text editors to show helpful hints about the value of a variable: ![example](https://i.imgur.com/aDjapcN.png "Type-hinting example on a random code snippet")
 
 ---
@@ -24,11 +24,11 @@ Provide your API-KEY/API-SECRET, and manage your account and funds at your own r
 ## Installation
 
 To install the latest beta release of `bitfinex-api-py`:
-```bash
+```console
 python3 -m pip install --pre bitfinex-api-py
 ```
 To install a specific beta version:
-```bash
+```console
 python3 -m pip install bitfinex-api-py==3.0.0b1
 ```
 
@@ -39,7 +39,7 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
 ## Index
 
 * [WebSocket client documentation](#websocket-client-documentation)
-* [Building from source code](#building-from-source-code)
+    - [Advanced features](#advanced-features)
 * [How to contribute](#how-to-contribute)
 
 ---
@@ -48,7 +48,6 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
 
 1. [Instantiating the client](#instantiating-the-client)
     * [Authentication](#authentication)
-        - [Filtering the channels](#filtering-the-channels)
 2. [Running the client](#running-the-client)
     * [Closing the connection](#closing-the-connection)
 3. [Subscribing to public channels](#subscribing-to-public-channels)
@@ -113,32 +112,6 @@ def on_authenticated(data: Dict[str, Any]):
 ```
 
 > **NOTE:** A guide on how to create, edit and revoke API-KEYs and API-SECRETs can be found [here](https://support.bitfinex.com/hc/en-us/articles/115003363429-How-to-create-and-revoke-a-Bitfinex-API-Key).
-
-
-#### Filtering the channels
-
-It is possible to select which channels the client should subscribe to using the `filters` argument:
-
-```python
-bfx = Client(
-    [...],
-    api_key=os.getenv("BFX_API_KEY"),
-    api_secret=os.getenv("BFX_API_SECRET"),
-    filters=[ "wallet" ]
-)
-```
-
-Filtering can be very useful both for safety reasons and for lightening network traffic (by excluding useless channels). \
-Ideally, you should always use `filters`, selecting only the channels your application will actually use. \
-Below, you can find a complete list of available filters (and the channels they will subscribe the client to):
-
-Filter | Subscribes the client to... | Available events are...
-:--- | :--- | :---
-trading | All channels regarding the user's orders, positions and trades (all trading pairs). | `order_snapshot`, `order_new`, `order_update`, `order_cancel`, `position_snapshot`, `position_new`, `position_update`, `position_close`, `trade_execution`, `trade_execution_update`
-trading-tBTCUSD | All channels regarding the user's orders, positions and trades (tBTCUSD). | `order_snapshot`, `order_new`, `order_update`, `order_cancel`, `position_snapshot`, `position_new`, `position_update`, `position_close`, `trade_executed`, `trade_execution_update`
-funding | All channels regarding the user's offers, credits and loans (all funding currencies). | `funding_offer_snapshot`, `funding_offer_new`, `funding_offer_update`, `funding_offer_cancel`, `funding_credit_snapshot`, `funding_credit_new`, `funding_credit_update`, `funding_credit_close`, `funding_loan_snapshot`, `funding_loan_new`, `funding_loan_update`, `funding_loan_close`
-funding-fBTC | All channels regarding the user's offers, credits and loans (fBTC). | `funding_offer_snapshot`, `funding_offer_new`, `funding_offer_update`, `funding_offer_cancel`, `funding_credit_snapshot`, `funding_credit_new`, `funding_credit_update`, `funding_credit_close`, `funding_loan_snapshot`, `funding_loan_new`, `funding_loan_update`, `funding_loan_close`
-wallet | All channels regarding user's exchange, trading and deposit wallets. | `wallet_snapshot`, `wallet_update`
 
 ## Running the client
 
@@ -284,51 +257,97 @@ The use of more than 20 connections is not recommended.
 
 ---
 
-# Building from source code
+# How to contribute
 
-**Building from source code requires Python 3.8+**
+1. [Installation and setup](#installation-and-setup)
+    * [Cloning the repository](#cloning-the-repository)
+    * [Installing the dependencies](#installing-the-dependencies)
+2. [Before opening a PR](#before-opening-a-pr)
+    * [Running the unit tests](#running-the-unit-tests)
+    * [Linting the project with pylint](#linting-the-project-with-pylint)
+    * [Using mypy to ensure correct type hinting](#using-mypy-to-ensure-correct-type-hinting)
+3. [License](#license)
 
-Make sure to clone the right branch of the repository (`v3-beta`):
+## Installation and setup
 
-```bash
-git clone -b v3-beta --single-branch https://github.com/bitfinexcom/bitfinex-api-py.git
+A brief guide on how to install and set up the project in your Python 3.8+ environment.
+
+### Cloning the repository
+
+The following command will only clone the `v3-beta` branch (excluding all others):
+
+```console
+git clone --branch v3-beta --single-branch https://github.com/bitfinexcom/bitfinex-api-py.git
 ```
 
 ### Installing the dependencies
 
-```bash
-python3 -m pip install -r requirements.txt
-```
-
-If you are willing to contribute to the project, you'll need the correct versions of [`pylint`](https://github.com/pylint-dev/pylint) and [`mypy`](https://github.com/python/mypy).
-
-You can get both by installing the dependencies in `dev-requirements.txt`:
-
-```bash
+```console
 python3 -m pip install -r dev-requirements.txt
 ```
 
-### Optional steps
+Make sure to install `dev-requirements.txt` instead of `requirements.txt`. \
+`dev-requirements.txt` will install all dependencies in `requirements.txt` plus any development dependencies. \
+This will also install the versions in use of [`pylint`](https://github.com/pylint-dev/pylint) and [`mypy`](https://github.com/python/mypy), which you should both use before opening your PRs.
 
-1. [Testing (with unittest)](#testing-with-unittest)
-2. [Linting the project with pylint](#linting-the-project-with-pylint)
-3. [Using mypy to ensure correct type-hinting](#using-mypy-to-ensure-correct-type-hinting)
+All done, your Python 3.8+ environment should now be able to run `bitfinex-api-py`'s source code.
 
-## Testing (with unittest)
+## Before opening a PR
 
-```bash
+Before opening a new pull request you must...
+* run the unit tests.
+* lint the project with pylint.
+* use mypy to ensure correct type hinting.
+
+### Running the unit tests
+
+`bitfinex-api-py` comes with a set of unit tests (written using the [`unittest`](https://docs.python.org/3.8/library/unittest.html) unit testing framework). \
+Contributors must ensure that each unit test passes before opening a pull request. \
+You can run all project's unit tests by calling `unittest` on `bfxapi.tests`:
+```console
 python3 -m unittest -v bfxapi.tests
 ```
 
-## Linting the project with pylint
+A single unit test can be run as follows:
+```console
+python3 -m unittest -v bfxapi.tests.test_notification
+```
 
-## Using mypy to ensure correct type-hinting
+### Linting the project with pylint
 
----
+`bitfinex-api-py`'s source code follows [`pylint`](https://github.com/pylint-dev/pylint) style guidelines (with some exceptions and modifications). \
+For a full look at what rules are in use, take a look at the configuration file [`.pylintrc`](https://github.com/bitfinexcom/bitfinex-api-py/blob/v3-beta/.pylintrc). \
+Make sure that `pylint` returns a score of 10.00/10.00 before opening a PR.
 
-# How to contribute
+You can run `pylint` against all project's files (`*.py`) by calling it on `bfxapi` (root package):
+```console
+python3 -m pylint bfxapi
+```
+
+### Using mypy to ensure correct type hinting
+
+`bitfinex-api-py` uses [`mypy`](https://github.com/python/mypy) to ensure correct type hinting for end users. \
+`mypy` must not throw any error code when run on your code (excluding notes). \
+You can perform type checks on all project's files by running this command:
+
+```console
+python3 -m mypy bfxapi
+```
 
 ## License
-This project is released under the `Apache License 2.0`.
 
-The complete license can be found here: https://www.apache.org/licenses/LICENSE-2.0.
+```
+Copyright 2023 Bitfinex
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
