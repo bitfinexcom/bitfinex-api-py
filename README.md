@@ -259,13 +259,20 @@ The use of more than 20 connections is not recommended.
 
 # How to contribute
 
+All contributions are welcome! :D
+
+
+A guide on how to install and set up `bitfinex-api-py`'s source code can be found [here](#installation-and-setup). \
+Before opening any pull requests, please have a look at [Before Opening a PR](#before-opening-a-pr). \
+Contributors must uphold the [Contributor Covenant code of conduct](https://github.com/bitfinexcom/bitfinex-api-py/blob/v3-beta/CODE_OF_CONDUCT.md).
+
+### Index
+
 1. [Installation and setup](#installation-and-setup)
     * [Cloning the repository](#cloning-the-repository)
     * [Installing the dependencies](#installing-the-dependencies)
 2. [Before opening a PR](#before-opening-a-pr)
     * [Running the unit tests](#running-the-unit-tests)
-    * [Linting the project with pylint](#linting-the-project-with-pylint)
-    * [Using mypy to ensure correct type hinting](#using-mypy-to-ensure-correct-type-hinting)
 3. [License](#license)
 
 ## Installation and setup
@@ -294,10 +301,16 @@ All done, your Python 3.8+ environment should now be able to run `bitfinex-api-p
 
 ## Before opening a PR
 
-Before opening a new pull request you must...
-* run the unit tests.
-* lint the project with pylint.
-* use mypy to ensure correct type hinting.
+**We won't accept your PR or we will request changes if the following requirements aren't met.**
+
+Wheter you're submitting a bug fix, a new feature or a documentation change, you should first discuss it in an issue.
+
+All PRs must follow this [PULL_REQUEST_TEMPLATE](https://github.com/bitfinexcom/bitfinex-api-py/blob/v3-beta/.github/PULL_REQUEST_TEMPLATE.md) and include an exhaustive description.
+
+Before opening a pull request, you should also make sure that:
+- [ ] all unit tests pass (see [Running the unit tests](#running-the-unit-tests)).
+- [ ] [`pylint`](https://github.com/pylint-dev/pylint) returns a score of 10.00/10.00 when run against your code.
+- [ ] [`mypy`](https://github.com/python/mypy) doesn't throw any error code when run on the project (excluding notes).
 
 ### Running the unit tests
 
@@ -311,27 +324,6 @@ python3 -m unittest -v bfxapi.tests
 A single unit test can be run as follows:
 ```console
 python3 -m unittest -v bfxapi.tests.test_notification
-```
-
-### Linting the project with pylint
-
-`bitfinex-api-py`'s source code follows [`pylint`](https://github.com/pylint-dev/pylint) style guidelines (with some exceptions and modifications). \
-For a full look at what rules are in use, take a look at the configuration file [`.pylintrc`](https://github.com/bitfinexcom/bitfinex-api-py/blob/v3-beta/.pylintrc). \
-Make sure that `pylint` returns a score of 10.00/10.00 before opening a PR.
-
-You can run `pylint` against all project's files (`*.py`) by calling it on `bfxapi` (root package):
-```console
-python3 -m pylint bfxapi
-```
-
-### Using mypy to ensure correct type hinting
-
-`bitfinex-api-py` uses [`mypy`](https://github.com/python/mypy) to ensure correct type hinting for end users. \
-`mypy` must not throw any error code when run on your code (excluding notes). \
-You can perform type checks on all project's files by running this command:
-
-```console
-python3 -m mypy bfxapi
 ```
 
 ## License
