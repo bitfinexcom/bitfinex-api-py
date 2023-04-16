@@ -9,16 +9,10 @@ Provide your API-KEY/API-SECRET, and manage your account and funds at your own r
 
 ### Features
 
-- User-friendly implementations for 75+ public and authenticated REST endpoints.
-    * A complete list of available REST endpoints can be found [here](https://docs.bitfinex.com/reference).
-- New WebSocket client to ensure fast, secure and persistent connections.
-    * Support for all public channels + authenticated events and inputs (a list can be found [here](https://docs.bitfinex.com/docs/ws-public)).
-    * Automatic reconnection system in case of network failure (both client and server side).
-        - The WebSocket client logs every reconnection failure, success and attempt (as well as other events).
-    * Connection multiplexing to allow subscribing to a large number of public channels (without affecting performances).
-        - The WebSocket server sets a limit of 25 subscriptions per connection, connection multiplexing allows the WebSocket client to bypass this limit.
-- Full type hinting and type checking support with [`mypy`](https://github.com/python/mypy). 
-    * This allow text editors to show helpful hints about the value of a variable: ![example](https://i.imgur.com/aDjapcN.png "Type-hinting example on a random code snippet")
+* Support for 75+ REST endpoints (a list of available endpoints can be found [here](https://docs.bitfinex.com/reference))
+* New WebSocket client to ensure fast, secure and persistent connections
+* Full support for Bitfinex notifications (including custom notifications)
+* Native support for type hinting and type checking with [`mypy`](https://github.com/python/mypy)
 
 ## Installation
 
