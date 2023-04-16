@@ -152,7 +152,7 @@ class BfxWebsocketClient:
                             rcvd = websockets.frames.Close(code=1012,
                                 reason="Stop/Restart Websocket Server (please reconnect).")
 
-                            raise websockets.ConnectionClosedError(rcvd=rcvd, sent=None)
+                            raise websockets.exceptions.ConnectionClosedError(rcvd=rcvd, sent=None)
                         elif message["event"] == "auth":
                             if message["status"] != "OK":
                                 raise InvalidAuthenticationCredentials(
@@ -177,8 +177,8 @@ class BfxWebsocketClient:
 
             try:
                 await _connection()
-            except (websockets.ConnectionClosedError, socket.gaierror) as error:
-                if isinstance(error, websockets.ConnectionClosedError) and error.code in (1006, 1012):
+            except (websockets.exceptions.ConnectionClosedError, socket.gaierror) as error:
+                if isinstance(error, websockets.exceptions.ConnectionClosedError) and error.code in (1006, 1012):
                     if error.code == 1006:
                         self.logger.error("Connection lost: no close frame received " \
                             "or sent (1006). Attempting to reconnect...")
@@ -235,11 +235,11 @@ class BfxWebsocketClient:
                 await bucket.unsubscribe(chan_id=chan_id)
 
     async def close(self, code=1000, reason=str()):
-        if self.websocket is not None and self.websocket.open:
-            await self.websocket.close(code=code, reason=reason)
-
         for bucket in self.buckets:
             await bucket.close(code=code, reason=reason)
+
+        if self.websocket is not None and self.websocket.open:
+            await self.websocket.close(code=code, reason=reason)
 
     @_require_websocket_authentication
     async def notify(self, info, message_id=None, **kwargs):

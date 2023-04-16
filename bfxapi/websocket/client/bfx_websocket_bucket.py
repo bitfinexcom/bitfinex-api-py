@@ -61,7 +61,7 @@ class BfxWebsocketBucket:
 
         try:
             await _connection()
-        except websockets.ConnectionClosedError as error:
+        except websockets.exceptions.ConnectionClosedError as error:
             if error.code in (1006, 1012):
                 self.on_open_event.clear()
 
