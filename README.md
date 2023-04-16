@@ -8,6 +8,7 @@ Beta versions should not be used in applications which require user authenticati
 Provide your API-KEY/API-SECRET, and manage your account and funds at your own risk.
 
 ### Features
+
 - User-friendly implementations for 75+ public and authenticated REST endpoints.
     * A complete list of available REST endpoints can be found [here](https://docs.bitfinex.com/reference).
 - New WebSocket client to ensure fast, secure and persistent connections.
@@ -19,27 +20,72 @@ Provide your API-KEY/API-SECRET, and manage your account and funds at your own r
 - Full type hinting and type checking support with [`mypy`](https://github.com/python/mypy). 
     * This allow text editors to show helpful hints about the value of a variable: ![example](https://i.imgur.com/aDjapcN.png "Type-hinting example on a random code snippet")
 
----
-
 ## Installation
 
-To install the latest beta release of `bitfinex-api-py`:
 ```console
 python3 -m pip install --pre bitfinex-api-py
 ```
-To install a specific beta version:
+
+### Selecting and installing a specific beta version
+
+It's also possible to select and install a specific beta version:
 ```console
 python3 -m pip install bitfinex-api-py==3.0.0b1
 ```
 
-## Basic usage
-
 ---
 
-## Index
+# Quickstart
+
+```python
+from bfxapi import Client, REST_HOST
+
+from bfxapi.rest.types import Notification, Order
+
+bfx = Client(
+    rest_host=REST_HOST,
+    api_key="<YOUR BFX API-KEY>",
+    api_secret="<YOUR BFX API-SECRET>"
+)
+
+notification: Notification[Order] = bfx.rest.auth.submit_order(
+    type="EXCHANGE LIMIT", symbol="tBTCUSD", amount=0.165212, price=30264.0)
+
+order: Order = notification.data
+
+if notification.status == "SUCCESS":
+    print(f"Successful new order for {order.symbol} at {order.price}$.")
+
+if notification.status == "ERROR":
+    raise Exception(f"Something went wrong: {notification.text}")
+```
+
+## Authenticating in your account
+
+To authenticate in your account, you must provide a valid API-KEY and API-SECRET:
+```python
+bfx = Client(
+    [...],
+    api_key=os.getenv("BFX_API_KEY"),
+    api_secret=os.getenv("BFX_API_SECRET")
+)
+```
+
+### Warning
+
+Remember to not share your API-KEYs and API-SECRETs with anyone. \
+Everyone who owns one of your API-KEYs and API-SECRETs will have full access to your account. \
+We suggest saving your credentials in a local `.env` file and accessing them as environment variables.
+
+_Revoke your API-KEYs and API-SECRETs immediately if you think they might have been stolen._
+
+> **NOTE:** A guide on how to create, edit and revoke API-KEYs and API-SECRETs can be found [here](https://support.bitfinex.com/hc/en-us/articles/115003363429-How-to-create-and-revoke-a-Bitfinex-API-Key).
+
+## Next
 
 * [WebSocket client documentation](#websocket-client-documentation)
     - [Advanced features](#advanced-features)
+    - [Examples](#examples)
 * [How to contribute](#how-to-contribute)
 
 ---
@@ -56,8 +102,10 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
 4. [Listening to events](#listening-to-events)
 
 ### Advanced features
-* [Sending custom notifications](#sending-custom-notifications)
+* [Using custom notifications](#using-custom-notifications)
 * [Setting up connection multiplexing](#setting-up-connection-multiplexing)
+
+#### Examples
 
 ## Instantiating the client
 
@@ -80,18 +128,11 @@ PUB_WSS_HOST is recommended over WSS_HOST for applications that don't require au
 
 ### Authentication
 
-Users can authenticate in their accounts by providing a pair of API-KEY and API-SECRET:
-```python
-bfx = Client(
-    [...],
-    api_key=os.getenv("BFX_API_KEY"),
-    api_secret=os.getenv("BFX_API_SECRET")
-)
-```
+To learn how to authenticate in your account, have a look at [Authenticating in your account](#authenticating-in-your-account).
 
-If authentication succeeds, the client will emit the `authenticated` event. \
+If authentication is successful, the client will emit the `authenticated` event. \
 All operations that require authentication will fail if run before the emission of this event. \
-The `data` argument contains various information about the authentication, such as the `userId`, the `auth_id`, etc...
+The `data` argument contains information about the authentication, such as the `userId`, the `auth_id`, etc...
 
 ```python
 @bfx.wss.on("authenticated")
@@ -99,7 +140,7 @@ def on_authenticated(data: Dict[str, Any]):
     print(f"Successful login for user <{data['userId']}>.")
 ```
 
-`data` can also be useful for checking API-KEY's permissions:
+`data` can also be useful for checking if an API-KEY has certain permissions:
 
 ```python
 @bfx.wss.on("authenticated")
@@ -110,8 +151,6 @@ def on_authenticated(data: Dict[str, Any]):
     if not data["caps"]["positions"]["write"]:
         raise Exception("This application requires write permissions on positions.")
 ```
-
-> **NOTE:** A guide on how to create, edit and revoke API-KEYs and API-SECRETs can be found [here](https://support.bitfinex.com/hc/en-us/articles/115003363429-How-to-create-and-revoke-a-Bitfinex-API-Key).
 
 ## Running the client
 
@@ -214,9 +253,9 @@ bfx.wss.on("t_ticker_update", "f_ticker_update", callback=on_ticker_update)
 
 # Advanced features
 
-## Sending custom notifications
+## Using custom notifications
 
-**Sending custom notifications requires user authentication.**
+**Using custom notifications requires user authentication.**
 
 Users can send custom notifications using `BfxWebSocketClient::notify`:
 ```python
@@ -255,12 +294,15 @@ Keep in mind that using a large number of connections could slow down the client
 
 The use of more than 20 connections is not recommended.
 
+# Examples
+
+
+
 ---
 
 # How to contribute
 
 All contributions are welcome! :D
-
 
 A guide on how to install and set up `bitfinex-api-py`'s source code can be found [here](#installation-and-setup). \
 Before opening any pull requests, please have a look at [Before Opening a PR](#before-opening-a-pr). \
