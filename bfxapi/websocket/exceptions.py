@@ -6,6 +6,7 @@ __all__ = [
     "ConnectionNotOpen",
     "TooManySubscriptions",
     "ZeroConnectionsError",
+    "ReconnectionTimeoutError",
     "WebsocketAuthenticationRequired",
     "InvalidAuthenticationCredentials",
     "EventNotSupported",
@@ -31,6 +32,11 @@ class TooManySubscriptions(BfxWebsocketException):
 class ZeroConnectionsError(BfxWebsocketException):
     """
     This error indicates an attempt to subscribe to a public channel while the number of connections is 0.
+    """
+
+class ReconnectionTimeoutError(BfxWebsocketException):
+    """
+    This error indicates that the connection has been offline for too long without being able to reconnect.
     """
 
 class WebsocketAuthenticationRequired(BfxWebsocketException):

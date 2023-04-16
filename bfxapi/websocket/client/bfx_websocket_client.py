@@ -13,7 +13,7 @@ from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, 
 from .bfx_websocket_inputs import BfxWebsocketInputs
 from ..handlers import PublicChannelsHandler, AuthenticatedChannelsHandler
 from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, \
-    ZeroConnectionsError, OutdatedClientVersion
+    ZeroConnectionsError, ReconnectionTimeoutError, OutdatedClientVersion
 
 from ...utils.json_encoder import JSONEncoder
 
@@ -61,10 +61,12 @@ class BfxWebsocketClient:
         *AuthenticatedChannelsHandler.EVENTS
     ]
 
-    def __init__(self, host, credentials = None, log_filename = None, log_level = "INFO"):
+    def __init__(self, host, credentials = None, wss_timeout = 60 * 15, log_filename = None, log_level = "INFO"):
         self.websocket, self.buckets, self.authentication = None, [], False
 
-        self.host, self.credentials, self.event_emitter = host, credentials, AsyncIOEventEmitter()
+        self.host, self.credentials, self.wss_timeout = host, credentials, wss_timeout
+
+        self.event_emitter = AsyncIOEventEmitter()
 
         self.inputs = BfxWebsocketInputs(handle_websocket_input=self.__handle_websocket_input)
 
@@ -102,8 +104,14 @@ class BfxWebsocketClient:
     #pylint: disable-next=too-many-statements
     async def __connect(self):
         Reconnection = namedtuple("Reconnection", ["status", "attempts", "timestamp"])
+        reconnection = Reconnection(status=False, attempts=0, timestamp=None)
+        delay, timer, on_timeout_event = None, None, asyncio.locks.Event()
 
-        reconnection, delay = Reconnection(status=False, attempts=0, timestamp=None), None
+        def _on_timeout():
+            on_timeout_event.set()
+
+            raise ReconnectionTimeoutError("Connection has been offline for too long " \
+                f"without being able to reconnect (wss_timeout is set to {self.wss_timeout}s).")
 
         async def _connection():
             nonlocal reconnection
@@ -115,6 +123,8 @@ class BfxWebsocketClient:
                             f"(connection lost at: {reconnection.timestamp:%d-%m-%Y at %H:%M:%S}).")
 
                     reconnection = Reconnection(status=False, attempts=0, timestamp=None)
+
+                    timer.cancel()
 
                 self.websocket, self.authentication = websocket, False
 
@@ -158,6 +168,9 @@ class BfxWebsocketClient:
             if reconnection.status:
                 await asyncio.sleep(delay.next())
 
+            if on_timeout_event.is_set():
+                break
+
             try:
                 await _connection()
             except (websockets.ConnectionClosedError, socket.gaierror) as error:
@@ -171,6 +184,8 @@ class BfxWebsocketClient:
                             "required (client received 20051). Attempt in progress...")
 
                     reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now())
+
+                    timer = asyncio.get_event_loop().call_later(self.wss_timeout, _on_timeout)
 
                     delay = _Delay(backoff_factor=1.618)
                 elif isinstance(error, socket.gaierror) and reconnection.status:

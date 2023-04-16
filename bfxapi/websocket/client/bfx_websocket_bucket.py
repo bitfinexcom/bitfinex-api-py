@@ -70,7 +70,7 @@ class BfxWebsocketBucket:
                         if (chan_id := message[0]) and message[1] != _HEARTBEAT:
                             self.handler.handle(self.subscriptions[chan_id], *message[1:])
             except websockets.ConnectionClosedError as error:
-                if error.code == 1006:
+                if error.code in (1006, 1012):
                     self.on_open_event.clear()
                     reconnection = True
                     continue

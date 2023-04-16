@@ -13,6 +13,7 @@ class Client:
             *,
             rest_host: str = REST_HOST,
             wss_host: str = WSS_HOST,
+            wss_timeout: int = 60 * 15,
             log_filename: Optional[str] = None,
             log_level: str = "INFO"
     ):
@@ -29,6 +30,7 @@ class Client:
         self.wss = BfxWebsocketClient(
             host=wss_host,
             credentials=credentials,
+            wss_timeout=wss_timeout,
             log_filename=log_filename,
             log_level=log_level
         )
