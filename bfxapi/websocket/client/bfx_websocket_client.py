@@ -61,7 +61,7 @@ class BfxWebsocketClient:
         *AuthenticatedChannelsHandler.EVENTS
     ]
 
-    def __init__(self, host, credentials = None, wss_timeout = 60 * 15, log_filename = None, log_level = "INFO"):
+    def __init__(self, host, credentials, *, wss_timeout = 60 * 15, log_filename = None, log_level = "INFO"):
         self.websocket, self.buckets, self.authentication = None, [], False
 
         self.host, self.credentials, self.wss_timeout = host, credentials, wss_timeout
@@ -97,15 +97,15 @@ class BfxWebsocketClient:
         for _ in range(connections):
             self.buckets += [BfxWebsocketBucket(self.host, self.event_emitter)]
 
-        tasks = [ bucket.connect() for bucket in self.buckets ] + [ self.__connect() ]
-
-        await asyncio.gather(*tasks)
+        await self.__connect()
 
     #pylint: disable-next=too-many-statements
     async def __connect(self):
         Reconnection = namedtuple("Reconnection", ["status", "attempts", "timestamp"])
         reconnection = Reconnection(status=False, attempts=0, timestamp=None)
-        delay, timer, on_timeout_event = None, None, asyncio.locks.Event()
+        delay, timer, tasks = None, None, []
+
+        on_timeout_event = asyncio.locks.Event()
 
         def _on_timeout():
             on_timeout_event.set()
@@ -114,7 +114,7 @@ class BfxWebsocketClient:
                 f"without being able to reconnect (wss_timeout is set to {self.wss_timeout}s).")
 
         async def _connection():
-            nonlocal reconnection
+            nonlocal reconnection, timer, tasks
 
             async with websockets.connect(self.host) as websocket:
                 if reconnection.status:
@@ -127,6 +127,10 @@ class BfxWebsocketClient:
                     timer.cancel()
 
                 self.websocket, self.authentication = websocket, False
+
+                coroutines = [ BfxWebsocketBucket.connect(bucket) for bucket in self.buckets ]
+
+                tasks = [ asyncio.create_task(coroutine) for coroutine in coroutines ]
 
                 if len(self.buckets) == 0 or \
                         (await asyncio.gather(*[bucket.on_open_event.wait() for bucket in self.buckets])):
@@ -183,10 +187,11 @@ class BfxWebsocketClient:
                         self.logger.info("WSS server is about to restart, reconnection " \
                             "required (client received 20051). Attempt in progress...")
 
+                    for task in tasks:
+                        task.cancel()
+
                     reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now())
-
                     timer = asyncio.get_event_loop().call_later(self.wss_timeout, _on_timeout)
-
                     delay = _Delay(backoff_factor=1.618)
                 elif isinstance(error, socket.gaierror) and reconnection.status:
                     self.logger.warning(f"Reconnection attempt no.{reconnection.attempts} has failed. " \

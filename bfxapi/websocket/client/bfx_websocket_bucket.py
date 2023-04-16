@@ -32,23 +32,12 @@ class BfxWebsocketBucket:
         self.handler = PublicChannelsHandler(event_emitter=self.event_emitter)
 
     async def connect(self):
-        reconnection = False
+        async def _connection():
+            async with websockets.connect(self.host) as websocket:
+                self.websocket = websocket
+                self.on_open_event.set()
+                await self.__recover_state()
 
-        async for websocket in websockets.connect(self.host):
-            self.websocket = websocket
-
-            self.on_open_event.set()
-
-            if reconnection or (reconnection := False):
-                for pending in self.pendings:
-                    await self.websocket.send(json.dumps(pending))
-
-                for _, subscription in self.subscriptions.items():
-                    await self.subscribe(**subscription)
-
-                self.subscriptions.clear()
-
-            try:
                 async for message in websocket:
                     message = json.loads(message)
 
@@ -69,15 +58,21 @@ class BfxWebsocketBucket:
                     if isinstance(message, list):
                         if (chan_id := message[0]) and message[1] != _HEARTBEAT:
                             self.handler.handle(self.subscriptions[chan_id], *message[1:])
-            except websockets.ConnectionClosedError as error:
-                if error.code in (1006, 1012):
-                    self.on_open_event.clear()
-                    reconnection = True
-                    continue
 
-                raise error
+        try:
+            await _connection()
+        except websockets.ConnectionClosedError as error:
+            if error.code in (1006, 1012):
+                self.on_open_event.clear()
 
-            break
+    async def __recover_state(self):
+        for pending in self.pendings:
+            await self.websocket.send(json.dumps(pending))
+
+        for _, subscription in self.subscriptions.items():
+            await self.subscribe(**subscription)
+
+        self.subscriptions.clear()
 
     @_require_websocket_connection
     async def subscribe(self, channel, sub_id=None, **kwargs):
