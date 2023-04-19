@@ -16,7 +16,7 @@ class AuthenticatedEventsHandler:
         "fon": "funding_offer_new", "fou": "funding_offer_update", "foc": "funding_offer_cancel", 
         "fcn": "funding_credit_new", "fcu": "funding_credit_update", "fcc": "funding_credit_close",
         "fln": "funding_loan_new", "flu": "funding_loan_update", "flc": "funding_loan_close", 
-        "te": "trade_executed", "tu": "trade_execution_update", "wu": "wallet_update",
+        "te": "trade_execution", "tu": "trade_execution_update", "wu": "wallet_update",
         "bu": "balance_update"
     }
 

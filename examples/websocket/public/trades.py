@@ -12,8 +12,8 @@ bfx = Client(wss_host=PUB_WSS_HOST)
 def on_candles_update(_sub: subscriptions.Candles, candle: Candle):
     print(f"New candle: {candle}")
 
-@bfx.wss.on("t_trade_executed")
-def on_t_trade_executed(_sub: subscriptions.Trades, trade: TradingPairTrade):
+@bfx.wss.on("t_trade_execution")
+def on_t_trade_execution(_sub: subscriptions.Trades, trade: TradingPairTrade):
     print(f"New trade: {trade}")
 
 @bfx.wss.on("wss-error")

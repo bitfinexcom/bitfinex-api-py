@@ -11,8 +11,8 @@ class PublicChannelsHandler:
 
     EVENTS = [
         *ONCE_PER_SUBSCRIPTION_EVENTS,
-        "t_ticker_update", "f_ticker_update", "t_trade_executed", 
-        "t_trade_execution_update", "f_trade_executed", "f_trade_execution_update", 
+        "t_ticker_update", "f_ticker_update", "t_trade_execution", 
+        "t_trade_execution_update", "f_trade_execution", "f_trade_execution_update", 
         "t_book_update", "f_book_update", "t_raw_book_update", 
         "f_raw_book_update", "candles_update", "derivatives_status_update"
     ]
@@ -71,14 +71,14 @@ class PublicChannelsHandler:
         if (event := stream[0]) and event in [ "te", "tu", "fte", "ftu" ]:
             if subscription["symbol"].startswith("t"):
                 return self.__emit(
-                    { "te": "t_trade_executed", "tu": "t_trade_execution_update" }[event],
+                    { "te": "t_trade_execution", "tu": "t_trade_execution_update" }[event],
                     subscription,
                     serializers.TradingPairTrade.parse(*stream[1])
                 )
 
             if subscription["symbol"].startswith("f"):
                 return self.__emit(
-                    { "fte": "f_trade_executed", "ftu": "f_trade_execution_update" }[event],
+                    { "fte": "f_trade_execution", "ftu": "f_trade_execution_update" }[event],
                     subscription,
                     serializers.FundingCurrencyTrade.parse(*stream[1])
                 )
