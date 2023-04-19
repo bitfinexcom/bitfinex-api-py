@@ -103,15 +103,15 @@ class BfxWebsocketClient:
     async def __connect(self):
         Reconnection = namedtuple("Reconnection", ["status", "attempts", "timestamp"])
         reconnection = Reconnection(status=False, attempts=0, timestamp=None)
-        delay, timer, tasks = None, None, []
+        delay = _Delay(backoff_factor=1.618)
+        
+        timer, tasks, on_timeout_event = None, [], asyncio.locks.Event()
 
-        on_timeout_event = asyncio.locks.Event()
-
-        def _on_timeout():
+        def _on_wss_timeout():
             on_timeout_event.set()
 
             raise ReconnectionTimeoutError("Connection has been offline for too long " \
-                f"without being able to reconnect (wss_timeout is set to {self.wss_timeout}s).")
+                f"without being able to reconnect (wss_timeout: {self.wss_timeout}s).")
 
         async def _connection():
             nonlocal reconnection, timer, tasks
@@ -191,8 +191,8 @@ class BfxWebsocketClient:
                         task.cancel()
 
                     reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now())
-                    timer = asyncio.get_event_loop().call_later(self.wss_timeout, _on_timeout)
-                    delay = _Delay(backoff_factor=1.618)
+
+                    timer = asyncio.get_event_loop().call_later(self.wss_timeout, _on_wss_timeout)
                 elif isinstance(error, socket.gaierror) and reconnection.status:
                     self.logger.warning(f"Reconnection attempt no.{reconnection.attempts} has failed. " \
                         f"Next reconnection attempt in ~{round(delay.peek()):.1f} seconds. (at the moment " \

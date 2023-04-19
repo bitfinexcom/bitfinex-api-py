@@ -13,7 +13,7 @@ class Client:
             *,
             rest_host: str = REST_HOST,
             wss_host: str = WSS_HOST,
-            wss_timeout: int = 60 * 15,
+            wss_timeout: float = 60 * 15,
             log_filename: Optional[str] = None,
             log_level: str = "INFO"
     ):
