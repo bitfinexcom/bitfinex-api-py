@@ -107,7 +107,7 @@ class BfxWebSocketClient:
 
         await self.__connect()
 
-    #pylint: disable-next=too-many-statements
+    #pylint: disable-next=too-many-statements,too-many-branches
     async def __connect(self):
         Reconnection = namedtuple("Reconnection", ["status", "attempts", "timestamp"])
         reconnection = Reconnection(status=False, attempts=0, timestamp=None)
@@ -118,6 +118,7 @@ class BfxWebSocketClient:
         def _on_wss_timeout():
             on_timeout_event.set()
 
+        #pylint: disable-next=too-many-branches
         async def _connection():
             nonlocal reconnection, timer, tasks
 
