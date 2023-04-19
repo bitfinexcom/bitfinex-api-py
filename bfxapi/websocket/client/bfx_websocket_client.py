@@ -129,7 +129,8 @@ class BfxWebsocketClient:
 
                     reconnection = Reconnection(status=False, attempts=0, timestamp=None)
 
-                    timer.cancel()
+                    if isinstance(timer, asyncio.events.TimerHandle):
+                        timer.cancel()
 
                 self.websocket = websocket
 
@@ -198,7 +199,10 @@ class BfxWebsocketClient:
                             task.cancel()
 
                         reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now())
-                        timer = asyncio.get_event_loop().call_later(self.wss_timeout, _on_wss_timeout)
+
+                        if self.wss_timeout is not None:
+                            timer = asyncio.get_event_loop().call_later(self.wss_timeout, _on_wss_timeout)
+
                         delay = _Delay(backoff_factor=1.618)
 
                         self.authentication = False
