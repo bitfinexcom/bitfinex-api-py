@@ -11,7 +11,7 @@ from pyee.asyncio import AsyncIOEventEmitter
 from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, BfxWebsocketBucket
 
 from .bfx_websocket_inputs import BfxWebsocketInputs
-from ..handlers import PublicChannelsHandler, AuthenticatedChannelsHandler
+from ..handlers import PublicChannelsHandler, AuthenticatedEventsHandler
 from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, \
     ZeroConnectionsError, ReconnectionTimeoutError, OutdatedClientVersion
 
@@ -60,7 +60,7 @@ class BfxWebsocketClient:
     EVENTS = [
         *ONCE_EVENTS, "subscribed", "wss-error",
         *PublicChannelsHandler.EVENTS,
-        *AuthenticatedChannelsHandler.EVENTS
+        *AuthenticatedEventsHandler.EVENTS
     ]
 
     def __init__(self, host, credentials, *, wss_timeout = 60 * 15, log_filename = None, log_level = "INFO"):
@@ -70,7 +70,7 @@ class BfxWebsocketClient:
 
         self.event_emitter = AsyncIOEventEmitter()
 
-        self.handler = AuthenticatedChannelsHandler(event_emitter=self.event_emitter)
+        self.handler = AuthenticatedEventsHandler(event_emitter=self.event_emitter)
 
         self.inputs = BfxWebsocketInputs(handle_websocket_input=self.__handle_websocket_input)
 

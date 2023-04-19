@@ -4,7 +4,7 @@ from .. serializers import _Notification
 
 from .. exceptions import HandlerNotFound
 
-class AuthenticatedChannelsHandler:
+class AuthenticatedEventsHandler:
     __abbreviations = {
         "os": "order_snapshot", "on": "order_new", "ou": "order_update", 
         "oc": "order_cancel", "ps": "position_snapshot", "pn": "position_new", 
@@ -43,9 +43,9 @@ class AuthenticatedChannelsHandler:
         if abbrevation == "n":
             return self.__notification(stream)
 
-        for abbrevations, serializer in AuthenticatedChannelsHandler.__serializers.items():
+        for abbrevations, serializer in AuthenticatedEventsHandler.__serializers.items():
             if abbrevation in abbrevations:
-                event = AuthenticatedChannelsHandler.__abbreviations[abbrevation]
+                event = AuthenticatedEventsHandler.__abbreviations[abbrevation]
 
                 if all(isinstance(substream, list) for substream in stream):
                     return self.event_emitter.emit(event, [ serializer.parse(*substream) for substream in stream ])
