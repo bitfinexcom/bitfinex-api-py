@@ -121,11 +121,11 @@ class BfxWebsocketClient:
         async def _connection():
             nonlocal reconnection, timer, tasks
 
-            async with websockets.connect(self.host) as websocket:
+            async with websockets.connect(self.host, ping_interval=None) as websocket:
                 if reconnection.status:
-                    self.logger.info(f"Reconnect attempt successful (attempt no.{reconnection.attempts}): The " \
+                    self.logger.info(f"Reconnection attempt successful (no.{reconnection.attempts}): The " \
                         f"client has been offline for a total of {datetime.now() - reconnection.timestamp} " \
-                            f"(connection lost at: {reconnection.timestamp:%d-%m-%Y at %H:%M:%S}).")
+                            f"(connection lost on: {reconnection.timestamp:%d-%m-%Y at %H:%M:%S}).")
 
                     reconnection = Reconnection(status=False, attempts=0, timestamp=None)
 
@@ -188,11 +188,11 @@ class BfxWebsocketClient:
                     if error.code in (1006, 1012):
                         if error.code == 1006:
                             self.logger.error("Connection lost: no close frame received " \
-                                "or sent (1006). Attempting to reconnect...")
+                                "or sent (1006). Trying to reconnect...")
 
                         if error.code == 1012:
-                            self.logger.info("WSS server is about to restart, reconnection " \
-                                "required (client received 20051). Attempt in progress...")
+                            self.logger.info("WSS server is about to restart, clients need " \
+                                "to reconnect (server sent 20051). Reconnection attempt in progress...")
 
                         for task in tasks:
                             task.cancel()
@@ -203,8 +203,8 @@ class BfxWebsocketClient:
 
                         self.authentication = False
                 elif isinstance(error, socket.gaierror) and reconnection.status:
-                    self.logger.warning(f"Reconnection attempt no.{reconnection.attempts} has failed. " \
-                        f"Next reconnection attempt in ~{round(delay.peek()):.1f} seconds. (at the moment " \
+                    self.logger.warning(f"Reconnection attempt was unsuccessful (no.{reconnection.attempts}). " \
+                        f"Next reconnection attempt in {delay.peek():.2f} seconds. (at the moment " \
                             f"the client has been offline for {datetime.now() - reconnection.timestamp})")
 
                     reconnection = reconnection._replace(attempts=reconnection.attempts + 1)
