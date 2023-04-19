@@ -43,8 +43,7 @@ class AuthenticatedEventsHandler:
     ON_EVENTS = [
         *list(__on_abbreviations.values()),
         "notification", "on-req-notification", "ou-req-notification", 
-        "oc-req-notification", "oc_multi-notification", "fon-req-notification",
-        "foc-req-notification"
+        "oc-req-notification", "fon-req-notification", "foc-req-notification"
     ]
 
     def __init__(self, event_emitter):
@@ -70,9 +69,6 @@ class AuthenticatedEventsHandler:
 
         if stream[1] == "on-req" or stream[1] == "ou-req" or stream[1] == "oc-req":
             event, serializer = f"{stream[1]}-notification", _Notification(serializer=serializers.Order)
-
-        if stream[1] == "oc_multi-req":
-            event, serializer = f"{stream[1]}-notification", _Notification(serializer=serializers.Order, iterate=True)
 
         if stream[1] == "fon-req" or stream[1] == "foc-req":
             event, serializer = f"{stream[1]}-notification", _Notification(serializer=serializers.FundingOffer)
