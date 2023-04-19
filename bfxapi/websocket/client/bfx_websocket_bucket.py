@@ -24,12 +24,13 @@ class BfxWebsocketBucket:
 
     MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
 
-    def __init__(self, host, event_emitter):
-        self.host, self.event_emitter, self.on_open_event = host, event_emitter, asyncio.locks.Event()
-
+    def __init__(self, host, event_emitter, events_per_subscription):
+        self.host, self.event_emitter, self.events_per_subscription = host, event_emitter, events_per_subscription
         self.websocket, self.subscriptions, self.pendings = None, {}, []
+        self.on_open_event = asyncio.locks.Event()
 
-        self.handler = PublicChannelsHandler(event_emitter=self.event_emitter)
+        self.handler = PublicChannelsHandler(event_emitter=self.event_emitter, \
+            events_per_subscription=self.events_per_subscription)
 
     async def connect(self):
         async def _connection():
@@ -43,12 +44,16 @@ class BfxWebsocketBucket:
 
                     if isinstance(message, dict):
                         if message["event"] == "subscribed" and (chan_id := message["chanId"]):
-                            self.pendings = \
-                                [ pending for pending in self.pendings if pending["subId"] != message["subId"] ]
+                            self.pendings = [ pending \
+                                for pending in self.pendings if pending["subId"] != message["subId"] ]
 
                             self.subscriptions[chan_id] = message
 
-                            self.event_emitter.emit("subscribed", message)
+                            sub_id = message["subId"]
+
+                            if "subscribed" not in self.events_per_subscription.get(sub_id, []):
+                                self.events_per_subscription.setdefault(sub_id, []).append("subscribed")
+                                self.event_emitter.emit("subscribed", message)
                         elif message["event"] == "unsubscribed" and (chan_id := message["chanId"]):
                             if message["status"] == "OK":
                                 del self.subscriptions[chan_id]
@@ -70,7 +75,7 @@ class BfxWebsocketBucket:
             await self.websocket.send(json.dumps(pending))
 
         for _, subscription in self.subscriptions.items():
-            await self.subscribe(**subscription)
+            await self.subscribe(sub_id=subscription.pop("subId"), **subscription)
 
         self.subscriptions.clear()
 
