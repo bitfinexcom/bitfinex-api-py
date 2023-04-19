@@ -1,7 +1,7 @@
 from typing import List, Literal, Optional
 
 from .rest import BfxRestInterface
-from .websocket import BfxWebsocketClient
+from .websocket import BfxWebSocketClient
 from .urls import REST_HOST, WSS_HOST
 
 class Client:
@@ -27,7 +27,7 @@ class Client:
             credentials=credentials
         )
 
-        self.wss = BfxWebsocketClient(
+        self.wss = BfxWebSocketClient(
             host=wss_host,
             credentials=credentials,
             wss_timeout=wss_timeout,

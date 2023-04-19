@@ -6,7 +6,7 @@ from ..labeler import _Type
 
 from ..websocket import serializers
 
-class TestWebsocketSerializers(unittest.TestCase):
+class TestWebSocketSerializers(unittest.TestCase):
     def test_websocket_serializers(self):
         for serializer in map(serializers.__dict__.get, serializers.__serializers__):
             self.assertTrue(issubclass(serializer.klass, _Type),

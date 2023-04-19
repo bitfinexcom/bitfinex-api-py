@@ -19,7 +19,7 @@ def _require_websocket_connection(function: F) -> F:
 
     return cast(F, wrapper)
 
-class BfxWebsocketBucket:
+class BfxWebSocketBucket:
     VERSION = 2
 
     MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
@@ -81,7 +81,7 @@ class BfxWebsocketBucket:
 
     @_require_websocket_connection
     async def subscribe(self, channel, sub_id=None, **kwargs):
-        if len(self.subscriptions) + len(self.pendings) == BfxWebsocketBucket.MAXIMUM_SUBSCRIPTIONS_AMOUNT:
+        if len(self.subscriptions) + len(self.pendings) == BfxWebSocketBucket.MAXIMUM_SUBSCRIPTIONS_AMOUNT:
             raise TooManySubscriptions("The client has reached the maximum number of subscriptions.")
 
         subscription = {

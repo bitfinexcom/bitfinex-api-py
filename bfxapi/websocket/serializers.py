@@ -18,7 +18,7 @@ __serializers__ = [
     "Wallet", "Balance",
 ]
 
-#region Serializers definition for Websocket Public Channels
+#region Serializers definition for WebSocket Public Channels
 
 TradingPairTicker = generate_labeler_serializer(
     name="TradingPairTicker",
@@ -170,7 +170,7 @@ DerivativesStatus = generate_labeler_serializer(
 
 #endregion
 
-#region Serializers definition for Websocket Authenticated Channels
+#region Serializers definition for WebSocket Authenticated Channels
 
 Order = generate_labeler_serializer(
     name="Order",

@@ -1,1 +1,1 @@
-from .client import BfxWebsocketClient, BfxWebsocketBucket, BfxWebsocketInputs
+from .client import BfxWebSocketClient, BfxWebSocketBucket, BfxWebSocketInputs

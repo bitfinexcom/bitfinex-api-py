@@ -12,7 +12,7 @@ from .. notification import Notification
 
 from ..utils.json_encoder import JSON
 
-#region Type hinting for Websocket Public Channels
+#region Type hinting for WebSocket Public Channels
 
 @dataclass
 class TradingPairTicker(_Type):
@@ -111,7 +111,7 @@ class DerivativesStatus(_Type):
 
 #endregion
 
-#region Type hinting for Websocket Authenticated Channels
+#region Type hinting for WebSocket Authenticated Channels
 @dataclass
 class Order(_Type):
     id: int

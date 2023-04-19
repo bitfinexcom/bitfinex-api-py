@@ -8,11 +8,11 @@ import traceback, json, asyncio, hmac, hashlib, time, socket, random, websockets
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, BfxWebsocketBucket
+from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, BfxWebSocketBucket
 
-from .bfx_websocket_inputs import BfxWebsocketInputs
+from .bfx_websocket_inputs import BfxWebSocketInputs
 from ..handlers import PublicChannelsHandler, AuthenticatedEventsHandler
-from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, \
+from ..exceptions import WebSocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, \
     ZeroConnectionsError, ReconnectionTimeoutError, OutdatedClientVersion
 
 from ...utils.json_encoder import JSONEncoder
@@ -22,7 +22,7 @@ from ...utils.logger import ColorLogger, FileLogger
 def _require_websocket_authentication(function: F) -> F:
     async def wrapper(self, *args, **kwargs):
         if hasattr(self, "authentication") and not self.authentication:
-            raise WebsocketAuthenticationRequired("To perform this action you need to " \
+            raise WebSocketAuthenticationRequired("To perform this action you need to " \
                 "authenticate using your API_KEY and API_SECRET.")
 
         await _require_websocket_connection(function)(self, *args, **kwargs)
@@ -50,8 +50,8 @@ class _Delay:
         return (self.__backoff_delay == _Delay.BACKOFF_MIN) \
             and self.__initial_delay or self.__backoff_delay
 
-class BfxWebsocketClient:
-    VERSION = BfxWebsocketBucket.VERSION
+class BfxWebSocketClient:
+    VERSION = BfxWebSocketBucket.VERSION
 
     MAXIMUM_CONNECTIONS_AMOUNT = 20
 
@@ -78,11 +78,11 @@ class BfxWebsocketClient:
 
         self.handler = AuthenticatedEventsHandler(event_emitter=self.event_emitter)
 
-        self.inputs = BfxWebsocketInputs(handle_websocket_input=self.__handle_websocket_input)
+        self.inputs = BfxWebSocketInputs(handle_websocket_input=self.__handle_websocket_input)
 
         if log_filename is None:
-            self.logger = ColorLogger("BfxWebsocketClient", level=log_level)
-        else: self.logger = FileLogger("BfxWebsocketClient", level=log_level, filename=log_filename)
+            self.logger = ColorLogger("BfxWebSocketClient", level=log_level)
+        else: self.logger = FileLogger("BfxWebSocketClient", level=log_level, filename=log_filename)
 
         self.event_emitter.add_listener("error",
             lambda exception: self.logger.error(f"{type(exception).__name__}: {str(exception)}" + "\n" +
@@ -97,13 +97,13 @@ class BfxWebsocketClient:
             self.logger.info("With connections set to 0 it will not be possible to subscribe to any public channel. " \
                     "Attempting a subscription will cause a ZeroConnectionsError to be thrown.")
 
-        if connections > BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT:
-            self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT} " \
+        if connections > BfxWebSocketClient.MAXIMUM_CONNECTIONS_AMOUNT:
+            self.logger.warning(f"It is not safe to use more than {BfxWebSocketClient.MAXIMUM_CONNECTIONS_AMOUNT} " \
                     f"buckets from the same connection ({connections} in use), the server could momentarily " \
                         "block the client with <429 Too Many Requests>.")
 
         for _ in range(connections):
-            self.buckets += [BfxWebsocketBucket(self.host, self.event_emitter, self.events_per_subscription)]
+            self.buckets += [BfxWebSocketBucket(self.host, self.event_emitter, self.events_per_subscription)]
 
         await self.__connect()
 
@@ -134,7 +134,7 @@ class BfxWebsocketClient:
 
                 self.websocket = websocket
 
-                coroutines = [ BfxWebsocketBucket.connect(bucket) for bucket in self.buckets ]
+                coroutines = [ BfxWebSocketBucket.connect(bucket) for bucket in self.buckets ]
 
                 tasks = [ asyncio.create_task(coroutine) for coroutine in coroutines ]
 
@@ -150,13 +150,13 @@ class BfxWebsocketClient:
 
                     if isinstance(message, dict):
                         if message["event"] == "info" and "version" in message:
-                            if BfxWebsocketClient.VERSION != message["version"]:
+                            if BfxWebSocketClient.VERSION != message["version"]:
                                 raise OutdatedClientVersion("Mismatch between the client version and the server " \
                                     "version. Update the library to the latest version to continue (client version: " \
-                                        f"{BfxWebsocketClient.VERSION}, server version: {message['version']}).")
+                                        f"{BfxWebSocketClient.VERSION}, server version: {message['version']}).")
                         elif message["event"] == "info" and message["code"] == 20051:
                             rcvd = websockets.frames.Close(code=1012,
-                                reason="Stop/Restart Websocket Server (please reconnect).")
+                                reason="Stop/Restart WebSocket Server (please reconnect).")
 
                             raise websockets.exceptions.ConnectionClosedError(rcvd=rcvd, sent=None)
                         elif message["event"] == "auth":
@@ -267,12 +267,12 @@ class BfxWebsocketClient:
 
     def on(self, *events, callback = None):
         for event in events:
-            if event not in BfxWebsocketClient.EVENTS:
+            if event not in BfxWebSocketClient.EVENTS:
                 raise EventNotSupported(f"Event <{event}> is not supported. To get a list " \
-                            "of available events print BfxWebsocketClient.EVENTS")
+                            "of available events print BfxWebSocketClient.EVENTS")
 
         def _register_event(event, function):
-            if event in BfxWebsocketClient.ONCE_EVENTS:
+            if event in BfxWebSocketClient.ONCE_EVENTS:
                 self.event_emitter.once(event, function)
             else: self.event_emitter.on(event, function)
 
