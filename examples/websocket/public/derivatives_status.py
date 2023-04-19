@@ -16,7 +16,7 @@ def on_derivatives_status_update(subscription: subscriptions.Status, data: Deriv
 def on_wss_error(code: Error, msg: str):
     print(code, msg)
 
-@bfx.wss.once("open")
+@bfx.wss.on("open")
 async def on_open():
     await bfx.wss.subscribe(Channel.STATUS, key="deriv:tBTCF0:USTF0")
 

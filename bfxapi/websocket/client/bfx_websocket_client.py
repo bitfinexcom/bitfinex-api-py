@@ -55,8 +55,10 @@ class BfxWebsocketClient:
 
     MAXIMUM_CONNECTIONS_AMOUNT = 20
 
+    ONCE_EVENTS = [ "open", "authenticated", "disconnection" ]
+
     EVENTS = [
-        "open", "subscribed", "authenticated", "disconnection", "wss-error",
+        *ONCE_EVENTS, "subscribed", "wss-error",
         *PublicChannelsHandler.EVENTS,
         *AuthenticatedChannelsHandler.EVENTS
     ]
@@ -109,9 +111,6 @@ class BfxWebsocketClient:
 
         def _on_wss_timeout():
             on_timeout_event.set()
-
-            raise ReconnectionTimeoutError("Connection has been offline for too long " \
-                f"without being able to reconnect (wss_timeout: {self.wss_timeout}s).")
 
         async def _connection():
             nonlocal reconnection, timer, tasks
@@ -173,7 +172,8 @@ class BfxWebsocketClient:
                 await asyncio.sleep(delay.next())
 
             if on_timeout_event.is_set():
-                break
+                raise ReconnectionTimeoutError("Connection has been offline for too long " \
+                    f"without being able to reconnect (wss_timeout: {self.wss_timeout}s).")
 
             try:
                 await _connection()
@@ -259,30 +259,18 @@ class BfxWebsocketClient:
                 raise EventNotSupported(f"Event <{event}> is not supported. To get a list " \
                             "of available events print BfxWebsocketClient.EVENTS")
 
+        def _register_event(event, function):
+            if event in BfxWebsocketClient.ONCE_EVENTS:
+                self.event_emitter.once(event, function)
+            else: self.event_emitter.on(event, function)
+
         if callback is not None:
             for event in events:
-                self.event_emitter.on(event, callback)
+                _register_event(event, callback)
 
         if callback is None:
             def handler(function):
                 for event in events:
-                    self.event_emitter.on(event, function)
-
-            return handler
-
-    def once(self, *events, callback = None):
-        for event in events:
-            if event not in BfxWebsocketClient.EVENTS:
-                raise EventNotSupported(f"Event <{event}> is not supported. To get a list " \
-                            "of available events print BfxWebsocketClient.EVENTS")
-
-        if callback is not None:
-            for event in events:
-                self.event_emitter.once(event, callback)
-
-        if callback is None:
-            def handler(function):
-                for event in events:
-                    self.event_emitter.once(event, function)
+                    _register_event(event, function)
 
             return handler
