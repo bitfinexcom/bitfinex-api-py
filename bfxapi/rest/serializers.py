@@ -42,7 +42,6 @@ TradingPairTicker = generate_labeler_serializer(
     name="TradingPairTicker",
     klass=types.TradingPairTicker,
     labels=[
-        "symbol",
         "bid",
         "bid_size",
         "ask",
@@ -60,7 +59,6 @@ FundingCurrencyTicker = generate_labeler_serializer(
     name="FundingCurrencyTicker",
     klass=types.FundingCurrencyTicker,
     labels=[
-        "symbol",
         "frr",
         "bid",
         "bid_period",
@@ -191,7 +189,6 @@ DerivativesStatus = generate_labeler_serializer(
     name="DerivativesStatus",
     klass=types.DerivativesStatus,
     labels=[
-        "key",
         "mts",
         "_PLACEHOLDER", 
         "deriv_price",
