@@ -10,7 +10,6 @@ __all__ = [
     "WebSocketAuthenticationRequired",
     "InvalidAuthenticationCredentials",
     "EventNotSupported",
-    "HandlerNotFound",
     "OutdatedClientVersion"
 ]
 
@@ -52,12 +51,6 @@ class InvalidAuthenticationCredentials(BfxWebSocketException):
 class EventNotSupported(BfxWebSocketException):
     """
     This error indicates a failed attempt to subscribe to an event not supported by the BfxWebSocketClient.
-    """
-
-
-class HandlerNotFound(BfxWebSocketException):
-    """
-    This error indicates that a handler was not found for an incoming message.
     """
 
 class OutdatedClientVersion(BfxWebSocketException):

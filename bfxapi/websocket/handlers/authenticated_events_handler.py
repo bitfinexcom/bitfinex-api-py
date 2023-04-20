@@ -1,5 +1,3 @@
-from ..exceptions import HandlerNotFound
-
 from ...types import serializers
 
 from ...types.serializers import _Notification
@@ -59,8 +57,6 @@ class AuthenticatedEventsHandler:
                     return self.event_emitter.emit(event, [ serializer.parse(*substream) for substream in stream ])
 
                 return self.event_emitter.emit(event, serializer.parse(*stream))
-
-        raise HandlerNotFound(f"No handler found for event of type <{abbrevation}>.")
 
     def __notification(self, stream):
         event, serializer = "notification", _Notification(serializer=None)

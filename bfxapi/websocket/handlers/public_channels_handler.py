@@ -1,5 +1,3 @@
-from ..exceptions import HandlerNotFound
-
 from ...types import serializers
 
 class PublicChannelsHandler:
@@ -36,8 +34,6 @@ class PublicChannelsHandler:
         #pylint: disable-next=consider-iterating-dictionary
         if (channel := subscription["channel"]) and channel in self.__handlers.keys():
             return self.__handlers[channel](_clear(subscription, "event", "channel", "chanId"), *stream)
-
-        raise HandlerNotFound(f"No handler found for channel <{subscription['channel']}>.")
 
     def __emit(self, event, sub, data):
         sub_id, should_emit_event = sub["subId"], True
