@@ -1,6 +1,6 @@
-from .. exceptions import HandlerNotFound
+from ..exceptions import HandlerNotFound
 
-from ... types import serializers
+from ...types import serializers
 
 class PublicChannelsHandler:
     ONCE_PER_SUBSCRIPTION_EVENTS = [

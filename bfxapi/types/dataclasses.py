@@ -3,7 +3,7 @@ from typing import Union, Type, \
 
 from dataclasses import dataclass
 
-from . labeler import _Type, partial, compose
+from .labeler import _Type, partial, compose
 
 JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 

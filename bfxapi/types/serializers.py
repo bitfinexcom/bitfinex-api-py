@@ -1,10 +1,10 @@
-from . import dataclasses
+from .import dataclasses
 
-from . labeler import \
+from .labeler import \
     generate_labeler_serializer, generate_recursive_serializer
 
 #pylint: disable-next=unused-import
-from . notification import _Notification
+from .notification import _Notification
 
 __serializers__ = [
     "PlatformStatus", "TradingPairTicker", "FundingCurrencyTicker",

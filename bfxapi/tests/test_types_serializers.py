@@ -1,6 +1,6 @@
 import unittest
-from .. types import serializers
-from .. types.labeler import _Type
+from ..types import serializers
+from ..types.labeler import _Type
 
 class TestTypesSerializers(unittest.TestCase):
     def test_types_serializers(self):

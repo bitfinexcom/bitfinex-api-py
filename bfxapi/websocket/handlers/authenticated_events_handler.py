@@ -1,8 +1,8 @@
-from .. exceptions import HandlerNotFound
+from ..exceptions import HandlerNotFound
 
-from ... types import serializers
+from ...types import serializers
 
-from ... types.serializers import _Notification
+from ...types.serializers import _Notification
 
 class AuthenticatedEventsHandler:
     __once_abbreviations = {

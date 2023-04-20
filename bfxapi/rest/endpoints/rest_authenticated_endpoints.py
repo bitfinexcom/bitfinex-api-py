@@ -2,11 +2,11 @@ from typing import Dict, List, Tuple, Union, Literal, Optional
 from decimal import Decimal
 from datetime import datetime
 
-from .. middleware import Middleware
+from ..middleware import Middleware
 
-from .. enums import Sort, OrderType, FundingOfferType
+from ..enums import Sort, OrderType, FundingOfferType
 
-from ... types import JSON, Notification, \
+from ...types import JSON, Notification, \
     UserInfo, LoginHistory, BalanceAvailable, \
     Order, Position, Trade, \
     FundingTrade, OrderTrade, Ledger, \
@@ -18,9 +18,9 @@ from ... types import JSON, Notification, \
     PositionIncrease, PositionHistory, PositionSnapshot, \
     PositionAudit, DerivativePositionCollateral, DerivativePositionCollateralLimits
 
-from ... types import serializers
+from ...types import serializers
 
-from ... types.serializers import _Notification
+from ...types.serializers import _Notification
 
 class RestAuthenticatedEndpoints(Middleware):
     def get_user_info(self) -> UserInfo:

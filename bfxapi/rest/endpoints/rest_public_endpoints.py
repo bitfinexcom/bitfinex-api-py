@@ -2,11 +2,11 @@ from typing import List, Dict, Union, Literal, Optional, Any, cast
 
 from decimal import Decimal
 
-from .. middleware import Middleware
+from ..middleware import Middleware
 
-from .. enums import Config, Sort
+from ..enums import Config, Sort
 
-from ... types import \
+from ...types import \
     PlatformStatus, TradingPairTicker, FundingCurrencyTicker, \
     TickersHistory, TradingPairTrade, FundingCurrencyTrade, \
     TradingPairBook, FundingCurrencyBook, TradingPairRawBook, \
@@ -15,7 +15,7 @@ from ... types import \
     FundingStatistic, PulseProfile, PulseMessage, \
     TradingMarketAveragePrice, FundingMarketAveragePrice, FxRate
 
-from ... types import serializers
+from ...types import serializers
 
 class RestPublicEndpoints(Middleware):
     def conf(self, config: Config) -> Any:

@@ -1,6 +1,6 @@
 from typing import List, Optional, Any, Generic, TypeVar, cast
 from dataclasses import dataclass
-from . labeler import _Type, _Serializer
+from .labeler import _Type, _Serializer
 
 T = TypeVar("T")
 

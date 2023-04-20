@@ -1,4 +1,4 @@
-from . dataclasses import JSON, \
+from .dataclasses import JSON, \
     PlatformStatus, TradingPairTicker, FundingCurrencyTicker, \
     TickersHistory, TradingPairTrade, FundingCurrencyTrade, \
     TradingPairBook, FundingCurrencyBook, TradingPairRawBook, \
@@ -7,7 +7,7 @@ from . dataclasses import JSON, \
     FundingStatistic, PulseProfile, PulseMessage, \
     TradingMarketAveragePrice, FundingMarketAveragePrice, FxRate
 
-from . dataclasses import \
+from .dataclasses import \
     UserInfo, LoginHistory, BalanceAvailable, \
     Order, Position, Trade, \
     FundingTrade, OrderTrade, Ledger, \
@@ -19,8 +19,8 @@ from . dataclasses import \
     PositionIncrease, PositionHistory, PositionSnapshot, \
     PositionAudit, DerivativePositionCollateral, DerivativePositionCollateralLimits
 
-from . dataclasses import \
+from .dataclasses import \
     InvoiceSubmission, InvoicePage, InvoiceStats, \
     CurrencyConversion, MerchantDeposit, MerchantUnlinkedDeposit
 
-from . notification import Notification
+from .notification import Notification

@@ -4,7 +4,7 @@ from typing import Optional
 
 from dataclasses import dataclass
 
-from .. types.labeler import _Type, generate_labeler_serializer, generate_recursive_serializer
+from ..types.labeler import _Type, generate_labeler_serializer, generate_recursive_serializer
 
 class TestTypesLabeler(unittest.TestCase):
     def test_generate_labeler_serializer(self):

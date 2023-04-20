@@ -5,11 +5,11 @@ from typing import Callable, TypeVar, cast, \
 
 from decimal import Decimal
 
-from .. middleware import Middleware
+from ..middleware import Middleware
 
-from .. enums import MerchantSettingsKey
+from ..enums import MerchantSettingsKey
 
-from ... types import \
+from ...types import \
     InvoiceSubmission, InvoicePage, InvoiceStats, \
     CurrencyConversion, MerchantDeposit, MerchantUnlinkedDeposit
 
