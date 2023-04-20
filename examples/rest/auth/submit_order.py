@@ -3,8 +3,8 @@
 import os
 
 from bfxapi import Client, REST_HOST
+from bfxapi.types import Notification, Order
 from bfxapi.enums import OrderType, Flag
-from bfxapi.rest.types import Notification, Order
 
 bfx = Client(
     rest_host=REST_HOST,

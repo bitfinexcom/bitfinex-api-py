@@ -4,7 +4,7 @@ import os
 
 from bfxapi import Client, REST_HOST
 
-from bfxapi.rest.types import Notification, PositionClaim
+from bfxapi.types import Notification, PositionClaim
 
 bfx = Client(
     rest_host=REST_HOST,

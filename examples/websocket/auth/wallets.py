@@ -4,7 +4,7 @@ import os
 
 from bfxapi import Client
 from bfxapi.enums import Error
-from bfxapi.websocket.types import List, Wallet
+from bfxapi.types import List, Wallet
 
 bfx = Client(
     api_key=os.getenv("BFX_API_KEY"),

@@ -1,6 +1,5 @@
-from typing import Type, Generic, TypeVar, Iterable, Dict, List, Tuple, Any, cast
-
-from .exceptions import LabelerSerializerException
+from typing import Type, Generic, TypeVar, Iterable, \
+    Dict, List, Tuple, Any, cast
 
 T = TypeVar("T", bound="_Type")
 
@@ -43,7 +42,7 @@ class _Serializer(Generic[T]):
             args = tuple(_Serializer.__flatten(list(args)))
 
         if len(self.__labels) > len(args):
-            raise LabelerSerializerException(f"{self.name} -> <labels> and <*args> " \
+            raise AssertionError(f"{self.name} -> <labels> and <*args> " \
                 "arguments should contain the same amount of elements.")
 
         for index, label in enumerate(self.__labels):

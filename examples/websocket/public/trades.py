@@ -1,19 +1,19 @@
 # python -c "import examples.websocket.public.trades"
 
 from bfxapi import Client, PUB_WSS_HOST
-from bfxapi.websocket.enums import Error, Channel
-from bfxapi.websocket.types import Candle, TradingPairTrade
 
-from bfxapi.websocket import subscriptions
+from bfxapi.types import Candle, TradingPairTrade
+from bfxapi.websocket.subscriptions import Candles, Trades
+from bfxapi.websocket.enums import Error, Channel
 
 bfx = Client(wss_host=PUB_WSS_HOST)
 
 @bfx.wss.on("candles_update")
-def on_candles_update(_sub: subscriptions.Candles, candle: Candle):
+def on_candles_update(_sub: Candles, candle: Candle):
     print(f"New candle: {candle}")
 
 @bfx.wss.on("t_trade_execution")
-def on_t_trade_execution(_sub: subscriptions.Trades, trade: TradingPairTrade):
+def on_t_trade_execution(_sub: Trades, trade: TradingPairTrade):
     print(f"New trade: {trade}")
 
 @bfx.wss.on("wss-error")

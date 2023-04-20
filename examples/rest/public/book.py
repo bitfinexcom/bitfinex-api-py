@@ -1,8 +1,10 @@
 # python -c "import examples.rest.public.book"
 
+from typing import List
+
 from bfxapi import Client, PUB_REST_HOST
 
-from bfxapi.rest.types import List, TradingPairBook, TradingPairRawBook, \
+from bfxapi.types import TradingPairBook, TradingPairRawBook, \
     FundingCurrencyBook, FundingCurrencyRawBook
 
 bfx = Client(rest_host=PUB_REST_HOST)

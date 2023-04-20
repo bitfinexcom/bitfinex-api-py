@@ -2,9 +2,11 @@
 
 import datetime
 
+from typing import List
+
 from bfxapi import Client, PUB_REST_HOST
 
-from bfxapi.rest.types import List, PulseMessage, PulseProfile
+from bfxapi.types import PulseMessage, PulseProfile
 
 bfx = Client(rest_host=PUB_REST_HOST)
 

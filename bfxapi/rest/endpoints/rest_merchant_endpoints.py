@@ -5,13 +5,13 @@ from typing import Callable, TypeVar, cast, \
 
 from decimal import Decimal
 
-from .. types import \
-    InvoiceSubmission, InvoicePage, InvoiceStats, \
-    CurrencyConversion, MerchantDeposit, MerchantUnlinkedDeposit
+from .. middleware import Middleware
 
 from .. enums import MerchantSettingsKey
 
-from .. middleware import Middleware
+from ... types import \
+    InvoiceSubmission, InvoicePage, InvoiceStats, \
+    CurrencyConversion, MerchantDeposit, MerchantUnlinkedDeposit
 
 #region Defining methods to convert dictionary keys to snake_case and camelCase.
 
