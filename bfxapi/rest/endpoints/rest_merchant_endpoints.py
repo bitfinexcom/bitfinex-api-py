@@ -1,4 +1,7 @@
-from typing import TypedDict, Dict, List, Union, Literal, Optional, Any
+import re
+
+from typing import Callable, TypeVar, cast, \
+    TypedDict, Dict, List, Union, Literal, Optional, Any
 
 from decimal import Decimal
 
@@ -10,7 +13,29 @@ from .. enums import MerchantSettingsKey
 
 from .. middleware import Middleware
 
-from ...utils.camel_and_snake_case_helpers import to_snake_case_keys, to_camel_case_keys
+#region Defining methods to convert dictionary keys to snake_case and camelCase.
+
+T = TypeVar("T")
+
+_to_snake_case: Callable[[str], str] = lambda string: re.sub(r"(?<!^)(?=[A-Z])", "_", string).lower()
+
+_to_camel_case: Callable[[str], str] = lambda string: \
+    (components := string.split("_"))[0] + str().join(c.title() for c in components[1:])
+
+def _scheme(data: T, adapter: Callable[[str], str]) -> T:
+    if isinstance(data, list):
+        return cast(T, [ _scheme(sub_data, adapter) for sub_data in data ])
+    if isinstance(data, dict):
+        return cast(T, { adapter(key): _scheme(value, adapter) for key, value in data.items() })
+    return data
+
+def _to_snake_case_keys(dictionary: T) -> T:
+    return _scheme(dictionary, _to_snake_case)
+
+def _to_camel_case_keys(dictionary: T) -> T:
+    return _scheme(dictionary, _to_camel_case)
+
+#endregion
 
 _CustomerInfo = TypedDict("_CustomerInfo", {
     "nationality": str, "resid_country": str, "resid_city": str, 
@@ -30,13 +55,13 @@ class RestMerchantEndpoints(Middleware):
                        duration: Optional[int] = None,
                        webhook: Optional[str] = None,
                        redirect_url: Optional[str] = None) -> InvoiceSubmission:
-        body = to_camel_case_keys({
+        body = _to_camel_case_keys({
             "amount": amount, "currency": currency, "order_id": order_id,
             "customer_info": customer_info, "pay_currencies": pay_currencies, "duration": duration,
             "webhook": webhook, "redirect_url": redirect_url
         })
 
-        data = to_snake_case_keys(self._post("auth/w/ext/pay/invoice/create", body=body))
+        data = _to_snake_case_keys(self._post("auth/w/ext/pay/invoice/create", body=body))
 
         return InvoiceSubmission.parse(data)
 
@@ -53,7 +78,7 @@ class RestMerchantEndpoints(Middleware):
 
         response = self._post("auth/r/ext/pay/invoices", body=body)
 
-        return [ InvoiceSubmission.parse(sub_data) for sub_data in to_snake_case_keys(response) ]
+        return [ InvoiceSubmission.parse(sub_data) for sub_data in _to_snake_case_keys(response) ]
 
     def get_invoices_paginated(self,
                                page: int = 1,
@@ -66,13 +91,13 @@ class RestMerchantEndpoints(Middleware):
                                crypto: Optional[List[str]] = None,
                                id: Optional[str] = None,
                                order_id: Optional[str] = None) -> InvoicePage:
-        body = to_camel_case_keys({
+        body = _to_camel_case_keys({
             "page": page, "page_size": page_size, "sort": sort,
             "sort_field": sort_field, "status": status, "fiat": fiat,
             "crypto": crypto, "id": id, "order_id": order_id
         })
 
-        data = to_snake_case_keys(self._post("auth/r/ext/pay/invoices/paginated", body=body))
+        data = _to_snake_case_keys(self._post("auth/r/ext/pay/invoices/paginated", body=body))
 
         return InvoicePage.parse(data)
 
@@ -94,7 +119,7 @@ class RestMerchantEndpoints(Middleware):
                          *,
                          deposit_id: Optional[int] = None,
                          ledger_id: Optional[int] = None) -> InvoiceSubmission:
-        return InvoiceSubmission.parse(to_snake_case_keys(self._post("auth/w/ext/pay/invoice/complete", body={
+        return InvoiceSubmission.parse(_to_snake_case_keys(self._post("auth/w/ext/pay/invoice/complete", body={
             "id": id, "payCcy": pay_currency, "depositId": deposit_id, 
             "ledgerId": ledger_id
         })))
@@ -102,7 +127,7 @@ class RestMerchantEndpoints(Middleware):
     def expire_invoice(self, id: str) -> InvoiceSubmission:
         body = { "id": id }
         response = self._post("auth/w/ext/pay/invoice/expire", body=body)
-        return InvoiceSubmission.parse(to_snake_case_keys(response))
+        return InvoiceSubmission.parse(_to_snake_case_keys(response))
 
     def get_currency_conversion_list(self) -> List[CurrencyConversion]:
         return [
@@ -148,7 +173,7 @@ class RestMerchantEndpoints(Middleware):
                      unlinked: Optional[bool] = None) -> List[MerchantDeposit]:
         body = { "from": start, "to": end, "ccy": ccy, "unlinked": unlinked }
         response = self._post("auth/r/ext/pay/deposits", body=body)
-        return [ MerchantDeposit(**sub_data) for sub_data in to_snake_case_keys(response) ]
+        return [ MerchantDeposit(**sub_data) for sub_data in _to_snake_case_keys(response) ]
 
     def get_unlinked_deposits(self,
                               ccy: str,
@@ -157,4 +182,4 @@ class RestMerchantEndpoints(Middleware):
                               end: Optional[int] = None) -> List[MerchantUnlinkedDeposit]:
         body = { "ccy": ccy, "start": start, "end": end }
         response = self._post("/auth/r/ext/pay/deposits/unlinked", body=body)
-        return [ MerchantUnlinkedDeposit(**sub_data) for sub_data in to_snake_case_keys(response) ]
+        return [ MerchantUnlinkedDeposit(**sub_data) for sub_data in _to_snake_case_keys(response) ]
