@@ -2,9 +2,11 @@
 
 import os
 
+from typing import List
+
 from bfxapi import Client
 from bfxapi.enums import Error
-from bfxapi.types import List, Wallet
+from bfxapi.types import Wallet
 
 bfx = Client(
     api_key=os.getenv("BFX_API_KEY"),
