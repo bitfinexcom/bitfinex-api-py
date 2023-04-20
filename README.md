@@ -34,7 +34,7 @@ python3 -m pip install bitfinex-api-py==3.0.0b1
 ```python
 from bfxapi import Client, REST_HOST
 
-from bfxapi.rest.types import Notification, Order
+from bfxapi.types import Notification, Order
 
 bfx = Client(
     rest_host=REST_HOST,
@@ -166,7 +166,7 @@ To learn more about events and public channels, see [Listening to events](#liste
 ```python
 @bfx.wss.on("open")
 async def on_open():
-    await bfx.wss.subscribe(Channel.TICKER, symbol="tBTCUSD")
+    await bfx.wss.subscribe("ticker", symbol="tBTCUSD")
 ```
 
 ### Closing the connection
@@ -185,7 +185,8 @@ After closing the connection, the client will emit the `disconnection` event:
 ```python
 @bfx.wss.on("disconnection")
 def on_disconnection(code: int, reason: str):
-    print(f"Closing connection with code: <{code}>. Reason: {reason}.")
+    if code == 1000 or code == 1001:
+        print("Closing the connection without errors!")
 ```
 
 ## Subscribing to public channels
@@ -298,7 +299,7 @@ import os
 
 from bfxapi import Client, WSS_HOST
 
-from bfxapi.websocket.types import Notification, Order
+from bfxapi.types import Notification, Order
 
 bfx = Client(
     wss_host=WSS_HOST,
