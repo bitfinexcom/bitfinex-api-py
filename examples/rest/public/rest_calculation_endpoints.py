@@ -2,7 +2,7 @@
 
 from bfxapi import Client, PUB_REST_HOST
 
-from bfxapi.rest.types import TradingMarketAveragePrice, FundingMarketAveragePrice, FxRate
+from bfxapi.types import TradingMarketAveragePrice, FundingMarketAveragePrice, FxRate
 
 bfx = Client(rest_host=PUB_REST_HOST)
 

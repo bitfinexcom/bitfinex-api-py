@@ -3,8 +3,8 @@
 import os
 
 from bfxapi import Client, REST_HOST
+from bfxapi.types import Notification, FundingOffer
 from bfxapi.enums import FundingOfferType, Flag
-from bfxapi.rest.types import Notification, FundingOffer
 
 bfx = Client(
     rest_host=REST_HOST,

@@ -1,11 +1,10 @@
-#pylint: disable=duplicate-code
+from .import dataclasses
 
-from . import types
-
-from .. labeler import generate_labeler_serializer, generate_recursive_serializer
+from .labeler import \
+    generate_labeler_serializer, generate_recursive_serializer
 
 #pylint: disable-next=unused-import
-from .. notification import _Notification
+from .notification import _Notification
 
 __serializers__ = [
     "PlatformStatus", "TradingPairTicker", "FundingCurrencyTicker",
@@ -28,11 +27,11 @@ __serializers__ = [
     "PositionAudit", "DerivativePositionCollateral", "DerivativePositionCollateralLimits",
 ]
 
-#region Serializers definition for Rest Public Endpoints
+#region Serializer definitions for types of public use
 
 PlatformStatus = generate_labeler_serializer(
     name="PlatformStatus",
-    klass=types.PlatformStatus,
+    klass=dataclasses.PlatformStatus,
     labels=[
         "status"
     ]
@@ -40,9 +39,8 @@ PlatformStatus = generate_labeler_serializer(
 
 TradingPairTicker = generate_labeler_serializer(
     name="TradingPairTicker",
-    klass=types.TradingPairTicker,
+    klass=dataclasses.TradingPairTicker,
     labels=[
-        "symbol",
         "bid",
         "bid_size",
         "ask",
@@ -58,9 +56,8 @@ TradingPairTicker = generate_labeler_serializer(
 
 FundingCurrencyTicker = generate_labeler_serializer(
     name="FundingCurrencyTicker",
-    klass=types.FundingCurrencyTicker,
+    klass=dataclasses.FundingCurrencyTicker,
     labels=[
-        "symbol",
         "frr",
         "bid",
         "bid_period",
@@ -82,7 +79,7 @@ FundingCurrencyTicker = generate_labeler_serializer(
 
 TickersHistory = generate_labeler_serializer(
     name="TickersHistory",
-    klass=types.TickersHistory,
+    klass=dataclasses.TickersHistory,
     labels=[
         "symbol",
         "bid",
@@ -102,7 +99,7 @@ TickersHistory = generate_labeler_serializer(
 
 TradingPairTrade = generate_labeler_serializer(
     name="TradingPairTrade",
-    klass=types.TradingPairTrade,
+    klass=dataclasses.TradingPairTrade,
     labels=[
         "id",
         "mts",
@@ -113,7 +110,7 @@ TradingPairTrade = generate_labeler_serializer(
 
 FundingCurrencyTrade = generate_labeler_serializer(
     name="FundingCurrencyTrade",
-    klass=types.FundingCurrencyTrade,
+    klass=dataclasses.FundingCurrencyTrade,
     labels=[
         "id",
         "mts",
@@ -125,7 +122,7 @@ FundingCurrencyTrade = generate_labeler_serializer(
 
 TradingPairBook = generate_labeler_serializer(
     name="TradingPairBook",
-    klass=types.TradingPairBook,
+    klass=dataclasses.TradingPairBook,
     labels=[
         "price",
         "count",
@@ -135,7 +132,7 @@ TradingPairBook = generate_labeler_serializer(
 
 FundingCurrencyBook = generate_labeler_serializer(
     name="FundingCurrencyBook",
-    klass=types.FundingCurrencyBook,
+    klass=dataclasses.FundingCurrencyBook,
     labels=[
         "rate",
         "period",
@@ -146,7 +143,7 @@ FundingCurrencyBook = generate_labeler_serializer(
 
 TradingPairRawBook = generate_labeler_serializer(
     name="TradingPairRawBook",
-    klass=types.TradingPairRawBook,
+    klass=dataclasses.TradingPairRawBook,
     labels=[
         "order_id",
         "price",
@@ -156,7 +153,7 @@ TradingPairRawBook = generate_labeler_serializer(
 
 FundingCurrencyRawBook = generate_labeler_serializer(
     name="FundingCurrencyRawBook",
-    klass=types.FundingCurrencyRawBook,
+    klass=dataclasses.FundingCurrencyRawBook,
     labels=[
         "offer_id",
         "period",
@@ -167,7 +164,7 @@ FundingCurrencyRawBook = generate_labeler_serializer(
 
 Statistic = generate_labeler_serializer(
     name="Statistic",
-    klass=types.Statistic,
+    klass=dataclasses.Statistic,
     labels=[
         "mts",
         "value"
@@ -176,7 +173,7 @@ Statistic = generate_labeler_serializer(
 
 Candle = generate_labeler_serializer(
     name="Candle",
-    klass=types.Candle,
+    klass=dataclasses.Candle,
     labels=[
         "mts",
         "open",
@@ -189,9 +186,8 @@ Candle = generate_labeler_serializer(
 
 DerivativesStatus = generate_labeler_serializer(
     name="DerivativesStatus",
-    klass=types.DerivativesStatus,
+    klass=dataclasses.DerivativesStatus,
     labels=[
-        "key",
         "mts",
         "_PLACEHOLDER", 
         "deriv_price",
@@ -220,7 +216,7 @@ DerivativesStatus = generate_labeler_serializer(
 
 Liquidation = generate_labeler_serializer(
     name="Liquidation",
-    klass=types.Liquidation,
+    klass=dataclasses.Liquidation,
     labels=[
         "_PLACEHOLDER",
         "pos_id",
@@ -239,7 +235,7 @@ Liquidation = generate_labeler_serializer(
 
 Leaderboard = generate_labeler_serializer(
     name="Leaderboard",
-    klass=types.Leaderboard,
+    klass=dataclasses.Leaderboard,
     labels=[
         "mts",
         "_PLACEHOLDER",
@@ -256,7 +252,7 @@ Leaderboard = generate_labeler_serializer(
 
 FundingStatistic = generate_labeler_serializer(
     name="FundingStatistic",
-    klass=types.FundingStatistic,
+    klass=dataclasses.FundingStatistic,
     labels=[
         "mts",
         "_PLACEHOLDER",
@@ -275,7 +271,7 @@ FundingStatistic = generate_labeler_serializer(
 
 PulseProfile = generate_labeler_serializer(
     name="PulseProfile",
-    klass=types.PulseProfile,
+    klass=dataclasses.PulseProfile,
     labels=[
         "puid",
         "mts",
@@ -299,7 +295,7 @@ PulseProfile = generate_labeler_serializer(
 
 PulseMessage = generate_recursive_serializer(
     name="PulseMessage",
-    klass=types.PulseMessage,
+    klass=dataclasses.PulseMessage,
     serializers={ "profile": PulseProfile },
     labels=[
         "pid",
@@ -329,7 +325,7 @@ PulseMessage = generate_recursive_serializer(
 
 TradingMarketAveragePrice = generate_labeler_serializer(
     name="TradingMarketAveragePrice",
-    klass=types.TradingMarketAveragePrice,
+    klass=dataclasses.TradingMarketAveragePrice,
     labels=[
         "price_avg",
         "amount"
@@ -338,7 +334,7 @@ TradingMarketAveragePrice = generate_labeler_serializer(
 
 FundingMarketAveragePrice = generate_labeler_serializer(
     name="FundingMarketAveragePrice",
-    klass=types.FundingMarketAveragePrice,
+    klass=dataclasses.FundingMarketAveragePrice,
     labels=[
         "rate_avg",
         "amount"
@@ -347,7 +343,7 @@ FundingMarketAveragePrice = generate_labeler_serializer(
 
 FxRate = generate_labeler_serializer(
     name="FxRate",
-    klass=types.FxRate,
+    klass=dataclasses.FxRate,
     labels=[
         "current_rate"
     ]
@@ -355,11 +351,11 @@ FxRate = generate_labeler_serializer(
 
 #endregion
 
-#region Serializers definition for Rest Authenticated Endpoints
+#region Serializer definitions for types of auth use
 
 UserInfo = generate_labeler_serializer(
     name="UserInfo",
-    klass=types.UserInfo,
+    klass=dataclasses.UserInfo,
     labels=[
         "id",
         "email",
@@ -421,7 +417,7 @@ UserInfo = generate_labeler_serializer(
 
 LoginHistory = generate_labeler_serializer(
     name="LoginHistory",
-    klass=types.LoginHistory,
+    klass=dataclasses.LoginHistory,
     labels=[
         "id",
         "_PLACEHOLDER",
@@ -436,7 +432,7 @@ LoginHistory = generate_labeler_serializer(
 
 BalanceAvailable = generate_labeler_serializer(
     name="BalanceAvailable",
-    klass=types.BalanceAvailable,
+    klass=dataclasses.BalanceAvailable,
     labels=[
         "amount"
     ]
@@ -444,7 +440,7 @@ BalanceAvailable = generate_labeler_serializer(
 
 Order = generate_labeler_serializer(
     name="Order",
-    klass=types.Order,
+    klass=dataclasses.Order,
     labels=[
         "id",
         "gid",
@@ -483,7 +479,7 @@ Order = generate_labeler_serializer(
 
 Position = generate_labeler_serializer(
     name="Position",
-    klass=types.Position,
+    klass=dataclasses.Position,
     labels=[
         "symbol", 
         "status", 
@@ -510,7 +506,7 @@ Position = generate_labeler_serializer(
 
 Trade = generate_labeler_serializer(
     name="Trade",
-    klass=types.Trade,
+    klass=dataclasses.Trade,
     labels=[
         "id", 
         "symbol", 
@@ -529,7 +525,7 @@ Trade = generate_labeler_serializer(
 
 FundingTrade = generate_labeler_serializer(
     name="FundingTrade",
-    klass=types.FundingTrade,
+    klass=dataclasses.FundingTrade,
     labels=[
         "id",
         "currency",
@@ -543,7 +539,7 @@ FundingTrade = generate_labeler_serializer(
 
 OrderTrade = generate_labeler_serializer(
     name="OrderTrade",
-    klass=types.OrderTrade,
+    klass=dataclasses.OrderTrade,
     labels=[
         "id",
         "symbol",
@@ -562,7 +558,7 @@ OrderTrade = generate_labeler_serializer(
 
 Ledger = generate_labeler_serializer(
     name="Ledger",
-    klass=types.Ledger,
+    klass=dataclasses.Ledger,
     labels=[
         "id",
         "currency",
@@ -578,7 +574,7 @@ Ledger = generate_labeler_serializer(
 
 FundingOffer = generate_labeler_serializer(
     name="FundingOffer",
-    klass=types.FundingOffer,
+    klass=dataclasses.FundingOffer,
     labels=[
         "id",
         "symbol",
@@ -606,7 +602,7 @@ FundingOffer = generate_labeler_serializer(
 
 FundingCredit = generate_labeler_serializer(
     name="FundingCredit",
-    klass=types.FundingCredit,
+    klass=dataclasses.FundingCredit,
     labels=[
         "id",
         "symbol",
@@ -635,7 +631,7 @@ FundingCredit = generate_labeler_serializer(
 
 FundingLoan = generate_labeler_serializer(
     name="FundingLoan",
-    klass=types.FundingLoan,
+    klass=dataclasses.FundingLoan,
     labels=[
         "id",
         "symbol",
@@ -663,7 +659,7 @@ FundingLoan = generate_labeler_serializer(
 
 FundingAutoRenew = generate_labeler_serializer(
     name="FundingAutoRenew",
-    klass=types.FundingAutoRenew,
+    klass=dataclasses.FundingAutoRenew,
     labels=[
         "currency",
         "period",
@@ -674,7 +670,7 @@ FundingAutoRenew = generate_labeler_serializer(
 
 FundingInfo = generate_labeler_serializer(
     name="FundingInfo",
-    klass=types.FundingInfo,
+    klass=dataclasses.FundingInfo,
     labels=[
         "yield_loan",
         "yield_lend",
@@ -685,7 +681,7 @@ FundingInfo = generate_labeler_serializer(
 
 Wallet = generate_labeler_serializer(
     name="Wallet",
-    klass=types.Wallet,
+    klass=dataclasses.Wallet,
     labels=[
         "wallet_type", 
         "currency", 
@@ -699,7 +695,7 @@ Wallet = generate_labeler_serializer(
 
 Transfer = generate_labeler_serializer(
     name="Transfer",
-    klass=types.Transfer,
+    klass=dataclasses.Transfer,
     labels=[
         "mts",
         "wallet_from",
@@ -714,7 +710,7 @@ Transfer = generate_labeler_serializer(
 
 Withdrawal = generate_labeler_serializer(
     name="Withdrawal",
-    klass=types.Withdrawal,
+    klass=dataclasses.Withdrawal,
     labels=[
         "withdrawal_id",
         "_PLACEHOLDER",
@@ -730,7 +726,7 @@ Withdrawal = generate_labeler_serializer(
 
 DepositAddress = generate_labeler_serializer(
     name="DepositAddress",
-    klass=types.DepositAddress,
+    klass=dataclasses.DepositAddress,
     labels=[
         "_PLACEHOLDER",
         "method",
@@ -743,7 +739,7 @@ DepositAddress = generate_labeler_serializer(
 
 LightningNetworkInvoice = generate_labeler_serializer(
     name="LightningNetworkInvoice",
-    klass=types.LightningNetworkInvoice,
+    klass=dataclasses.LightningNetworkInvoice,
     labels=[
         "invoice_hash",
         "invoice",
@@ -755,7 +751,7 @@ LightningNetworkInvoice = generate_labeler_serializer(
 
 Movement = generate_labeler_serializer(
     name="Movement",
-    klass=types.Movement,
+    klass=dataclasses.Movement,
     labels=[
         "id",
         "currency",
@@ -784,7 +780,7 @@ Movement = generate_labeler_serializer(
 
 SymbolMarginInfo = generate_labeler_serializer(
     name="SymbolMarginInfo",
-    klass=types.SymbolMarginInfo,
+    klass=dataclasses.SymbolMarginInfo,
     labels=[
         "_PLACEHOLDER",
         "symbol",
@@ -799,7 +795,7 @@ SymbolMarginInfo = generate_labeler_serializer(
 
 BaseMarginInfo = generate_labeler_serializer(
     name="BaseMarginInfo",
-    klass=types.BaseMarginInfo,
+    klass=dataclasses.BaseMarginInfo,
     labels=[
         "user_pl",
         "user_swaps",
@@ -811,7 +807,7 @@ BaseMarginInfo = generate_labeler_serializer(
 
 PositionClaim = generate_labeler_serializer(
     name="PositionClaim",
-    klass=types.PositionClaim,
+    klass=dataclasses.PositionClaim,
     labels=[
         "symbol",
         "position_status",
@@ -838,7 +834,7 @@ PositionClaim = generate_labeler_serializer(
 
 PositionIncreaseInfo = generate_labeler_serializer(
     name="PositionIncreaseInfo",
-    klass=types.PositionIncreaseInfo,
+    klass=dataclasses.PositionIncreaseInfo,
     labels=[
         "max_pos",
         "current_pos",
@@ -865,7 +861,7 @@ PositionIncreaseInfo = generate_labeler_serializer(
 
 PositionIncrease = generate_labeler_serializer(
     name="PositionIncrease",
-    klass=types.PositionIncrease,
+    klass=dataclasses.PositionIncrease,
     labels=[
         "symbol",
         "_PLACEHOLDER",
@@ -876,7 +872,7 @@ PositionIncrease = generate_labeler_serializer(
 
 PositionHistory = generate_labeler_serializer(
     name="PositionHistory",
-    klass=types.PositionHistory,
+    klass=dataclasses.PositionHistory,
     labels=[
         "symbol",
         "status",
@@ -897,7 +893,7 @@ PositionHistory = generate_labeler_serializer(
 
 PositionSnapshot = generate_labeler_serializer(
     name="PositionSnapshot",
-    klass=types.PositionSnapshot,
+    klass=dataclasses.PositionSnapshot,
     labels=[
         "symbol",
         "status",
@@ -918,7 +914,7 @@ PositionSnapshot = generate_labeler_serializer(
 
 PositionAudit = generate_labeler_serializer(
     name="PositionAudit",
-    klass=types.PositionAudit,
+    klass=dataclasses.PositionAudit,
     labels=[
         "symbol",
         "status",
@@ -945,7 +941,7 @@ PositionAudit = generate_labeler_serializer(
 
 DerivativePositionCollateral = generate_labeler_serializer(
     name="DerivativePositionCollateral",
-    klass=types.DerivativePositionCollateral,
+    klass=dataclasses.DerivativePositionCollateral,
     labels=[
         "status"
     ]
@@ -953,7 +949,7 @@ DerivativePositionCollateral = generate_labeler_serializer(
 
 DerivativePositionCollateralLimits = generate_labeler_serializer(
     name="DerivativePositionCollateralLimits",
-    klass=types.DerivativePositionCollateralLimits,
+    klass=dataclasses.DerivativePositionCollateralLimits,
     labels=[
         "min_collateral",
         "max_collateral"

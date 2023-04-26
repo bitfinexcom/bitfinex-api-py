@@ -4,7 +4,7 @@ import os
 
 from bfxapi import Client, WSS_HOST
 from bfxapi.enums import Error, OrderType
-from bfxapi.websocket.types import Notification, Order
+from bfxapi.types import Notification, Order
 
 bfx = Client(
     wss_host=WSS_HOST,

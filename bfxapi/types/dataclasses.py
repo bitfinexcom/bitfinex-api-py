@@ -1,18 +1,13 @@
-#pylint: disable=duplicate-code
-
-#pylint: disable-next=wildcard-import,unused-wildcard-import
-from typing import *
+from typing import Union, Type, \
+    List, Dict, Literal, Optional, Any
 
 from dataclasses import dataclass
 
-from .. labeler import _Type, partial, compose
+from .labeler import _Type, partial, compose
 
-#pylint: disable-next=unused-import
-from .. notification import Notification
+JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
-from ..utils.json_encoder import JSON
-
-#region Type hinting for Rest Public Endpoints
+#region Dataclass definitions for types of public use
 
 @dataclass
 class PlatformStatus(_Type):
@@ -20,7 +15,6 @@ class PlatformStatus(_Type):
 
 @dataclass
 class TradingPairTicker(_Type):
-    symbol: str
     bid: float
     bid_size: float
     ask: float
@@ -34,7 +28,6 @@ class TradingPairTicker(_Type):
 
 @dataclass
 class FundingCurrencyTicker(_Type):
-    symbol: str
     frr: float
     bid: float
     bid_period: int
@@ -114,7 +107,6 @@ class Candle(_Type):
 
 @dataclass
 class DerivativesStatus(_Type):
-    key: str
     mts: int
     deriv_price: float
     spot_price: float
@@ -201,7 +193,7 @@ class FxRate(_Type):
 
 #endregion
 
-#region Type hinting for Rest Authenticated Endpoints
+#region Dataclass definitions for types of auth use
 
 @dataclass
 class UserInfo(_Type):
@@ -568,7 +560,7 @@ class DerivativePositionCollateralLimits(_Type):
 
 #endregion
 
-#region Type hinting for Rest Merchant Endpoints
+#region Dataclass definitions for types of merchant use
 
 @compose(dataclass, partial)
 class InvoiceSubmission(_Type):

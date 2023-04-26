@@ -8,12 +8,12 @@ import traceback, json, asyncio, hmac, hashlib, time, socket, random, websockets
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, BfxWebsocketBucket
+from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, BfxWebSocketBucket
 
-from .bfx_websocket_inputs import BfxWebsocketInputs
-from ..handlers import PublicChannelsHandler, AuthenticatedChannelsHandler
-from ..exceptions import WebsocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, \
-    ZeroConnectionsError, OutdatedClientVersion
+from .bfx_websocket_inputs import BfxWebSocketInputs
+from ..handlers import PublicChannelsHandler, AuthenticatedEventsHandler
+from ..exceptions import WebSocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, \
+    ZeroConnectionsError, ReconnectionTimeoutError, OutdatedClientVersion
 
 from ...utils.json_encoder import JSONEncoder
 
@@ -22,7 +22,7 @@ from ...utils.logger import ColorLogger, FileLogger
 def _require_websocket_authentication(function: F) -> F:
     async def wrapper(self, *args, **kwargs):
         if hasattr(self, "authentication") and not self.authentication:
-            raise WebsocketAuthenticationRequired("To perform this action you need to " \
+            raise WebSocketAuthenticationRequired("To perform this action you need to " \
                 "authenticate using your API_KEY and API_SECRET.")
 
         await _require_websocket_connection(function)(self, *args, **kwargs)
@@ -50,29 +50,39 @@ class _Delay:
         return (self.__backoff_delay == _Delay.BACKOFF_MIN) \
             and self.__initial_delay or self.__backoff_delay
 
-class BfxWebsocketClient:
-    VERSION = BfxWebsocketBucket.VERSION
+class BfxWebSocketClient:
+    VERSION = BfxWebSocketBucket.VERSION
 
     MAXIMUM_CONNECTIONS_AMOUNT = 20
 
-    EVENTS = [
-        "open", "subscribed", "authenticated", "wss-error",
-        *PublicChannelsHandler.EVENTS,
-        *AuthenticatedChannelsHandler.EVENTS
+    ONCE_EVENTS = [
+        "open", "authenticated", "disconnection",
+        *AuthenticatedEventsHandler.ONCE_EVENTS
     ]
 
-    def __init__(self, host, credentials = None, log_filename = None, log_level = "INFO"):
-        self.websocket, self.buckets, self.authentication = None, [], False
+    EVENTS = [
+        "subscribed", "wss-error",
+        *ONCE_EVENTS,
+        *PublicChannelsHandler.EVENTS,
+        *AuthenticatedEventsHandler.ON_EVENTS
+    ]
 
-        self.host, self.credentials, self.event_emitter = host, credentials, AsyncIOEventEmitter()
+    def __init__(self, host, credentials, *, wss_timeout = 60 * 15, log_filename = None, log_level = "INFO"):
+        self.websocket, self.authentication, self.buckets = None, False, []
 
-        self.inputs = BfxWebsocketInputs(handle_websocket_input=self.__handle_websocket_input)
+        self.host, self.credentials, self.wss_timeout = host, credentials, wss_timeout
 
-        self.handler = AuthenticatedChannelsHandler(event_emitter=self.event_emitter)
+        self.events_per_subscription = {}
+
+        self.event_emitter = AsyncIOEventEmitter()
+
+        self.handler = AuthenticatedEventsHandler(event_emitter=self.event_emitter)
+
+        self.inputs = BfxWebSocketInputs(handle_websocket_input=self.__handle_websocket_input)
 
         if log_filename is None:
-            self.logger = ColorLogger("BfxWebsocketClient", level=log_level)
-        else: self.logger = FileLogger("BfxWebsocketClient", level=log_level, filename=log_filename)
+            self.logger = ColorLogger("BfxWebSocketClient", level=log_level)
+        else: self.logger = FileLogger("BfxWebSocketClient", level=log_level, filename=log_filename)
 
         self.event_emitter.add_listener("error",
             lambda exception: self.logger.error(f"{type(exception).__name__}: {str(exception)}" + "\n" +
@@ -87,36 +97,47 @@ class BfxWebsocketClient:
             self.logger.info("With connections set to 0 it will not be possible to subscribe to any public channel. " \
                     "Attempting a subscription will cause a ZeroConnectionsError to be thrown.")
 
-        if connections > BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT:
-            self.logger.warning(f"It is not safe to use more than {BfxWebsocketClient.MAXIMUM_CONNECTIONS_AMOUNT} " \
+        if connections > BfxWebSocketClient.MAXIMUM_CONNECTIONS_AMOUNT:
+            self.logger.warning(f"It is not safe to use more than {BfxWebSocketClient.MAXIMUM_CONNECTIONS_AMOUNT} " \
                     f"buckets from the same connection ({connections} in use), the server could momentarily " \
                         "block the client with <429 Too Many Requests>.")
 
         for _ in range(connections):
-            self.buckets += [BfxWebsocketBucket(self.host, self.event_emitter)]
+            self.buckets += [BfxWebSocketBucket(self.host, self.event_emitter, self.events_per_subscription)]
 
-        tasks = [ bucket.connect() for bucket in self.buckets ] + [ self.__connect() ]
+        await self.__connect()
 
-        await asyncio.gather(*tasks)
-
-    #pylint: disable-next=too-many-statements
+    #pylint: disable-next=too-many-statements,too-many-branches
     async def __connect(self):
         Reconnection = namedtuple("Reconnection", ["status", "attempts", "timestamp"])
+        reconnection = Reconnection(status=False, attempts=0, timestamp=None)
+        timer, tasks, on_timeout_event = None, [], asyncio.locks.Event()
 
-        reconnection, delay = Reconnection(status=False, attempts=0, timestamp=None), None
+        delay = None
 
+        def _on_wss_timeout():
+            on_timeout_event.set()
+
+        #pylint: disable-next=too-many-branches
         async def _connection():
-            nonlocal reconnection
+            nonlocal reconnection, timer, tasks
 
-            async with websockets.connect(self.host) as websocket:
+            async with websockets.connect(self.host, ping_interval=None) as websocket:
                 if reconnection.status:
-                    self.logger.info(f"Reconnect attempt successful (attempt no.{reconnection.attempts}): The " \
+                    self.logger.info(f"Reconnection attempt successful (no.{reconnection.attempts}): The " \
                         f"client has been offline for a total of {datetime.now() - reconnection.timestamp} " \
-                            f"(connection lost at: {reconnection.timestamp:%d-%m-%Y at %H:%M:%S}).")
+                            f"(connection lost on: {reconnection.timestamp:%d-%m-%Y at %H:%M:%S}).")
 
                     reconnection = Reconnection(status=False, attempts=0, timestamp=None)
 
-                self.websocket, self.authentication = websocket, False
+                    if isinstance(timer, asyncio.events.TimerHandle):
+                        timer.cancel()
+
+                self.websocket = websocket
+
+                coroutines = [ BfxWebSocketBucket.connect(bucket) for bucket in self.buckets ]
+
+                tasks = [ asyncio.create_task(coroutine) for coroutine in coroutines ]
 
                 if len(self.buckets) == 0 or \
                         (await asyncio.gather(*[bucket.on_open_event.wait() for bucket in self.buckets])):
@@ -130,15 +151,15 @@ class BfxWebsocketClient:
 
                     if isinstance(message, dict):
                         if message["event"] == "info" and "version" in message:
-                            if BfxWebsocketClient.VERSION != message["version"]:
+                            if BfxWebSocketClient.VERSION != message["version"]:
                                 raise OutdatedClientVersion("Mismatch between the client version and the server " \
                                     "version. Update the library to the latest version to continue (client version: " \
-                                        f"{BfxWebsocketClient.VERSION}, server version: {message['version']}).")
+                                        f"{BfxWebSocketClient.VERSION}, server version: {message['version']}).")
                         elif message["event"] == "info" and message["code"] == 20051:
                             rcvd = websockets.frames.Close(code=1012,
-                                reason="Stop/Restart Websocket Server (please reconnect).")
+                                reason="Stop/Restart WebSocket Server (please reconnect).")
 
-                            raise websockets.ConnectionClosedError(rcvd=rcvd, sent=None)
+                            raise websockets.exceptions.ConnectionClosedError(rcvd=rcvd, sent=None)
                         elif message["event"] == "auth":
                             if message["status"] != "OK":
                                 raise InvalidAuthenticationCredentials(
@@ -158,30 +179,46 @@ class BfxWebsocketClient:
             if reconnection.status:
                 await asyncio.sleep(delay.next())
 
+            if on_timeout_event.is_set():
+                raise ReconnectionTimeoutError("Connection has been offline for too long " \
+                    f"without being able to reconnect (wss_timeout: {self.wss_timeout}s).")
+
             try:
                 await _connection()
-            except (websockets.ConnectionClosedError, socket.gaierror) as error:
-                if isinstance(error, websockets.ConnectionClosedError) and error.code in (1006, 1012):
-                    if error.code == 1006:
-                        self.logger.error("Connection lost: no close frame received " \
-                            "or sent (1006). Attempting to reconnect...")
+            except (websockets.exceptions.ConnectionClosedError, socket.gaierror) as error:
+                if isinstance(error, websockets.exceptions.ConnectionClosedError):
+                    if error.code in (1006, 1012):
+                        if error.code == 1006:
+                            self.logger.error("Connection lost: no close frame received " \
+                                "or sent (1006). Trying to reconnect...")
 
-                    if error.code == 1012:
-                        self.logger.info("WSS server is about to restart, reconnection " \
-                            "required (client received 20051). Attempt in progress...")
+                        if error.code == 1012:
+                            self.logger.info("WSS server is about to restart, clients need " \
+                                "to reconnect (server sent 20051). Reconnection attempt in progress...")
 
-                    reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now())
+                        for task in tasks:
+                            task.cancel()
 
-                    delay = _Delay(backoff_factor=1.618)
+                        reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now())
+
+                        if self.wss_timeout is not None:
+                            timer = asyncio.get_event_loop().call_later(self.wss_timeout, _on_wss_timeout)
+
+                        delay = _Delay(backoff_factor=1.618)
+
+                        self.authentication = False
                 elif isinstance(error, socket.gaierror) and reconnection.status:
-                    self.logger.warning(f"Reconnection attempt no.{reconnection.attempts} has failed. " \
-                        f"Next reconnection attempt in ~{round(delay.peek()):.1f} seconds. (at the moment " \
+                    self.logger.warning(f"Reconnection attempt was unsuccessful (no.{reconnection.attempts}). " \
+                        f"Next reconnection attempt in {delay.peek():.2f} seconds. (at the moment " \
                             f"the client has been offline for {datetime.now() - reconnection.timestamp})")
 
                     reconnection = reconnection._replace(attempts=reconnection.attempts + 1)
                 else: raise error
 
             if not reconnection.status:
+                self.event_emitter.emit("disconnection",
+                    self.websocket.close_code, self.websocket.close_reason)
+
                 break
 
     async def __authenticate(self, api_key, api_secret, filters=None):
@@ -215,11 +252,11 @@ class BfxWebsocketClient:
                 await bucket.unsubscribe(chan_id=chan_id)
 
     async def close(self, code=1000, reason=str()):
-        if self.websocket is not None and self.websocket.open:
-            await self.websocket.close(code=code, reason=reason)
-
         for bucket in self.buckets:
             await bucket.close(code=code, reason=reason)
+
+        if self.websocket is not None and self.websocket.open:
+            await self.websocket.close(code=code, reason=reason)
 
     @_require_websocket_authentication
     async def notify(self, info, message_id=None, **kwargs):
@@ -231,34 +268,22 @@ class BfxWebsocketClient:
 
     def on(self, *events, callback = None):
         for event in events:
-            if event not in BfxWebsocketClient.EVENTS:
+            if event not in BfxWebSocketClient.EVENTS:
                 raise EventNotSupported(f"Event <{event}> is not supported. To get a list " \
-                            "of available events print BfxWebsocketClient.EVENTS")
+                            "of available events print BfxWebSocketClient.EVENTS")
+
+        def _register_event(event, function):
+            if event in BfxWebSocketClient.ONCE_EVENTS:
+                self.event_emitter.once(event, function)
+            else: self.event_emitter.on(event, function)
 
         if callback is not None:
             for event in events:
-                self.event_emitter.on(event, callback)
+                _register_event(event, callback)
 
         if callback is None:
             def handler(function):
                 for event in events:
-                    self.event_emitter.on(event, function)
-
-            return handler
-
-    def once(self, *events, callback = None):
-        for event in events:
-            if event not in BfxWebsocketClient.EVENTS:
-                raise EventNotSupported(f"Event <{event}> is not supported. To get a list " \
-                            "of available events print BfxWebsocketClient.EVENTS")
-
-        if callback is not None:
-            for event in events:
-                self.event_emitter.once(event, callback)
-
-        if callback is None:
-            def handler(function):
-                for event in events:
-                    self.event_emitter.once(event, function)
+                    _register_event(event, function)
 
             return handler

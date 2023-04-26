@@ -1,8 +1,10 @@
 # python -c "import examples.rest.public.trades"
 
+from typing import List
+
 from bfxapi import Client, PUB_REST_HOST
+from bfxapi.types import TradingPairTrade,  FundingCurrencyTrade
 from bfxapi.rest.enums import Sort
-from bfxapi.rest.types import List, TradingPairTrade,  FundingCurrencyTrade
 
 bfx = Client(rest_host=PUB_REST_HOST)
 

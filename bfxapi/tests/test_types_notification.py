@@ -1,11 +1,11 @@
 import unittest
 
 from dataclasses import dataclass
-from ..labeler import generate_labeler_serializer
-from ..notification import _Type, _Notification, Notification
+from ..types.labeler import generate_labeler_serializer
+from ..types.notification import _Type, _Notification, Notification
 
-class TestNotification(unittest.TestCase):
-    def test_notification(self):
+class TestTypesNotification(unittest.TestCase):
+    def test_types_notification(self):
         @dataclass
         class Test(_Type):
             A: int

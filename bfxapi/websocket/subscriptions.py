@@ -12,7 +12,7 @@ __all__ = [
 
 _Header = TypedDict("_Header", { "event": Literal["subscribed"], "channel": str, "chanId": int })
 
-Subscription = Union["Ticker", "Trades", "Book", "Candles", "Status"]
+Subscription = Union[_Header, "Ticker", "Trades", "Book", "Candles", "Status"]
 
 class Ticker(TypedDict):
     subId: str

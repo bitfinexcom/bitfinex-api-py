@@ -2,11 +2,12 @@
 
 import os
 
+from typing import List
+
 from bfxapi import Client, REST_HOST
 
-from bfxapi.rest.types import List, Wallet, Transfer, \
-    DepositAddress, LightningNetworkInvoice, Withdrawal, \
-        Notification
+from bfxapi.types import Wallet, Transfer, DepositAddress, \
+    LightningNetworkInvoice, Withdrawal, Notification
 
 bfx = Client(
     rest_host=REST_HOST,

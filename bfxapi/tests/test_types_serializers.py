@@ -1,13 +1,9 @@
-#pylint: disable=duplicate-code
-
 import unittest
+from ..types import serializers
+from ..types.labeler import _Type
 
-from ..labeler import _Type
-
-from ..websocket import serializers
-
-class TestWebsocketSerializers(unittest.TestCase):
-    def test_websocket_serializers(self):
+class TestTypesSerializers(unittest.TestCase):
+    def test_types_serializers(self):
         for serializer in map(serializers.__dict__.get, serializers.__serializers__):
             self.assertTrue(issubclass(serializer.klass, _Type),
                 f"_Serializer <{serializer.name}>: .klass field must be a subclass " \

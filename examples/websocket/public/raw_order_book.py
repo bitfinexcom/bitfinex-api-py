@@ -6,9 +6,9 @@ from typing import List
 
 from bfxapi import Client, PUB_WSS_HOST
 
-from bfxapi.websocket import subscriptions
+from bfxapi.types import TradingPairRawBook
+from bfxapi.websocket.subscriptions import Book
 from bfxapi.websocket.enums import Channel, Error
-from bfxapi.websocket.types import TradingPairRawBook
 
 class RawOrderBook:
     def __init__(self, symbols: List[str]):
@@ -54,12 +54,12 @@ def on_subscribed(subscription):
     print(f"Subscription successful for pair <{subscription['pair']}>")
 
 @bfx.wss.on("t_raw_book_snapshot")
-def on_t_raw_book_snapshot(subscription: subscriptions.Book, snapshot: List[TradingPairRawBook]):
+def on_t_raw_book_snapshot(subscription: Book, snapshot: List[TradingPairRawBook]):
     for data in snapshot:
         raw_order_book.update(subscription["symbol"], data)
 
 @bfx.wss.on("t_raw_book_update")
-def on_t_raw_book_update(subscription: subscriptions.Book, data: TradingPairRawBook):
+def on_t_raw_book_update(subscription: Book, data: TradingPairRawBook):
     raw_order_book.update(subscription["symbol"], data)
 
 bfx.wss.run()

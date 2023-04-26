@@ -3,10 +3,10 @@ import unittest
 from typing import Optional
 
 from dataclasses import dataclass
-from ..exceptions import LabelerSerializerException
-from ..labeler import _Type, generate_labeler_serializer, generate_recursive_serializer
 
-class TestLabeler(unittest.TestCase):
+from ..types.labeler import _Type, generate_labeler_serializer, generate_recursive_serializer
+
+class TestTypesLabeler(unittest.TestCase):
     def test_generate_labeler_serializer(self):
         @dataclass
         class Test(_Type):
@@ -24,8 +24,8 @@ class TestLabeler(unittest.TestCase):
         self.assertListEqual(serializer.get_labels(), [ "A", "B", "C" ],
             msg="_Serializer::get_labels() should return the right list of labels.")
 
-        with self.assertRaises(LabelerSerializerException,
-                msg="_Serializer should raise LabelerSerializerException if given " \
+        with self.assertRaises(AssertionError,
+                msg="_Serializer should raise an AssertionError if given " \
                         "fewer arguments than the serializer labels."):
             serializer.parse(5, 65.0, "X")
 

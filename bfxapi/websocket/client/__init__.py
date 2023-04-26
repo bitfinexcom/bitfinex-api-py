@@ -1,3 +1,3 @@
-from .bfx_websocket_client import BfxWebsocketClient
-from .bfx_websocket_bucket import BfxWebsocketBucket
-from .bfx_websocket_inputs import BfxWebsocketInputs
+from .bfx_websocket_client import BfxWebSocketClient
+from .bfx_websocket_bucket import BfxWebSocketBucket
+from .bfx_websocket_inputs import BfxWebSocketInputs

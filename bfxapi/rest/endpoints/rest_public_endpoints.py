@@ -1,8 +1,12 @@
-from typing import List, Union, Literal, Optional, Any, cast
+from typing import List, Dict, Union, Literal, Optional, Any, cast
 
 from decimal import Decimal
 
-from .. types import \
+from ..middleware import Middleware
+
+from ..enums import Config, Sort
+
+from ...types import \
     PlatformStatus, TradingPairTicker, FundingCurrencyTicker, \
     TickersHistory, TradingPairTrade, FundingCurrencyTrade, \
     TradingPairBook, FundingCurrencyBook, TradingPairRawBook, \
@@ -11,9 +15,7 @@ from .. types import \
     FundingStatistic, PulseProfile, PulseMessage, \
     TradingMarketAveragePrice, FundingMarketAveragePrice, FxRate
 
-from .. import serializers
-from .. enums import Config, Sort
-from .. middleware import Middleware
+from ...types import serializers
 
 class RestPublicEndpoints(Middleware):
     def conf(self, config: Config) -> Any:
@@ -22,37 +24,46 @@ class RestPublicEndpoints(Middleware):
     def get_platform_status(self) -> PlatformStatus:
         return serializers.PlatformStatus.parse(*self._get("platform/status"))
 
-    def get_tickers(self, symbols: List[str]) -> List[Union[TradingPairTicker, FundingCurrencyTicker]]:
+    def get_tickers(self, symbols: List[str]) -> Dict[str, Union[TradingPairTicker, FundingCurrencyTicker]]:
         data = self._get("tickers", params={ "symbols": ",".join(symbols) })
 
         parsers = { "t": serializers.TradingPairTicker.parse, "f": serializers.FundingCurrencyTicker.parse }
 
-        return [ cast(Union[TradingPairTicker, FundingCurrencyTicker], \
-            parsers[sub_data[0][0]](*sub_data)) for sub_data in data ]
+        return {
+            symbol: cast(Union[TradingPairTicker, FundingCurrencyTicker],
+                parsers[symbol[0]](*sub_data)) for sub_data in data
+                    if (symbol := sub_data.pop(0))
+        }
 
-    def get_t_tickers(self, pairs: Union[List[str], Literal["ALL"]]) -> List[TradingPairTicker]:
-        if isinstance(pairs, str) and pairs == "ALL":
-            return [ cast(TradingPairTicker, sub_data) for sub_data in self.get_tickers([ "ALL" ]) \
-                if cast(str, sub_data.symbol).startswith("t") ]
+    def get_t_tickers(self, symbols: Union[List[str], Literal["ALL"]]) -> Dict[str, TradingPairTicker]:
+        if isinstance(symbols, str) and symbols == "ALL":
+            return {
+                symbol: cast(TradingPairTicker, sub_data)
+                    for symbol, sub_data in self.get_tickers([ "ALL" ]).items()
+                        if symbol.startswith("t")
+            }
 
-        data = self.get_tickers(list(pairs))
+        data = self.get_tickers(list(symbols))
 
-        return cast(List[TradingPairTicker], data)
+        return cast(Dict[str, TradingPairTicker], data)
 
-    def get_f_tickers(self, currencies: Union[List[str], Literal["ALL"]]) -> List[FundingCurrencyTicker]:
-        if isinstance(currencies, str) and currencies == "ALL":
-            return [ cast(FundingCurrencyTicker, sub_data) for sub_data in self.get_tickers([ "ALL" ]) \
-                if cast(str, sub_data.symbol).startswith("f") ]
+    def get_f_tickers(self, symbols: Union[List[str], Literal["ALL"]]) -> Dict[str, FundingCurrencyTicker]:
+        if isinstance(symbols, str) and symbols == "ALL":
+            return {
+                symbol: cast(FundingCurrencyTicker, sub_data)
+                    for symbol, sub_data in self.get_tickers([ "ALL" ]).items()
+                        if symbol.startswith("f")
+            }
 
-        data = self.get_tickers(list(currencies))
+        data = self.get_tickers(list(symbols))
 
-        return cast(List[FundingCurrencyTicker], data)
+        return cast(Dict[str, FundingCurrencyTicker], data)
 
-    def get_t_ticker(self, pair: str) -> TradingPairTicker:
-        return serializers.TradingPairTicker.parse(*([pair] + self._get(f"ticker/{pair}")))
+    def get_t_ticker(self, symbol: str) -> TradingPairTicker:
+        return serializers.TradingPairTicker.parse(*self._get(f"ticker/{symbol}"))
 
-    def get_f_ticker(self, currency: str) -> FundingCurrencyTicker:
-        return serializers.FundingCurrencyTicker.parse(*([currency] + self._get(f"ticker/{currency}")))
+    def get_f_ticker(self, symbol: str) -> FundingCurrencyTicker:
+        return serializers.FundingCurrencyTicker.parse(*self._get(f"ticker/{symbol}"))
 
     def get_tickers_history(self,
                             symbols: List[str],
@@ -164,26 +175,29 @@ class RestPublicEndpoints(Middleware):
         data = self._get(f"candles/trade:{tf}:{symbol}/last", params=params)
         return serializers.Candle.parse(*data)
 
-    def get_derivatives_status(self, keys: Union[List[str], Literal["ALL"]]) -> List[DerivativesStatus]:
+    def get_derivatives_status(self, keys: Union[List[str], Literal["ALL"]]) -> Dict[str, DerivativesStatus]:
         if keys == "ALL":
             params = { "keys": "ALL" }
         else:  params = { "keys": ",".join(keys) }
 
         data = self._get("status/deriv", params=params)
 
-        return [ serializers.DerivativesStatus.parse(*sub_data) for sub_data in data ]
+        return {
+            key: serializers.DerivativesStatus.parse(*sub_data)
+                for sub_data in data
+                    if (key := sub_data.pop(0))
+        }
 
     def get_derivatives_status_history(self,
-                                       type: str,
-                                       symbol: str,
+                                       key: str,
                                        *,
                                        sort: Optional[Sort] = None,
                                        start: Optional[str] = None,
                                        end: Optional[str] = None,
                                        limit: Optional[int] = None) -> List[DerivativesStatus]:
         params = { "sort": sort, "start": start, "end": end, "limit": limit }
-        data = self._get(f"status/{type}/{symbol}/hist", params=params)
-        return [ serializers.DerivativesStatus.parse(*([symbol] + sub_data)) for sub_data in data ]
+        data = self._get(f"status/deriv/{key}/hist", params=params)
+        return [ serializers.DerivativesStatus.parse(*sub_data) for sub_data in data ]
 
     def get_liquidations(self,
                          *,
