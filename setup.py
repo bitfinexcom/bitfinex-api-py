@@ -20,7 +20,7 @@ setup(
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
 
-        "License :: OSI Approved :: Apache-2.0",
+        "License :: OSI Approved :: Apache Software License",
 
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
