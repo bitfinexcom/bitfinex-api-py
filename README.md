@@ -8,56 +8,99 @@ Beta versions should not be used in applications which require user authenticati
 Provide your API-KEY/API-SECRET, and manage your account and funds at your own risk.
 
 ### Features
-- User-friendly implementations for 75+ public and authenticated REST endpoints.
-    * A complete list of available REST endpoints can be found [here](https://docs.bitfinex.com/reference).
-- New WebSocket client to ensure fast, secure and persistent connections.
-    * Support for all public channels + authenticated events and inputs (a list can be found [here](https://docs.bitfinex.com/docs/ws-public)).
-    * Automatic reconnection system in case of network failure (both client and server side).
-        - The WebSocket client logs every reconnection failure, success and attempt (as well as other events).
-    * Connection multiplexing to allow subscribing to a large number of public channels (without affecting performances).
-        - The WebSocket server sets a limit of 25 subscriptions per connection, connection multiplexing allows the WebSocket client to bypass this limit.
-- Full type-hinting and type-checking support with [`mypy`](https://github.com/python/mypy). 
-    * This allow text editors to show helpful hints about the value of a variable: ![example](https://i.imgur.com/aDjapcN.png "Type-hinting example on a random code snippet")
 
----
+* Support for 75+ REST endpoints (a list of available endpoints can be found [here](https://docs.bitfinex.com/reference))
+* New WebSocket client to ensure fast, secure and persistent connections
+* Full support for Bitfinex notifications (including custom notifications)
+* Native support for type hinting and type checking with [`mypy`](https://github.com/python/mypy)
 
 ## Installation
 
-To install the latest beta release of `bitfinex-api-py`:
-```bash
+```console
 python3 -m pip install --pre bitfinex-api-py
 ```
-To install a specific beta version:
-```bash
+
+### Selecting and installing a specific beta version
+
+It's also possible to select and install a specific beta version:
+```console
 python3 -m pip install bitfinex-api-py==3.0.0b1
 ```
 
-## Basic usage
-
 ---
 
-### Index
+# Quickstart
 
-* [WebSocket Client documentation](#websocket-client-documentation)
-* [Building the source code](#building-the-source-code)
+```python
+from bfxapi import Client, REST_HOST
+
+from bfxapi.types import Notification, Order
+
+bfx = Client(
+    rest_host=REST_HOST,
+    api_key="<YOUR BFX API-KEY>",
+    api_secret="<YOUR BFX API-SECRET>"
+)
+
+notification: Notification[Order] = bfx.rest.auth.submit_order(
+    type="EXCHANGE LIMIT", symbol="tBTCUSD", amount=0.165212, price=30264.0)
+
+order: Order = notification.data
+
+if notification.status == "SUCCESS":
+    print(f"Successful new order for {order.symbol} at {order.price}$.")
+
+if notification.status == "ERROR":
+    raise Exception(f"Something went wrong: {notification.text}")
+```
+
+## Authenticating in your account
+
+To authenticate in your account, you must provide a valid API-KEY and API-SECRET:
+```python
+bfx = Client(
+    [...],
+    api_key=os.getenv("BFX_API_KEY"),
+    api_secret=os.getenv("BFX_API_SECRET")
+)
+```
+
+### Warning
+
+Remember to not share your API-KEYs and API-SECRETs with anyone. \
+Everyone who owns one of your API-KEYs and API-SECRETs will have full access to your account. \
+We suggest saving your credentials in a local `.env` file and accessing them as environment variables.
+
+_Revoke your API-KEYs and API-SECRETs immediately if you think they might have been stolen._
+
+> **NOTE:** A guide on how to create, edit and revoke API-KEYs and API-SECRETs can be found [here](https://support.bitfinex.com/hc/en-us/articles/115003363429-How-to-create-and-revoke-a-Bitfinex-API-Key).
+
+## Next
+
+* [WebSocket client documentation](#websocket-client-documentation)
+    - [Advanced features](#advanced-features)
+    - [Examples](#examples)
 * [How to contribute](#how-to-contribute)
 
 ---
 
-# WebSocket Client documentation
+# WebSocket client documentation
 
 1. [Instantiating the client](#instantiating-the-client)
     * [Authentication](#authentication)
-    * [Configuring the logger](#configuring-the-logger)
 2. [Running the client](#running-the-client)
     * [Closing the connection](#closing-the-connection)
 3. [Subscribing to public channels](#subscribing-to-public-channels)
+    * [Unsubscribing from a public channel](#unsubscribing-from-a-public-channel)
     * [Setting a custom `sub_id`](#setting-a-custom-sub_id)
 4. [Listening to events](#listening-to-events)
-5. [Advanced Features](#advanced-features)
-    * [Connection multiplexing](#connection-multiplexing)
-    * [Sending custom notifications](#sending-custom-notifications)
-    * [Handling reconnections in case of network failure](#handling-reconnections-in-case-of-network-failure)
+
+### Advanced features
+* [Using custom notifications](#using-custom-notifications)
+* [Setting up connection multiplexing](#setting-up-connection-multiplexing)
+
+### Examples
+* [Creating a new order](#creating-a-new-order)
 
 ## Instantiating the client
 
@@ -70,7 +113,7 @@ The `wss_host` argument is used to indicate the URL to which the WebSocket clien
 The `bfxapi` package exports 2 constants to quickly set this URL:
 
 Constant | URL | When to use
---- | --- | ---
+:--- | :--- | :---
 WSS_HOST | wss://api.bitfinex.com/ws/2 | Suitable for all situations, supports authentication.
 PUB_WSS_HOST | wss://api-pub.bitfinex.com/ws/2 | For public uses only, doesn't support authentication.
 
@@ -80,23 +123,28 @@ PUB_WSS_HOST is recommended over WSS_HOST for applications that don't require au
 
 ### Authentication
 
-### Configuring the logger
+To learn how to authenticate in your account, have a look at [Authenticating in your account](#authenticating-in-your-account).
 
-`log_filename` (`Optional[str]`, default: `None`): \
-Relative path of the file where to save the logs the client will emit. \
-If not given, the client will emit logs on `stdout` (`stderr` for errors and warnings).
-
-`log_level` (`str`, default: `"INFO"`): \
-Available log levels are (in order): `ERROR`, `WARNING`, `INFO` and `DEBUG`. \
-The client will only log messages whose level is lower than or equal to `log_level`. \
-For example, if `log_level=WARNING`, the client will only log errors and warnings.
+If authentication is successful, the client will emit the `authenticated` event. \
+All operations that require authentication will fail if run before the emission of this event. \
+The `data` argument contains information about the authentication, such as the `userId`, the `auth_id`, etc...
 
 ```python
-bfx = Client(
-    [...],
-    log_filename="2023-03-26.log",
-    log_level="WARNING"
-)
+@bfx.wss.on("authenticated")
+def on_authenticated(data: Dict[str, Any]):
+    print(f"Successful login for user <{data['userId']}>.")
+```
+
+`data` can also be useful for checking if an API-KEY has certain permissions:
+
+```python
+@bfx.wss.on("authenticated")
+def on_authenticated(data: Dict[str, Any]):
+    if not data["caps"]["orders"]["read"]:
+        raise Exception("This application requires read permissions on orders.")
+
+    if not data["caps"]["positions"]["write"]:
+        raise Exception("This application requires write permissions on positions.")
 ```
 
 ## Running the client
@@ -118,7 +166,7 @@ To learn more about events and public channels, see [Listening to events](#liste
 ```python
 @bfx.wss.on("open")
 async def on_open():
-    await bfx.wss.subscribe(Channel.TICKER, symbol="tBTCUSD")
+    await bfx.wss.subscribe("ticker", symbol="tBTCUSD")
 ```
 
 ### Closing the connection
@@ -137,7 +185,8 @@ After closing the connection, the client will emit the `disconnection` event:
 ```python
 @bfx.wss.on("disconnection")
 def on_disconnection(code: int, reason: str):
-    print(f"Closing connection with code: <{code}>. Reason: {reason}.")
+    if code == 1000 or code == 1001:
+        print("Closing the connection without errors!")
 ```
 
 ## Subscribing to public channels
@@ -153,6 +202,16 @@ On each successful subscription, the client will emit the `subscribed` event:
 def on_subscribed(subscription: subscriptions.Subscription):
     if subscription["channel"] == "ticker":
         print(f"{subscription['symbol']}: {subscription['subId']}") # tBTCUSD: f2757df2-7e11-4244-9bb7-a53b7343bef8
+```
+
+### Unsubscribing from a public channel
+
+It is possible to unsubscribe from a public channel at any time. \
+Unsubscribing from a public channel prevents the client from receiving any more data from it. \
+This can be done using `BfxWebSocketClient::unsubscribe`, and passing the `sub_id` of the public channel you want to unsubscribe from:
+
+```python
+await bfx.wss.unsubscribe(sub_id="f2757df2-7e11-4244-9bb7-a53b7343bef8")
 ```
 
 ### Setting a custom `sub_id`
@@ -188,9 +247,29 @@ You can pass any number of events to register for the same callback function:
 bfx.wss.on("t_ticker_update", "f_ticker_update", callback=on_ticker_update)
 ```
 
-## Advanced features
+# Advanced features
 
-### Connection multiplexing
+## Using custom notifications
+
+**Using custom notifications requires user authentication.**
+
+Users can send custom notifications using `BfxWebSocketClient::notify`:
+```python
+await bfx.wss.notify({ "foo": 1 })
+```
+
+Any data can be sent along with a custom notification.
+
+Custom notifications are broadcast by the server on all user's open connections. \
+So, each custom notification will be sent to every online client of the current user. \
+Whenever a client receives a custom notification, it will emit the `notification` event:
+```python
+@bfx.wss.on("notification")
+def on_notification(notification: Notification[Any]):
+    print(notification.data) # { "foo": 1 }
+```
+
+## Setting up connection multiplexing
 
 `BfxWebSocketClient::run` and `BfxWebSocketClient::start` accept a `connections` argument:
 ```python
@@ -211,61 +290,124 @@ Keep in mind that using a large number of connections could slow down the client
 
 The use of more than 20 connections is not recommended.
 
-### Sending custom notifications
+# Examples
 
-**Sending custom notifications requires user authentication.**
+## Creating a new order
 
-Users can send custom notifications using `BfxWebSocketClient::notify`:
 ```python
-await bfx.wss.notify({ "foo": 1 })
+import os
+
+from bfxapi import Client, WSS_HOST
+
+from bfxapi.types import Notification, Order
+
+bfx = Client(
+    wss_host=WSS_HOST,
+    api_key=os.getenv("BFX_API_KEY"),
+    api_secret=os.getenv("BFX_API_SECRET")
+)
+
+@bfx.wss.on("authenticated")
+async def on_authenticated(_):
+    await bfx.wss.inputs.submit_order(
+        type="EXCHANGE LIMIT", symbol="tBTCUSD", amount=0.165212, price=30264.0)
+
+@bfx.wss.on("order_new")
+def on_order_new(order: Order):
+    print(f"Successful new order for {order.symbol} at {order.price}$.")
+
+@bfx.wss.on("on-req-notification")
+def on_notification(notification: Notification[Order]):
+    if notification.status == "ERROR":
+        raise Exception(f"Something went wrong: {notification.text}")
+
+bfx.wss.run()
 ```
-
-Any data can be sent along with a custom notification.
-
-Custom notifications are broadcast by the server on all user's open connections. \
-So, each custom notification will be sent to every online client of the current user. \
-Whenever a client receives a custom notification, it will emit the `notification` event:
-```python
-@bfx.wss.on("notification")
-def on_notification(notification: Notification[Any]):
-    print(notification.data) # { "foo": 1 }
-```
-
-### Handling reconnections in case of network failure
-
-In case of network failure, the client will keep waiting until it is able to restore the connection with the server.
-
-The client will try to reconnect with exponential backoff; the backoff delay starts at three seconds and increases up to one minute.
-
-After a successful reconnection attempt, the client will emit the `reconnection` event.
-
-This event accepts two arguments: \
-`attemps` (`int`) which is the number of reconnection attempts (including the successful one), \
-`timedelta` (`datetime.timedelta`) which contains the amount of time the client has been down.
-
-Users can use this event for a variety of things, such as sending a notification if the client has been down for too long:
-```python
-@bfx.wss.on("reconnection")
-async def on_reconnection(attempts: int, timedelta: datetime.timedelta):
-    if timedelta.total_seconds() >= 60 * 60: # 60s * 60s = 3600s = 1h
-        await bfx.wss.notify(f"The client has been down for {timedelta}.")
-```
-
----
-
-# Building the source code
-
-## Testing (with unittest)
-
-## Linting the project with pylint
-
-## Using mypy to ensure correct type-hinting
 
 ---
 
 # How to contribute
 
-## License
-This project is released under the `Apache License 2.0`.
+All contributions are welcome! :D
 
-The complete license can be found here: https://www.apache.org/licenses/LICENSE-2.0.
+A guide on how to install and set up `bitfinex-api-py`'s source code can be found [here](#installation-and-setup). \
+Before opening any pull requests, please have a look at [Before Opening a PR](#before-opening-a-pr). \
+Contributors must uphold the [Contributor Covenant code of conduct](https://github.com/bitfinexcom/bitfinex-api-py/blob/v3-beta/CODE_OF_CONDUCT.md).
+
+### Index
+
+1. [Installation and setup](#installation-and-setup)
+    * [Cloning the repository](#cloning-the-repository)
+    * [Installing the dependencies](#installing-the-dependencies)
+2. [Before opening a PR](#before-opening-a-pr)
+    * [Running the unit tests](#running-the-unit-tests)
+3. [License](#license)
+
+## Installation and setup
+
+A brief guide on how to install and set up the project in your Python 3.8+ environment.
+
+### Cloning the repository
+
+The following command will only clone the `v3-beta` branch (excluding all others):
+
+```console
+git clone --branch v3-beta --single-branch https://github.com/bitfinexcom/bitfinex-api-py.git
+```
+
+### Installing the dependencies
+
+```console
+python3 -m pip install -r dev-requirements.txt
+```
+
+Make sure to install `dev-requirements.txt` instead of `requirements.txt`. \
+`dev-requirements.txt` will install all dependencies in `requirements.txt` plus any development dependencies. \
+This will also install the versions in use of [`pylint`](https://github.com/pylint-dev/pylint) and [`mypy`](https://github.com/python/mypy), which you should both use before opening your PRs.
+
+All done, your Python 3.8+ environment should now be able to run `bitfinex-api-py`'s source code.
+
+## Before opening a PR
+
+**We won't accept your PR or we will request changes if the following requirements aren't met.**
+
+Wheter you're submitting a bug fix, a new feature or a documentation change, you should first discuss it in an issue.
+
+All PRs must follow this [PULL_REQUEST_TEMPLATE](https://github.com/bitfinexcom/bitfinex-api-py/blob/v3-beta/.github/PULL_REQUEST_TEMPLATE.md) and include an exhaustive description.
+
+Before opening a pull request, you should also make sure that:
+- [ ] all unit tests pass (see [Running the unit tests](#running-the-unit-tests)).
+- [ ] [`pylint`](https://github.com/pylint-dev/pylint) returns a score of 10.00/10.00 when run against your code.
+- [ ] [`mypy`](https://github.com/python/mypy) doesn't throw any error code when run on the project (excluding notes).
+
+### Running the unit tests
+
+`bitfinex-api-py` comes with a set of unit tests (written using the [`unittest`](https://docs.python.org/3.8/library/unittest.html) unit testing framework). \
+Contributors must ensure that each unit test passes before opening a pull request. \
+You can run all project's unit tests by calling `unittest` on `bfxapi.tests`:
+```console
+python3 -m unittest -v bfxapi.tests
+```
+
+A single unit test can be run as follows:
+```console
+python3 -m unittest -v bfxapi.tests.test_notification
+```
+
+## License
+
+```
+Copyright 2023 Bitfinex
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
