@@ -1,16 +1,18 @@
 from typing import TypedDict, Union, Literal, Optional
 
-__all__ = [
-    "Subscription",
-
-    "Ticker",
-    "Trades",
-    "Book",
-    "Candles",
-    "Status"
+_Channel = Literal[
+    "ticker",
+    "trades",
+    "book",
+    "candles",
+    "status"
 ]
 
-_Header = TypedDict("_Header", { "event": Literal["subscribed"], "channel": str, "chanId": int })
+_Header = TypedDict("_Header", {
+    "event": Literal["subscribed"],
+    "channel": _Channel,
+    "chanId": int
+})
 
 Subscription = Union[_Header, "Ticker", "Trades", "Book", "Candles", "Status"]
 
