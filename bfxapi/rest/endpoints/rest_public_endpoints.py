@@ -262,9 +262,9 @@ class RestPublicEndpoints(Middleware):
                                   limit: Optional[int] = None) -> List[PulseMessage]:
         messages = []
 
-        for subdata in self._get("pulse/hist", params={ "end": end, "limit": limit }):
-            subdata[18] = subdata[18][0]
-            message = serializers.PulseMessage.parse(*subdata)
+        for sub_data in self._get("pulse/hist", params={ "end": end, "limit": limit }):
+            sub_data[18] = sub_data[18][0]
+            message = serializers.PulseMessage.parse(*sub_data)
             messages.append(message)
 
         return messages

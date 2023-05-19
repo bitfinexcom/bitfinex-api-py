@@ -62,7 +62,7 @@ class BfxWebSocketBucket:
 
                     if isinstance(message, list):
                         if (chan_id := message[0]) and message[1] != _HEARTBEAT:
-                            self.handler.handle(self.subscriptions[chan_id], *message[1:])
+                            self.handler.handle(self.subscriptions[chan_id], message[1:])
 
         try:
             await _connection()
