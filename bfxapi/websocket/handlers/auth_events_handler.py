@@ -2,7 +2,7 @@ from ...types import serializers
 
 from ...types.serializers import _Notification
 
-class AuthenticatedEventsHandler:
+class AuthEventsHandler:
     __once_abbreviations = {
         "os": "order_snapshot", "ps": "position_snapshot", "fos": "funding_offer_snapshot",
         "fcs": "funding_credit_snapshot", "fls": "funding_loan_snapshot", "ws": "wallet_snapshot"
@@ -49,9 +49,9 @@ class AuthenticatedEventsHandler:
         if abbrevation == "n":
             return self.__notification(stream)
 
-        for abbrevations, serializer in AuthenticatedEventsHandler.__serializers.items():
+        for abbrevations, serializer in AuthEventsHandler.__serializers.items():
             if abbrevation in abbrevations:
-                event = AuthenticatedEventsHandler.__abbreviations[abbrevation]
+                event = AuthEventsHandler.__abbreviations[abbrevation]
 
                 if all(isinstance(substream, list) for substream in stream):
                     return self.event_emitter.emit(event, [ serializer.parse(*substream) for substream in stream ])
