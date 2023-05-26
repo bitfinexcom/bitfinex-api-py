@@ -1,37 +1,36 @@
 from typing import TYPE_CHECKING, Callable, Awaitable, \
     Tuple, List, Union, Optional, Any
 
-from decimal import Decimal
-
-from datetime import datetime
-
 if TYPE_CHECKING:
     from bfxapi.enums import \
         OrderType, FundingOfferType
 
     from bfxapi.types import JSON
 
-    _Handler = Callable[[str, Any], Awaitable[None]]
+    from decimal import Decimal
+
+    from datetime import datetime
 
 class BfxWebSocketInputs:
-    def __init__(self, handle_websocket_input: "_Handler") -> None:
+    def __init__(self, handle_websocket_input: Callable[[str, Any], Awaitable[None]]) -> None:
         self.__handle_websocket_input = handle_websocket_input
 
     async def submit_order(self,
-                    type: "OrderType",
-                    symbol: str,
-                    amount: Union[Decimal, float, str],
-                    *,
-                    price: Optional[Union[Decimal, float, str]] = None,
-                    lev: Optional[int] = None,
-                    price_trailing: Optional[Union[Decimal, float, str]] = None,
-                    price_aux_limit: Optional[Union[Decimal, float, str]] = None,
-                    price_oco_stop: Optional[Union[Decimal, float, str]] = None,
-                    gid: Optional[int] = None,
-                    cid: Optional[int] = None,
-                    flags: Optional[int] = 0,
-                    tif: Optional[Union[datetime, str]] = None,
-                    meta: Optional["JSON"] = None) -> None:
+                           type: "OrderType",
+                           symbol: str,
+                           amount: Union["Decimal", float, str],
+                           *,
+                           price: Optional[Union["Decimal", float, str]] = None,
+                           lev: Optional[int] = None,
+                           price_trailing: Optional[Union["Decimal", float, str]] = None,
+                           price_aux_limit: Optional[Union["Decimal", float, str]] = None,
+                           price_oco_stop: Optional[Union["Decimal", float, str]] = None,
+                           gid: Optional[int] = None,
+                           cid: Optional[int] = None,
+                           flags: Optional[int] = 0,
+                           tif: Optional[Union["datetime", str]] = None,
+                           meta: Optional["JSON"] = None) -> None:
+
         await self.__handle_websocket_input("on", {
             "type": type, "symbol": symbol, "amount": amount,
             "price": price, "lev": lev, "price_trailing": price_trailing,
@@ -41,19 +40,19 @@ class BfxWebSocketInputs:
         })
 
     async def update_order(self,
-                    id: int,
-                    *,
-                    amount: Optional[Union[Decimal, float, str]] = None,
-                    price: Optional[Union[Decimal, float, str]] = None,
-                    cid: Optional[int] = None,
-                    cid_date: Optional[str] = None,
-                    gid: Optional[int] = None,
-                    flags: Optional[int] = 0,
-                    lev: Optional[int] = None,
-                    delta: Optional[Union[Decimal, float, str]] = None,
-                    price_aux_limit: Optional[Union[Decimal, float, str]] = None,
-                    price_trailing: Optional[Union[Decimal, float, str]] = None,
-                    tif: Optional[Union[datetime, str]] = None) -> None:
+                           id: int,
+                           *,
+                           amount: Optional[Union["Decimal", float, str]] = None,
+                           price: Optional[Union["Decimal", float, str]] = None,
+                           cid: Optional[int] = None,
+                           cid_date: Optional[str] = None,
+                           gid: Optional[int] = None,
+                           flags: Optional[int] = 0,
+                           lev: Optional[int] = None,
+                           delta: Optional[Union["Decimal", float, str]] = None,
+                           price_aux_limit: Optional[Union["Decimal", float, str]] = None,
+                           price_trailing: Optional[Union["Decimal", float, str]] = None,
+                           tif: Optional[Union["datetime", str]] = None) -> None:
         await self.__handle_websocket_input("ou", {
             "id": id, "amount": amount, "price": price,
             "cid": cid, "cid_date": cid_date, "gid": gid,
@@ -62,34 +61,34 @@ class BfxWebSocketInputs:
         })
 
     async def cancel_order(self,
-                    *,
-                    id: Optional[int] = None,
-                    cid: Optional[int] = None,
-                    cid_date: Optional[str] = None) -> None:
+                           *,
+                           id: Optional[int] = None,
+                           cid: Optional[int] = None,
+                           cid_date: Optional[str] = None) -> None:
         await self.__handle_websocket_input("oc", {
             "id": id, "cid": cid, "cid_date": cid_date 
         })
 
     async def cancel_order_multi(self,
-                    *,
-                    ids: Optional[List[int]] = None,
-                    cids: Optional[List[Tuple[int, str]]] = None,
-                    gids: Optional[List[int]] = None,
-                    all: bool = False) -> None:
+                                 *,
+                                 ids: Optional[List[int]] = None,
+                                 cids: Optional[List[Tuple[int, str]]] = None,
+                                 gids: Optional[List[int]] = None,
+                                 all: bool = False) -> None:
         await self.__handle_websocket_input("oc_multi", {
             "ids": ids, "cids": cids, "gids": gids,
-            "all": int(all)
+            "all": all
         })
 
     #pylint: disable-next=too-many-arguments
     async def submit_funding_offer(self,
-                    type: "FundingOfferType",
-                    symbol: str,
-                    amount: Union[Decimal, float, str],
-                    rate: Union[Decimal, float, str],
-                    period: int,
-                    *,
-                    flags: Optional[int] = 0) -> None:
+                                   type: "FundingOfferType",
+                                   symbol: str,
+                                   amount: Union["Decimal", float, str],
+                                   rate: Union["Decimal", float, str],
+                                   period: int,
+                                   *,
+                                   flags: Optional[int] = 0) -> None:
         await self.__handle_websocket_input("fon", {
             "type": type, "symbol": symbol, "amount": amount,
             "rate": rate, "period": period, "flags": flags

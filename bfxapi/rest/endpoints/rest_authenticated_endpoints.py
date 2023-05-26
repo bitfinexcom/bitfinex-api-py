@@ -128,7 +128,7 @@ class RestAuthenticatedEndpoints(Middleware):
                            all: bool = False) -> Notification[List[Order]]:
         body = {
             "ids": ids, "cids": cids, "gids": gids, 
-            "all": int(all)
+            "all": all
         }
 
         return _Notification[List[Order]](serializers.Order, is_iterable=True) \
@@ -319,7 +319,7 @@ class RestAuthenticatedEndpoints(Middleware):
                           rate: Optional[int] = None,
                           period: Optional[int] = None) -> Notification[FundingAutoRenew]:
         body = {
-            "status": int(status), "currency": currency, "amount": amount,
+            "status": status, "currency": currency, "amount": amount,
             "rate": rate, "period": period
         }
 
@@ -449,7 +449,7 @@ class RestAuthenticatedEndpoints(Middleware):
                             renew: bool = False) -> Notification[DepositAddress]:
         return _Notification[DepositAddress](serializers.DepositAddress) \
             .parse(*self._post("auth/w/deposit/address", \
-                body={ "wallet": wallet, "method": method, "renew": int(renew) }))
+                body={ "wallet": wallet, "method": method, "renew": renew }))
 
     def generate_deposit_invoice(self,
                                  wallet: str,
