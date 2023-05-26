@@ -1,11 +1,11 @@
-from typing import Union, Type, \
+from typing import \
     List, Dict, Literal, Optional, Any
 
 from dataclasses import dataclass
 
 from .labeler import _Type, partial, compose
 
-JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
+from ..utils.json_encoder import JSON
 
 #region Dataclass definitions for types of public use
 

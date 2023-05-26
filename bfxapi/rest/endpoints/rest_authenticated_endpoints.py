@@ -1,12 +1,12 @@
 from typing import Dict, List, Tuple, Union, Literal, Optional
+
 from decimal import Decimal
-from datetime import datetime
 
 from ..middleware import Middleware
 
 from ..enums import Sort, OrderType, FundingOfferType
 
-from ...types import JSON, Notification, \
+from ...types import Notification, \
     UserInfo, LoginHistory, BalanceAvailable, \
     Order, Position, Trade, \
     FundingTrade, OrderTrade, Ledger, \
@@ -21,6 +21,8 @@ from ...types import JSON, Notification, \
 from ...types import serializers
 
 from ...types.serializers import _Notification
+
+from ...utils.json_encoder import JSON
 
 class RestAuthenticatedEndpoints(Middleware):
     def get_user_info(self) -> UserInfo:
@@ -74,7 +76,7 @@ class RestAuthenticatedEndpoints(Middleware):
                      gid: Optional[int] = None,
                      cid: Optional[int] = None,
                      flags: Optional[int] = 0,
-                     tif: Optional[Union[datetime, str]] = None,
+                     tif: Optional[str] = None,
                      meta: Optional[JSON] = None) -> Notification[Order]:
         body = {
             "type": type, "symbol": symbol, "amount": amount,
@@ -100,7 +102,7 @@ class RestAuthenticatedEndpoints(Middleware):
                      delta: Optional[Union[Decimal, float, str]] = None,
                      price_aux_limit: Optional[Union[Decimal, float, str]] = None,
                      price_trailing: Optional[Union[Decimal, float, str]] = None,
-                     tif: Optional[Union[datetime, str]] = None) -> Notification[Order]:
+                     tif: Optional[str] = None) -> Notification[Order]:
         body = {
             "id": id, "amount": amount, "price": price,
             "cid": cid, "cid_date": cid_date, "gid": gid,

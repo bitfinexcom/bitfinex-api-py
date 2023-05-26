@@ -5,11 +5,9 @@ if TYPE_CHECKING:
     from bfxapi.enums import \
         OrderType, FundingOfferType
 
-    from bfxapi.types import JSON
+    from bfxapi.utils.json_encoder import JSON
 
     from decimal import Decimal
-
-    from datetime import datetime
 
 class BfxWebSocketInputs:
     def __init__(self, handle_websocket_input: Callable[[str, Any], Awaitable[None]]) -> None:
@@ -28,9 +26,8 @@ class BfxWebSocketInputs:
                            gid: Optional[int] = None,
                            cid: Optional[int] = None,
                            flags: Optional[int] = 0,
-                           tif: Optional[Union["datetime", str]] = None,
+                           tif: Optional[str] = None,
                            meta: Optional["JSON"] = None) -> None:
-
         await self.__handle_websocket_input("on", {
             "type": type, "symbol": symbol, "amount": amount,
             "price": price, "lev": lev, "price_trailing": price_trailing,
@@ -52,7 +49,7 @@ class BfxWebSocketInputs:
                            delta: Optional[Union["Decimal", float, str]] = None,
                            price_aux_limit: Optional[Union["Decimal", float, str]] = None,
                            price_trailing: Optional[Union["Decimal", float, str]] = None,
-                           tif: Optional[Union["datetime", str]] = None) -> None:
+                           tif: Optional[str] = None) -> None:
         await self.__handle_websocket_input("ou", {
             "id": id, "amount": amount, "price": price,
             "cid": cid, "cid_date": cid_date, "gid": gid,

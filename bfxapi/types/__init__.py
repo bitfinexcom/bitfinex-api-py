@@ -1,4 +1,4 @@
-from .dataclasses import JSON, \
+from .dataclasses import \
     PlatformStatus, TradingPairTicker, FundingCurrencyTicker, \
     TickersHistory, TradingPairTrade, FundingCurrencyTrade, \
     TradingPairBook, FundingCurrencyBook, TradingPairRawBook, \
