@@ -3,10 +3,10 @@ name: bitfinex-api-py-ci
 on:
   push:
     branches:
-      - v3-beta
+      - master
   pull_request:
     branches:
-      - v3-beta
+      - master
 
 permissions:
   contents: read
