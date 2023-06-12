@@ -1,4 +1,4 @@
-# python -c "import examples.rest.authenticated.submit_funding_offer"
+# python -c "import examples.rest.auth.submit_funding_offer"
 
 import os
 

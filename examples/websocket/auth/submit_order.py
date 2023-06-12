@@ -1,4 +1,4 @@
-# python -c "import examples.websocket.authenticated.submit_order"
+# python -c "import examples.websocket.auth.submit_order"
 
 import os
 

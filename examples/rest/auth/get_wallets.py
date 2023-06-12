@@ -1,4 +1,4 @@
-# python -c "import examples.rest.authenticated.get_wallets"
+# python -c "import examples.rest.auth.get_wallets"
 
 import os
 

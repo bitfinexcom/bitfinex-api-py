@@ -1,4 +1,4 @@
-# python -c "import examples.rest.authenticated.submit_order"
+# python -c "import examples.rest.auth.submit_order"
 
 import os
 

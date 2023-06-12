@@ -1,4 +1,4 @@
-# python -c "import examples.rest.authenticated.set_derivatives_position_collateral"
+# python -c "import examples.rest.auth.set_derivatives_position_collateral"
 
 import os
 

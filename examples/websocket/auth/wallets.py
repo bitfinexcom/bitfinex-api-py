@@ -1,4 +1,4 @@
-# python -c "import examples.websocket.authenticated.wallets"
+# python -c "import examples.websocket.auth.wallets"
 
 import os
 

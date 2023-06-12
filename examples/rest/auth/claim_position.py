@@ -1,4 +1,4 @@
-# python -c "import examples.rest.authenticated.claim_position"
+# python -c "import examples.rest.auth.claim_position"
 
 import os
 

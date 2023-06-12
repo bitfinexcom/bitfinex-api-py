@@ -1,4 +1,4 @@
-# python -c "import examples.rest.authenticated.toggle_keep_funding"
+# python -c "import examples.rest.auth.toggle_keep_funding"
 
 import os
 
