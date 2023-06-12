@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, \
-    Union, Dict, Tuple, Any
+    Dict, Tuple, Any
 
 from bfxapi.types import serializers
 
@@ -71,14 +71,16 @@ class AuthEventsHandler:
                 break
 
     def __notification(self, stream: Any) -> None:
-        _Types = Union[None, "Order", "FundingOffer"]
+        event: str = "notification"
 
-        event, serializer = "notification", _Notification[_Types](serializer=None)
+        serializer: _Notification = _Notification[None](serializer=None)
 
         if stream[1] == "on-req" or stream[1] == "ou-req" or stream[1] == "oc-req":
-            event, serializer = f"{stream[1]}-notification", _Notification[_Types](serializer=serializers.Order)
+            event, serializer = f"{stream[1]}-notification", \
+                _Notification["Order"](serializer=serializers.Order)
 
         if stream[1] == "fon-req" or stream[1] == "foc-req":
-            event, serializer = f"{stream[1]}-notification", _Notification[_Types](serializer=serializers.FundingOffer)
+            event, serializer = f"{stream[1]}-notification", \
+                _Notification["FundingOffer"](serializer=serializers.FundingOffer)
 
         self.__event_emitter.emit(event, serializer.parse(*stream))

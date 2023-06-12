@@ -24,7 +24,8 @@ class PublicChannelsHandler:
         "t_ticker_update", "f_ticker_update", "t_trade_execution", 
         "t_trade_execution_update", "f_trade_execution", "f_trade_execution_update", 
         "t_book_update", "f_book_update", "t_raw_book_update", 
-        "f_raw_book_update", "candles_update", "derivatives_status_update"
+        "f_raw_book_update", "candles_update", "derivatives_status_update",
+        "liquidation_feed_update"
     ]
 
     def __init__(self,
@@ -97,7 +98,7 @@ class PublicChannelsHandler:
                     for sub_stream in stream[0] ])
 
     def __book_channel_handler(self, subscription: "Book", stream: List[Any]) -> None:
-        t_or_f = subscription["symbol"][0]
+        symbol = subscription["symbol"]
 
         is_raw_book = subscription["prec"] == "R0"
 
@@ -106,17 +107,17 @@ class PublicChannelsHandler:
                 or serializers.TradingPairBook,
             "f": is_raw_book and serializers.FundingCurrencyRawBook \
                 or serializers.FundingCurrencyBook
-        }[t_or_f]
+        }[symbol[0]]
 
         if all(isinstance(sub_stream, list) for sub_stream in stream[0]):
-            event = t_or_f + "_" + \
+            event = symbol[0] + "_" + \
                 (is_raw_book and "raw_book" or "book") + "_snapshot"
 
             return self.__emit(event, subscription, \
                 [ serializer.parse(*sub_stream) \
                     for sub_stream in stream[0] ])
 
-        event = t_or_f + "_" + \
+        event = symbol[0] + "_" + \
             (is_raw_book and "raw_book" or "book") + "_update"
 
         return self.__emit(event, subscription, \
@@ -135,3 +136,7 @@ class PublicChannelsHandler:
         if subscription["key"].startswith("deriv:"):
             return self.__emit("derivatives_status_update", subscription, \
                 serializers.DerivativesStatus.parse(*stream[0]))
+
+        if subscription["key"].startswith("liq:"):
+            return self.__emit("liquidation_feed_update", subscription, \
+               serializers.Liquidation.parse(*stream[0][0]))

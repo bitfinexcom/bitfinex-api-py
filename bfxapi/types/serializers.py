@@ -230,7 +230,7 @@ Liquidation = generate_labeler_serializer(
         "is_match",
         "is_market_sold",
         "_PLACEHOLDER",
-        "price_acquired"
+        "liquidation_price"
     ]
 )
 

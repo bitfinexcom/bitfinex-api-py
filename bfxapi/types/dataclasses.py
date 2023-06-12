@@ -129,7 +129,7 @@ class Liquidation(_Type):
     base_price: float
     is_match: int
     is_market_sold: int
-    price_acquired: float
+    liquidation_price: float
 
 @dataclass
 class Leaderboard(_Type):
