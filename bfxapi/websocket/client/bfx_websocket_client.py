@@ -1,5 +1,3 @@
-from typing import cast
-
 from collections import namedtuple
 
 from datetime import datetime
@@ -8,7 +6,7 @@ import traceback, json, asyncio, hmac, hashlib, time, socket, random, websockets
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from .bfx_websocket_bucket import _HEARTBEAT, F, _require_websocket_connection, BfxWebSocketBucket
+from .bfx_websocket_bucket import _HEARTBEAT, _require_websocket_connection, BfxWebSocketBucket
 
 from .bfx_websocket_inputs import BfxWebSocketInputs
 from ..handlers import PublicChannelsHandler, AuthEventsHandler
@@ -19,7 +17,7 @@ from ...utils.json_encoder import JSONEncoder
 
 from ...utils.logger import ColorLogger, FileLogger
 
-def _require_websocket_authentication(function: F) -> F:
+def _require_websocket_authentication(function):
     async def wrapper(self, *args, **kwargs):
         if hasattr(self, "authentication") and not self.authentication:
             raise WebSocketAuthenticationRequired("To perform this action you need to " \
@@ -27,7 +25,7 @@ def _require_websocket_authentication(function: F) -> F:
 
         await _require_websocket_connection(function)(self, *args, **kwargs)
 
-    return cast(F, wrapper)
+    return wrapper
 
 class _Delay:
     BACKOFF_MIN, BACKOFF_MAX = 1.92, 60.0

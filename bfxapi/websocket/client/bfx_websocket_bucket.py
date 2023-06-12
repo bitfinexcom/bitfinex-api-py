@@ -1,5 +1,3 @@
-from typing import Literal, TypeVar, Callable, cast
-
 import asyncio, json, uuid, websockets
 
 from ..handlers import PublicChannelsHandler
@@ -8,16 +6,14 @@ from ..exceptions import ConnectionNotOpen, TooManySubscriptions
 
 _HEARTBEAT = "hb"
 
-F = TypeVar("F", bound=Callable[..., Literal[None]])
-
-def _require_websocket_connection(function: F) -> F:
+def _require_websocket_connection(function):
     async def wrapper(self, *args, **kwargs):
         if self.websocket is None or not self.websocket.open:
             raise ConnectionNotOpen("No open connection with the server.")
 
         await function(self, *args, **kwargs)
 
-    return cast(F, wrapper)
+    return wrapper
 
 class BfxWebSocketBucket:
     VERSION = 2
