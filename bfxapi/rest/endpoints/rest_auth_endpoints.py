@@ -24,7 +24,7 @@ from ...types.serializers import _Notification
 
 from ...utils.json_encoder import JSON
 
-class RestAuthenticatedEndpoints(Middleware):
+class RestAuthEndpoints(Middleware):
     def get_user_info(self) -> UserInfo:
         return serializers.UserInfo \
             .parse(*self._post("auth/r/info/user"))

@@ -95,4 +95,5 @@ class BfxWebSocketInputs:
         await self.__handle_websocket_input("foc", { "id": id })
 
     async def calc(self, *args: str) -> None:
-        await self.__handle_websocket_input("calc", list(map(lambda arg: [arg], args)))
+        await self.__handle_websocket_input("calc",
+            list(map(lambda arg: [arg], args)))
