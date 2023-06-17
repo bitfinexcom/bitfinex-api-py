@@ -7,7 +7,7 @@ __all__ = [
     "TooManySubscriptions",
     "ZeroConnectionsError",
     "ReconnectionTimeoutError",
-    "WebSocketAuthenticationRequired",
+    "ActionRequiresAuthentication",
     "InvalidAuthenticationCredentials",
     "EventNotSupported",
     "OutdatedClientVersion"
@@ -38,7 +38,7 @@ class ReconnectionTimeoutError(BfxWebSocketException):
     This error indicates that the connection has been offline for too long without being able to reconnect.
     """
 
-class WebSocketAuthenticationRequired(BfxWebSocketException):
+class ActionRequiresAuthentication(BfxWebSocketException):
     """
     This error indicates an attempt to access a protected resource without logging in first.
     """

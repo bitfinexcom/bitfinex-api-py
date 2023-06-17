@@ -6,24 +6,25 @@ import traceback, json, asyncio, hmac, hashlib, time, socket, random, websockets
 
 from pyee.asyncio import AsyncIOEventEmitter
 
-from .bfx_websocket_bucket import _HEARTBEAT, _require_websocket_connection, BfxWebSocketBucket
+from .bfx_websocket_bucket import require_websocket_connection, BfxWebSocketBucket
 
 from .bfx_websocket_inputs import BfxWebSocketInputs
 from ..handlers import PublicChannelsHandler, AuthEventsHandler
-from ..exceptions import WebSocketAuthenticationRequired, InvalidAuthenticationCredentials, EventNotSupported, \
+from ..exceptions import ActionRequiresAuthentication, InvalidAuthenticationCredentials, EventNotSupported, \
     ZeroConnectionsError, ReconnectionTimeoutError, OutdatedClientVersion
 
 from ...utils.json_encoder import JSONEncoder
 
 from ...utils.logger import ColorLogger, FileLogger
 
-def _require_websocket_authentication(function):
+def require_websocket_authentication(function):
     async def wrapper(self, *args, **kwargs):
         if hasattr(self, "authentication") and not self.authentication:
-            raise WebSocketAuthenticationRequired("To perform this action you need to " \
+            raise ActionRequiresAuthentication("To perform this action you need to " \
                 "authenticate using your API_KEY and API_SECRET.")
 
-        await _require_websocket_connection(function)(self, *args, **kwargs)
+        await require_websocket_connection(function) \
+            (self, *args, **kwargs)
 
     return wrapper
 
@@ -170,7 +171,7 @@ class BfxWebSocketClient:
                             self.event_emitter.emit("wss-error", message["code"], message["msg"])
 
                     if isinstance(message, list):
-                        if message[0] == 0 and message[1] != _HEARTBEAT:
+                        if message[0] == 0 and message[1] != "hb":
                             self.handler.handle(message[1], message[2])
 
         while True:
@@ -256,11 +257,11 @@ class BfxWebSocketClient:
         if self.websocket is not None and self.websocket.open:
             await self.websocket.close(code=code, reason=reason)
 
-    @_require_websocket_authentication
+    @require_websocket_authentication
     async def notify(self, info, message_id=None, **kwargs):
         await self.websocket.send(json.dumps([ 0, "n", message_id, { "type": "ucm-test", "info": info, **kwargs } ]))
 
-    @_require_websocket_authentication
+    @require_websocket_authentication
     async def __handle_websocket_input(self, event, data):
         await self.websocket.send(json.dumps([ 0, event, None, data], cls=JSONEncoder))
 

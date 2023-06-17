@@ -4,9 +4,7 @@ from ..handlers import PublicChannelsHandler
 
 from ..exceptions import ConnectionNotOpen, TooManySubscriptions
 
-_HEARTBEAT = "hb"
-
-def _require_websocket_connection(function):
+def require_websocket_connection(function):
     async def wrapper(self, *args, **kwargs):
         if self.websocket is None or not self.websocket.open:
             raise ConnectionNotOpen("No open connection with the server.")
@@ -59,7 +57,7 @@ class BfxWebSocketBucket:
                         self.event_emitter.emit("wss-error", message["code"], message["msg"])
 
                 if isinstance(message, list):
-                    if (chan_id := message[0]) and message[1] != _HEARTBEAT:
+                    if (chan_id := message[0]) and message[1] != "hb":
                         self.handler.handle(self.subscriptions[chan_id], message[1:])
 
     async def __recover_state(self):
@@ -71,7 +69,7 @@ class BfxWebSocketBucket:
 
         self.subscriptions.clear()
 
-    @_require_websocket_connection
+    @require_websocket_connection
     async def subscribe(self, channel, sub_id=None, **kwargs):
         if len(self.subscriptions) + len(self.pendings) == BfxWebSocketBucket.MAXIMUM_SUBSCRIPTIONS_AMOUNT:
             raise TooManySubscriptions("The client has reached the maximum number of subscriptions.")
@@ -88,14 +86,14 @@ class BfxWebSocketBucket:
 
         await self.websocket.send(json.dumps(subscription))
 
-    @_require_websocket_connection
+    @require_websocket_connection
     async def unsubscribe(self, chan_id):
         await self.websocket.send(json.dumps({
             "event": "unsubscribe",
             "chanId": chan_id
         }))
 
-    @_require_websocket_connection
+    @require_websocket_connection
     async def close(self, code=1000, reason=str()):
         await self.websocket.close(code=code, reason=reason)
 
