@@ -9,7 +9,7 @@ from pyee.asyncio import AsyncIOEventEmitter
 from .bfx_websocket_bucket import require_websocket_connection, BfxWebSocketBucket
 
 from .bfx_websocket_inputs import BfxWebSocketInputs
-from ..handlers import PublicChannelsHandler, AuthEventsHandler
+from .._handlers import PublicChannelsHandler, AuthEventsHandler
 from ..exceptions import ActionRequiresAuthentication, InvalidAuthenticationCredentials, EventNotSupported, \
     ZeroConnectionsError, ReconnectionTimeoutError, OutdatedClientVersion
 

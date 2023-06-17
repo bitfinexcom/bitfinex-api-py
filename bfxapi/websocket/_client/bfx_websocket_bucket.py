@@ -1,6 +1,6 @@
 import asyncio, json, uuid, websockets
 
-from ..handlers import PublicChannelsHandler
+from .._handlers import PublicChannelsHandler
 
 from ..exceptions import ConnectionNotOpen, TooManySubscriptions
 
