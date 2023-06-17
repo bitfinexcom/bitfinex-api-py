@@ -71,8 +71,6 @@ class BfxWebSocketClient:
 
         self.host, self.credentials, self.wss_timeout = host, credentials, wss_timeout
 
-        self.events_per_subscription = {}
-
         self.event_emitter = AsyncIOEventEmitter()
 
         self.handler = AuthEventsHandler(event_emitter=self.event_emitter)
@@ -102,7 +100,7 @@ class BfxWebSocketClient:
                         "block the client with <429 Too Many Requests>.")
 
         for _ in range(connections):
-            self.buckets += [BfxWebSocketBucket(self.host, self.event_emitter, self.events_per_subscription)]
+            self.buckets += [BfxWebSocketBucket(self.host, self.event_emitter)]
 
         await self.__connect()
 

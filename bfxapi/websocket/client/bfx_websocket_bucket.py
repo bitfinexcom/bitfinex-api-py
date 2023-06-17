@@ -18,13 +18,14 @@ class BfxWebSocketBucket:
 
     MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
 
-    def __init__(self, host, event_emitter, events_per_subscription):
-        self.host, self.event_emitter, self.events_per_subscription = host, event_emitter, events_per_subscription
-        self.websocket, self.subscriptions, self.pendings = None, {}, []
-        self.condition = asyncio.locks.Condition()
+    def __init__(self, host, event_emitter):
+        self.host, self.websocket, self.event_emitter = \
+            host, None, event_emitter
 
-        self.handler = PublicChannelsHandler(event_emitter=self.event_emitter, \
-            events_per_subscription=self.events_per_subscription)
+        self.condition, self.subscriptions, self.pendings = \
+            asyncio.locks.Condition(), {}, []
+
+        self.handler = PublicChannelsHandler(event_emitter=self.event_emitter)
 
     async def connect(self):
         async with websockets.connect(self.host) as websocket:
@@ -45,11 +46,7 @@ class BfxWebSocketBucket:
 
                         self.subscriptions[chan_id] = message
 
-                        sub_id = message["subId"]
-
-                        if "subscribed" not in self.events_per_subscription.get(sub_id, []):
-                            self.events_per_subscription.setdefault(sub_id, []).append("subscribed")
-                            self.event_emitter.emit("subscribed", message)
+                        self.event_emitter.emit("subscribed", message)
                     elif message["event"] == "unsubscribed" and (chan_id := message["chanId"]):
                         if message["status"] == "OK":
                             del self.subscriptions[chan_id]
