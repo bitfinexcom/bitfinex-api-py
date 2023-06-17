@@ -138,7 +138,7 @@ class BfxWebSocketClient:
                 tasks = [ asyncio.create_task(coroutine) for coroutine in coroutines ]
 
                 if len(self.buckets) == 0 or \
-                        (await asyncio.gather(*[bucket.on_open_event.wait() for bucket in self.buckets])):
+                        (await asyncio.gather(*[bucket.wait() for bucket in self.buckets])):
                     self.event_emitter.emit("open")
 
                 if self.credentials:
@@ -184,34 +184,34 @@ class BfxWebSocketClient:
             try:
                 await _connection()
             except (websockets.exceptions.ConnectionClosedError, socket.gaierror) as error:
-                if isinstance(error, websockets.exceptions.ConnectionClosedError):
-                    if error.code in (1006, 1012):
-                        if error.code == 1006:
-                            self.logger.error("Connection lost: no close frame received " \
-                                "or sent (1006). Trying to reconnect...")
+                for task in tasks:
+                    task.cancel()
 
-                        if error.code == 1012:
-                            self.logger.info("WSS server is about to restart, clients need " \
-                                "to reconnect (server sent 20051). Reconnection attempt in progress...")
+                if isinstance(error, websockets.exceptions.ConnectionClosedError) and error.code in (1006, 1012):
+                    if error.code == 1006:
+                        self.logger.error("Connection lost: no close frame received " \
+                            "or sent (1006). Trying to reconnect...")
 
-                        for task in tasks:
-                            task.cancel()
+                    if error.code == 1012:
+                        self.logger.info("WSS server is about to restart, clients need " \
+                            "to reconnect (server sent 20051). Reconnection attempt in progress...")
 
-                        reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now())
+                    reconnection = Reconnection(status=True, attempts=1, timestamp=datetime.now())
 
-                        if self.wss_timeout is not None:
-                            timer = asyncio.get_event_loop().call_later(self.wss_timeout, _on_wss_timeout)
+                    if self.wss_timeout is not None:
+                        timer = asyncio.get_event_loop().call_later(self.wss_timeout, _on_wss_timeout)
 
-                        delay = _Delay(backoff_factor=1.618)
+                    delay = _Delay(backoff_factor=1.618)
 
-                        self.authentication = False
+                    self.authentication = False
                 elif isinstance(error, socket.gaierror) and reconnection.status:
                     self.logger.warning(f"Reconnection attempt was unsuccessful (no.{reconnection.attempts}). " \
                         f"Next reconnection attempt in {delay.peek():.2f} seconds. (at the moment " \
                             f"the client has been offline for {datetime.now() - reconnection.timestamp})")
 
                     reconnection = reconnection._replace(attempts=reconnection.attempts + 1)
-                else: raise error
+                else:
+                    raise error
 
             if not reconnection.status:
                 self.event_emitter.emit("disconnection",
