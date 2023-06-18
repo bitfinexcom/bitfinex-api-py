@@ -4,14 +4,14 @@ from datetime import datetime
 
 import traceback, json, asyncio, hmac, hashlib, time, socket, random, websockets
 
-from pyee.asyncio import AsyncIOEventEmitter
-
 from .bfx_websocket_bucket import require_websocket_connection, BfxWebSocketBucket
 
 from .bfx_websocket_inputs import BfxWebSocketInputs
 from .._handlers import PublicChannelsHandler, AuthEventsHandler
 from ..exceptions import ActionRequiresAuthentication, InvalidAuthenticationCredentials, EventNotSupported, \
     ZeroConnectionsError, ReconnectionTimeoutError, OutdatedClientVersion
+
+from .._event_emitter import BfxEventEmitter
 
 from ...utils.json_encoder import JSONEncoder
 
@@ -54,14 +54,14 @@ class BfxWebSocketClient:
 
     MAXIMUM_CONNECTIONS_AMOUNT = 20
 
-    ONCE_EVENTS = [
+    __ONCE_EVENTS = [
         "open", "authenticated", "disconnection",
         *AuthEventsHandler.ONCE_EVENTS
     ]
 
     EVENTS = [
         "subscribed", "wss-error",
-        *ONCE_EVENTS,
+        *__ONCE_EVENTS,
         *PublicChannelsHandler.EVENTS,
         *AuthEventsHandler.ON_EVENTS
     ]
@@ -71,7 +71,9 @@ class BfxWebSocketClient:
 
         self.host, self.credentials, self.wss_timeout = host, credentials, wss_timeout
 
-        self.event_emitter = AsyncIOEventEmitter()
+        self.event_emitter = BfxEventEmitter(targets= \
+            PublicChannelsHandler.ONCE_PER_SUBSCRIPTION + \
+                ["subscribed"])
 
         self.handler = AuthEventsHandler(event_emitter=self.event_emitter)
 
@@ -267,10 +269,10 @@ class BfxWebSocketClient:
         for event in events:
             if event not in BfxWebSocketClient.EVENTS:
                 raise EventNotSupported(f"Event <{event}> is not supported. To get a list " \
-                            "of available events print BfxWebSocketClient.EVENTS")
+                            "of available events see BfxWebSocketClient.EVENTS.")
 
         def _register_event(event, function):
-            if event in BfxWebSocketClient.ONCE_EVENTS:
+            if event in BfxWebSocketClient.__ONCE_EVENTS:
                 self.event_emitter.once(event, function)
             else: self.event_emitter.on(event, function)
 

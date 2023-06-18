@@ -12,12 +12,12 @@ if TYPE_CHECKING:
     from pyee.base import EventEmitter
 
 class AuthEventsHandler:
-    __once_abbreviations = {
+    __ONCE_ABBREVIATIONS = {
         "os": "order_snapshot", "ps": "position_snapshot", "fos": "funding_offer_snapshot",
         "fcs": "funding_credit_snapshot", "fls": "funding_loan_snapshot", "ws": "wallet_snapshot"
     }
 
-    __on_abbreviations = {
+    __ON_ABBREVIATIONS = {
         "on": "order_new", "ou": "order_update", "oc": "order_cancel", 
         "pn": "position_new", "pu": "position_update", "pc": "position_close", 
         "fon": "funding_offer_new", "fou": "funding_offer_update", "foc": "funding_offer_cancel", 
@@ -26,17 +26,17 @@ class AuthEventsHandler:
         "te": "trade_execution", "tu": "trade_execution_update", "wu": "wallet_update"
     }
 
-    __abbreviations = {
-        **__once_abbreviations,
-        **__on_abbreviations
+    __ABBREVIATIONS = {
+        **__ONCE_ABBREVIATIONS,
+        **__ON_ABBREVIATIONS
     }
 
     ONCE_EVENTS = [
-        *list(__once_abbreviations.values())
+        *list(__ONCE_ABBREVIATIONS.values())
     ]
 
     ON_EVENTS = [
-        *list(__on_abbreviations.values()),
+        *list(__ON_ABBREVIATIONS.values()),
         "notification", "on-req-notification", "ou-req-notification", 
         "oc-req-notification", "fon-req-notification", "foc-req-notification"
     ]
@@ -60,7 +60,7 @@ class AuthEventsHandler:
 
         for abbrevations, serializer in self.__serializers.items():
             if abbrevation in abbrevations:
-                event = AuthEventsHandler.__abbreviations[abbrevation]
+                event = AuthEventsHandler.__ABBREVIATIONS[abbrevation]
 
                 if all(isinstance(sub_stream, list) for sub_stream in stream):
                     data = [ serializer.parse(*sub_stream) for sub_stream in stream ]

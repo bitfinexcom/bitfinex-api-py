@@ -33,7 +33,8 @@ setup(
     },
     packages=[
         "bfxapi", "bfxapi.utils", "bfxapi.types",
-        "bfxapi.websocket", "bfxapi.websocket._client", "bfxapi.websocket._handlers", 
+        "bfxapi.websocket", "bfxapi.websocket._client", "bfxapi.websocket._handlers",
+            "bfxapi.websocket._event_emitter",
         "bfxapi.rest", "bfxapi.rest.endpoints", "bfxapi.rest.middleware",
     ],
     install_requires=[
