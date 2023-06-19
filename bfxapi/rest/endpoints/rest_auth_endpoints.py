@@ -22,7 +22,7 @@ from ...types import serializers
 
 from ...types.serializers import _Notification
 
-from ...utils.json_encoder import JSON
+from ..._utils.json_encoder import JSON
 
 class RestAuthEndpoints(Middleware):
     def get_user_info(self) -> UserInfo:

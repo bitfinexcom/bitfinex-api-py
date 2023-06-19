@@ -15,9 +15,9 @@ import \
 
 from websockets.legacy.client import connect as _websockets__connect
 
-from bfxapi.utils.json_encoder import JSONEncoder
+from bfxapi._utils.json_encoder import JSONEncoder
 
-from bfxapi.utils.logger import \
+from bfxapi._utils.logger import \
     ColorLogger, FileLogger
 
 from bfxapi.websocket._handlers import \

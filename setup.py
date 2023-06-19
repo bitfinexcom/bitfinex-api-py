@@ -32,7 +32,7 @@ setup(
         "Source": "https://github.com/bitfinexcom/bitfinex-api-py",
     },
     packages=[
-        "bfxapi", "bfxapi.utils", "bfxapi.types",
+        "bfxapi", "bfxapi._utils", "bfxapi.types",
         "bfxapi.websocket", "bfxapi.websocket._client", "bfxapi.websocket._handlers",
             "bfxapi.websocket._event_emitter",
         "bfxapi.rest", "bfxapi.rest.endpoints", "bfxapi.rest.middleware",

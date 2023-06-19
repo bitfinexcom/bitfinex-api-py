@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from bfxapi.enums import \
         OrderType, FundingOfferType
 
-    from bfxapi.utils.json_encoder import JSON
+    from bfxapi._utils.json_encoder import JSON
 
     from decimal import Decimal
 

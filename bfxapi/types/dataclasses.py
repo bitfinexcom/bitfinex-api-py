@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from .labeler import _Type, partial, compose
 
-from ..utils.json_encoder import JSON
+from .._utils.json_encoder import JSON
 
 #region Dataclass definitions for types of public use
 

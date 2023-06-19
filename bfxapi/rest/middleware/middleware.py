@@ -6,7 +6,7 @@ import time, hmac, hashlib, json, requests
 
 from ..enums import Error
 from ..exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
-from ...utils.json_encoder import JSONEncoder
+from ..._utils.json_encoder import JSONEncoder
 
 if TYPE_CHECKING:
     from requests.sessions import _Params
