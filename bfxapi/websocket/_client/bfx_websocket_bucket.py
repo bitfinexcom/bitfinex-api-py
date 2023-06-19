@@ -1,7 +1,9 @@
 from typing import \
     TYPE_CHECKING, Optional, Dict, List, Any, cast
 
-import asyncio, json, uuid, websockets
+import asyncio, json, uuid
+
+from websockets.legacy.client import connect as _websockets__connect
 
 from bfxapi.websocket._connection import Connection
 from bfxapi.websocket._handlers import PublicChannelsHandler
@@ -38,7 +40,7 @@ class BfxWebSocketBucket(Connection):
         return self.__subscriptions
 
     async def connect(self) -> None:
-        async with websockets.client.connect(self._host) as websocket:
+        async with _websockets__connect(self._host) as websocket:
             self._websocket = websocket
 
             await self.__recover_state()
@@ -102,20 +104,26 @@ class BfxWebSocketBucket(Connection):
             json.dumps(subscription))
 
     @Connection.require_websocket_connection
-    async def unsubscribe(self, chan_id: int) -> None:
-        await self._websocket.send(json.dumps( \
-            { "event": "unsubscribe", "chanId": chan_id }))
+    async def unsubscribe(self, sub_id: str) -> None:
+        for subscription in self.__subscriptions.values():
+            if subscription["subId"] == sub_id:
+                data = { "event": "unsubscribe", \
+                    "chanId": subscription["subId"] }
+
+                message = json.dumps(data)
+
+                await self._websocket.send(message)
 
     @Connection.require_websocket_connection
     async def close(self, code: int = 1000, reason: str = str()) -> None:
         await self._websocket.close(code=code, reason=reason)
 
-    def get_chan_id(self, sub_id: str) -> Optional[int]:
+    def has(self, sub_id: str) -> bool:
         for subscription in self.__subscriptions.values():
             if subscription["subId"] == sub_id:
-                return subscription["chanId"]
+                return True
 
-        return None
+        return False
 
     async def wait(self) -> None:
         async with self.__condition:

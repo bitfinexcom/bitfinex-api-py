@@ -9,29 +9,16 @@ class Client:
             self,
             api_key: Optional[str] = None,
             api_secret: Optional[str] = None,
-            filters: Optional[List[str]] = None,
             *,
             rest_host: str = REST_HOST,
             wss_host: str = WSS_HOST,
+            filters: Optional[List[str]] = None,
             wss_timeout: Optional[float] = 60 * 15,
             log_filename: Optional[str] = None,
             log_level: Literal["ERROR", "WARNING", "INFO", "DEBUG"] = "INFO"
-    ):
-        credentials = None
+    ) -> None:
+        self.rest = BfxRestInterface(rest_host, api_key, api_secret)
 
-        if api_key and api_secret:
-            credentials = { "api_key": api_key, "api_secret": api_secret, "filters": filters }
-
-        self.rest = BfxRestInterface(
-            host=rest_host,
-            credentials=credentials
-        )
-
-        self.wss = BfxWebSocketClient(
-            host=wss_host,
-            credentials=credentials,
-            wss_timeout=wss_timeout,
-            log_filename=log_filename,
-            log_level=log_level
-        )
-        
+        self.wss = BfxWebSocketClient(wss_host, api_key, api_secret,
+            filters=filters, wss_timeout=wss_timeout, log_filename=log_filename,
+                log_level=log_level)
