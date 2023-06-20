@@ -13,6 +13,8 @@ import \
     hmac, hashlib, random, \
     websockets
 
+from websockets.exceptions import ConnectionClosedError
+
 from websockets.legacy.client import connect as _websockets__connect
 
 from bfxapi._utils.json_encoder import JSONEncoder
@@ -134,7 +136,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
 
         await self.__connect()
 
-    #pylint: disable-next=too-many-branches
+    #pylint: disable-next=too-many-branches,too-many-statements
     async def __connect(self) -> None:
         class _Delay:
             BACKOFF_MIN, BACKOFF_MAX = 1.92, 60.0
@@ -162,28 +164,46 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
 
         _delay = _Delay(backoff_factor=1.618)
 
-        _on_wss_timeout = asyncio.locks.Event()
+        _sleep: Optional["Task"] = None
 
-        def on_wss_timeout():
+        def _on_wss_timeout():
             if not self.open:
-                _on_wss_timeout.set()
+                if _sleep:
+                    _sleep.cancel()
 
         while True:
             if self.__reconnection:
-                await asyncio.sleep(_delay.next())
+                _sleep = asyncio.create_task( \
+                    asyncio.sleep(_delay.next()))
 
-            if _on_wss_timeout.is_set():
-                raise ReconnectionTimeoutError("Connection has been offline for too long " \
-                    f"without being able to reconnect (wss_timeout: {self.__wss_timeout}s).")
+                try:
+                    await _sleep
+                except asyncio.CancelledError:
+                    raise ReconnectionTimeoutError("Connection has been offline for too long " \
+                        f"without being able to reconnect (wss_timeout: {self.__wss_timeout}s).") \
+                            from None
 
             try:
                 await self.__connection()
-            except (websockets.exceptions.ConnectionClosedError, gaierror) as error:
-                for bucket in self.__buckets:
-                    if (_task := self.__buckets[bucket]):
-                        _task.cancel()
+            except (ConnectionClosedError, gaierror) as error:
+                async def _cancel(task: "Task") -> None:
+                    task.cancel()
 
-                if isinstance(error, websockets.exceptions.ConnectionClosedError) and error.code in (1006, 1012):
+                    try:
+                        await task
+                    except (ConnectionClosedError, gaierror) as _e:
+                        if type(error) is not type(_e) or error.args != _e.args:
+                            raise _e
+                    except asyncio.CancelledError:
+                        pass
+
+                for bucket in self.__buckets:
+                    if task := self.__buckets[bucket]:
+                        self.__buckets[bucket] = None
+
+                        await _cancel(task)
+
+                if isinstance(error, ConnectionClosedError) and error.code in (1006, 1012):
                     if error.code == 1006:
                         self.__logger.error("Connection lost: no close frame " \
                             "received or sent (1006). Trying to reconnect...")
@@ -194,7 +214,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
 
                     if self.__wss_timeout is not None:
                         asyncio.get_event_loop().call_later(
-                            self.__wss_timeout, on_wss_timeout)
+                            self.__wss_timeout, _on_wss_timeout)
 
                     self.__reconnection = \
                         { "attempts": 1, "reason": error.reason, "timestamp": datetime.now() }
@@ -214,7 +234,8 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
 
             if not self.__reconnection:
                 self.__event_emitter.emit("disconnection",
-                    self._websocket.close_code, self._websocket.close_reason)
+                    self._websocket.close_code, \
+                        self._websocket.close_reason)
 
                 break
 
@@ -255,10 +276,9 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
                                 "version. Update the library to the latest version to continue (client version: " \
                                     f"{BfxWebSocketClient.VERSION}, server version: {message['version']}).")
                     elif message["event"] == "info" and message["code"] == 20051:
-                        rcvd = websockets.frames.Close(code=1012,
-                            reason="Stop/Restart WebSocket Server (please reconnect).")
-
-                        raise websockets.exceptions.ConnectionClosedError(rcvd=rcvd, sent=None)
+                        code, reason = 1012, "Stop/Restart WebSocket Server (please reconnect)."
+                        rcvd = websockets.frames.Close(code=code, reason=reason)
+                        raise ConnectionClosedError(rcvd=rcvd, sent=None)
                     elif message["event"] == "auth":
                         if message["status"] != "OK":
                             raise InvalidAuthenticationCredentials(
