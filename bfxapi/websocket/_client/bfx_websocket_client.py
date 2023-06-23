@@ -75,19 +75,19 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
         self.__credentials, self.__timeout, self.__logger = \
             credentials, timeout, logger
 
+        self.__buckets: Dict[BfxWebSocketBucket, Optional["Task"]] = { }
+
+        self.__reconnection: Optional[_Reconnection] = None
+
         self.__event_emitter = BfxEventEmitter(targets = \
             PublicChannelsHandler.ONCE_PER_SUBSCRIPTION + \
                 ["subscribed"])
 
-        self.__handler = AuthEventsHandler(\
+        self.__handler = AuthEventsHandler( \
             event_emitter=self.__event_emitter)
 
-        self.__inputs = BfxWebSocketInputs(\
+        self.__inputs = BfxWebSocketInputs( \
             handle_websocket_input=self.__handle_websocket_input)
-
-        self.__buckets: Dict[BfxWebSocketBucket, Optional["Task"]] = { }
-
-        self.__reconnection: Optional[_Reconnection] = None
 
         @self.__event_emitter.on("error")
         def error(exception: Exception) -> None:

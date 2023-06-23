@@ -1,7 +1,7 @@
 from typing import \
     TYPE_CHECKING, TypedDict, List, Literal, Optional
 
-from bfxapi._utils.logger import ColorLogger
+from bfxapi._utils.logging import ColorLogger
 
 from bfxapi.exceptions import IncompleteCredentialError
 
