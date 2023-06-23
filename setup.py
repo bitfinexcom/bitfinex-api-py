@@ -39,7 +39,7 @@ setup(
     install_requires=[
         "pyee~=9.0.4",
         "websockets~=10.4",
-        "requests~=2.28.1"
+        "requests>=2.28.1,<2.32.0"
     ],
     python_requires=">=3.8"
 )
