@@ -1,51 +1,67 @@
-import logging, sys
+from typing import \
+    TYPE_CHECKING, Literal, Optional
 
-BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+#pylint: disable-next=wildcard-import,unused-wildcard-import
+from logging import *
 
-COLOR_SEQ, ITALIC_COLOR_SEQ = "\033[1;%dm", "\033[3;%dm"
+from copy import copy
 
-COLORS = {
-    "DEBUG": CYAN,
-    "INFO": BLUE,
-    "WARNING": YELLOW,
-    "ERROR": RED
-}
+import sys
 
-RESET_SEQ = "\033[0m"
+if TYPE_CHECKING:
+    _Level = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
-class _ColorFormatter(logging.Formatter):
-    def __init__(self, msg, use_color = True):
-        logging.Formatter.__init__(self, msg, "%d-%m-%Y %H:%M:%S")
+_BLACK, _RED, _GREEN, _YELLOW, \
+_BLUE, _MAGENTA, _CYAN, _WHITE = \
+    [ f"\033[0;{90 + i}m" for i in range(8) ]
 
-        self.use_color = use_color
+_BOLD_BLACK, _BOLD_RED, _BOLD_GREEN, _BOLD_YELLOW, \
+_BOLD_BLUE, _BOLD_MAGENTA, _BOLD_CYAN, _BOLD_WHITE = \
+    [ f"\033[1;{90 + i}m" for i in range(8) ]
 
-    def format(self, record):
-        levelname = record.levelname
-        if self.use_color and levelname in COLORS:
-            record.name = ITALIC_COLOR_SEQ % (30 + BLACK) + record.name + RESET_SEQ
-            record.levelname = COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
-        return logging.Formatter.format(self, record)
+_NC = "\033[0m"
 
-class ColorLogger(logging.Logger):
-    FORMAT = "[%(name)s] [%(levelname)s] [%(asctime)s] %(message)s"
+class _ColorFormatter(Formatter):
+    __LEVELS = {
+        "INFO": _BLUE,
+        "WARNING": _YELLOW,
+        "ERROR": _RED,
+        "CRITICAL": _BOLD_RED,
+        "DEBUG": _BOLD_WHITE
+    }
 
-    def __init__(self, name, level):
-        logging.Logger.__init__(self, name, level)
+    def format(self, record: LogRecord) -> str:
+        _record = copy(record)
+        _record.name = _MAGENTA + record.name + _NC
+        _record.levelname = _ColorFormatter.__format_level(record.levelname)
 
-        colored_formatter = _ColorFormatter(self.FORMAT, use_color=True)
-        handler = logging.StreamHandler(stream=sys.stderr)
-        handler.setFormatter(fmt=colored_formatter)
+        return super().format(_record)
 
+    #pylint: disable-next=invalid-name
+    def formatTime(self, record: LogRecord, datefmt: Optional[str] = None) -> str:
+        return _GREEN + super().formatTime(record, datefmt) + _NC
+
+    @staticmethod
+    def __format_level(level: str) -> str:
+        return _ColorFormatter.__LEVELS[level] + level + _NC
+
+_FORMAT = "%(asctime)s %(name)s %(levelname)s %(message)s"
+
+_DATE_FORMAT = "%d-%m-%Y %H:%M:%S"
+
+class ColorLogger(Logger):
+    __FORMATTER = Formatter(_FORMAT,_DATE_FORMAT)
+
+    def __init__(self, name: str, level: "_Level" = "NOTSET") -> None:
+        super().__init__(name, level)
+
+        formatter = _ColorFormatter(_FORMAT, _DATE_FORMAT)
+
+        handler = StreamHandler(stream=sys.stderr)
+        handler.setFormatter(fmt=formatter)
         self.addHandler(hdlr=handler)
 
-class FileLogger(logging.Logger):
-    FORMAT = "[%(name)s] [%(levelname)s] [%(asctime)s] %(message)s"
-
-    def __init__(self, name, level, filename):
-        logging.Logger.__init__(self, name, level)
-
-        formatter = logging.Formatter(self.FORMAT)
-        handler = logging.FileHandler(filename=filename)
-        handler.setFormatter(fmt=formatter)
-
+    def register(self, filename: str) -> None:
+        handler = FileHandler(filename=filename)
+        handler.setFormatter(fmt=ColorLogger.__FORMATTER)
         self.addHandler(hdlr=handler)

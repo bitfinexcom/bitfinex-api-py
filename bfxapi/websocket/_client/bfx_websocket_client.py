@@ -1,8 +1,9 @@
 from typing import \
     TYPE_CHECKING, TypeVar, TypedDict,\
-    Callable, Optional, Literal,\
-    Tuple, List, Dict, \
-    Any
+    Callable, Optional, Tuple, \
+    List, Dict, Any
+
+from logging import Logger
 
 from datetime import datetime
 
@@ -18,9 +19,6 @@ from websockets.exceptions import ConnectionClosedError
 from websockets.legacy.client import connect as _websockets__connect
 
 from bfxapi._utils.json_encoder import JSONEncoder
-
-from bfxapi._utils.logger import \
-    ColorLogger, FileLogger
 
 from bfxapi.websocket._handlers import \
     PublicChannelsHandler, AuthEventsHandler
@@ -38,8 +36,6 @@ from .bfx_websocket_bucket import BfxWebSocketBucket
 from .bfx_websocket_inputs import BfxWebSocketInputs
 
 if TYPE_CHECKING:
-    from logging import Logger
-
     from asyncio import Task
 
     _T = TypeVar("_T", bound=Callable[..., None])
@@ -49,6 +45,8 @@ if TYPE_CHECKING:
 
     _Reconnection = TypedDict("_Reconnection",
         { "attempts": int, "reason": str, "timestamp": datetime })
+
+_DEFAULT_LOGGER = Logger("bfxapi.websocket._client", level=0)
 
 class BfxWebSocketClient(Connection, Connection.Authenticable):
     VERSION = BfxWebSocketBucket.VERSION
@@ -69,22 +67,14 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
 
     def __init__(self,
                  host: str,
-                 api_key: Optional[str] = None,
-                 api_secret: Optional[str] = None,
                  *,
-                 filters: Optional[List[str]] = None,
-                 wss_timeout: Optional[float] = 60 * 15,
-                 log_filename: Optional[str] = None,
-                 log_level: Literal["ERROR", "WARNING", "INFO", "DEBUG"] = "INFO") -> None:
+                 credentials: Optional["_Credentials"] = None,
+                 timeout: Optional[float] = 60 * 15,
+                 logger: Logger = _DEFAULT_LOGGER) -> None:
         super().__init__(host)
 
-        self.__credentials: Optional["_Credentials"] = None
-
-        if api_key and api_secret:
-            self.__credentials = \
-                { "api_key": api_key, "api_secret": api_secret, "filters": filters }
-
-        self.__wss_timeout = wss_timeout
+        self.__credentials, self.__timeout, self.__logger = \
+            credentials, timeout, logger
 
         self.__event_emitter = BfxEventEmitter(targets = \
             PublicChannelsHandler.ONCE_PER_SUBSCRIPTION + \
@@ -100,16 +90,15 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
 
         self.__reconnection: Optional[_Reconnection] = None
 
-        self.__logger: "Logger"
+        @self.__event_emitter.on("error")
+        def error(exception: Exception) -> None:
+            header = f"{type(exception).__name__}: {str(exception)}"
 
-        if log_filename is None:
-            self.__logger = ColorLogger("BfxWebSocketClient", level=log_level)
-        else: self.__logger = FileLogger("BfxWebSocketClient", level=log_level, filename=log_filename)
+            stack_trace = traceback.format_exception( \
+                type(exception), exception, exception.__traceback__)
 
-        self.__event_emitter.add_listener("error",
-            lambda exception: self.__logger.error(f"{type(exception).__name__}: {str(exception)}" + "\n" +
-                str().join(traceback.format_exception(type(exception), exception, exception.__traceback__))[:-1])
-        )
+            self.__logger.critical( \
+                header + "\n" + str().join(stack_trace)[:-1])
 
     @property
     def inputs(self) -> BfxWebSocketInputs:
@@ -166,7 +155,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
 
         _sleep: Optional["Task"] = None
 
-        def _on_wss_timeout():
+        def _on_timeout():
             if not self.open:
                 if _sleep:
                     _sleep.cancel()
@@ -180,7 +169,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
                     await _sleep
                 except asyncio.CancelledError:
                     raise ReconnectionTimeoutError("Connection has been offline for too long " \
-                        f"without being able to reconnect (wss_timeout: {self.__wss_timeout}s).") \
+                        f"without being able to reconnect (timeout: {self.__timeout}s).") \
                             from None
 
             try:
@@ -212,9 +201,9 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
                         self.__logger.info("WSS server is about to restart, clients need " \
                             "to reconnect (server sent 20051). Reconnection attempt in progress...")
 
-                    if self.__wss_timeout is not None:
+                    if self.__timeout is not None:
                         asyncio.get_event_loop().call_later(
-                            self.__wss_timeout, _on_wss_timeout)
+                            self.__timeout, _on_timeout)
 
                     self.__reconnection = \
                         { "attempts": 1, "reason": error.reason, "timestamp": datetime.now() }

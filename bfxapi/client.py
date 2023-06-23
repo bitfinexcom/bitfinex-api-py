@@ -1,8 +1,10 @@
 from typing import List, Literal, Optional
 
-from .rest import BfxRestInterface
-from .websocket import BfxWebSocketClient
-from .urls import REST_HOST, WSS_HOST
+from bfxapi._utils.logger import ColorLogger
+
+from bfxapi.rest import BfxRestInterface
+from bfxapi.websocket import BfxWebSocketClient
+from bfxapi.urls import REST_HOST, WSS_HOST
 
 class Client:
     def __init__(
@@ -15,10 +17,14 @@ class Client:
             filters: Optional[List[str]] = None,
             wss_timeout: Optional[float] = 60 * 15,
             log_filename: Optional[str] = None,
-            log_level: Literal["ERROR", "WARNING", "INFO", "DEBUG"] = "INFO"
+            log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     ) -> None:
+        logger = ColorLogger("bfxapi", level=log_level)
+
+        if log_filename:
+            logger.register(filename=log_filename)
+
         self.rest = BfxRestInterface(rest_host, api_key, api_secret)
 
         self.wss = BfxWebSocketClient(wss_host, api_key, api_secret,
-            filters=filters, wss_timeout=wss_timeout, log_filename=log_filename,
-                log_level=log_level)
+            filters=filters, wss_timeout=wss_timeout, logger=logger)
