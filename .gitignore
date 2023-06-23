@@ -1,6 +1,12 @@
-__pycache__
-*.pyc
 .vscode
+*.pyc
 *.log
-dist
+
 bitfinex_api_py.egg-info
+
+__pycache__
+
+dist
+venv
+!.gitkeep
+MANIFEST

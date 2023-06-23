@@ -1,5 +1,1 @@
-"""
-This module contains the current version of the bfxapi lib
-"""
-
-__version__ = '2.0.6'
+__version__ = "3.0.0b2"

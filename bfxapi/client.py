@@ -1,24 +1,37 @@
-"""
-This module exposes the core bitfinex clients which includes both
-a websocket client and a rest interface client
-"""
+from typing import List, Literal, Optional
 
-# pylint: disable-all
-
-from .websockets.bfx_websocket import BfxWebsocket
-from .rest.bfx_rest import BfxRest
-from .constants import *
+from .rest import BfxRestInterface
+from .websocket import BfxWebSocketClient
+from .urls import REST_HOST, WSS_HOST
 
 class Client:
-    """
-    The bfx client exposes rest and websocket objects
-    """
+    def __init__(
+            self,
+            api_key: Optional[str] = None,
+            api_secret: Optional[str] = None,
+            filters: Optional[List[str]] = None,
+            *,
+            rest_host: str = REST_HOST,
+            wss_host: str = WSS_HOST,
+            wss_timeout: Optional[float] = 60 * 15,
+            log_filename: Optional[str] = None,
+            log_level: Literal["ERROR", "WARNING", "INFO", "DEBUG"] = "INFO"
+    ):
+        credentials = None
 
-    def __init__(self, API_KEY=None, API_SECRET=None, rest_host=REST_HOST,
-                 ws_host=WS_HOST, create_event_emitter=None, logLevel='INFO', dead_man_switch=False,
-                 ws_capacity=25, channel_filter=[], *args, **kwargs):
-        self.ws = BfxWebsocket(API_KEY=API_KEY, API_SECRET=API_SECRET, host=ws_host,
-                               logLevel=logLevel, dead_man_switch=dead_man_switch, channel_filter=channel_filter,
-                               ws_capacity=ws_capacity, create_event_emitter=create_event_emitter, *args, **kwargs)
-        self.rest = BfxRest(API_KEY=API_KEY, API_SECRET=API_SECRET, host=rest_host,
-                            logLevel=logLevel, *args, **kwargs)
+        if api_key and api_secret:
+            credentials = { "api_key": api_key, "api_secret": api_secret, "filters": filters }
+
+        self.rest = BfxRestInterface(
+            host=rest_host,
+            credentials=credentials
+        )
+
+        self.wss = BfxWebSocketClient(
+            host=wss_host,
+            credentials=credentials,
+            wss_timeout=wss_timeout,
+            log_filename=log_filename,
+            log_level=log_level
+        )
+        
