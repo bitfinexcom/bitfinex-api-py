@@ -108,7 +108,7 @@ class PublicChannelsHandler:
     def __raw_book_channel_handler(self, subscription: "Book", stream: List[Any]):
         if subscription["symbol"].startswith("t"):
             if all(isinstance(sub_stream, list) for sub_stream in stream[0]):
-                self.__event_emitter.emit("t_raw_book_snapshot", subscription, \
+                return self.__event_emitter.emit("t_raw_book_snapshot", subscription, \
                     [ serializers.TradingPairRawBook.parse(*sub_stream) \
                         for sub_stream in stream[0] ])
 
