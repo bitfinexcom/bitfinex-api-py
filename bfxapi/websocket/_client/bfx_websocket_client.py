@@ -4,9 +4,7 @@ from typing import \
     List, Dict, Any
 
 from logging import Logger
-
 from datetime import datetime
-
 from socket import gaierror
 
 import \
@@ -14,22 +12,27 @@ import \
     hmac, hashlib, random, \
     websockets
 
-from websockets.exceptions import ConnectionClosedError
+from websockets.exceptions import \
+    ConnectionClosedError, \
+    InvalidStatusCode
 
-from websockets.legacy.client import connect as _websockets__connect
+from websockets.legacy.client import \
+    connect as _websockets__connect
 
 from bfxapi._utils.json_encoder import JSONEncoder
-
-from bfxapi.websocket._handlers import \
-    PublicChannelsHandler, AuthEventsHandler
-
 from bfxapi.websocket._connection import Connection
-
 from bfxapi.websocket._event_emitter import BfxEventEmitter
 
+from bfxapi.websocket._handlers import \
+    PublicChannelsHandler, \
+    AuthEventsHandler
+
 from bfxapi.websocket.exceptions import \
-    InvalidAuthenticationCredentials, EventNotSupported, ZeroConnectionsError, \
-    ReconnectionTimeoutError, OutdatedClientVersion
+    InvalidAuthenticationCredentials, \
+    ReconnectionTimeoutError, \
+    OutdatedClientVersion, \
+    ZeroConnectionsError, \
+    EventNotSupported
 
 from .bfx_websocket_bucket import BfxWebSocketBucket
 
@@ -173,7 +176,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
 
             try:
                 await self.__connection()
-            except (ConnectionClosedError, gaierror) as error:
+            except (ConnectionClosedError, InvalidStatusCode, gaierror) as error:
                 async def _cancel(task: "Task") -> None:
                     task.cancel()
 
@@ -210,7 +213,8 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
                     self._authentication = False
 
                     _delay.reset()
-                elif isinstance(error, gaierror) and self.__reconnection:
+                elif ((isinstance(error, InvalidStatusCode) and error.status_code == 408) or \
+                        isinstance(error, gaierror)) and self.__reconnection:
                     self.__logger.warning(
                         f"_Reconnection attempt was unsuccessful (no.{self.__reconnection['attempts']}). " \
                             f"Next reconnection attempt in {_delay.peek():.2f} seconds. (at the moment " \
