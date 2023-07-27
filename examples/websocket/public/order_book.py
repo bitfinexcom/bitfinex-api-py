@@ -6,7 +6,7 @@ from typing import List
 
 from bfxapi import Client, PUB_WSS_HOST
 
-from bfxapi.types import TradingPairBook
+from bfxapi.types import TradingPairBook, Checksum
 from bfxapi.websocket.subscriptions import Book
 from bfxapi.websocket.enums import Channel, Error
 
@@ -34,7 +34,7 @@ class OrderBook:
             if price in self.__order_book[symbol][kind]:
                 del self.__order_book[symbol][kind][price]
 
-SYMBOLS = [ "tBTCUSD", "tLTCUSD", "tLTCBTC", "tETHUSD", "tETHBTC" ]
+SYMBOLS = [ "tBTCUSD" ]
 
 order_book = OrderBook(symbols=SYMBOLS)
 
@@ -47,7 +47,7 @@ def on_wss_error(code: Error, msg: str):
 @bfx.wss.on("open")
 async def on_open():
     for symbol in SYMBOLS:
-        await bfx.wss.subscribe(Channel.BOOK, symbol=symbol)
+        await bfx.wss.subscribe(Channel.BOOK, symbol=symbol, enable_checksum=True)
 
 @bfx.wss.on("subscribed")
 def on_subscribed(subscription):
@@ -61,5 +61,10 @@ def on_t_book_snapshot(subscription: Book, snapshot: List[TradingPairBook]):
 @bfx.wss.on("t_book_update")
 def on_t_book_update(subscription: Book, data: TradingPairBook):
     order_book.update(subscription["symbol"], data)
+
+@bfx.wss.on("checksum_update")
+def on_checksum(subscription: Book, data: Checksum):
+    # TODO: compare server checksum with local one and trigger re-fetching if needed
+    print(subscription["symbol"], data)
 
 bfx.wss.run()

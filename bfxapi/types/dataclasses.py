@@ -97,6 +97,10 @@ class Statistic(_Type):
     value: float
 
 @dataclass
+class Checksum(_Type):
+    value: int
+
+@dataclass
 class Candle(_Type):
     mts: int
     open: int

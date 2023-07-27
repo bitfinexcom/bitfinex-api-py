@@ -10,7 +10,7 @@ __serializers__ = [
     "PlatformStatus", "TradingPairTicker", "FundingCurrencyTicker",
     "TickersHistory", "TradingPairTrade", "FundingCurrencyTrade",
     "TradingPairBook", "FundingCurrencyBook", "TradingPairRawBook",
-    "FundingCurrencyRawBook", "Statistic", "Candle",
+    "FundingCurrencyRawBook", "Checksum", "Statistic", "Candle",
     "DerivativesStatus", "Liquidation", "Leaderboard",
     "FundingStatistic", "PulseProfile", "PulseMessage",
     "TradingMarketAveragePrice", "FundingMarketAveragePrice", "FxRate",
@@ -159,6 +159,14 @@ FundingCurrencyRawBook = generate_labeler_serializer(
         "period",
         "rate",
         "amount"
+    ]
+)
+
+Checksum = generate_labeler_serializer(
+    name="Checksum",
+    klass=dataclasses.Checksum,
+    labels=[
+        "value"
     ]
 )
 

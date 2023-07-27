@@ -12,7 +12,7 @@ class PublicChannelsHandler:
         "t_ticker_update", "f_ticker_update", "t_trade_execution", 
         "t_trade_execution_update", "f_trade_execution", "f_trade_execution_update", 
         "t_book_update", "f_book_update", "t_raw_book_update", 
-        "f_raw_book_update", "candles_update", "derivatives_status_update"
+        "f_raw_book_update", "checksum_update", "candles_update", "derivatives_status_update"
     ]
 
     def __init__(self, event_emitter, events_per_subscription):
@@ -101,6 +101,13 @@ class PublicChannelsHandler:
                 serializers.TradingPairRawBook, serializers.FundingCurrencyRawBook, True
         else: _trading_pair_serializer, _funding_currency_serializer, is_raw_book = \
                 serializers.TradingPairBook, serializers.FundingCurrencyBook, False
+
+        if stream[0] == 'cs':
+            return self.__emit(
+                 "checksum_update",
+                 subscription,
+                 serializers.Checksum.parse(stream[1])
+            )
 
         if all(isinstance(substream, list) for substream in stream[0]):
             return self.__emit(

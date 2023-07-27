@@ -2,7 +2,7 @@ from .dataclasses import JSON, \
     PlatformStatus, TradingPairTicker, FundingCurrencyTicker, \
     TickersHistory, TradingPairTrade, FundingCurrencyTrade, \
     TradingPairBook, FundingCurrencyBook, TradingPairRawBook, \
-    FundingCurrencyRawBook, Statistic, Candle, \
+    FundingCurrencyRawBook, Checksum, Statistic, Candle, \
     DerivativesStatus, Liquidation, Leaderboard, \
     FundingStatistic, PulseProfile, PulseMessage, \
     TradingMarketAveragePrice, FundingMarketAveragePrice, FxRate
