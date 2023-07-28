@@ -113,12 +113,11 @@ class BfxWebSocketBucket(Connection):
 
     @Connection.require_websocket_connection
     async def unsubscribe(self, sub_id: str) -> None:
-        for subscription in self.__subscriptions.values():
+        for chan_id, subscription in self.__subscriptions.items():
             if subscription["subId"] == sub_id:
-                data = { "event": "unsubscribe", \
-                    "chanId": subscription["subId"] }
-
-                message = json.dumps(data)
+                message = json.dumps({
+                    "event": "unsubscribe",
+                        "chanId": chan_id })
 
                 await self._websocket.send(message)
 
