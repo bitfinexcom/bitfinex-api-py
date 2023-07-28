@@ -14,6 +14,8 @@ if TYPE_CHECKING:
     from websockets.client import WebSocketClientProtocol
     from pyee import EventEmitter
 
+_CHECKSUM_FLAG_VALUE = 131_072
+
 class BfxWebSocketBucket(Connection):
     VERSION = 2
 
@@ -44,6 +46,8 @@ class BfxWebSocketBucket(Connection):
             self._websocket = websocket
 
             await self.__recover_state()
+
+            await self.__set_conf(flags=_CHECKSUM_FLAG_VALUE)
 
             async with self.__condition:
                 self.__condition.notify(1)
@@ -83,6 +87,10 @@ class BfxWebSocketBucket(Connection):
                 sub_id=_subscription.pop("subId"), **_subscription)
 
         self.__subscriptions.clear()
+
+    async def __set_conf(self, flags: int) -> None:
+        await self._websocket.send(json.dumps( \
+            { "event": "conf", "flags": flags }))
 
     @Connection.require_websocket_connection
     async def subscribe(self,
