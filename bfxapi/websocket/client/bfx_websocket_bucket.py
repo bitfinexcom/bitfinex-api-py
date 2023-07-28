@@ -94,8 +94,8 @@ class BfxWebSocketBucket:
 
         self.pendings.append(subscription)
 
-        if kwargs.get('enable_checksum', False):
-            await self.websocket.send(json.dumps({ 'event': 'conf', 'flags': 131072 }))
+        if kwargs.get("enable_checksum", False):
+            await self.websocket.send(json.dumps({ "event": "conf", "flags": 131072 }))
 
         await self.websocket.send(json.dumps(subscription))
 

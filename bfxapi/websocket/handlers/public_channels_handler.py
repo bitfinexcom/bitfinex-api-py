@@ -102,9 +102,10 @@ class PublicChannelsHandler:
         else: _trading_pair_serializer, _funding_currency_serializer, is_raw_book = \
                 serializers.TradingPairBook, serializers.FundingCurrencyBook, False
 
-        if stream[0] == 'cs':
+        if stream[0] == "cs":
             # ignore negative checksums (possible race conditions)
-            if stream[1] < 0: return
+            if stream[1] < 0:
+                return
 
             return self.__emit(
                  "checksum_update",
