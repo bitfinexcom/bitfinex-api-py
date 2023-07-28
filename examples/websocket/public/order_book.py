@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from typing import List, Dict
 
-import crcmod
+import zlib
 
 from bfxapi import Client, PUB_WSS_HOST
 
@@ -58,13 +58,13 @@ class OrderBook:
             values.extend([ bid[0], bid[2] ])
             values.extend([ ask[0], ask[2] ])
 
-        local = ":".join(str(value) for value in values).encode("UTF-8")
+        local = ":".join(str(value) for value in values)
 
-        crc32 = crcmod.mkCrcFun(0x104C11DB7, initCrc=0, xorOut=0xFFFFFFFF)
+        crc32 = zlib.crc32(local.encode("UTF-8"))
 
-        return crc32(local) == checksum
+        return crc32 == checksum
 
-SYMBOLS = [ "tBTCUSD", "tLTCUSD", "tLTCBTC", "tETHUSD", "tETHBTC" ]
+SYMBOLS = [ "tLTCBTC", "tETHUSD", "tETHBTC" ]
 
 order_book = OrderBook(symbols=SYMBOLS)
 
