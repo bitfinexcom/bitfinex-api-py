@@ -150,4 +150,6 @@ class PublicChannelsHandler:
                serializers.Liquidation.parse(*stream[0][0]))
 
     def __checksum_handler(self, subscription: "Book", value: int):
-        return self.__event_emitter.emit("checksum", subscription, value)
+        if not value < 0:
+            return self.__event_emitter.emit( \
+                "checksum", subscription, value)
