@@ -84,7 +84,8 @@ class BfxWebSocketBucket(Connection):
             _subscription = cast(Dict[str, Any], subscription)
 
             await self.subscribe( \
-                sub_id=_subscription.pop("subId"), **_subscription)
+                sub_id=_subscription.pop("subId"),
+                    **_subscription)
 
         self.__subscriptions.clear()
 
@@ -120,6 +121,18 @@ class BfxWebSocketBucket(Connection):
                         "chanId": chan_id })
 
                 await self._websocket.send(message)
+
+    @Connection.require_websocket_connection
+    async def resubscribe(self, sub_id: str) -> None:
+        for subscription in self.__subscriptions.values():
+            if subscription["subId"] == sub_id:
+                _subscription = cast(Dict[str, Any], subscription)
+
+                await self.unsubscribe(sub_id=sub_id)
+
+                await self.subscribe( \
+                    sub_id=_subscription.pop("subId"),
+                        **_subscription)
 
     @Connection.require_websocket_connection
     async def close(self, code: int = 1000, reason: str = str()) -> None:

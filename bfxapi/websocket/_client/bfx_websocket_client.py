@@ -312,6 +312,12 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
                 await bucket.unsubscribe(sub_id=sub_id)
 
     @Connection.require_websocket_connection
+    async def resubscribe(self, sub_id: str) -> None:
+        for bucket in self.__buckets:
+            if bucket.has(sub_id=sub_id):
+                await bucket.resubscribe(sub_id=sub_id)
+
+    @Connection.require_websocket_connection
     async def close(self, code: int = 1000, reason: str = str()) -> None:
         for bucket in self.__buckets:
             await bucket.close(code=code, reason=reason)
