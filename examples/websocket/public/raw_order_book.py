@@ -2,7 +2,9 @@
 
 from collections import OrderedDict
 
-from typing import List
+from typing import List, Dict
+
+import crcmod
 
 from bfxapi import Client, PUB_WSS_HOST
 
@@ -17,6 +19,9 @@ class RawOrderBook:
                 "bids": OrderedDict(), "asks": OrderedDict() 
             } for symbol in symbols
         }
+
+        self.cooldown: Dict[str, bool] = \
+            { symbol: False for symbol in symbols }
 
     def update(self, symbol: str, data: TradingPairRawBook) -> None:
         order_id, price, amount = data.order_id, data.price, data.amount
@@ -33,6 +38,31 @@ class RawOrderBook:
         if price == 0:
             if order_id in self.__raw_order_book[symbol][kind]:
                 del self.__raw_order_book[symbol][kind][order_id]
+
+    def verify(self, symbol: str, checksum: int) -> bool:
+        values: List[int] = [ ]
+
+        bids = sorted([ (data["order_id"], data["price"], data["amount"]) \
+            for _, data in self.__raw_order_book[symbol]["bids"].items() ],
+                key=lambda data: (-data[1], data[0]))
+
+        asks = sorted([ (data["order_id"], data["price"], data["amount"]) \
+            for _, data in self.__raw_order_book[symbol]["asks"].items() ],
+                key=lambda data: (data[1], data[0]))
+
+        if len(bids) < 25 or len(asks) < 25:
+            raise AssertionError("Not enough bids or asks (need at least 25).")
+
+        for _i in range(25):
+            bid, ask = bids[_i], asks[_i]
+            values.extend([ bid[0], bid[2] ])
+            values.extend([ ask[0], ask[2] ])
+
+        local = ":".join(str(value) for value in values).encode("UTF-8")
+
+        crc32 = crcmod.mkCrcFun(0x104C11DB7, initCrc=0, xorOut=0xFFFFFFFF)
+
+        return crc32(local) == checksum
 
 SYMBOLS = [ "tBTCUSD", "tLTCUSD", "tLTCBTC", "tETHUSD", "tETHBTC" ]
 
@@ -61,5 +91,19 @@ def on_t_raw_book_snapshot(subscription: Book, snapshot: List[TradingPairRawBook
 @bfx.wss.on("t_raw_book_update")
 def on_t_raw_book_update(subscription: Book, data: TradingPairRawBook):
     raw_order_book.update(subscription["symbol"], data)
+
+@bfx.wss.on("checksum")
+async def on_checksum(subscription: Book, value: int):
+    symbol = subscription["symbol"]
+
+    if raw_order_book.verify(symbol, value):
+        raw_order_book.cooldown[symbol] = False
+    elif not raw_order_book.cooldown[symbol]:
+        print("Mismatch between local and remote checksums: "
+            f"restarting book for symbol <{symbol}>...")
+
+        await bfx.wss.resubscribe(sub_id=subscription["subId"])
+
+        raw_order_book.cooldown[symbol] = True
 
 bfx.wss.run()
