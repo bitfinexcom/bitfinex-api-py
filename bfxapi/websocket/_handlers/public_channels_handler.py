@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     _NoHeaderSubscription = \
         Union[Ticker, Trades, Book, Candles, Status]
 
+_CHECKSUM = "cs"
+
 class PublicChannelsHandler:
     ONCE_PER_SUBSCRIPTION = [
         "t_trades_snapshot", "f_trades_snapshot", "t_book_snapshot", 
@@ -25,7 +27,9 @@ class PublicChannelsHandler:
         "t_trade_execution_update", "f_trade_execution", "f_trade_execution_update", 
         "t_book_update", "f_book_update", "t_raw_book_update", 
         "f_raw_book_update", "candles_update", "derivatives_status_update",
-        "liquidation_feed_update"
+        "liquidation_feed_update",
+
+        "checksum"
     ]
 
     def __init__(self, event_emitter: "EventEmitter") -> None:
@@ -45,10 +49,13 @@ class PublicChannelsHandler:
         elif subscription["channel"] == "book":
             _subscription = cast("Book", _subscription)
 
-            if _subscription["prec"] != "R0":
-                self.__book_channel_handler(_subscription, stream)
+            if stream[0] == _CHECKSUM:
+                self.__checksum_handler(_subscription, stream[1])
             else:
-                self.__raw_book_channel_handler(_subscription, stream)
+                if _subscription["prec"] != "R0":
+                    self.__book_channel_handler(_subscription, stream)
+                else:
+                    self.__raw_book_channel_handler(_subscription, stream)
         elif subscription["channel"] == "candles":
             self.__candles_channel_handler(cast("Candles", _subscription), stream)
         elif subscription["channel"] == "status":
@@ -141,3 +148,6 @@ class PublicChannelsHandler:
         if subscription["key"].startswith("liq:"):
             return self.__event_emitter.emit("liquidation_feed_update", subscription, \
                serializers.Liquidation.parse(*stream[0][0]))
+
+    def __checksum_handler(self, subscription: "Book", value: int):
+        return self.__event_emitter.emit("checksum", subscription, value)
