@@ -45,6 +45,30 @@ if TYPE_CHECKING:
 
 _DEFAULT_LOGGER = Logger("bfxapi.websocket._client", level=0)
 
+class _Delay:
+    __BACKOFF_MIN = 1.92
+
+    __BACKOFF_MAX = 60.0
+
+    def __init__(self, backoff_factor: float) -> None:
+        self.__backoff_factor = backoff_factor
+        self.__backoff_delay = _Delay.__BACKOFF_MIN
+        self.__initial_delay = random.uniform(1.0, 5.0)
+
+    def next(self) -> float:
+        _backoff_delay = self.peek()
+        __backoff_delay = _backoff_delay * self.__backoff_factor
+        self.__backoff_delay = min(__backoff_delay, _Delay.__BACKOFF_MAX)
+
+        return _backoff_delay
+
+    def peek(self) -> float:
+        return (self.__backoff_delay == _Delay.__BACKOFF_MIN) \
+            and self.__initial_delay or self.__backoff_delay
+
+    def reset(self) -> None:
+        self.__backoff_delay = _Delay.__BACKOFF_MIN
+
 class BfxWebSocketClient(Connection, Connection.Authenticable):
     VERSION = BfxWebSocketBucket.VERSION
 
@@ -108,32 +132,8 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
 
         await self.__connect()
 
-    #pylint: disable-next=too-many-branches,too-many-statements
+    #pylint: disable-next=too-many-branches
     async def __connect(self) -> None:
-        class _Delay:
-            BACKOFF_MIN, BACKOFF_MAX = 1.92, 60.0
-
-            BACKOFF_INITIAL = 5.0
-
-            def __init__(self, backoff_factor: float) -> None:
-                self.__backoff_factor = backoff_factor
-                self.__backoff_delay = _Delay.BACKOFF_MIN
-                self.__initial_delay = random.random() * _Delay.BACKOFF_INITIAL
-
-            def next(self) -> float:
-                _backoff_delay = self.peek()
-                __backoff_delay = self.__backoff_delay * self.__backoff_factor
-                self.__backoff_delay = min(__backoff_delay, _Delay.BACKOFF_MAX)
-
-                return _backoff_delay
-
-            def peek(self) -> float:
-                return (self.__backoff_delay == _Delay.BACKOFF_MIN) \
-                    and self.__initial_delay or self.__backoff_delay
-
-            def reset(self) -> None:
-                self.__backoff_delay = _Delay.BACKOFF_MIN
-
         _delay = _Delay(backoff_factor=1.618)
 
         _sleep: Optional["Task"] = None
@@ -146,7 +146,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
         while True:
             if self.__reconnection:
                 _sleep = asyncio.create_task( \
-                    asyncio.sleep(_delay.next()))
+                    asyncio.sleep(int(_delay.next())))
 
                 try:
                     await _sleep
@@ -198,7 +198,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
                         isinstance(error, gaierror)) and self.__reconnection:
                     self.__logger.warning(
                         f"_Reconnection attempt was unsuccessful (no.{self.__reconnection['attempts']}). " \
-                            f"Next reconnection attempt in {_delay.peek():.2f} seconds. (at the moment " \
+                            f"Next reconnection attempt in {int(_delay.peek())}.0 seconds. (at the moment " \
                                 f"the client has been offline for {datetime.now() - self.__reconnection['timestamp']})")
 
                     self.__reconnection["attempts"] += 1
