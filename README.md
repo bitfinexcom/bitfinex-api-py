@@ -181,10 +181,10 @@ A custom [close code number](https://www.iana.org/assignments/websocket/websocke
 await bfx.wss.close(code=1001, reason="Going Away")
 ```
 
-After closing the connection, the client will emit the `disconnection` event:
+After closing the connection, the client will emit the `disconnected` event:
 ```python
-@bfx.wss.on("disconnection")
-def on_disconnection(code: int, reason: str):
+@bfx.wss.on("disconnected")
+def on_disconnected(code: int, reason: str):
     if code == 1000 or code == 1001:
         print("Closing the connection without errors!")
 ```

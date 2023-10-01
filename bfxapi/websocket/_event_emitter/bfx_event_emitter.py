@@ -9,7 +9,7 @@ from pyee.asyncio import AsyncIOEventEmitter
 from bfxapi.websocket.exceptions import UnknownEventError
 
 _ONCE_PER_CONNECTION = [
-    "open", "authenticated", "disconnection",
+    "open", "authenticated", "disconnected",
     "order_snapshot", "position_snapshot", "funding_offer_snapshot",
     "funding_credit_snapshot", "funding_loan_snapshot", "wallet_snapshot"
 ]

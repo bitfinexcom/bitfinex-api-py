@@ -206,7 +206,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
                     raise error
 
             if not self.__reconnection:
-                self.__event_emitter.emit("disconnection",
+                self.__event_emitter.emit("disconnected",
                     self._websocket.close_code, \
                         self._websocket.close_reason)
 
