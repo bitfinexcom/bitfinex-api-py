@@ -15,23 +15,6 @@ if TYPE_CHECKING:
 _CHECKSUM = "cs"
 
 class PublicChannelsHandler:
-    ONCE_PER_SUBSCRIPTION = [
-        "t_trades_snapshot", "f_trades_snapshot", "t_book_snapshot", 
-        "f_book_snapshot", "t_raw_book_snapshot", "f_raw_book_snapshot", 
-        "candles_snapshot"
-    ]
-
-    EVENTS = [
-        *ONCE_PER_SUBSCRIPTION,
-        "t_ticker_update", "f_ticker_update", "t_trade_execution", 
-        "t_trade_execution_update", "f_trade_execution", "f_trade_execution_update", 
-        "t_book_update", "f_book_update", "t_raw_book_update", 
-        "f_raw_book_update", "candles_update", "derivatives_status_update",
-        "liquidation_feed_update",
-
-        "checksum"
-    ]
-
     def __init__(self, event_emitter: "EventEmitter") -> None:
         self.__event_emitter = event_emitter
 

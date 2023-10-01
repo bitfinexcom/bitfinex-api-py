@@ -1,7 +1,7 @@
 from typing import \
-    TYPE_CHECKING, TypeVar, TypedDict,\
-    Callable, Optional, Tuple, \
-    List, Dict, Any
+    TYPE_CHECKING, TypedDict, List, \
+    Dict, Optional, Any, \
+    no_type_check
 
 from logging import Logger
 from datetime import datetime
@@ -20,19 +20,16 @@ from websockets.legacy.client import \
     connect as _websockets__connect
 
 from bfxapi._utils.json_encoder import JSONEncoder
-from bfxapi.websocket._connection import Connection
-from bfxapi.websocket._event_emitter import BfxEventEmitter
 
-from bfxapi.websocket._handlers import \
-    PublicChannelsHandler, \
-    AuthEventsHandler
+from bfxapi.websocket._connection import Connection
+from bfxapi.websocket._handlers import AuthEventsHandler
+from bfxapi.websocket._event_emitter import BfxEventEmitter
 
 from bfxapi.websocket.exceptions import \
     InvalidAuthenticationCredentials, \
     ReconnectionTimeoutError, \
     OutdatedClientVersion, \
-    ZeroConnectionsError, \
-    EventNotSupported
+    ZeroConnectionsError
 
 from .bfx_websocket_bucket import BfxWebSocketBucket
 
@@ -43,8 +40,6 @@ if TYPE_CHECKING:
 
     from asyncio import Task
 
-    _T = TypeVar("_T", bound=Callable[..., None])
-
     _Reconnection = TypedDict("_Reconnection",
         { "attempts": int, "reason": str, "timestamp": datetime })
 
@@ -54,18 +49,6 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
     VERSION = BfxWebSocketBucket.VERSION
 
     MAXIMUM_CONNECTIONS_AMOUNT = 20
-
-    __ONCE_EVENTS = [
-        "open", "authenticated", "disconnection",
-        *AuthEventsHandler.ONCE_EVENTS
-    ]
-
-    EVENTS = [
-        "subscribed", "wss-error",
-        *__ONCE_EVENTS,
-        *PublicChannelsHandler.EVENTS,
-        *AuthEventsHandler.ON_EVENTS
-    ]
 
     def __init__(self,
                  host: str,
@@ -82,9 +65,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
 
         self.__reconnection: Optional[_Reconnection] = None
 
-        self.__event_emitter = BfxEventEmitter(targets = \
-            PublicChannelsHandler.ONCE_PER_SUBSCRIPTION + \
-                ["subscribed"])
+        self.__event_emitter = BfxEventEmitter(loop=None)
 
         self.__handler = AuthEventsHandler( \
             event_emitter=self.__event_emitter)
@@ -92,7 +73,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
         self.__inputs = BfxWebSocketInputs( \
             handle_websocket_input=self.__handle_websocket_input)
 
-        @self.__event_emitter.on("error")
+        @self.__event_emitter.listens_to("error")
         def error(exception: Exception) -> None:
             header = f"{type(exception).__name__}: {str(exception)}"
 
@@ -123,7 +104,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
             _bucket = BfxWebSocketBucket( \
                 self._host, self.__event_emitter)
 
-            self.__buckets.update( { _bucket: None })
+            self.__buckets.update({ _bucket: None })
 
         await self.__connect()
 
@@ -340,26 +321,9 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
         await self._websocket.send(json.dumps(\
             [ 0, event, None, data], cls=JSONEncoder))
 
-    def on(self, *events: str, callback: Optional["_T"] = None) -> Callable[["_T"], None]:
-        for event in events:
-            if event not in BfxWebSocketClient.EVENTS:
-                raise EventNotSupported(f"Event <{event}> is not supported. To get a list " \
-                    "of available events see BfxWebSocketClient.EVENTS.")
-
-        def _register_events(function: "_T", events: Tuple[str, ...]) -> None:
-            for event in events:
-                if event in BfxWebSocketClient.__ONCE_EVENTS:
-                    self.__event_emitter.once(event, function)
-                else:
-                    self.__event_emitter.on(event, function)
-
-        if callback:
-            _register_events(callback, events)
-
-        def _handler(function: "_T") -> None:
-            _register_events(function, events)
-
-        return _handler
+    @no_type_check
+    def on(self, event, f = None):
+        return self.__event_emitter.on(event, f=f)
 
     @staticmethod
     def __build_authentication_message(api_key: str,

@@ -12,34 +12,16 @@ if TYPE_CHECKING:
     from pyee.base import EventEmitter
 
 class AuthEventsHandler:
-    __ONCE_ABBREVIATIONS = {
-        "os": "order_snapshot", "ps": "position_snapshot", "fos": "funding_offer_snapshot",
-        "fcs": "funding_credit_snapshot", "fls": "funding_loan_snapshot", "ws": "wallet_snapshot"
-    }
-
-    __ON_ABBREVIATIONS = {
-        "on": "order_new", "ou": "order_update", "oc": "order_cancel", 
-        "pn": "position_new", "pu": "position_update", "pc": "position_close", 
-        "fon": "funding_offer_new", "fou": "funding_offer_update", "foc": "funding_offer_cancel", 
-        "fcn": "funding_credit_new", "fcu": "funding_credit_update", "fcc": "funding_credit_close",
-        "fln": "funding_loan_new", "flu": "funding_loan_update", "flc": "funding_loan_close", 
-        "te": "trade_execution", "tu": "trade_execution_update", "wu": "wallet_update"
-    }
-
     __ABBREVIATIONS = {
-        **__ONCE_ABBREVIATIONS,
-        **__ON_ABBREVIATIONS
+        "os": "order_snapshot", "on": "order_new", "ou": "order_update",
+        "oc": "order_cancel", "ps": "position_snapshot", "pn": "position_new",
+        "pu": "position_update", "pc": "position_close", "te": "trade_execution",
+        "tu": "trade_execution_update", "fos": "funding_offer_snapshot", "fon": "funding_offer_new",
+        "fou": "funding_offer_update", "foc": "funding_offer_cancel", "fcs": "funding_credit_snapshot", 
+        "fcn": "funding_credit_new", "fcu": "funding_credit_update", "fcc": "funding_credit_close",
+        "fls": "funding_loan_snapshot", "fln": "funding_loan_new", "flu": "funding_loan_update",
+        "flc": "funding_loan_close", "ws": "wallet_snapshot", "wu": "wallet_update"
     }
-
-    ONCE_EVENTS = [
-        *list(__ONCE_ABBREVIATIONS.values())
-    ]
-
-    ON_EVENTS = [
-        *list(__ON_ABBREVIATIONS.values()),
-        "notification", "on-req-notification", "ou-req-notification", 
-        "oc-req-notification", "fon-req-notification", "foc-req-notification"
-    ]
 
     def __init__(self, event_emitter: "EventEmitter") -> None:
         self.__event_emitter = event_emitter

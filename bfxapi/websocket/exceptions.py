@@ -9,7 +9,7 @@ __all__ = [
     "ReconnectionTimeoutError",
     "ActionRequiresAuthentication",
     "InvalidAuthenticationCredentials",
-    "EventNotSupported",
+    "UnknownEventError",
     "OutdatedClientVersion"
 ]
 
@@ -48,7 +48,7 @@ class InvalidAuthenticationCredentials(BfxWebSocketException):
     This error indicates that the user has provided incorrect credentials (API-KEY and API-SECRET) for authentication.
     """
 
-class EventNotSupported(BfxWebSocketException):
+class UnknownEventError(BfxWebSocketException):
     """
     This error indicates a failed attempt to subscribe to an event not supported by the BfxWebSocketClient.
     """

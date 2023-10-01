@@ -24,7 +24,7 @@ max-line-length=120
 expected-line-ending-format=LF
 
 [BASIC]
-good-names=id,on,pl,t,ip,tf,A,B,C,D,E,F
+good-names=t,f,id,ip,on,pl,tf,A,B,C,D,E,F
 
 [TYPECHECK]
 generated-members=websockets

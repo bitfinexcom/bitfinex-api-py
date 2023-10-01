@@ -242,11 +242,6 @@ The same can be done without using decorators:
 bfx.wss.on("candles_update", callback=on_candles_update)
 ```
 
-You can pass any number of events to register for the same callback function:
-```python
-bfx.wss.on("t_ticker_update", "f_ticker_update", callback=on_ticker_update)
-```
-
 # Advanced features
 
 ## Using custom notifications
