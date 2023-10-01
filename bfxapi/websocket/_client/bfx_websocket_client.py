@@ -69,7 +69,7 @@ class _Delay:
     def reset(self) -> None:
         self.__backoff_delay = _Delay.__BACKOFF_MIN
 
-class BfxWebSocketClient(Connection, Connection.Authenticable):
+class BfxWebSocketClient(Connection):
     VERSION = BfxWebSocketBucket.VERSION
 
     MAXIMUM_CONNECTIONS_AMOUNT = 20
@@ -307,7 +307,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
             await self._websocket.close( \
                 code=code, reason=reason)
 
-    @Connection.Authenticable.require_websocket_authentication
+    @Connection.require_websocket_authentication
     async def notify(self,
                      info: Any,
                      message_id: Optional[int] = None,
@@ -316,7 +316,7 @@ class BfxWebSocketClient(Connection, Connection.Authenticable):
             json.dumps([ 0, "n", message_id,
                 { "type": "ucm-test", "info": info, **kwargs } ]))
 
-    @Connection.Authenticable.require_websocket_authentication
+    @Connection.require_websocket_authentication
     async def __handle_websocket_input(self, event: str, data: Any) -> None:
         await self._websocket.send(json.dumps(\
             [ 0, event, None, data], cls=JSONEncoder))
