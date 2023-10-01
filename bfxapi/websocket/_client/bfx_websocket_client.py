@@ -31,14 +31,15 @@ from bfxapi.websocket.exceptions import \
     OutdatedClientVersion, \
     ZeroConnectionsError
 
-from .bfx_websocket_bucket import BfxWebSocketBucket
+from bfxapi.websocket._client.bfx_websocket_bucket import BfxWebSocketBucket
 
-from .bfx_websocket_inputs import BfxWebSocketInputs
+from bfxapi.websocket._client.bfx_websocket_inputs import BfxWebSocketInputs
 
 if TYPE_CHECKING:
-    from bfxapi.client import _Credentials
-
     from asyncio import Task
+
+    _Credentials = TypedDict("_Credentials", \
+        { "api_key": str, "api_secret": str, "filters": Optional[List[str]] })
 
     _Reconnection = TypedDict("_Reconnection",
         { "attempts": int, "reason": str, "timestamp": datetime })

@@ -1,5 +1,5 @@
 from typing import \
-    TYPE_CHECKING, TypedDict, List, Literal, Optional
+    TYPE_CHECKING, List, Literal, Optional
 
 from bfxapi._utils.logging import ColorLogger
 
@@ -10,8 +10,8 @@ from bfxapi.websocket import BfxWebSocketClient
 from bfxapi.urls import REST_HOST, WSS_HOST
 
 if TYPE_CHECKING:
-    _Credentials = TypedDict("_Credentials", \
-        { "api_key": str, "api_secret": str, "filters": Optional[List[str]] })
+    from bfxapi.websocket._client.bfx_websocket_client import \
+        _Credentials
 
 class Client:
     def __init__(
