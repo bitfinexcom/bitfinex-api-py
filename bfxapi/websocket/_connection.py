@@ -1,5 +1,11 @@
 from typing import \
-    TYPE_CHECKING, Optional, cast
+    TYPE_CHECKING, TypeVar, Callable, \
+    Awaitable, Optional, Any, \
+    cast
+
+from abc import ABC, abstractmethod
+
+from typing_extensions import ParamSpec, Concatenate
 
 from bfxapi.websocket.exceptions import \
     ConnectionNotOpen, ActionRequiresAuthentication
@@ -7,7 +13,13 @@ from bfxapi.websocket.exceptions import \
 if TYPE_CHECKING:
     from websockets.client import WebSocketClientProtocol
 
-class Connection:
+_S = TypeVar("_S", bound="Connection")
+
+_R = TypeVar("_R")
+
+_P = ParamSpec("_P")
+
+class Connection(ABC):
     HEARTBEAT = "hb"
 
     def __init__(self, host: str) -> None:
@@ -34,9 +46,15 @@ class Connection:
     def _websocket(self, protocol: "WebSocketClientProtocol") -> None:
         self.__protocol = protocol
 
+    @abstractmethod
+    async def start(self) -> None:
+        ...
+
     @staticmethod
-    def require_websocket_connection(function):
-        async def wrapper(self, *args, **kwargs):
+    def require_websocket_connection(
+        function: Callable[Concatenate[_S, _P], Awaitable[_R]]
+    ) -> Callable[Concatenate[_S, _P], Awaitable["_R"]]:
+        async def wrapper(self: _S, *args: Any, **kwargs: Any) -> _R:
             if self.open:
                 return await function(self, *args, **kwargs)
 
@@ -45,8 +63,10 @@ class Connection:
         return wrapper
 
     @staticmethod
-    def require_websocket_authentication(function):
-        async def wrapper(self, *args, **kwargs):
+    def require_websocket_authentication(
+        function: Callable[Concatenate[_S, _P], Awaitable[_R]]
+    ) -> Callable[Concatenate[_S, _P], Awaitable[_R]]:
+        async def wrapper(self: _S, *args: Any, **kwargs: Any) -> _R:
             if not self.authentication:
                 raise ActionRequiresAuthentication("To perform this action you need to " \
                     "authenticate using your API_KEY and API_SECRET.")
