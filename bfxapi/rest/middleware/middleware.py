@@ -7,6 +7,7 @@ import time, hmac, hashlib, json, requests
 from ..enums import Error
 from ..exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
 from ..._utils.json_encoder import JSONEncoder
+from ..._utils.json_decoder import JSONDecoder
 
 if TYPE_CHECKING:
     from requests.sessions import _Params
@@ -49,7 +50,7 @@ class Middleware:
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
 
-        data = response.json()
+        data = response.json(cls=JSONDecoder)
 
         if len(data) and data[0] == "error":
             if data[1] == Error.ERR_PARAMS:
@@ -82,7 +83,7 @@ class Middleware:
         if response.status_code == HTTPStatus.NOT_FOUND:
             raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
 
-        data = response.json()
+        data = response.json(cls=JSONDecoder)
 
         if isinstance(data, list) and len(data) and data[0] == "error":
             if data[1] == Error.ERR_PARAMS:

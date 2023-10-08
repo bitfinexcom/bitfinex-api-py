@@ -1,10 +1,10 @@
-import json
-
-from decimal import Decimal
-
 from typing import \
     Union, List, Dict, \
     Any
+
+import json
+
+from decimal import Decimal
 
 _ExtJSON = Union[Dict[str, "_ExtJSON"], List["_ExtJSON"], \
     bool, int, float, str, Decimal, None]

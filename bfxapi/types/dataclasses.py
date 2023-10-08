@@ -657,8 +657,8 @@ class InvoiceStats(_Type):
 
 @dataclass
 class CurrencyConversion(_Type):
-    base_currency: str
-    convert_currency: str
+    base_ccy: str
+    convert_ccy: str
     created: int
 
 @dataclass

@@ -7,16 +7,20 @@ import asyncio, json, uuid
 import websockets.client
 
 from pyee import EventEmitter
+from bfxapi._utils.json_decoder import JSONDecoder
 from bfxapi.websocket._connection import Connection
 from bfxapi.websocket._handlers import PublicChannelsHandler
+
 from bfxapi.websocket.subscriptions import Subscription
 
 from bfxapi.websocket.exceptions import FullBucketError
 
+
 _CHECKSUM_FLAG_VALUE = 131_072
 
 def _strip(message: Dict[str, Any], keys: List[str]) -> Dict[str, Any]:
-    return { key: message[key] for key in message if not key in keys }
+    return { key: value for key, value in message.items() \
+        if not key in keys }
 
 class BfxWebSocketBucket(Connection):
     __MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
@@ -53,16 +57,9 @@ class BfxWebSocketBucket(Connection):
                 self.__condition.notify(1)
 
             async for _message in self._websocket:
-                message = json.loads(_message)
+                message = json.loads(_message, cls=JSONDecoder)
 
                 if isinstance(message, dict):
-                    # I think there's a better way to do it...
-                    if "chanId" in message:
-                        message["chan_id"] = message.pop("chanId")
-
-                    if "subId" in message:
-                        message["sub_id"] = message.pop("subId")
-
                     if message["event"] == "subscribed":
                         self.__on_subscribed(message)
                     elif message["event"] == "unsubscribed":
@@ -83,7 +80,7 @@ class BfxWebSocketBucket(Connection):
         chan_id = cast(int, message["chan_id"])
 
         subscription = cast(Subscription, _strip(message, \
-            keys=["event", "chan_id", "pair", "currency"]))
+            keys=["chan_id", "event", "pair", "currency"]))
 
         self.__pendings = [ pending \
             for pending in self.__pendings \
