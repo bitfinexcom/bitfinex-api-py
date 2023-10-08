@@ -5,8 +5,6 @@ from dataclasses import dataclass
 
 from .labeler import _Type, partial, compose
 
-from .._utils.json_encoder import JSON
-
 #region Dataclass definitions for types of public use
 
 @dataclass
@@ -172,7 +170,7 @@ class PulseMessage(_Type):
     comments_disabled: int
     tags: List[str]
     attachments: List[str]
-    meta: List[JSON]
+    meta: List[Dict[str, Any]]
     likes: int
     profile: PulseProfile
     comments: int
@@ -231,7 +229,7 @@ class LoginHistory(_Type):
     id: int
     time: int
     ip: str
-    extra_info: JSON
+    extra_info: Dict[str, Any]
 
 @dataclass
 class BalanceAvailable(_Type):
@@ -260,7 +258,7 @@ class Order(_Type):
     hidden: int
     placed_id: int
     routing: str
-    meta: JSON
+    meta: Dict[str, Any]
 
 @dataclass
 class Position(_Type):
@@ -280,7 +278,7 @@ class Position(_Type):
     type: int
     collateral: float
     collateral_min: float
-    meta: JSON
+    meta: Dict[str, Any]
 
 @dataclass
 class Trade(_Type):
@@ -409,7 +407,7 @@ class Wallet(_Type):
     unsettled_interest: float
     available_balance: float
     last_change: str
-    trade_details: JSON
+    trade_details: Dict[str, Any]
 
 @dataclass
 class Transfer(_Type):
@@ -486,7 +484,7 @@ class PositionClaim(_Type):
     pos_type: int
     collateral: str
     min_collateral: str
-    meta: JSON
+    meta: Dict[str, Any]
 
 @dataclass
 class PositionIncreaseInfo(_Type):
@@ -547,7 +545,7 @@ class PositionAudit(_Type):
     type: int
     collateral: float
     collateral_min: float
-    meta: JSON
+    meta: Dict[str, Any]
 
 @dataclass
 class DerivativePositionCollateral(_Type):
@@ -618,7 +616,7 @@ class InvoiceSubmission(_Type):
         pay_currency: str
         pool_currency: str
         address: str
-        ext: JSON
+        ext: Dict[str, Any]
 
     @compose(dataclass, partial)
     class Payment:

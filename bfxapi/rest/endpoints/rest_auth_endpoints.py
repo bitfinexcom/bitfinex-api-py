@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union, Literal, Optional
+from typing import Dict, List, Tuple, Union, Literal, Optional, Any
 
 from decimal import Decimal
 
@@ -21,8 +21,6 @@ from ...types import Notification, \
 from ...types import serializers
 
 from ...types.serializers import _Notification
-
-from ..._utils.json_encoder import JSON
 
 class RestAuthEndpoints(Middleware):
     def get_user_info(self) -> UserInfo:
@@ -77,7 +75,7 @@ class RestAuthEndpoints(Middleware):
                      cid: Optional[int] = None,
                      flags: Optional[int] = 0,
                      tif: Optional[str] = None,
-                     meta: Optional[JSON] = None) -> Notification[Order]:
+                     meta: Optional[Dict[str, Any]] = None) -> Notification[Order]:
         body = {
             "type": type, "symbol": symbol, "amount": amount,
             "price": price, "lev": lev, "price_trailing": price_trailing,

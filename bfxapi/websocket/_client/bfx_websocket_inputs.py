@@ -1,11 +1,9 @@
 from typing import TYPE_CHECKING, Callable, Awaitable, \
-    Tuple, List, Union, Optional, Any
+    Tuple, List, Dict, Union, Optional, Any
 
 if TYPE_CHECKING:
     from bfxapi.enums import \
         OrderType, FundingOfferType
-
-    from bfxapi._utils.json_encoder import JSON
 
     from decimal import Decimal
 
@@ -27,7 +25,7 @@ class BfxWebSocketInputs:
                            cid: Optional[int] = None,
                            flags: Optional[int] = 0,
                            tif: Optional[str] = None,
-                           meta: Optional["JSON"] = None) -> None:
+                           meta: Optional[Dict[str, Any]] = None) -> None:
         await self.__handle_websocket_input("on", {
             "type": type, "symbol": symbol, "amount": amount,
             "price": price, "lev": lev, "price_trailing": price_trailing,

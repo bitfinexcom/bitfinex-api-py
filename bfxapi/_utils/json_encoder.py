@@ -2,17 +2,21 @@ import json
 
 from decimal import Decimal
 
-from typing import List, Dict, Union
+from typing import \
+    Union, List, Dict, \
+    Any
 
-JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, None]
-
-_CustomJSON = Union[Dict[str, "_CustomJSON"], List["_CustomJSON"], \
+_ExtJSON = Union[Dict[str, "_ExtJSON"], List["_ExtJSON"], \
     bool, int, float, str, Decimal, None]
 
-def _strip(dictionary: Dict) -> Dict:
-    return { key: value for key, value in dictionary.items() if value is not None }
+_StrictJSON = Union[Dict[str, "_StrictJSON"], List["_StrictJSON"], \
+    int, str, None]
 
-def _convert_data_to_json(data: _CustomJSON) -> JSON:
+def _clear(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+    return { key: value for key, value in dictionary.items() \
+        if value is not None }
+
+def _adapter(data: _ExtJSON) -> _StrictJSON:
     if isinstance(data, bool):
         return int(data)
     if isinstance(data, float):
@@ -21,12 +25,12 @@ def _convert_data_to_json(data: _CustomJSON) -> JSON:
         return format(data, "f")
 
     if isinstance(data, list):
-        return [ _convert_data_to_json(sub_data) for sub_data in data ]
+        return [ _adapter(sub_data) for sub_data in data ]
     if isinstance(data, dict):
-        return _strip({ key: _convert_data_to_json(value) for key, value in data.items() })
+        return _clear({ key: _adapter(value) for key, value in data.items() })
 
     return data
 
 class JSONEncoder(json.JSONEncoder):
-    def encode(self, o: _CustomJSON) -> str:
-        return json.JSONEncoder.encode(self, _convert_data_to_json(o))
+    def encode(self, o: _ExtJSON) -> str:
+        return super().encode(_adapter(o))
