@@ -20,7 +20,7 @@ _R = TypeVar("_R")
 _P = ParamSpec("_P")
 
 class Connection(ABC):
-    HEARTBEAT = "hb"
+    _HEARTBEAT = "hb"
 
     def __init__(self, host: str) -> None:
         self._host = host

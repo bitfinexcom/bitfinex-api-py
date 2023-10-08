@@ -1,60 +1,34 @@
-from typing import TypedDict, \
-    Union, Literal, Optional
+from typing import \
+    Union, Literal, TypedDict
+
+Subscription = Union["Ticker", "Trades", "Book", "Candles", "Status"]
+
+Channel = Literal["ticker", "trades", "book", "candles", "status"]
 
 class Ticker(TypedDict):
-    subId: str
+    channel: Literal["ticker"]
+    sub_id: str
     symbol: str
-    pair: Optional[str]
-    currency: Optional[str]
 
 class Trades(TypedDict):
-    subId: str
+    channel: Literal["trades"]
+    sub_id: str
     symbol: str
-    pair: Optional[str]
-    currency: Optional[str]
 
 class Book(TypedDict):
-    subId: str
+    channel: Literal["book"]
+    sub_id: str
     symbol: str
-    prec: str
-    freq: str
-    len: str
-    pair: str
+    prec: Literal["R0", "P0", "P1", "P2", "P3", "P4"]
+    freq: Literal["F0", "F1"]
+    len: Literal["1", "25", "100", "250"]
 
 class Candles(TypedDict):
-    subId: str
+    channel: Literal["candles"]
+    sub_id: str
     key: str
 
 class Status(TypedDict):
-    subId: str
+    channel: Literal["status"]
+    sub_id: str
     key: str
-
-Subscription = Union["_Ticker", "_Trades", "_Book", "_Candles", "_Status"]
-
-_Channel = Literal["ticker", "trades", "book", "candles", "status"]
-
-_Header = TypedDict("_Header", {
-    "event": Literal["subscribed"],
-    "channel": _Channel,
-    "chanId": int
-})
-
-#pylint: disable-next=inherit-non-class
-class _Ticker(Ticker, _Header):
-    pass
-
-#pylint: disable-next=inherit-non-class
-class _Trades(Trades, _Header):
-    pass
-
-#pylint: disable-next=inherit-non-class
-class _Book(Book, _Header):
-    pass
-
-#pylint: disable-next=inherit-non-class
-class _Candles(Candles, _Header):
-    pass
-
-#pylint: disable-next=inherit-non-class
-class _Status(Status, _Header):
-    pass

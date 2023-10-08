@@ -1,5 +1,6 @@
-from typing import TYPE_CHECKING, \
-    Union, List, Any, cast
+from typing import \
+    TYPE_CHECKING, List, Any, \
+    cast
 
 from bfxapi.types import serializers
 
@@ -9,9 +10,6 @@ if TYPE_CHECKING:
 
     from pyee.base import EventEmitter
 
-    _NoHeaderSubscription = \
-        Union[Ticker, Trades, Book, Candles, Status]
-
 _CHECKSUM = "cs"
 
 class PublicChannelsHandler:
@@ -19,30 +17,24 @@ class PublicChannelsHandler:
         self.__event_emitter = event_emitter
 
     def handle(self, subscription: "Subscription", stream: List[Any]) -> None:
-        def _strip(subscription: "Subscription", *args: str) -> "_NoHeaderSubscription":
-            return cast("_NoHeaderSubscription", \
-                { key: value for key, value in subscription.items() if key not in args })
-
-        _subscription = _strip(subscription, "event", "channel", "chanId")
-
         if subscription["channel"] == "ticker":
-            self.__ticker_channel_handler(cast("Ticker", _subscription), stream)
+            self.__ticker_channel_handler(cast("Ticker", subscription), stream)
         elif subscription["channel"] == "trades":
-            self.__trades_channel_handler(cast("Trades", _subscription), stream)
+            self.__trades_channel_handler(cast("Trades", subscription), stream)
         elif subscription["channel"] == "book":
-            _subscription = cast("Book", _subscription)
+            subscription = cast("Book", subscription)
 
             if stream[0] == _CHECKSUM:
-                self.__checksum_handler(_subscription, stream[1])
+                self.__checksum_handler(subscription, stream[1])
             else:
-                if _subscription["prec"] != "R0":
-                    self.__book_channel_handler(_subscription, stream)
+                if subscription["prec"] != "R0":
+                    self.__book_channel_handler(subscription, stream)
                 else:
-                    self.__raw_book_channel_handler(_subscription, stream)
+                    self.__raw_book_channel_handler(subscription, stream)
         elif subscription["channel"] == "candles":
-            self.__candles_channel_handler(cast("Candles", _subscription), stream)
+            self.__candles_channel_handler(cast("Candles", subscription), stream)
         elif subscription["channel"] == "status":
-            self.__status_channel_handler(cast("Status", _subscription), stream)
+            self.__status_channel_handler(cast("Status", subscription), stream)
 
     def __ticker_channel_handler(self, subscription: "Ticker", stream: List[Any]):
         if subscription["symbol"].startswith("t"):

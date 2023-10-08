@@ -1,32 +1,32 @@
 from typing import \
-    TYPE_CHECKING, Optional, Dict, List, Any, cast
+    List, Dict, Any, \
+    Optional, cast
 
 import asyncio, json, uuid
 
-from websockets.legacy.client import connect as _websockets__connect
+import websockets.client
 
+from pyee import EventEmitter
 from bfxapi.websocket._connection import Connection
 from bfxapi.websocket._handlers import PublicChannelsHandler
-from bfxapi.websocket.exceptions import TooManySubscriptions
+from bfxapi.websocket.subscriptions import Subscription
 
-if TYPE_CHECKING:
-    from bfxapi.websocket.subscriptions import Subscription
-    from websockets.client import WebSocketClientProtocol
-    from pyee import EventEmitter
+from bfxapi.websocket.exceptions import FullBucketError
 
 _CHECKSUM_FLAG_VALUE = 131_072
 
+def _strip(message: Dict[str, Any], keys: List[str]) -> Dict[str, Any]:
+    return { key: message[key] for key in message if not key in keys }
+
 class BfxWebSocketBucket(Connection):
-    VERSION = 2
+    __MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
 
-    MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
-
-    def __init__(self, host: str, event_emitter: "EventEmitter") -> None:
+    def __init__(self, host: str, event_emitter: EventEmitter) -> None:
         super().__init__(host)
 
         self.__event_emitter = event_emitter
         self.__pendings: List[Dict[str, Any]] = [ ]
-        self.__subscriptions: Dict[int, "Subscription"] = { }
+        self.__subscriptions: Dict[int, Subscription] = { }
 
         self.__condition = asyncio.locks.Condition()
 
@@ -34,118 +34,131 @@ class BfxWebSocketBucket(Connection):
             event_emitter=self.__event_emitter)
 
     @property
-    def pendings(self) -> List[Dict[str, Any]]:
-        return self.__pendings
+    def count(self) -> int:
+        return len(self.__pendings) + \
+            len(self.__subscriptions)
 
     @property
-    def subscriptions(self) -> Dict[int, "Subscription"]:
-        return self.__subscriptions
+    def is_full(self) -> bool:
+        return self.count == \
+            BfxWebSocketBucket.__MAXIMUM_SUBSCRIPTIONS_AMOUNT
 
-    async def connect(self) -> None:
-        async with _websockets__connect(self._host) as websocket:
+    async def start(self) -> None:
+        async with websockets.client.connect(self._host) as websocket:
             self._websocket = websocket
 
             await self.__recover_state()
 
-            await self.__set_conf(flags=_CHECKSUM_FLAG_VALUE)
-
             async with self.__condition:
                 self.__condition.notify(1)
 
-            async for message in self._websocket:
-                message = json.loads(message)
+            async for _message in self._websocket:
+                message = json.loads(_message)
 
                 if isinstance(message, dict):
-                    if message["event"] == "subscribed" and (chan_id := message["chanId"]):
-                        self.__pendings = [ pending \
-                            for pending in self.__pendings \
-                                if pending["subId"] != message["subId"] ]
+                    # I think there's a better way to do it...
+                    if "chanId" in message:
+                        message["chan_id"] = message.pop("chanId")
 
-                        self.__subscriptions[chan_id] = cast("Subscription", message)
+                    if "subId" in message:
+                        message["sub_id"] = message.pop("subId")
 
-                        self.__event_emitter.emit("subscribed", message)
-                    elif message["event"] == "unsubscribed" and (chan_id := message["chanId"]):
+                    if message["event"] == "subscribed":
+                        self.__on_subscribed(message)
+                    elif message["event"] == "unsubscribed":
                         if message["status"] == "OK":
+                            chan_id = cast(int, message["chan_id"])
+
                             del self.__subscriptions[chan_id]
                     elif message["event"] == "error":
-                        self.__event_emitter.emit( \
-                            "wss-error", message["code"], message["msg"])
+                        self.__event_emitter.emit("wss-error", \
+                            message["code"], message["msg"])
 
                 if isinstance(message, list):
-                    if (chan_id := message[0]) and message[1] != Connection.HEARTBEAT:
+                    if (chan_id := cast(int, message[0])) and \
+                            (message[1] != Connection._HEARTBEAT):
                         self.__handler.handle(self.__subscriptions[chan_id], message[1:])
+
+    def __on_subscribed(self, message: Dict[str, Any]) -> None:
+        chan_id = cast(int, message["chan_id"])
+
+        subscription = cast(Subscription, _strip(message, \
+            keys=["event", "chan_id", "pair", "currency"]))
+
+        self.__pendings = [ pending \
+            for pending in self.__pendings \
+                if pending["subId"] != message["sub_id"] ]
+
+        self.__subscriptions[chan_id] = subscription
+
+        self.__event_emitter.emit("subscribed", subscription)
 
     async def __recover_state(self) -> None:
         for pending in self.__pendings:
-            await self._websocket.send( \
+            await self._websocket.send(message = \
                 json.dumps(pending))
 
-        for _, subscription in self.__subscriptions.items():
-            _subscription = cast(Dict[str, Any], subscription)
+        for chan_id in list(self.__subscriptions.keys()):
+            subscription = self.__subscriptions.pop(chan_id)
 
-            await self.subscribe( \
-                sub_id=_subscription.pop("subId"),
-                    **_subscription)
+            await self.subscribe(**subscription)
 
-        self.__subscriptions.clear()
+        await self.__set_config([ _CHECKSUM_FLAG_VALUE ])
 
-    async def __set_conf(self, flags: int) -> None:
+    async def __set_config(self, flags: List[int]) -> None:
         await self._websocket.send(json.dumps( \
-            { "event": "conf", "flags": flags }))
+            { "event": "conf", "flags": sum(flags) }))
 
     @Connection.require_websocket_connection
     async def subscribe(self,
                         channel: str,
                         sub_id: Optional[str] = None,
                         **kwargs: Any) -> None:
-        if len(self.__subscriptions) + len(self.__pendings) \
-                == BfxWebSocketBucket.MAXIMUM_SUBSCRIPTIONS_AMOUNT:
-            raise TooManySubscriptions("The client has reached the maximum number of subscriptions.")
+        if self.is_full:
+            raise FullBucketError("The bucket is full: " + \
+                "can't subscribe to any other channel.")
 
-        subscription = \
+        subscription: Dict[str, Any] = \
             { **kwargs, "event": "subscribe", "channel": channel }
 
         subscription["subId"] = sub_id or str(uuid.uuid4())
 
         self.__pendings.append(subscription)
 
-        await self._websocket.send( \
+        await self._websocket.send(message = \
             json.dumps(subscription))
 
     @Connection.require_websocket_connection
     async def unsubscribe(self, sub_id: str) -> None:
         for chan_id, subscription in self.__subscriptions.items():
-            if subscription["subId"] == sub_id:
-                message = json.dumps({
+            if subscription["sub_id"] == sub_id:
+                unsubscription = {
                     "event": "unsubscribe",
-                        "chanId": chan_id })
+                        "chanId": chan_id }
 
-                await self._websocket.send(message)
+                await self._websocket.send(message = \
+                    json.dumps(unsubscription))
 
     @Connection.require_websocket_connection
     async def resubscribe(self, sub_id: str) -> None:
         for subscription in self.__subscriptions.values():
-            if subscription["subId"] == sub_id:
-                _subscription = cast(Dict[str, Any], subscription)
+            if subscription["sub_id"] == sub_id:
+                await self.unsubscribe(sub_id)
 
-                await self.unsubscribe(sub_id=sub_id)
-
-                await self.subscribe( \
-                    sub_id=_subscription.pop("subId"),
-                        **_subscription)
+                await self.subscribe(**subscription)
 
     @Connection.require_websocket_connection
     async def close(self, code: int = 1000, reason: str = str()) -> None:
-        await self._websocket.close(code=code, reason=reason)
+        await self._websocket.close(code, reason)
 
     def has(self, sub_id: str) -> bool:
         for subscription in self.__subscriptions.values():
-            if subscription["subId"] == sub_id:
+            if subscription["sub_id"] == sub_id:
                 return True
 
         return False
 
     async def wait(self) -> None:
         async with self.__condition:
-            await self.__condition.wait_for(
-                lambda: self.open)
+            await self.__condition \
+                .wait_for(lambda: self.open)

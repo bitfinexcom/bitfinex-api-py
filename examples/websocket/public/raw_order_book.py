@@ -102,7 +102,7 @@ async def on_checksum(subscription: Book, value: int):
         print("Mismatch between local and remote checksums: "
             f"restarting book for symbol <{symbol}>...")
 
-        await bfx.wss.resubscribe(sub_id=subscription["subId"])
+        await bfx.wss.resubscribe(sub_id=subscription["sub_id"])
 
         raw_order_book.cooldown[symbol] = True
 

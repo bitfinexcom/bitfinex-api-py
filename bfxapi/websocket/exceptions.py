@@ -4,11 +4,12 @@ __all__ = [
     "BfxWebSocketException",
 
     "ConnectionNotOpen",
-    "TooManySubscriptions",
+    "FullBucketError",
     "ZeroConnectionsError",
     "ReconnectionTimeoutError",
     "ActionRequiresAuthentication",
     "InvalidAuthenticationCredentials",
+    "UnknownChannelError",
     "UnknownEventError",
     "OutdatedClientVersion"
 ]
@@ -23,9 +24,9 @@ class ConnectionNotOpen(BfxWebSocketException):
     This error indicates an attempt to communicate via websocket before starting the connection with the servers.
     """
 
-class TooManySubscriptions(BfxWebSocketException):
+class FullBucketError(BfxWebSocketException):
     """
-    This error indicates a subscription attempt after reaching the limit of simultaneous connections.
+    Thrown when a user attempts a subscription but all buckets are full.
     """
 
 class ZeroConnectionsError(BfxWebSocketException):
@@ -48,9 +49,14 @@ class InvalidAuthenticationCredentials(BfxWebSocketException):
     This error indicates that the user has provided incorrect credentials (API-KEY and API-SECRET) for authentication.
     """
 
+class UnknownChannelError(BfxWebSocketException):
+    """
+    Thrown when a user attempts to subscribe to an unknown channel.
+    """
+
 class UnknownEventError(BfxWebSocketException):
     """
-    This error indicates a failed attempt to subscribe to an event not supported by the BfxWebSocketClient.
+    Thrown when a user attempts to add a listener for an unknown event.
     """
 
 class OutdatedClientVersion(BfxWebSocketException):

@@ -29,7 +29,8 @@ from bfxapi.websocket.exceptions import \
     InvalidAuthenticationCredentials, \
     ReconnectionTimeoutError, \
     OutdatedClientVersion, \
-    ZeroConnectionsError
+    ZeroConnectionsError, \
+    UnknownChannelError
 
 from bfxapi.websocket._client.bfx_websocket_bucket import BfxWebSocketBucket
 
@@ -71,7 +72,7 @@ class _Delay:
         self.__backoff_delay = _Delay.__BACKOFF_MIN
 
 class BfxWebSocketClient(Connection):
-    VERSION = BfxWebSocketBucket.VERSION
+    VERSION = 2
 
     MAXIMUM_CONNECTIONS_AMOUNT = 20
 
@@ -227,7 +228,7 @@ class BfxWebSocketClient(Connection):
             self.__buckets = {
                 bucket: asyncio.create_task(_c)
                     for bucket in self.__buckets
-                        if (_c := bucket.connect())
+                        if (_c := bucket.start())
             }
 
             if len(self.__buckets) == 0 or \
@@ -265,7 +266,7 @@ class BfxWebSocketClient(Connection):
                         self.__event_emitter.emit("wss-error", message["code"], message["msg"])
 
                 if isinstance(message, list) and \
-                        message[0] == 0 and message[1] != Connection.HEARTBEAT:
+                        message[0] == 0 and message[1] != Connection._HEARTBEAT:
                     self.__handler.handle(message[1], message[2])
 
     @Connection.require_websocket_connection
@@ -277,10 +278,13 @@ class BfxWebSocketClient(Connection):
             raise ZeroConnectionsError("Unable to subscribe: " \
                 "the number of connections must be greater than 0.")
 
+        if not channel in ["ticker", "trades", "book", "candles", "status"]:
+            raise UnknownChannelError("Available channels are: " + \
+                "ticker, trades, book, candles and status.")
+
         _buckets = list(self.__buckets.keys())
 
-        counters = [ len(bucket.pendings) + len(bucket.subscriptions)
-            for bucket in _buckets ]
+        counters = [ bucket.count for bucket in _buckets ]
 
         index = counters.index(min(counters))
 

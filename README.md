@@ -201,7 +201,7 @@ On each successful subscription, the client will emit the `subscribed` event:
 @bfx.wss.on("subscribed")
 def on_subscribed(subscription: subscriptions.Subscription):
     if subscription["channel"] == "ticker":
-        print(f"{subscription['symbol']}: {subscription['subId']}") # tBTCUSD: f2757df2-7e11-4244-9bb7-a53b7343bef8
+        print(f"{subscription['symbol']}: {subscription['sub_id']}") # tBTCUSD: f2757df2-7e11-4244-9bb7-a53b7343bef8
 ```
 
 ### Unsubscribing from a public channel

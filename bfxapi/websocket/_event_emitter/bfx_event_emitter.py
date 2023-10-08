@@ -60,7 +60,7 @@ class BfxEventEmitter(AsyncIOEventEmitter):
             self._connection += [ event ]
 
         if event in _ONCE_PER_SUBSCRIPTION:
-            sub_id = args[0]["subId"]
+            sub_id = args[0]["sub_id"]
 
             if event in self._subscriptions[sub_id]:
                 return self._has_listeners(event)
