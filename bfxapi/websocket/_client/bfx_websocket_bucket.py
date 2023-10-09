@@ -13,9 +13,6 @@ from bfxapi.websocket._handlers import PublicChannelsHandler
 
 from bfxapi.websocket.subscriptions import Subscription
 
-from bfxapi.websocket.exceptions import FullBucketError
-
-
 _CHECKSUM_FLAG_VALUE = 131_072
 
 def _strip(message: Dict[str, Any], keys: List[str]) -> Dict[str, Any]:
@@ -111,10 +108,6 @@ class BfxWebSocketBucket(Connection):
                         channel: str,
                         sub_id: Optional[str] = None,
                         **kwargs: Any) -> None:
-        if self.is_full:
-            raise FullBucketError("The bucket is full: " + \
-                "can't subscribe to any other channel.")
-
         subscription: Dict[str, Any] = \
             { **kwargs, "event": "subscribe", "channel": channel }
 

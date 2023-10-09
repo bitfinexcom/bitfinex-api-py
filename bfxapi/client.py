@@ -3,7 +3,7 @@ from typing import \
 
 from bfxapi._utils.logging import ColorLogger
 
-from bfxapi.exceptions import IncompleteCredentialError
+from bfxapi._exceptions import IncompleteCredentialError
 
 from bfxapi.rest import BfxRestInterface
 from bfxapi.websocket import BfxWebSocketClient
@@ -22,7 +22,7 @@ class Client:
             rest_host: str = REST_HOST,
             wss_host: str = WSS_HOST,
             filters: Optional[List[str]] = None,
-            timeout: Optional[float] = 60 * 15,
+            timeout: Optional[int] = 60 * 15,
             log_filename: Optional[str] = None,
             log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     ) -> None:

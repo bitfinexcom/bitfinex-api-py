@@ -5,7 +5,7 @@ from http import HTTPStatus
 import time, hmac, hashlib, json, requests
 
 from ..enums import Error
-from ..exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
+from ..exceptions import ResourceNotFound, RequestParametersError, InvalidCredentialError, UnknownGenericError
 from ..._utils.json_encoder import JSONEncoder
 from ..._utils.json_decoder import JSONDecoder
 
@@ -91,7 +91,7 @@ class Middleware:
                     f"following parameter error: <{data[2]}>")
 
             if data[1] == Error.ERR_AUTH_FAIL:
-                raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
+                raise InvalidCredentialError("Cannot authenticate with given API-KEY and API-SECRET.")
 
             if data[1] is None or data[1] == Error.ERR_UNK or data[1] == Error.ERR_GENERIC:
                 raise UnknownGenericError("The server replied to the request with " \
