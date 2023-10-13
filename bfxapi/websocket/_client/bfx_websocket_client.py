@@ -78,7 +78,9 @@ class BfxWebSocketClient(Connection):
         super().__init__(host)
 
         self.__credentials, self.__timeout, self.__logger = \
-            credentials, timeout, logger
+            credentials, \
+            timeout, \
+            logger
 
         self.__buckets: Dict[BfxWebSocketBucket, Optional[Task]] = { }
 
@@ -99,15 +101,16 @@ class BfxWebSocketClient(Connection):
             stack_trace = traceback.format_exception( \
                 type(exception), exception, exception.__traceback__)
 
-            self.__logger.critical( \
-                header + "\n" + str().join(stack_trace)[:-1])
+            self.__logger.critical(header + "\n" + \
+                str().join(stack_trace)[:-1])
 
     @property
     def inputs(self) -> BfxWebSocketInputs:
         return self.__inputs
 
     def run(self) -> None:
-        return asyncio.run(self.start())
+        return asyncio.get_event_loop() \
+            .run_until_complete(self.start())
 
     #pylint: disable-next=too-many-branches
     async def start(self) -> None:
