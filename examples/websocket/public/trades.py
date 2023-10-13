@@ -16,10 +16,6 @@ def on_candles_update(_sub: Candles, candle: Candle):
 def on_t_trade_execution(_sub: Trades, trade: TradingPairTrade):
     print(f"New trade: {trade}")
 
-@bfx.wss.on("wss-error")
-def on_wss_error(code: Error, msg: str):
-    print(code, msg)
-
 @bfx.wss.on("open")
 async def on_open():
     await bfx.wss.subscribe(Channel.CANDLES, key="trade:1m:tBTCUSD")

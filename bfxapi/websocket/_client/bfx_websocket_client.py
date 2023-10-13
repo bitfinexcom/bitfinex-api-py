@@ -240,9 +240,6 @@ class BfxWebSocketClient(Connection):
                         self.__event_emitter.emit("authenticated", message)
 
                         self._authentication = True
-                    elif message["event"] == "error":
-                        self.__event_emitter.emit("wss-error", \
-                            message["code"], message["msg"])
 
                 if isinstance(message, list) and \
                         message[0] == 0 and message[1] != Connection._HEARTBEAT:

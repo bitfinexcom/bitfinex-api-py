@@ -70,10 +70,6 @@ raw_order_book = RawOrderBook(symbols=SYMBOLS)
 
 bfx = Client(wss_host=PUB_WSS_HOST)
 
-@bfx.wss.on("wss-error")
-def on_wss_error(code: Error, msg: str):
-    print(code, msg)
-
 @bfx.wss.on("open")
 async def on_open():
     for symbol in SYMBOLS:

@@ -14,10 +14,6 @@ bfx = Client(
     filters=["wallet"]
 )
 
-@bfx.wss.on("wss-error")
-def on_wss_error(code: Error, msg: str):
-    print(code, msg)
-
 @bfx.wss.on("wallet_snapshot")
 def on_wallet_snapshot(wallets: List[Wallet]):
     for wallet in wallets:

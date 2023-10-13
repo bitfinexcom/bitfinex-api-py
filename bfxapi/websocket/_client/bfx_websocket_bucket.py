@@ -64,9 +64,6 @@ class BfxWebSocketBucket(Connection):
                             chan_id = cast(int, message["chan_id"])
 
                             del self.__subscriptions[chan_id]
-                    elif message["event"] == "error":
-                        self.__event_emitter.emit("wss-error", \
-                            message["code"], message["msg"])
 
                 if isinstance(message, list):
                     if (chan_id := cast(int, message[0])) and \
