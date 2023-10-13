@@ -11,11 +11,6 @@ class FullBucketError(BfxBaseException):
     Thrown when a user attempts a subscription but all buckets are full.
     """
 
-class ZeroConnectionsError(BfxBaseException):
-    """
-    This error indicates an attempt to subscribe to a public channel while the number of connections is 0.
-    """
-
 class ReconnectionTimeoutError(BfxBaseException):
     """
     This error indicates that the connection has been offline for too long without being able to reconnect.

@@ -97,7 +97,6 @@ _Revoke your API-KEYs and API-SECRETs immediately if you think they might have b
 
 ### Advanced features
 * [Using custom notifications](#using-custom-notifications)
-* [Setting up connection multiplexing](#setting-up-connection-multiplexing)
 
 ### Examples
 * [Creating a new order](#creating-a-new-order)
@@ -263,27 +262,6 @@ Whenever a client receives a custom notification, it will emit the `notification
 def on_notification(notification: Notification[Any]):
     print(notification.data) # { "foo": 1 }
 ```
-
-## Setting up connection multiplexing
-
-`BfxWebSocketClient::run` and `BfxWebSocketClient::start` accept a `connections` argument:
-```python
-bfx.wss.run(connections=3)
-```
-
-`connections` indicates the number of connections to run concurrently (through connection multiplexing).
-
-Each of these connections can handle up to 25 subscriptions to public channels. \
-So, using `N` connections will allow the client to handle at most `N * 25` subscriptions. \
-You should always use the minimum number of connections necessary to handle all the subscriptions that will be made.
-
-For example, if you know that your application will subscribe to 75 public channels, 75 / 25 = 3 connections will be enough to handle all the subscriptions.
-
-The default number of connections is 5; therefore, if the `connections` argument is not given, the client will be able to handle a maximum of 25 * 5 = 125 subscriptions.
-
-Keep in mind that using a large number of connections could slow down the client performance.
-
-The use of more than 20 connections is not recommended.
 
 # Examples
 
