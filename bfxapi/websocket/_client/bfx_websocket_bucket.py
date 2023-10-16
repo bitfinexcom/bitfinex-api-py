@@ -44,6 +44,11 @@ class BfxWebSocketBucket(Connection):
         return self.count == \
             BfxWebSocketBucket.__MAXIMUM_SUBSCRIPTIONS_AMOUNT
 
+    @property
+    def ids(self) -> List[str]:
+        return [ pending["subId"] for pending in self.__pendings ] + \
+            [ subscription["sub_id"] for subscription in self.__subscriptions.values() ]
+
     async def start(self) -> None:
         async with websockets.client.connect(self._host) as websocket:
             self._websocket = websocket
@@ -59,11 +64,6 @@ class BfxWebSocketBucket(Connection):
                 if isinstance(message, dict):
                     if message["event"] == "subscribed":
                         self.__on_subscribed(message)
-                    elif message["event"] == "unsubscribed":
-                        if message["status"] == "OK":
-                            chan_id = cast(int, message["chan_id"])
-
-                            del self.__subscriptions[chan_id]
 
                 if isinstance(message, list):
                     if (chan_id := cast(int, message[0])) and \
@@ -117,11 +117,13 @@ class BfxWebSocketBucket(Connection):
 
     @Connection.require_websocket_connection
     async def unsubscribe(self, sub_id: str) -> None:
-        for chan_id, subscription in self.__subscriptions.items():
+        for chan_id, subscription in list(self.__subscriptions.items()):
             if subscription["sub_id"] == sub_id:
                 unsubscription = {
                     "event": "unsubscribe",
                         "chanId": chan_id }
+
+                del self.__subscriptions[chan_id]
 
                 await self._websocket.send(message = \
                     json.dumps(unsubscription))

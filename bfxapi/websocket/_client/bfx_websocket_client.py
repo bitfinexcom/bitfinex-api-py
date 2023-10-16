@@ -30,7 +30,8 @@ from bfxapi.websocket.exceptions import \
     ReconnectionTimeoutError, \
     VersionMismatchError, \
     UnknownChannelError, \
-    UnknownSubscriptionError
+    UnknownSubscriptionError, \
+    SubIdError
 
 from .bfx_websocket_bucket import BfxWebSocketBucket
 
@@ -266,6 +267,11 @@ class BfxWebSocketClient(Connection):
                 "ticker, trades, book, candles and status.")
 
         for bucket in self.__buckets:
+            if sub_id in bucket.ids:
+                raise SubIdError("sub_id must be " + \
+                    "unique for all subscriptions.")
+
+        for bucket in self.__buckets:
             if not bucket.is_full:
                 return await bucket.subscribe( \
                     channel, sub_id, **kwargs)
@@ -277,8 +283,15 @@ class BfxWebSocketClient(Connection):
 
     @Connection.require_websocket_connection
     async def unsubscribe(self, sub_id: str) -> None:
+        # pylint: disable-next=consider-using-dict-items
         for bucket in self.__buckets:
             if bucket.has(sub_id):
+                if bucket.count == 1:
+                    del self.__buckets[bucket]
+
+                    return await bucket.close( \
+                        code=1001, reason="Going Away")
+
                 return await bucket.unsubscribe(sub_id)
 
         raise UnknownSubscriptionError("Unable to find " + \

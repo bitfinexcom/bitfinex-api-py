@@ -40,3 +40,8 @@ class VersionMismatchError(BfxBaseException):
     """
     This error indicates a mismatch between the client version and the server WSS version.
     """
+
+class SubIdError(BfxBaseException):
+    """
+    Thrown when a user attempts to open more than one subscription using the same sub_id.
+    """
