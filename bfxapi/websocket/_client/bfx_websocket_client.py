@@ -1,17 +1,16 @@
 from typing import \
     TypedDict, List, Dict, \
-    Optional, Any, no_type_check
+    Optional, Any
 
 from logging import Logger
-
 from datetime import datetime
 from socket import gaierror
+
 from asyncio import Task
 
 import \
     traceback, json, asyncio, \
-    hmac, hashlib, random, \
-    websockets
+    random, websockets
 
 import websockets.client
 
@@ -214,8 +213,8 @@ class BfxWebSocketClient(Connection):
                 self.__event_emitter.emit("open")
 
             if self.__credentials:
-                authentication = BfxWebSocketClient. \
-                    __build_authentication_message(**self.__credentials)
+                authentication = Connection. \
+                    _get_authentication_message(**self.__credentials)
 
                 await self._websocket.send(authentication)
 
@@ -235,7 +234,7 @@ class BfxWebSocketClient(Connection):
                         raise ConnectionClosedError(rcvd=rcvd, sent=None)
                     elif message["event"] == "auth":
                         if message["status"] != "OK":
-                            raise InvalidCredentialError("Cannot authenticate " + \
+                            raise InvalidCredentialError("Can't authenticate " + \
                                 "with given API-KEY and API-SECRET.")
 
                         self.__event_emitter.emit("authenticated", message)
@@ -257,7 +256,7 @@ class BfxWebSocketClient(Connection):
 
         return bucket
 
-    @Connection.require_websocket_connection
+    @Connection._require_websocket_connection
     async def subscribe(self,
                         channel: str,
                         sub_id: Optional[str] = None,
@@ -281,7 +280,7 @@ class BfxWebSocketClient(Connection):
         return await bucket.subscribe( \
             channel, sub_id, **kwargs)
 
-    @Connection.require_websocket_connection
+    @Connection._require_websocket_connection
     async def unsubscribe(self, sub_id: str) -> None:
         # pylint: disable-next=consider-using-dict-items
         for bucket in self.__buckets:
@@ -297,7 +296,7 @@ class BfxWebSocketClient(Connection):
         raise UnknownSubscriptionError("Unable to find " + \
             f"a subscription with sub_id <{sub_id}>.")
 
-    @Connection.require_websocket_connection
+    @Connection._require_websocket_connection
     async def resubscribe(self, sub_id: str) -> None:
         for bucket in self.__buckets:
             if bucket.has(sub_id):
@@ -306,7 +305,7 @@ class BfxWebSocketClient(Connection):
         raise UnknownSubscriptionError("Unable to find " + \
             f"a subscription with sub_id <{sub_id}>.")
 
-    @Connection.require_websocket_connection
+    @Connection._require_websocket_connection
     async def close(self, code: int = 1000, reason: str = str()) -> None:
         for bucket in self.__buckets:
             await bucket.close(code=code, reason=reason)
@@ -315,7 +314,7 @@ class BfxWebSocketClient(Connection):
             await self._websocket.close( \
                 code=code, reason=reason)
 
-    @Connection.require_websocket_authentication
+    @Connection._require_websocket_authentication
     async def notify(self,
                      info: Any,
                      message_id: Optional[int] = None,
@@ -324,30 +323,10 @@ class BfxWebSocketClient(Connection):
             json.dumps([ 0, "n", message_id,
                 { "type": "ucm-test", "info": info, **kwargs } ]))
 
-    @Connection.require_websocket_authentication
+    @Connection._require_websocket_authentication
     async def __handle_websocket_input(self, event: str, data: Any) -> None:
         await self._websocket.send(json.dumps( \
             [ 0, event, None, data], cls=JSONEncoder))
 
-    @no_type_check
     def on(self, event, f = None):
         return self.__event_emitter.on(event, f=f)
-
-    @staticmethod
-    def __build_authentication_message(api_key: str,
-                                       api_secret: str,
-                                       filters: Optional[List[str]] = None) -> str:
-        message: Dict[str, Any] = \
-            { "event": "auth", "filter": filters, "apiKey": api_key }
-
-        message["authNonce"] = round(datetime.now().timestamp() * 1_000_000)
-
-        message["authPayload"] = f"AUTH{message['authNonce']}"
-
-        message["authSig"] = hmac.new(
-            key=api_secret.encode("utf8"),
-            msg=message["authPayload"].encode("utf8"),
-            digestmod=hashlib.sha384
-        ).hexdigest()
-
-        return json.dumps(message)

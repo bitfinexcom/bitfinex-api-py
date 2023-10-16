@@ -100,7 +100,7 @@ class BfxWebSocketBucket(Connection):
         await self._websocket.send(json.dumps( \
             { "event": "conf", "flags": sum(flags) }))
 
-    @Connection.require_websocket_connection
+    @Connection._require_websocket_connection
     async def subscribe(self,
                         channel: str,
                         sub_id: Optional[str] = None,
@@ -115,7 +115,7 @@ class BfxWebSocketBucket(Connection):
         await self._websocket.send(message = \
             json.dumps(subscription))
 
-    @Connection.require_websocket_connection
+    @Connection._require_websocket_connection
     async def unsubscribe(self, sub_id: str) -> None:
         for chan_id, subscription in list(self.__subscriptions.items()):
             if subscription["sub_id"] == sub_id:
@@ -128,7 +128,7 @@ class BfxWebSocketBucket(Connection):
                 await self._websocket.send(message = \
                     json.dumps(unsubscription))
 
-    @Connection.require_websocket_connection
+    @Connection._require_websocket_connection
     async def resubscribe(self, sub_id: str) -> None:
         for subscription in self.__subscriptions.values():
             if subscription["sub_id"] == sub_id:
@@ -136,7 +136,7 @@ class BfxWebSocketBucket(Connection):
 
                 await self.subscribe(**subscription)
 
-    @Connection.require_websocket_connection
+    @Connection._require_websocket_connection
     async def close(self, code: int = 1000, reason: str = str()) -> None:
         await self._websocket.close(code, reason)
 

@@ -1,17 +1,23 @@
 from typing import \
-    TYPE_CHECKING, TypeVar, Callable, \
-    Awaitable, Optional, Any, \
-    cast
+    TypeVar, Callable, Awaitable, \
+    List, Dict, Optional, \
+    Any, cast
 
-from abc import ABC, abstractmethod
+# pylint: disable-next=wrong-import-order
+from typing_extensions import \
+    ParamSpec, Concatenate
 
-from typing_extensions import ParamSpec, Concatenate
+from abc import \
+    ABC, abstractmethod
+
+from datetime import datetime
+
+import hmac, hashlib, json
+
+from websockets.client import WebSocketClientProtocol
 
 from bfxapi.websocket.exceptions import \
     ConnectionNotOpen, ActionRequiresAuthentication
-
-if TYPE_CHECKING:
-    from websockets.client import WebSocketClientProtocol
 
 _S = TypeVar("_S", bound="Connection")
 
@@ -27,7 +33,7 @@ class Connection(ABC):
 
         self._authentication: bool = False
 
-        self.__protocol: Optional["WebSocketClientProtocol"] = None
+        self.__protocol: Optional[WebSocketClientProtocol] = None
 
     @property
     def open(self) -> bool:
@@ -39,11 +45,11 @@ class Connection(ABC):
         return self._authentication
 
     @property
-    def _websocket(self) -> "WebSocketClientProtocol":
-        return cast("WebSocketClientProtocol", self.__protocol)
+    def _websocket(self) -> WebSocketClientProtocol:
+        return cast(WebSocketClientProtocol, self.__protocol)
 
     @_websocket.setter
-    def _websocket(self, protocol: "WebSocketClientProtocol") -> None:
+    def _websocket(self, protocol: WebSocketClientProtocol) -> None:
         self.__protocol = protocol
 
     @abstractmethod
@@ -51,9 +57,9 @@ class Connection(ABC):
         ...
 
     @staticmethod
-    def require_websocket_connection(
+    def _require_websocket_connection(
         function: Callable[Concatenate[_S, _P], Awaitable[_R]]
-    ) -> Callable[Concatenate[_S, _P], Awaitable["_R"]]:
+    ) -> Callable[Concatenate[_S, _P], Awaitable[_R]]:
         async def wrapper(self: _S, *args: Any, **kwargs: Any) -> _R:
             if self.open:
                 return await function(self, *args, **kwargs)
@@ -63,7 +69,7 @@ class Connection(ABC):
         return wrapper
 
     @staticmethod
-    def require_websocket_authentication(
+    def _require_websocket_authentication(
         function: Callable[Concatenate[_S, _P], Awaitable[_R]]
     ) -> Callable[Concatenate[_S, _P], Awaitable[_R]]:
         async def wrapper(self: _S, *args: Any, **kwargs: Any) -> _R:
@@ -71,8 +77,31 @@ class Connection(ABC):
                 raise ActionRequiresAuthentication("To perform this action you need to " \
                     "authenticate using your API_KEY and API_SECRET.")
 
-            internal = Connection.require_websocket_connection(function)
+            internal = Connection._require_websocket_connection(function)
 
             return await internal(self, *args, **kwargs)
 
         return wrapper
+
+    @staticmethod
+    def _get_authentication_message(
+        api_key: str,
+        api_secret: str,
+        filters: Optional[List[str]] = None
+    ) -> str:
+        message: Dict[str, Any] = \
+            { "event": "auth", "filter": filters, "apiKey": api_key }
+
+        message["authNonce"] = round(datetime.now().timestamp() * 1_000_000)
+
+        message["authPayload"] = f"AUTH{message['authNonce']}"
+
+        auth_sig = hmac.new(
+            key=api_secret.encode("utf8"),
+            msg=message["authPayload"].encode("utf8"),
+            digestmod=hashlib.sha384
+        )
+
+        message["authSig"] = auth_sig.hexdigest()
+
+        return json.dumps(message)

@@ -1,15 +1,14 @@
-from typing import TYPE_CHECKING, \
+from typing import \
     Dict, Tuple, Any
+
+from pyee.base import EventEmitter
 
 from bfxapi.types import serializers
 
 from bfxapi.types.serializers import _Notification
 
-if TYPE_CHECKING:
-    from bfxapi.types.dataclasses import \
-        Order, FundingOffer
-
-    from pyee.base import EventEmitter
+from bfxapi.types.dataclasses import \
+    Order, FundingOffer
 
 class AuthEventsHandler:
     __ABBREVIATIONS = {
@@ -23,24 +22,24 @@ class AuthEventsHandler:
         "flc": "funding_loan_close", "ws": "wallet_snapshot", "wu": "wallet_update"
     }
 
-    def __init__(self, event_emitter: "EventEmitter") -> None:
-        self.__event_emitter = event_emitter
+    __SERIALIZERS: Dict[Tuple[str, ...], serializers._Serializer] = {
+        ("os", "on", "ou", "oc"): serializers.Order,
+        ("ps", "pn", "pu", "pc"): serializers.Position,
+        ("te", "tu"): serializers.Trade,
+        ("fos", "fon", "fou", "foc"): serializers.FundingOffer,
+        ("fcs", "fcn", "fcu", "fcc"): serializers.FundingCredit,
+        ("fls", "fln", "flu", "flc"): serializers.FundingLoan,
+        ("ws", "wu"): serializers.Wallet
+    }
 
-        self.__serializers: Dict[Tuple[str, ...], serializers._Serializer] = {
-            ("os", "on", "ou", "oc",): serializers.Order,
-            ("ps", "pn", "pu", "pc",): serializers.Position,
-            ("te", "tu"): serializers.Trade,
-            ("fos", "fon", "fou", "foc",): serializers.FundingOffer,
-            ("fcs", "fcn", "fcu", "fcc",): serializers.FundingCredit,
-            ("fls", "fln", "flu", "flc",): serializers.FundingLoan,
-            ("ws", "wu",): serializers.Wallet
-        }
+    def __init__(self, event_emitter: EventEmitter) -> None:
+        self.__event_emitter = event_emitter
 
     def handle(self, abbrevation: str, stream: Any) -> None:
         if abbrevation == "n":
             return self.__notification(stream)
 
-        for abbrevations, serializer in self.__serializers.items():
+        for abbrevations, serializer in AuthEventsHandler.__SERIALIZERS.items():
             if abbrevation in abbrevations:
                 event = AuthEventsHandler.__ABBREVIATIONS[abbrevation]
 
@@ -57,12 +56,12 @@ class AuthEventsHandler:
 
         serializer: _Notification = _Notification[None](serializer=None)
 
-        if stream[1] == "on-req" or stream[1] == "ou-req" or stream[1] == "oc-req":
+        if stream[1] in ("on-req", "ou-req", "oc-req"):
             event, serializer = f"{stream[1]}-notification", \
-                _Notification["Order"](serializer=serializers.Order)
+                _Notification[Order](serializer=serializers.Order)
 
-        if stream[1] == "fon-req" or stream[1] == "foc-req":
+        if stream[1] in ("fon-req", "foc-req"):
             event, serializer = f"{stream[1]}-notification", \
-                _Notification["FundingOffer"](serializer=serializers.FundingOffer)
+                _Notification[FundingOffer](serializer=serializers.FundingOffer)
 
         self.__event_emitter.emit(event, serializer.parse(*stream))
