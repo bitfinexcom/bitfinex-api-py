@@ -6,7 +6,9 @@ from http import HTTPStatus
 
 import time, hmac, hashlib, json, requests
 
-from ..exceptions import ResourceNotFound, RequestParametersError, InvalidCredentialError, UnknownGenericError
+from ..exceptions import NotFoundError, RequestParametersError, UnknownGenericError
+
+from ...exceptions import InvalidCredentialError
 from ..._utils.json_encoder import JSONEncoder
 from ..._utils.json_decoder import JSONDecoder
 
@@ -55,7 +57,7 @@ class Middleware:
         )
 
         if response.status_code == HTTPStatus.NOT_FOUND:
-            raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
+            raise NotFoundError(f"No resources found at endpoint <{endpoint}>.")
 
         data = response.json(cls=JSONDecoder)
 
@@ -88,7 +90,7 @@ class Middleware:
         )
 
         if response.status_code == HTTPStatus.NOT_FOUND:
-            raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
+            raise NotFoundError(f"No resources found at endpoint <{endpoint}>.")
 
         data = response.json(cls=JSONDecoder)
 

@@ -1,47 +1,25 @@
-# pylint: disable-next=wildcard-import,unused-wildcard-import
-from bfxapi._exceptions import *
+from bfxapi.exceptions import BfxBaseException
 
 class ConnectionNotOpen(BfxBaseException):
-    """
-    This error indicates an attempt to communicate via websocket before starting the connection with the servers.
-    """
-
-class FullBucketError(BfxBaseException):
-    """
-    Thrown when a user attempts a subscription but all buckets are full.
-    """
-
-class ReconnectionTimeoutError(BfxBaseException):
-    """
-    This error indicates that the connection has been offline for too long without being able to reconnect.
-    """
+    pass
 
 class ActionRequiresAuthentication(BfxBaseException):
-    """
-    This error indicates an attempt to access a protected resource without logging in first.
-    """
+    pass
 
-class UnknownChannelError(BfxBaseException):
-    """
-    Thrown when a user attempts to subscribe to an unknown channel.
-    """
-
-class UnknownSubscriptionError(BfxBaseException):
-    """
-    Thrown when a user attempts to reference an unknown subscription.
-    """
-
-class UnknownEventError(BfxBaseException):
-    """
-    Thrown when a user attempts to add a listener for an unknown event.
-    """
+class ReconnectionTimeoutError(BfxBaseException):
+    pass
 
 class VersionMismatchError(BfxBaseException):
-    """
-    This error indicates a mismatch between the client version and the server WSS version.
-    """
+    pass
 
 class SubIdError(BfxBaseException):
-    """
-    Thrown when a user attempts to open more than one subscription using the same sub_id.
-    """
+    pass
+
+class UnknownChannelError(BfxBaseException):
+    pass
+
+class UnknownEventError(BfxBaseException):
+    pass
+
+class UnknownSubscriptionError(BfxBaseException):
+    pass

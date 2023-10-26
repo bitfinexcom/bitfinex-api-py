@@ -24,8 +24,10 @@ from bfxapi.websocket._connection import Connection
 from bfxapi.websocket._handlers import AuthEventsHandler
 from bfxapi.websocket._event_emitter import BfxEventEmitter
 
+from bfxapi.exceptions import \
+    InvalidCredentialError
+
 from bfxapi.websocket.exceptions import \
-    InvalidCredentialError, \
     ReconnectionTimeoutError, \
     VersionMismatchError, \
     UnknownChannelError, \

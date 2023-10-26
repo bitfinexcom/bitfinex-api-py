@@ -3,10 +3,9 @@ from typing import \
 
 from bfxapi._utils.logging import ColorLogger
 
-from bfxapi._exceptions import IncompleteCredentialError
-
 from bfxapi.rest import BfxRestInterface
 from bfxapi.websocket import BfxWebSocketClient
+from bfxapi.exceptions import IncompleteCredentialError
 
 if TYPE_CHECKING:
     from bfxapi.websocket._client.bfx_websocket_client import \
