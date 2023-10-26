@@ -34,8 +34,8 @@ class _Type:
 
 class _Serializer(Generic[T]):
     def __init__(self, name: str, klass: Type[_Type], labels: List[str],
-                 *, flat: bool = False, ignore: List[str] = [ "_PLACEHOLDER" ]):
-        self.name, self.klass, self.__labels, self.__flat, self.__ignore = name, klass, labels, flat, ignore
+                 *, flat: bool = False):
+        self.name, self.klass, self.__labels, self.__flat = name, klass, labels, flat
 
     def _serialize(self, *args: Any) -> Iterable[Tuple[str, Any]]:
         if self.__flat:
@@ -46,14 +46,14 @@ class _Serializer(Generic[T]):
                 "arguments should contain the same amount of elements.")
 
         for index, label in enumerate(self.__labels):
-            if label not in self.__ignore:
+            if label != "_PLACEHOLDER":
                 yield label, args[index]
 
     def parse(self, *values: Any) -> T:
         return cast(T, self.klass(**dict(self._serialize(*values))))
 
     def get_labels(self) -> List[str]:
-        return [ label for label in self.__labels if label not in self.__ignore ]
+        return [ label for label in self.__labels if label != "_PLACEHOLDER" ]
 
     @classmethod
     def __flatten(cls, array: List[Any]) -> List[Any]:
@@ -68,8 +68,8 @@ class _Serializer(Generic[T]):
 class _RecursiveSerializer(_Serializer, Generic[T]):
     def __init__(self, name: str, klass: Type[_Type], labels: List[str],
                  *, serializers: Dict[str, _Serializer[Any]],
-                     flat: bool = False, ignore: List[str] = [ "_PLACEHOLDER" ]):
-        super().__init__(name, klass, labels, flat=flat, ignore=ignore)
+                     flat: bool = False):
+        super().__init__(name, klass, labels, flat=flat)
 
         self.serializers = serializers
 
@@ -83,14 +83,14 @@ class _RecursiveSerializer(_Serializer, Generic[T]):
         return cast(T, self.klass(**serialization))
 
 def generate_labeler_serializer(name: str, klass: Type[T], labels: List[str],
-                                *, flat: bool = False, ignore: List[str] = [ "_PLACEHOLDER" ]
+                                *, flat: bool = False
                                ) -> _Serializer[T]:
     return _Serializer[T](name, klass, labels, \
-        flat=flat, ignore=ignore)
+        flat=flat)
 
 def generate_recursive_serializer(name: str, klass: Type[T], labels: List[str],
                                   *, serializers: Dict[str, _Serializer[Any]],
-                                      flat: bool = False, ignore: List[str] = [ "_PLACEHOLDER" ]
+                                      flat: bool = False
                                  ) -> _RecursiveSerializer[T]:
     return _RecursiveSerializer[T](name, klass, labels, \
-        serializers=serializers, flat=flat, ignore=ignore)
+        serializers=serializers, flat=flat)

@@ -148,6 +148,7 @@ class RestMerchantEndpoints(Middleware):
     def get_merchant_settings(self, key: MerchantSettingsKey) -> Any:
         return self._post("auth/r/ext/pay/settings/get", body={ "key": key })
 
+    #pylint: disable-next=dangerous-default-value
     def list_merchant_settings(self, keys: List[MerchantSettingsKey] = []) -> Dict[MerchantSettingsKey, Any]:
         return self._post("auth/r/ext/pay/settings/list", body={ "keys": keys })
 

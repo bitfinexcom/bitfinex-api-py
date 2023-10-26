@@ -22,6 +22,7 @@ from ...types import serializers
 
 from ...types.serializers import _Notification
 
+#pylint: disable-next=too-many-public-methods
 class RestAuthEndpoints(Middleware):
     def get_user_info(self) -> UserInfo:
         return serializers.UserInfo \

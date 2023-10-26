@@ -3,9 +3,9 @@ from typing import \
     Optional, Any
 
 from logging import Logger
+
 from datetime import datetime
 from socket import gaierror
-
 from asyncio import Task
 
 import \
@@ -68,6 +68,7 @@ class _Delay:
     def reset(self) -> None:
         self.__backoff_delay = _Delay.__BACKOFF_MIN
 
+#pylint: disable-next=too-many-instance-attributes
 class BfxWebSocketClient(Connection):
     def __init__(self,
                  host: str,
@@ -101,6 +102,7 @@ class BfxWebSocketClient(Connection):
             stack_trace = traceback.format_exception( \
                 type(exception), exception, exception.__traceback__)
 
+            #pylint: disable-next=logging-not-lazy
             self.__logger.critical(header + "\n" + \
                 str().join(stack_trace)[:-1])
 
@@ -158,12 +160,11 @@ class BfxWebSocketClient(Connection):
 
                 if isinstance(error, ConnectionClosedError) and error.code in (1006, 1012):
                     if error.code == 1006:
-                        self.__logger.error("Connection lost: no close frame " \
-                            "received or sent (1006). Trying to reconnect...")
+                        self.__logger.error("Connection lost: trying to reconnect...")
 
                     if error.code == 1012:
-                        self.__logger.info("WSS server is about to restart, clients need " \
-                            "to reconnect (server sent 20051). Reconnection attempt in progress...")
+                        self.__logger.warning("WSS server is restarting: all " \
+                            "clients need to reconnect (server sent 20051).")
 
                     if self.__timeout:
                         asyncio.get_event_loop().call_later(
@@ -177,10 +178,14 @@ class BfxWebSocketClient(Connection):
                     _delay.reset()
                 elif ((isinstance(error, InvalidStatusCode) and error.status_code == 408) or \
                         isinstance(error, gaierror)) and self.__reconnection:
-                    self.__logger.warning(
-                        f"_Reconnection attempt was unsuccessful (no.{self.__reconnection['attempts']}). " \
-                            f"Next reconnection attempt in {int(_delay.peek())}.0 seconds. (at the moment " \
-                                f"the client has been offline for {datetime.now() - self.__reconnection['timestamp']})")
+                    #pylint: disable-next=logging-fstring-interpolation
+                    self.__logger.warning("Reconnection attempt unsuccessful (no." \
+                        f"{self.__reconnection['attempts']}): next attempt in " \
+                            f"~{int(_delay.peek())}.0s.")
+
+                    #pylint: disable-next=logging-fstring-interpolation
+                    self.__logger.info(f"The client has been offline for " \
+                        f"{datetime.now() - self.__reconnection['timestamp']}.")
 
                     self.__reconnection["attempts"] += 1
                 else:
@@ -196,9 +201,10 @@ class BfxWebSocketClient(Connection):
     async def __connect(self) -> None:
         async with websockets.client.connect(self._host) as websocket:
             if self.__reconnection:
-                self.__logger.info(f"_Reconnection attempt successful (no.{self.__reconnection['attempts']}): The " \
-                    f"client has been offline for a total of {datetime.now() - self.__reconnection['timestamp']} " \
-                        f"(connection lost on: {self.__reconnection['timestamp']:%d-%m-%Y at %H:%M:%S}).")
+                #pylint: disable-next=logging-fstring-interpolation
+                self.__logger.warning("Reconnection attempt successful (no." \
+                    f"{self.__reconnection['attempts']}): recovering " \
+                        "connection state...")
 
                 self.__reconnection = None
 

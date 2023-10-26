@@ -17,6 +17,7 @@ from ...types import \
 
 from ...types import serializers
 
+#pylint: disable-next=too-many-public-methods
 class RestPublicEndpoints(Middleware):
     def conf(self, config: Config) -> Any:
         return self._get(f"conf/{config}")[0]

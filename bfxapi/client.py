@@ -1,5 +1,5 @@
 from typing import \
-    TYPE_CHECKING, List, Literal, Optional
+    TYPE_CHECKING, List, Optional
 
 from bfxapi._utils.logging import ColorLogger
 
@@ -23,8 +23,7 @@ class Client:
             wss_host: str = WSS_HOST,
             filters: Optional[List[str]] = None,
             timeout: Optional[int] = 60 * 15,
-            log_filename: Optional[str] = None,
-            log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+            log_filename: Optional[str] = None
     ) -> None:
         credentials: Optional["_Credentials"] = None
 
@@ -40,7 +39,7 @@ class Client:
 
         self.rest = BfxRestInterface(rest_host, api_key, api_secret)
 
-        logger = ColorLogger("bfxapi", level=log_level)
+        logger = ColorLogger("bfxapi", level="INFO")
 
         if log_filename:
             logger.register(filename=log_filename)

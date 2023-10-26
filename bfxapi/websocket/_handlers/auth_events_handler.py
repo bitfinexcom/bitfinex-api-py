@@ -37,7 +37,7 @@ class AuthEventsHandler:
 
     def handle(self, abbrevation: str, stream: Any) -> None:
         if abbrevation == "n":
-            return self.__notification(stream)
+            self.__notification(stream)
 
         for abbrevations, serializer in AuthEventsHandler.__SERIALIZERS.items():
             if abbrevation in abbrevations:
@@ -45,11 +45,10 @@ class AuthEventsHandler:
 
                 if all(isinstance(sub_stream, list) for sub_stream in stream):
                     data = [ serializer.parse(*sub_stream) for sub_stream in stream ]
-                else: data = serializer.parse(*stream)
+                else:
+                    data = serializer.parse(*stream)
 
                 self.__event_emitter.emit(event, data)
-
-                break
 
     def __notification(self, stream: Any) -> None:
         event: str = "notification"

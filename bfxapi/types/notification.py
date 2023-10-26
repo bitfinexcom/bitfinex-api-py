@@ -18,7 +18,7 @@ class _Notification(_Serializer, Generic[T]):
     __LABELS = [ "mts", "type", "message_id", "_PLACEHOLDER", "data", "code", "status", "text" ]
 
     def __init__(self, serializer: Optional[_Serializer] = None, is_iterable: bool = False):
-        super().__init__("Notification", Notification, _Notification.__LABELS, ignore = [ "_PLACEHOLDER" ])
+        super().__init__("Notification", Notification, _Notification.__LABELS)
 
         self.serializer, self.is_iterable = serializer, is_iterable
 
