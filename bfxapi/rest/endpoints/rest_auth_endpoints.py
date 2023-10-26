@@ -121,12 +121,12 @@ class RestAuthEndpoints(Middleware):
 
     def cancel_order_multi(self,
                            *,
-                           ids: Optional[List[int]] = None,
-                           cids: Optional[List[Tuple[int, str]]] = None,
-                           gids: Optional[List[int]] = None,
+                           id: Optional[List[int]] = None,
+                           cid: Optional[List[Tuple[int, str]]] = None,
+                           gid: Optional[List[int]] = None,
                            all: bool = False) -> Notification[List[Order]]:
         body = {
-            "ids": ids, "cids": cids, "gids": gids, 
+            "id": id, "cid": cid, "gid": gid, 
             "all": all
         }
 

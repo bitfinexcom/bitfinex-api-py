@@ -64,12 +64,12 @@ class BfxWebSocketInputs:
 
     async def cancel_order_multi(self,
                                  *,
-                                 ids: Optional[List[int]] = None,
-                                 cids: Optional[List[Tuple[int, str]]] = None,
-                                 gids: Optional[List[int]] = None,
+                                 id: Optional[List[int]] = None,
+                                 cid: Optional[List[Tuple[int, str]]] = None,
+                                 gid: Optional[List[int]] = None,
                                  all: Optional[bool] = None) -> None:
         await self.__handle_websocket_input("oc_multi", {
-            "ids": ids, "cids": cids, "gids": gids,
+            "id": id, "cid": cid, "gid": gid,
             "all": all
         })
 
