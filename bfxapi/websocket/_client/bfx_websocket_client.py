@@ -335,4 +335,4 @@ class BfxWebSocketClient(Connection):
             [ 0, event, None, data], cls=JSONEncoder))
 
     def on(self, event, f = None):
-        return self.__event_emitter.on(event, f=f)
+        return self.__event_emitter.on(event, f)
