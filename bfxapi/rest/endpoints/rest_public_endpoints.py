@@ -270,9 +270,9 @@ class RestPublicEndpoints(Middleware):
 
     def get_trading_market_average_price(self,
                                          symbol: str,
-                                         amount: Union[Decimal, float, str],
+                                         amount: Union[str, float, Decimal],
                                          *,
-                                         price_limit: Optional[Union[Decimal, float, str]] = None
+                                         price_limit: Optional[Union[str, float, Decimal]] = None
                                         ) -> TradingMarketAveragePrice:
         return serializers.TradingMarketAveragePrice.parse(*self._post("calc/trade/avg", body={
             "symbol": symbol, "amount": amount, "price_limit": price_limit
@@ -280,10 +280,10 @@ class RestPublicEndpoints(Middleware):
 
     def get_funding_market_average_price(self,
                                          symbol: str,
-                                         amount: Union[Decimal, float, str],
+                                         amount: Union[str, float, Decimal],
                                          period: int,
                                          *,
-                                         rate_limit: Optional[Union[Decimal, float, str]] = None
+                                         rate_limit: Optional[Union[str, float, Decimal]] = None
                                         ) -> FundingMarketAveragePrice:
         return serializers.FundingMarketAveragePrice.parse(*self._post("calc/trade/avg", body={
             "symbol": symbol, "amount": amount, "period": period, "rate_limit": rate_limit

@@ -29,7 +29,7 @@ class BfxWebSocketInputs:
             "type": type, "symbol": symbol, "amount": amount,
             "price": price, "lev": lev, "price_trailing": price_trailing,
             "price_aux_limit": price_aux_limit, "price_oco_stop": price_oco_stop, "gid": gid,
-            "cid": cid, "flags": flags, "tif": tif,
+            "cid": cid, "flags": flags, "tif": tif
         })
 
     async def update_order(self,

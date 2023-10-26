@@ -30,7 +30,7 @@ _CustomerInfo = TypedDict("_CustomerInfo", {
 class RestMerchantEndpoints(Middleware):
     #pylint: disable-next=too-many-arguments
     def submit_invoice(self,
-                       amount: Union[Decimal, float, str],
+                       amount: Union[str, float, Decimal],
                        currency: str,
                        order_id: str,
                        customer_info: _CustomerInfo,

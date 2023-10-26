@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union, Literal, Optional, Any
+from typing import Dict, List, Tuple, Union, Literal, Optional
 
 from decimal import Decimal
 
@@ -63,24 +63,22 @@ class RestAuthEndpoints(Middleware):
     def submit_order(self,
                      type: str,
                      symbol: str,
-                     amount: Union[Decimal, float, str],
+                     amount: Union[str, float, Decimal],
+                     price: Union[str, float, Decimal],
                      *,
-                     price: Optional[Union[Decimal, float, str]] = None,
                      lev: Optional[int] = None,
-                     price_trailing: Optional[Union[Decimal, float, str]] = None,
-                     price_aux_limit: Optional[Union[Decimal, float, str]] = None,
-                     price_oco_stop: Optional[Union[Decimal, float, str]] = None,
+                     price_trailing: Optional[Union[str, float, Decimal]] = None,
+                     price_aux_limit: Optional[Union[str, float, Decimal]] = None,
+                     price_oco_stop: Optional[Union[str, float, Decimal]] = None,
                      gid: Optional[int] = None,
                      cid: Optional[int] = None,
-                     flags: Optional[int] = 0,
-                     tif: Optional[str] = None,
-                     meta: Optional[Dict[str, Any]] = None) -> Notification[Order]:
+                     flags: Optional[int] = None,
+                     tif: Optional[str] = None) -> Notification[Order]:
         body = {
             "type": type, "symbol": symbol, "amount": amount,
             "price": price, "lev": lev, "price_trailing": price_trailing,
             "price_aux_limit": price_aux_limit, "price_oco_stop": price_oco_stop, "gid": gid,
-            "cid": cid, "flags": flags, "tif": tif,
-            "meta": meta
+            "cid": cid, "flags": flags, "tif": tif
         }
 
         return _Notification[Order](serializers.Order) \
@@ -89,16 +87,16 @@ class RestAuthEndpoints(Middleware):
     def update_order(self,
                      id: int,
                      *,
-                     amount: Optional[Union[Decimal, float, str]] = None,
-                     price: Optional[Union[Decimal, float, str]] = None,
+                     amount: Optional[Union[str, float, Decimal]] = None,
+                     price: Optional[Union[str, float, Decimal]] = None,
                      cid: Optional[int] = None,
                      cid_date: Optional[str] = None,
                      gid: Optional[int] = None,
-                     flags: Optional[int] = 0,
+                     flags: Optional[int] = None,
                      lev: Optional[int] = None,
-                     delta: Optional[Union[Decimal, float, str]] = None,
-                     price_aux_limit: Optional[Union[Decimal, float, str]] = None,
-                     price_trailing: Optional[Union[Decimal, float, str]] = None,
+                     delta: Optional[Union[str, float, Decimal]] = None,
+                     price_aux_limit: Optional[Union[str, float, Decimal]] = None,
+                     price_trailing: Optional[Union[str, float, Decimal]] = None,
                      tif: Optional[str] = None) -> Notification[Order]:
         body = {
             "id": id, "amount": amount, "price": price,
@@ -124,7 +122,7 @@ class RestAuthEndpoints(Middleware):
                            id: Optional[List[int]] = None,
                            cid: Optional[List[Tuple[int, str]]] = None,
                            gid: Optional[List[int]] = None,
-                           all: bool = False) -> Notification[List[Order]]:
+                           all: Optional[bool] = None) -> Notification[List[Order]]:
         body = {
             "id": id, "cid": cid, "gid": gid, 
             "all": all
@@ -211,21 +209,21 @@ class RestAuthEndpoints(Middleware):
     def claim_position(self,
                        id: int,
                        *,
-                       amount: Optional[Union[Decimal, float, str]] = None) -> Notification[PositionClaim]:
+                       amount: Optional[Union[str, float, Decimal]] = None) -> Notification[PositionClaim]:
         return _Notification[PositionClaim](serializers.PositionClaim) \
             .parse(*self._post("auth/w/position/claim", \
                 body={ "id": id, "amount": amount }))
 
     def increase_position(self,
                           symbol: str,
-                          amount: Union[Decimal, float, str]) -> Notification[PositionIncrease]:
+                          amount: Union[str, float, Decimal]) -> Notification[PositionIncrease]:
         return _Notification[PositionIncrease](serializers.PositionIncrease) \
             .parse(*self._post("auth/w/position/increase", \
                 body={ "symbol": symbol, "amount": amount }))
 
     def get_increase_position_info(self,
                                    symbol: str,
-                                   amount: Union[Decimal, float, str]) -> PositionIncreaseInfo:
+                                   amount: Union[str, float, Decimal]) -> PositionIncreaseInfo:
         return serializers.PositionIncreaseInfo \
             .parse(*self._post("auth/r/position/increase/info", \
                 body={ "symbol": symbol, "amount": amount }))
@@ -264,7 +262,7 @@ class RestAuthEndpoints(Middleware):
 
     def set_derivative_position_collateral(self,
                                            symbol: str,
-                                           collateral: Union[Decimal, float, str]) -> DerivativePositionCollateral:
+                                           collateral: Union[str, float, Decimal]) -> DerivativePositionCollateral:
         return serializers.DerivativePositionCollateral \
             .parse(*(self._post("auth/w/deriv/collateral/set", \
                 body={ "symbol": symbol, "collateral": collateral })[0]))
@@ -285,11 +283,11 @@ class RestAuthEndpoints(Middleware):
     def submit_funding_offer(self,
                              type: str,
                              symbol: str,
-                             amount: Union[Decimal, float, str],
-                             rate: Union[Decimal, float, str],
+                             amount: Union[str, float, Decimal],
+                             rate: Union[str, float, Decimal],
                              period: int,
                              *,
-                             flags: Optional[int] = 0) -> Notification[FundingOffer]:
+                             flags: Optional[int] = None) -> Notification[FundingOffer]:
         body = {
             "type": type, "symbol": symbol, "amount": amount,
             "rate": rate, "period": period, "flags": flags
@@ -420,7 +418,7 @@ class RestAuthEndpoints(Middleware):
                                  to_wallet: str,
                                  currency: str,
                                  currency_to: str,
-                                 amount: Union[Decimal, float, str]) -> Notification[Transfer]:
+                                 amount: Union[str, float, Decimal]) -> Notification[Transfer]:
         body = {
             "from": from_wallet, "to": to_wallet, "currency": currency, 
             "currency_to": currency_to, "amount": amount
@@ -433,7 +431,7 @@ class RestAuthEndpoints(Middleware):
                                  wallet: str,
                                  method: str,
                                  address: str,
-                                 amount: Union[Decimal, float, str]) -> Notification[Withdrawal]:
+                                 amount: Union[str, float, Decimal]) -> Notification[Withdrawal]:
         body = {
             "wallet": wallet, "method": method, "address": address, 
             "amount": amount
@@ -453,7 +451,7 @@ class RestAuthEndpoints(Middleware):
     def generate_deposit_invoice(self,
                                  wallet: str,
                                  currency: str,
-                                 amount: Union[Decimal, float, str]) -> LightningNetworkInvoice:
+                                 amount: Union[str, float, Decimal]) -> LightningNetworkInvoice:
         return serializers.LightningNetworkInvoice \
             .parse(*self._post("auth/w/deposit/invoice", \
                 body={ "wallet": wallet, "currency": currency, "amount": amount }))
