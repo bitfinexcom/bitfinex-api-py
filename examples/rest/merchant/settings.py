@@ -2,27 +2,28 @@
 
 import os
 
-from bfxapi import Client, REST_HOST
-
-from bfxapi.rest.enums import MerchantSettingsKey
+from bfxapi import Client
 
 bfx = Client(
-    rest_host=REST_HOST,
     api_key=os.getenv("BFX_API_KEY"),
     api_secret=os.getenv("BFX_API_SECRET")
 )
 
-if not bfx.rest.merchant.set_merchant_settings(MerchantSettingsKey.RECOMMEND_STORE, 1):
-    print(f"Cannot set <{MerchantSettingsKey.RECOMMEND_STORE}> to <1>.")
+if not bfx.rest.merchant.set_merchant_settings("bfx_pay_recommend_store", 1):
+    print("Cannot set <bfx_pay_recommend_store> to <1>.")
 
-print(f"The current <{MerchantSettingsKey.PREFERRED_FIAT}> value is:",
-    bfx.rest.merchant.get_merchant_settings(MerchantSettingsKey.PREFERRED_FIAT))
+print(
+    "The current <bfx_pay_preferred_fiat> value is:",
+    bfx.rest.merchant.get_merchant_settings("bfx_pay_preferred_fiat"),
+)
 
-settings = bfx.rest.merchant.list_merchant_settings([
-    MerchantSettingsKey.DUST_BALANCE_UI,
-    MerchantSettingsKey.MERCHANT_CUSTOMER_SUPPORT_URL,
-    MerchantSettingsKey.MERCHANT_UNDERPAID_THRESHOLD
-])
+settings = bfx.rest.merchant.list_merchant_settings(
+    [
+        "bfx_pay_dust_balance_ui",
+        "bfx_pay_merchant_customer_support_url",
+        "bfx_pay_merchant_underpaid_threshold",
+    ]
+)
 
 for key, value in settings.items():
     print(f"<{key}>:", value)

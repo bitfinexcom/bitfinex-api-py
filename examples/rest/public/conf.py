@@ -1,18 +1,14 @@
 # python -c "import examples.rest.public.conf"
 
-from bfxapi import Client, PUB_REST_HOST
+from bfxapi import Client
 
-from bfxapi.rest.enums import Config
+bfx = Client()
 
-bfx = Client(rest_host=PUB_REST_HOST)
+# Prints a map from symbols to their API symbols
+print(bfx.rest.public.conf("pub:map:currency:sym"))
 
-print("Available configs:", [ config.value for config in Config ])
+# Prints all the available exchange trading pairs
+print(bfx.rest.public.conf("pub:list:pair:exchange"))
 
-# Prints a map from symbols to their API symbols (pub:map:currency:sym)
-print (bfx.rest.public.conf(Config.MAP_CURRENCY_SYM))
-
-# Prints all the available exchange trading pairs (pub:list:pair:exchange)
-print(bfx.rest.public.conf(Config.LIST_PAIR_EXCHANGE))
-
-# Prints all the available funding currencies (pub:list:currency)
-print(bfx.rest.public.conf(Config.LIST_CURRENCY))
+# Prints all the available funding currencies
+print(bfx.rest.public.conf("pub:list:currency"))

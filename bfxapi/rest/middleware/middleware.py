@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional, Any
 
-from enum import Enum
+from enum import IntEnum
 
 from http import HTTPStatus
 
@@ -15,7 +15,7 @@ from ..._utils.json_decoder import JSONDecoder
 if TYPE_CHECKING:
     from requests.sessions import _Params
 
-class _Error(Enum):
+class _Error(IntEnum):
     ERR_UNK = 10000
     ERR_GENERIC = 10001
     ERR_PARAMS = 10020
