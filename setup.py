@@ -1,8 +1,10 @@
 from distutils.core import setup
 
-_version = {}
-with open("bfxapi/_version.py", encoding="utf-8") as fp:
-    exec(fp.read(), _version) #pylint: disable=exec-used
+_version = { }
+
+with open("bfxapi/_version.py", encoding="utf-8") as f:
+    #pylint: disable-next=exec-used
+    exec(f.read(), _version)
 
 setup(
     name="bitfinex-api-py",
@@ -25,6 +27,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     keywords="bitfinex,api,trading",
     project_urls={
@@ -32,10 +35,16 @@ setup(
         "Source": "https://github.com/bitfinexcom/bitfinex-api-py",
     },
     packages=[
-        "bfxapi", "bfxapi._utils", "bfxapi.types",
-        "bfxapi.websocket", "bfxapi.websocket._client", "bfxapi.websocket._handlers",
-            "bfxapi.websocket._event_emitter",
-        "bfxapi.rest", "bfxapi.rest.endpoints", "bfxapi.rest.middleware",
+        "bfxapi",
+        "bfxapi._utils",
+        "bfxapi.types",
+        "bfxapi.websocket",
+        "bfxapi.websocket._client",
+        "bfxapi.websocket._handlers",
+        "bfxapi.websocket._event_emitter",
+        "bfxapi.rest",
+        "bfxapi.rest.endpoints",
+        "bfxapi.rest.middleware",
     ],
     install_requires=[
         "pyee~=9.0.4",
