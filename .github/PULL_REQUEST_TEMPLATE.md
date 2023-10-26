@@ -25,8 +25,5 @@ PR fixes the following issue:
 - [ ] I have commented my code, particularly in hard-to-understand areas;
 - [ ] I have made corresponding changes to the documentation;
 - [ ] My changes generate no new warnings;
-- [ ] I have added tests that prove my fix is effective or that my feature works;
-- [ ] New and existing unit tests pass locally with my changes;
 - [ ] Mypy returns no errors or warnings when run on the root package;
 - [ ] Pylint returns a score of 10.00/10.00 when run on the root package;
-- [ ] I have updated the library version and updated the CHANGELOG;

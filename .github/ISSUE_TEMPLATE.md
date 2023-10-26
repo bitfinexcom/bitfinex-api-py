@@ -26,10 +26,5 @@ A possible solution could be...
 
 ### Python version
 <!-- Indicate your python version here -->
-<!-- You can print it using `python3 --version`-->
+<!-- You can print it using `python3 --version` -->
 Python 3.10.6 x64
-
-### Mypy version
-<!-- Indicate your mypy version here -->
-<!-- You can print it using `python3 -m mypy --version`-->
-mypy 0.991 (compiled: yes)
