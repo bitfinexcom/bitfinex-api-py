@@ -445,10 +445,10 @@ class RestAuthEndpoints(Middleware):
     def get_deposit_address(self,
                             wallet: str,
                             method: str,
-                            renew: bool = False) -> Notification[DepositAddress]:
+                            op_renew: bool = False) -> Notification[DepositAddress]:
         return _Notification[DepositAddress](serializers.DepositAddress) \
             .parse(*self._post("auth/w/deposit/address", \
-                body={ "wallet": wallet, "method": method, "renew": renew }))
+                body={ "wallet": wallet, "method": method, "op_renew": op_renew }))
 
     def generate_deposit_invoice(self,
                                  wallet: str,
