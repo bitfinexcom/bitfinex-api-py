@@ -7,11 +7,16 @@ from bfxapi._exceptions import IncompleteCredentialError
 
 from bfxapi.rest import BfxRestInterface
 from bfxapi.websocket import BfxWebSocketClient
-from bfxapi.urls import REST_HOST, WSS_HOST
 
 if TYPE_CHECKING:
     from bfxapi.websocket._client.bfx_websocket_client import \
         _Credentials
+
+REST_HOST = "https://api.bitfinex.com/v2"
+WSS_HOST = "wss://api.bitfinex.com/ws/2"
+
+PUB_REST_HOST = "https://api-pub.bitfinex.com/v2"
+PUB_WSS_HOST = "wss://api-pub.bitfinex.com/ws/2"
 
 class Client:
     def __init__(

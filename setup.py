@@ -1,12 +1,12 @@
 from distutils.core import setup
 
-version = {}
-with open("bfxapi/version.py", encoding="utf-8") as fp:
-    exec(fp.read(), version) #pylint: disable=exec-used
+_version = {}
+with open("bfxapi/_version.py", encoding="utf-8") as fp:
+    exec(fp.read(), _version) #pylint: disable=exec-used
 
 setup(
     name="bitfinex-api-py",
-    version=version["__version__"],
+    version=_version["__version__"],
     description="Official Bitfinex Python API",
     long_description="A Python reference implementation of the Bitfinex API for both REST and websocket interaction",
     long_description_content_type="text/markdown",

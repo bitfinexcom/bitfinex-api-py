@@ -5,10 +5,6 @@ from typing import \
 
 from decimal import Decimal
 
-from bfxapi.enums import \
-    OrderType, \
-    FundingOfferType
-
 _Handler = Callable[[str, Any], Awaitable[None]]
 
 class BfxWebSocketInputs:
@@ -16,7 +12,7 @@ class BfxWebSocketInputs:
         self.__handle_websocket_input = handle_websocket_input
 
     async def submit_order(self,
-                           type: OrderType,
+                           type: str,
                            symbol: str,
                            amount: Union[str, float, Decimal],
                            price: Union[str, float, Decimal],
@@ -79,7 +75,7 @@ class BfxWebSocketInputs:
 
     #pylint: disable-next=too-many-arguments
     async def submit_funding_offer(self,
-                                   type: FundingOfferType,
+                                   type: str,
                                    symbol: str,
                                    amount: Union[str, float, Decimal],
                                    rate: Union[str, float, Decimal],

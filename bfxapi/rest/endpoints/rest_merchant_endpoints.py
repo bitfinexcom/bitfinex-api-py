@@ -7,8 +7,6 @@ from decimal import Decimal
 
 from bfxapi.rest.middleware import Middleware
 
-from bfxapi.rest.enums import MerchantSettingsKey
-
 from bfxapi.types import \
     InvoiceSubmission, \
     InvoicePage, \
@@ -140,16 +138,16 @@ class RestMerchantEndpoints(Middleware):
             body={ "baseCcy": base_ccy, "convertCcy": convert_ccy }))
 
     def set_merchant_settings(self,
-                              key: MerchantSettingsKey,
+                              key: str,
                               val: Any) -> bool:
         return bool(self._post("auth/w/ext/pay/settings/set", \
             body={ "key": key, "val": val }))
 
-    def get_merchant_settings(self, key: MerchantSettingsKey) -> Any:
+    def get_merchant_settings(self, key: str) -> Any:
         return self._post("auth/r/ext/pay/settings/get", body={ "key": key })
 
     #pylint: disable-next=dangerous-default-value
-    def list_merchant_settings(self, keys: List[MerchantSettingsKey] = []) -> Dict[MerchantSettingsKey, Any]:
+    def list_merchant_settings(self, keys: List[str] = []) -> Dict[str, Any]:
         return self._post("auth/r/ext/pay/settings/list", body={ "keys": keys })
 
     def get_deposits(self,

@@ -4,8 +4,6 @@ from decimal import Decimal
 
 from ..middleware import Middleware
 
-from ..enums import Sort, OrderType, FundingOfferType
-
 from ...types import Notification, \
     UserInfo, LoginHistory, BalanceAvailable, \
     Order, Position, Trade, \
@@ -63,7 +61,7 @@ class RestAuthEndpoints(Middleware):
             for sub_data in self._post(endpoint, body={ "id": ids }) ]
 
     def submit_order(self,
-                     type: OrderType,
+                     type: str,
                      symbol: str,
                      amount: Union[Decimal, float, str],
                      *,
@@ -163,7 +161,7 @@ class RestAuthEndpoints(Middleware):
     def get_trades_history(self,
                            *,
                            symbol: Optional[str] = None,
-                           sort: Optional[Sort] = None,
+                           sort: Optional[int] = None,
                            start: Optional[str] = None,
                            end: Optional[str] = None,
                            limit: Optional[int] = None) -> List[Trade]:
@@ -285,7 +283,7 @@ class RestAuthEndpoints(Middleware):
 
     #pylint: disable-next=too-many-arguments
     def submit_funding_offer(self,
-                             type: FundingOfferType,
+                             type: str,
                              symbol: str,
                              amount: Union[Decimal, float, str],
                              rate: Union[Decimal, float, str],
@@ -397,7 +395,7 @@ class RestAuthEndpoints(Middleware):
     def get_funding_trades_history(self,
                                    *,
                                    symbol: Optional[str] = None,
-                                   sort: Optional[Sort] = None,
+                                   sort: Optional[int] = None,
                                    start: Optional[str] = None,
                                    end: Optional[str] = None,
                                    limit: Optional[int] = None) -> List[FundingTrade]:
