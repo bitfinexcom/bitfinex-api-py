@@ -336,5 +336,5 @@ class BfxWebSocketClient(Connection):
         await self._websocket.send(json.dumps( \
             [ 0, event, None, data], cls=JSONEncoder))
 
-    def on(self, event, f = None):
-        return self.__event_emitter.on(event, f)
+    def on(self, event, callback = None):
+        return self.__event_emitter.on(event, callback)
