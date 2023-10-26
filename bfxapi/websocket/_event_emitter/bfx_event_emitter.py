@@ -28,15 +28,15 @@ _COMMON = [
     "t_trade_execution", "t_trade_execution_update", "f_trade_execution",
     "f_trade_execution_update", "t_book_update", "f_book_update",
     "t_raw_book_update", "f_raw_book_update", "candles_update",
-    "derivatives_status_update", "liquidation_feed_update", "order_new",
-    "order_update", "order_cancel", "position_new",
-    "position_update", "position_close", "funding_offer_new",
-    "funding_offer_update", "funding_offer_cancel", "funding_credit_new",
-    "funding_credit_update", "funding_credit_close", "funding_loan_new",
-    "funding_loan_update", "funding_loan_close", "trade_execution",
-    "trade_execution_update", "wallet_update", "notification",
-    "on-req-notification", "ou-req-notification", "oc-req-notification",
-    "fon-req-notification", "foc-req-notification"
+    "derivatives_status_update", "liquidation_feed_update", "checksum",
+    "order_new", "order_update", "order_cancel",
+    "position_new", "position_update", "position_close",
+    "funding_offer_new", "funding_offer_update", "funding_offer_cancel",
+    "funding_credit_new", "funding_credit_update", "funding_credit_close",
+    "funding_loan_new", "funding_loan_update", "funding_loan_close",
+    "trade_execution", "trade_execution_update", "wallet_update",
+    "notification", "on-req-notification", "ou-req-notification",
+    "oc-req-notification", "fon-req-notification", "foc-req-notification"
 ]
 
 class BfxEventEmitter(AsyncIOEventEmitter):
