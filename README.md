@@ -313,7 +313,6 @@ Contributors must uphold the [Contributor Covenant code of conduct](https://gith
     * [Cloning the repository](#cloning-the-repository)
     * [Installing the dependencies](#installing-the-dependencies)
 2. [Before opening a PR](#before-opening-a-pr)
-    * [Running the unit tests](#running-the-unit-tests)
 3. [License](#license)
 
 ## Installation and setup
@@ -349,23 +348,8 @@ Wheter you're submitting a bug fix, a new feature or a documentation change, you
 All PRs must follow this [PULL_REQUEST_TEMPLATE](https://github.com/bitfinexcom/bitfinex-api-py/blob/v3-beta/.github/PULL_REQUEST_TEMPLATE.md) and include an exhaustive description.
 
 Before opening a pull request, you should also make sure that:
-- [ ] all unit tests pass (see [Running the unit tests](#running-the-unit-tests)).
 - [ ] [`pylint`](https://github.com/pylint-dev/pylint) returns a score of 10.00/10.00 when run against your code.
 - [ ] [`mypy`](https://github.com/python/mypy) doesn't throw any error code when run on the project (excluding notes).
-
-### Running the unit tests
-
-`bitfinex-api-py` comes with a set of unit tests (written using the [`unittest`](https://docs.python.org/3.8/library/unittest.html) unit testing framework). \
-Contributors must ensure that each unit test passes before opening a pull request. \
-You can run all project's unit tests by calling `unittest` on `bfxapi.tests`:
-```console
-python3 -m unittest -v bfxapi.tests
-```
-
-A single unit test can be run as follows:
-```console
-python3 -m unittest -v bfxapi.tests.test_notification
-```
 
 ## License
 

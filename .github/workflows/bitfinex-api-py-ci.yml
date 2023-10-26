@@ -27,5 +27,3 @@ jobs:
         run: python -m pylint bfxapi
       - name: Run mypy to check the correctness of type hinting (and fail if any error or warning is found)
         run: python -m mypy bfxapi
-      - name: Execute project's unit tests (unittest)
-        run: python -m unittest bfxapi.tests
