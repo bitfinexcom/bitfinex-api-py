@@ -1,43 +1,34 @@
-from typing import TypedDict, Union, Literal, Optional
+from typing import \
+    Union, Literal, TypedDict
 
-__all__ = [
-    "Subscription",
+Subscription = Union["Ticker", "Trades", "Book", "Candles", "Status"]
 
-    "Ticker",
-    "Trades",
-    "Book",
-    "Candles",
-    "Status"
-]
-
-_Header = TypedDict("_Header", { "event": Literal["subscribed"], "channel": str, "chanId": int })
-
-Subscription = Union[_Header, "Ticker", "Trades", "Book", "Candles", "Status"]
+Channel = Literal["ticker", "trades", "book", "candles", "status"]
 
 class Ticker(TypedDict):
-    subId: str
+    channel: Literal["ticker"]
+    sub_id: str
     symbol: str
-    pair: Optional[str]
-    currency: Optional[str]
 
 class Trades(TypedDict):
-    subId: str
+    channel: Literal["trades"]
+    sub_id: str
     symbol: str
-    pair: Optional[str]
-    currency: Optional[str]
 
 class Book(TypedDict):
-    subId: str
+    channel: Literal["book"]
+    sub_id: str
     symbol: str
-    prec: str
-    freq: str
-    len: str
-    pair: str
+    prec: Literal["R0", "P0", "P1", "P2", "P3", "P4"]
+    freq: Literal["F0", "F1"]
+    len: Literal["1", "25", "100", "250"]
 
 class Candles(TypedDict):
-    subId: str
+    channel: Literal["candles"]
+    sub_id: str
     key: str
 
 class Status(TypedDict):
-    subId: str
+    channel: Literal["status"]
+    sub_id: str
     key: str

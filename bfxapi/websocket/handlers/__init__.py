@@ -1,2 +1,0 @@
-from .public_channels_handler import PublicChannelsHandler
-from .authenticated_events_handler import AuthenticatedEventsHandler

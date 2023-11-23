@@ -1,12 +1,14 @@
 from distutils.core import setup
 
-version = {}
-with open("bfxapi/version.py", encoding="utf-8") as fp:
-    exec(fp.read(), version) #pylint: disable=exec-used
+_version = { }
+
+with open("bfxapi/_version.py", encoding="utf-8") as f:
+    #pylint: disable-next=exec-used
+    exec(f.read(), _version)
 
 setup(
     name="bitfinex-api-py",
-    version=version["__version__"],
+    version=_version["__version__"],
     description="Official Bitfinex Python API",
     long_description="A Python reference implementation of the Bitfinex API for both REST and websocket interaction",
     long_description_content_type="text/markdown",
@@ -25,6 +27,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     keywords="bitfinex,api,trading",
     project_urls={
@@ -32,14 +35,22 @@ setup(
         "Source": "https://github.com/bitfinexcom/bitfinex-api-py",
     },
     packages=[
-        "bfxapi", "bfxapi.utils", "bfxapi.types",
-        "bfxapi.websocket", "bfxapi.websocket.client", "bfxapi.websocket.handlers", 
-        "bfxapi.rest", "bfxapi.rest.endpoints", "bfxapi.rest.middleware",
+        "bfxapi",
+        "bfxapi._utils",
+        "bfxapi.types",
+        "bfxapi.websocket",
+        "bfxapi.websocket._client",
+        "bfxapi.websocket._handlers",
+        "bfxapi.websocket._event_emitter",
+        "bfxapi.rest",
+        "bfxapi.rest.endpoints",
+        "bfxapi.rest.middleware",
     ],
     install_requires=[
         "pyee~=9.0.4",
-        "websockets~=10.4",
-        "requests~=2.28.1"
+        "websockets~=11.0.3",
+        "requests~=2.28.1",
+        "urllib3~=1.26.14",
     ],
     python_requires=">=3.8"
 )

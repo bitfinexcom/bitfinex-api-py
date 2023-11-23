@@ -97,7 +97,6 @@ _Revoke your API-KEYs and API-SECRETs immediately if you think they might have b
 
 ### Advanced features
 * [Using custom notifications](#using-custom-notifications)
-* [Setting up connection multiplexing](#setting-up-connection-multiplexing)
 
 ### Examples
 * [Creating a new order](#creating-a-new-order)
@@ -181,10 +180,10 @@ A custom [close code number](https://www.iana.org/assignments/websocket/websocke
 await bfx.wss.close(code=1001, reason="Going Away")
 ```
 
-After closing the connection, the client will emit the `disconnection` event:
+After closing the connection, the client will emit the `disconnected` event:
 ```python
-@bfx.wss.on("disconnection")
-def on_disconnection(code: int, reason: str):
+@bfx.wss.on("disconnected")
+def on_disconnected(code: int, reason: str):
     if code == 1000 or code == 1001:
         print("Closing the connection without errors!")
 ```
@@ -201,7 +200,7 @@ On each successful subscription, the client will emit the `subscribed` event:
 @bfx.wss.on("subscribed")
 def on_subscribed(subscription: subscriptions.Subscription):
     if subscription["channel"] == "ticker":
-        print(f"{subscription['symbol']}: {subscription['subId']}") # tBTCUSD: f2757df2-7e11-4244-9bb7-a53b7343bef8
+        print(f"{subscription['symbol']}: {subscription['sub_id']}") # tBTCUSD: f2757df2-7e11-4244-9bb7-a53b7343bef8
 ```
 
 ### Unsubscribing from a public channel
@@ -242,11 +241,6 @@ The same can be done without using decorators:
 bfx.wss.on("candles_update", callback=on_candles_update)
 ```
 
-You can pass any number of events to register for the same callback function:
-```python
-bfx.wss.on("t_ticker_update", "f_ticker_update", callback=on_ticker_update)
-```
-
 # Advanced features
 
 ## Using custom notifications
@@ -268,27 +262,6 @@ Whenever a client receives a custom notification, it will emit the `notification
 def on_notification(notification: Notification[Any]):
     print(notification.data) # { "foo": 1 }
 ```
-
-## Setting up connection multiplexing
-
-`BfxWebSocketClient::run` and `BfxWebSocketClient::start` accept a `connections` argument:
-```python
-bfx.wss.run(connections=3)
-```
-
-`connections` indicates the number of connections to run concurrently (through connection multiplexing).
-
-Each of these connections can handle up to 25 subscriptions to public channels. \
-So, using `N` connections will allow the client to handle at most `N * 25` subscriptions. \
-You should always use the minimum number of connections necessary to handle all the subscriptions that will be made.
-
-For example, if you know that your application will subscribe to 75 public channels, 75 / 25 = 3 connections will be enough to handle all the subscriptions.
-
-The default number of connections is 5; therefore, if the `connections` argument is not given, the client will be able to handle a maximum of 25 * 5 = 125 subscriptions.
-
-Keep in mind that using a large number of connections could slow down the client performance.
-
-The use of more than 20 connections is not recommended.
 
 # Examples
 
@@ -340,7 +313,6 @@ Contributors must uphold the [Contributor Covenant code of conduct](https://gith
     * [Cloning the repository](#cloning-the-repository)
     * [Installing the dependencies](#installing-the-dependencies)
 2. [Before opening a PR](#before-opening-a-pr)
-    * [Running the unit tests](#running-the-unit-tests)
 3. [License](#license)
 
 ## Installation and setup
@@ -376,23 +348,8 @@ Wheter you're submitting a bug fix, a new feature or a documentation change, you
 All PRs must follow this [PULL_REQUEST_TEMPLATE](https://github.com/bitfinexcom/bitfinex-api-py/blob/v3-beta/.github/PULL_REQUEST_TEMPLATE.md) and include an exhaustive description.
 
 Before opening a pull request, you should also make sure that:
-- [ ] all unit tests pass (see [Running the unit tests](#running-the-unit-tests)).
 - [ ] [`pylint`](https://github.com/pylint-dev/pylint) returns a score of 10.00/10.00 when run against your code.
 - [ ] [`mypy`](https://github.com/python/mypy) doesn't throw any error code when run on the project (excluding notes).
-
-### Running the unit tests
-
-`bitfinex-api-py` comes with a set of unit tests (written using the [`unittest`](https://docs.python.org/3.8/library/unittest.html) unit testing framework). \
-Contributors must ensure that each unit test passes before opening a pull request. \
-You can run all project's unit tests by calling `unittest` on `bfxapi.tests`:
-```console
-python3 -m unittest -v bfxapi.tests
-```
-
-A single unit test can be run as follows:
-```console
-python3 -m unittest -v bfxapi.tests.test_notification
-```
 
 ## License
 

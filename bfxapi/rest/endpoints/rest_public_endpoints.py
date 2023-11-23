@@ -4,8 +4,6 @@ from decimal import Decimal
 
 from ..middleware import Middleware
 
-from ..enums import Config, Sort
-
 from ...types import \
     PlatformStatus, TradingPairTicker, FundingCurrencyTicker, \
     TickersHistory, TradingPairTrade, FundingCurrencyTrade, \
@@ -17,8 +15,9 @@ from ...types import \
 
 from ...types import serializers
 
+#pylint: disable-next=too-many-public-methods
 class RestPublicEndpoints(Middleware):
-    def conf(self, config: Config) -> Any:
+    def conf(self, config: str) -> Any:
         return self._get(f"conf/{config}")[0]
 
     def get_platform_status(self) -> PlatformStatus:
@@ -83,7 +82,7 @@ class RestPublicEndpoints(Middleware):
                      limit: Optional[int] = None,
                      start: Optional[str] = None,
                      end: Optional[str] = None,
-                     sort: Optional[Sort] = None) -> List[TradingPairTrade]:
+                     sort: Optional[int] = None) -> List[TradingPairTrade]:
         params = { "limit": limit, "start": start, "end": end, "sort": sort }
         data = self._get(f"trades/{pair}/hist", params=params)
         return [ serializers.TradingPairTrade.parse(*sub_data) for sub_data in data ]
@@ -94,7 +93,7 @@ class RestPublicEndpoints(Middleware):
                      limit: Optional[int] = None,
                      start: Optional[str] = None,
                      end: Optional[str] = None,
-                     sort: Optional[Sort] = None) -> List[FundingCurrencyTrade]:
+                     sort: Optional[int] = None) -> List[FundingCurrencyTrade]:
         params = { "limit": limit, "start": start, "end": end, "sort": sort }
         data = self._get(f"trades/{currency}/hist", params=params)
         return [ serializers.FundingCurrencyTrade.parse(*sub_data) for sub_data in data ]
@@ -132,7 +131,7 @@ class RestPublicEndpoints(Middleware):
     def get_stats_hist(self,
                        resource: str,
                        *,
-                       sort: Optional[Sort] = None,
+                       sort: Optional[int] = None,
                        start: Optional[str] = None,
                        end: Optional[str] = None,
                        limit: Optional[int] = None) -> List[Statistic]:
@@ -143,7 +142,7 @@ class RestPublicEndpoints(Middleware):
     def get_stats_last(self,
                        resource: str,
                        *,
-                       sort: Optional[Sort] = None,
+                       sort: Optional[int] = None,
                        start: Optional[str] = None,
                        end: Optional[str] = None,
                        limit: Optional[int] = None) -> Statistic:
@@ -155,7 +154,7 @@ class RestPublicEndpoints(Middleware):
                          symbol: str,
                          tf: str = "1m",
                          *,
-                         sort: Optional[Sort] = None,
+                         sort: Optional[int] = None,
                          start: Optional[str] = None,
                          end: Optional[str] = None,
                          limit: Optional[int] = None) -> List[Candle]:
@@ -167,7 +166,7 @@ class RestPublicEndpoints(Middleware):
                          symbol: str,
                          tf: str = "1m",
                          *,
-                         sort: Optional[Sort] = None,
+                         sort: Optional[int] = None,
                          start: Optional[str] = None,
                          end: Optional[str] = None,
                          limit: Optional[int] = None) -> Candle:
@@ -191,7 +190,7 @@ class RestPublicEndpoints(Middleware):
     def get_derivatives_status_history(self,
                                        key: str,
                                        *,
-                                       sort: Optional[Sort] = None,
+                                       sort: Optional[int] = None,
                                        start: Optional[str] = None,
                                        end: Optional[str] = None,
                                        limit: Optional[int] = None) -> List[DerivativesStatus]:
@@ -201,7 +200,7 @@ class RestPublicEndpoints(Middleware):
 
     def get_liquidations(self,
                          *,
-                         sort: Optional[Sort] = None,
+                         sort: Optional[int] = None,
                          start: Optional[str] = None,
                          end: Optional[str] = None,
                          limit: Optional[int] = None) -> List[Liquidation]:
@@ -213,7 +212,7 @@ class RestPublicEndpoints(Middleware):
                          symbol: str,
                          tf: str = "1m",
                          *,
-                         sort: Optional[Sort] = None,
+                         sort: Optional[int] = None,
                          start: Optional[str] = None,
                          end: Optional[str] = None,
                          limit: Optional[int] = None) -> List[Candle]:
@@ -224,7 +223,7 @@ class RestPublicEndpoints(Middleware):
     def get_leaderboards_hist(self,
                               resource: str,
                               *,
-                              sort: Optional[Sort] = None,
+                              sort: Optional[int] = None,
                               start: Optional[str] = None,
                               end: Optional[str] = None,
                               limit: Optional[int] = None) -> List[Leaderboard]:
@@ -235,7 +234,7 @@ class RestPublicEndpoints(Middleware):
     def get_leaderboards_last(self,
                               resource: str,
                               *,
-                              sort: Optional[Sort] = None,
+                              sort: Optional[int] = None,
                               start: Optional[str] = None,
                               end: Optional[str] = None,
                               limit: Optional[int] = None) -> Leaderboard:
@@ -262,18 +261,18 @@ class RestPublicEndpoints(Middleware):
                                   limit: Optional[int] = None) -> List[PulseMessage]:
         messages = []
 
-        for subdata in self._get("pulse/hist", params={ "end": end, "limit": limit }):
-            subdata[18] = subdata[18][0]
-            message = serializers.PulseMessage.parse(*subdata)
+        for sub_data in self._get("pulse/hist", params={ "end": end, "limit": limit }):
+            sub_data[18] = sub_data[18][0]
+            message = serializers.PulseMessage.parse(*sub_data)
             messages.append(message)
 
         return messages
 
     def get_trading_market_average_price(self,
                                          symbol: str,
-                                         amount: Union[Decimal, float, str],
+                                         amount: Union[str, float, Decimal],
                                          *,
-                                         price_limit: Optional[Union[Decimal, float, str]] = None
+                                         price_limit: Optional[Union[str, float, Decimal]] = None
                                         ) -> TradingMarketAveragePrice:
         return serializers.TradingMarketAveragePrice.parse(*self._post("calc/trade/avg", body={
             "symbol": symbol, "amount": amount, "price_limit": price_limit
@@ -281,10 +280,10 @@ class RestPublicEndpoints(Middleware):
 
     def get_funding_market_average_price(self,
                                          symbol: str,
-                                         amount: Union[Decimal, float, str],
+                                         amount: Union[str, float, Decimal],
                                          period: int,
                                          *,
-                                         rate_limit: Optional[Union[Decimal, float, str]] = None
+                                         rate_limit: Optional[Union[str, float, Decimal]] = None
                                         ) -> FundingMarketAveragePrice:
         return serializers.FundingMarketAveragePrice.parse(*self._post("calc/trade/avg", body={
             "symbol": symbol, "amount": amount, "period": period, "rate_limit": rate_limit

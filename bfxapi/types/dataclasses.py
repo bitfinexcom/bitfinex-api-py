@@ -1,11 +1,9 @@
-from typing import Union, Type, \
+from typing import \
     List, Dict, Literal, Optional, Any
 
 from dataclasses import dataclass
 
 from .labeler import _Type, partial, compose
-
-JSON = Union[Dict[str, "JSON"], List["JSON"], bool, int, float, str, Type[None]]
 
 #region Dataclass definitions for types of public use
 
@@ -129,7 +127,7 @@ class Liquidation(_Type):
     base_price: float
     is_match: int
     is_market_sold: int
-    price_acquired: float
+    liquidation_price: float
 
 @dataclass
 class Leaderboard(_Type):
@@ -172,7 +170,7 @@ class PulseMessage(_Type):
     comments_disabled: int
     tags: List[str]
     attachments: List[str]
-    meta: List[JSON]
+    meta: List[Dict[str, Any]]
     likes: int
     profile: PulseProfile
     comments: int
@@ -231,7 +229,7 @@ class LoginHistory(_Type):
     id: int
     time: int
     ip: str
-    extra_info: JSON
+    extra_info: Dict[str, Any]
 
 @dataclass
 class BalanceAvailable(_Type):
@@ -260,7 +258,7 @@ class Order(_Type):
     hidden: int
     placed_id: int
     routing: str
-    meta: JSON
+    meta: Dict[str, Any]
 
 @dataclass
 class Position(_Type):
@@ -280,7 +278,7 @@ class Position(_Type):
     type: int
     collateral: float
     collateral_min: float
-    meta: JSON
+    meta: Dict[str, Any]
 
 @dataclass
 class Trade(_Type):
@@ -409,7 +407,7 @@ class Wallet(_Type):
     unsettled_interest: float
     available_balance: float
     last_change: str
-    trade_details: JSON
+    trade_details: Dict[str, Any]
 
 @dataclass
 class Transfer(_Type):
@@ -486,7 +484,7 @@ class PositionClaim(_Type):
     pos_type: int
     collateral: str
     min_collateral: str
-    meta: JSON
+    meta: Dict[str, Any]
 
 @dataclass
 class PositionIncreaseInfo(_Type):
@@ -547,7 +545,7 @@ class PositionAudit(_Type):
     type: int
     collateral: float
     collateral_min: float
-    meta: JSON
+    meta: Dict[str, Any]
 
 @dataclass
 class DerivativePositionCollateral(_Type):
@@ -618,7 +616,7 @@ class InvoiceSubmission(_Type):
         pay_currency: str
         pool_currency: str
         address: str
-        ext: JSON
+        ext: Dict[str, Any]
 
     @compose(dataclass, partial)
     class Payment:
@@ -659,8 +657,8 @@ class InvoiceStats(_Type):
 
 @dataclass
 class CurrencyConversion(_Type):
-    base_currency: str
-    convert_currency: str
+    base_ccy: str
+    convert_ccy: str
     created: int
 
 @dataclass

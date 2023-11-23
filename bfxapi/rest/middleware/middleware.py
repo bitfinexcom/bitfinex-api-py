@@ -1,15 +1,25 @@
 from typing import TYPE_CHECKING, Optional, Any
 
+from enum import IntEnum
+
 from http import HTTPStatus
 
 import time, hmac, hashlib, json, requests
 
-from ..enums import Error
-from ..exceptions import ResourceNotFound, RequestParametersError, InvalidAuthenticationCredentials, UnknownGenericError
-from ...utils.json_encoder import JSONEncoder
+from ..exceptions import NotFoundError, RequestParametersError, UnknownGenericError
+
+from ...exceptions import InvalidCredentialError
+from ..._utils.json_encoder import JSONEncoder
+from ..._utils.json_decoder import JSONDecoder
 
 if TYPE_CHECKING:
     from requests.sessions import _Params
+
+class _Error(IntEnum):
+    ERR_UNK = 10000
+    ERR_GENERIC = 10001
+    ERR_PARAMS = 10020
+    ERR_AUTH_FAIL = 10100
 
 class Middleware:
     TIMEOUT = 30
@@ -47,16 +57,16 @@ class Middleware:
         )
 
         if response.status_code == HTTPStatus.NOT_FOUND:
-            raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
+            raise NotFoundError(f"No resources found at endpoint <{endpoint}>.")
 
-        data = response.json()
+        data = response.json(cls=JSONDecoder)
 
         if len(data) and data[0] == "error":
-            if data[1] == Error.ERR_PARAMS:
+            if data[1] == _Error.ERR_PARAMS:
                 raise RequestParametersError("The request was rejected with the " \
                     f"following parameter error: <{data[2]}>")
 
-            if data[1] is None or data[1] == Error.ERR_UNK or data[1] == Error.ERR_GENERIC:
+            if data[1] is None or data[1] == _Error.ERR_UNK or data[1] == _Error.ERR_GENERIC:
                 raise UnknownGenericError("The server replied to the request with " \
                     f"a generic error with message: <{data[2]}>.")
 
@@ -80,19 +90,19 @@ class Middleware:
         )
 
         if response.status_code == HTTPStatus.NOT_FOUND:
-            raise ResourceNotFound(f"No resources found at endpoint <{endpoint}>.")
+            raise NotFoundError(f"No resources found at endpoint <{endpoint}>.")
 
-        data = response.json()
+        data = response.json(cls=JSONDecoder)
 
         if isinstance(data, list) and len(data) and data[0] == "error":
-            if data[1] == Error.ERR_PARAMS:
+            if data[1] == _Error.ERR_PARAMS:
                 raise RequestParametersError("The request was rejected with the " \
                     f"following parameter error: <{data[2]}>")
 
-            if data[1] == Error.ERR_AUTH_FAIL:
-                raise InvalidAuthenticationCredentials("Cannot authenticate with given API-KEY and API-SECRET.")
+            if data[1] == _Error.ERR_AUTH_FAIL:
+                raise InvalidCredentialError("Cannot authenticate with given API-KEY and API-SECRET.")
 
-            if data[1] is None or data[1] == Error.ERR_UNK or data[1] == Error.ERR_GENERIC:
+            if data[1] is None or data[1] == _Error.ERR_UNK or data[1] == _Error.ERR_GENERIC:
                 raise UnknownGenericError("The server replied to the request with " \
                     f"a generic error with message: <{data[2]}>.")
 

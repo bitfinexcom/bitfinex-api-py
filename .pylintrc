@@ -3,28 +3,20 @@ py-version=3.8.0
 
 [MESSAGES CONTROL]
 disable=
-    multiple-imports,
     missing-docstring,
-    logging-not-lazy,
-    logging-fstring-interpolation,
+    multiple-imports,
     too-few-public-methods,
-    too-many-public-methods,
-    too-many-instance-attributes,
-    dangerous-default-value,
-    inconsistent-return-statements,
-
-[SIMILARITIES]
-min-similarity-lines=6
+    too-many-instance-attributes
 
 [VARIABLES]
-allowed-redefined-builtins=type,dir,id,all,format,len
+allowed-redefined-builtins=all,dir,format,id,len,type
 
 [FORMAT]
 max-line-length=120
 expected-line-ending-format=LF
 
 [BASIC]
-good-names=id,on,pl,t,ip,tf,A,B,C,D,E,F
+good-names=f,t,id,ip,on,pl,tf,to,A,B,C,D,E,F
 
 [TYPECHECK]
 generated-members=websockets

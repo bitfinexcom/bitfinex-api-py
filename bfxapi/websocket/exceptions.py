@@ -1,59 +1,25 @@
-from ..exceptions import BfxBaseException
+from bfxapi.exceptions import BfxBaseException
 
-__all__ = [
-    "BfxWebSocketException",
+class ConnectionNotOpen(BfxBaseException):
+    pass
 
-    "ConnectionNotOpen",
-    "TooManySubscriptions",
-    "ZeroConnectionsError",
-    "ReconnectionTimeoutError",
-    "WebSocketAuthenticationRequired",
-    "InvalidAuthenticationCredentials",
-    "EventNotSupported",
-    "OutdatedClientVersion"
-]
+class ActionRequiresAuthentication(BfxBaseException):
+    pass
 
-class BfxWebSocketException(BfxBaseException):
-    """
-    Base class for all custom exceptions in bfxapi/websocket/exceptions.py.
-    """
+class ReconnectionTimeoutError(BfxBaseException):
+    pass
 
-class ConnectionNotOpen(BfxWebSocketException):
-    """
-    This error indicates an attempt to communicate via websocket before starting the connection with the servers.
-    """
+class VersionMismatchError(BfxBaseException):
+    pass
 
-class TooManySubscriptions(BfxWebSocketException):
-    """
-    This error indicates a subscription attempt after reaching the limit of simultaneous connections.
-    """
+class SubIdError(BfxBaseException):
+    pass
 
-class ZeroConnectionsError(BfxWebSocketException):
-    """
-    This error indicates an attempt to subscribe to a public channel while the number of connections is 0.
-    """
+class UnknownChannelError(BfxBaseException):
+    pass
 
-class ReconnectionTimeoutError(BfxWebSocketException):
-    """
-    This error indicates that the connection has been offline for too long without being able to reconnect.
-    """
+class UnknownEventError(BfxBaseException):
+    pass
 
-class WebSocketAuthenticationRequired(BfxWebSocketException):
-    """
-    This error indicates an attempt to access a protected resource without logging in first.
-    """
-
-class InvalidAuthenticationCredentials(BfxWebSocketException):
-    """
-    This error indicates that the user has provided incorrect credentials (API-KEY and API-SECRET) for authentication.
-    """
-
-class EventNotSupported(BfxWebSocketException):
-    """
-    This error indicates a failed attempt to subscribe to an event not supported by the BfxWebSocketClient.
-    """
-
-class OutdatedClientVersion(BfxWebSocketException):
-    """
-    This error indicates a mismatch between the client version and the server WSS version.
-    """
+class UnknownSubscriptionError(BfxBaseException):
+    pass
