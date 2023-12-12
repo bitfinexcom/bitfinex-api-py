@@ -130,7 +130,7 @@ class BfxWebSocketBucket(Connection):
 
     @Connection._require_websocket_connection
     async def resubscribe(self, sub_id: str) -> None:
-        for subscription in self.__subscriptions.values():
+        for subscription in list(self.__subscriptions.values()):
             if subscription["sub_id"] == sub_id:
                 await self.unsubscribe(sub_id)
 
