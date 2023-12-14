@@ -2,7 +2,7 @@
 
 import zlib
 from collections import OrderedDict
-from typing import Dict, List
+from typing import Any, Dict, List, cast
 
 from bfxapi import Client
 from bfxapi.types import TradingPairRawBook
@@ -14,8 +14,6 @@ class RawOrderBook:
         self.__raw_order_book = {
             symbol: {"bids": OrderedDict(), "asks": OrderedDict()} for symbol in symbols
         }
-
-        self.cooldown: Dict[str, bool] = {symbol: False for symbol in symbols}
 
     def update(self, symbol: str, data: TradingPairRawBook) -> None:
         order_id, price, amount = data.order_id, data.price, data.amount
@@ -66,6 +64,15 @@ class RawOrderBook:
 
         return crc32 == checksum
 
+    def is_verifiable(self, symbol: str) -> bool:
+        return (
+            len(self.__raw_order_book[symbol]["bids"]) >= 25
+            and len(self.__raw_order_book[symbol]["asks"]) >= 25
+        )
+
+    def clear(self, symbol: str) -> None:
+        self.__raw_order_book[symbol] = {"bids": OrderedDict(), "asks": OrderedDict()}
+
 
 SYMBOLS = ["tLTCBTC", "tETHUSD", "tETHBTC"]
 
@@ -100,17 +107,20 @@ def on_t_raw_book_update(subscription: Book, data: TradingPairRawBook):
 async def on_checksum(subscription: Book, value: int):
     symbol = subscription["symbol"]
 
-    if raw_order_book.verify(symbol, value):
-        raw_order_book.cooldown[symbol] = False
-    elif not raw_order_book.cooldown[symbol]:
-        print(
-            "Mismatch between local and remote checksums: "
-            f"restarting book for symbol <{symbol}>..."
-        )
+    if raw_order_book.is_verifiable(symbol):
+        if not raw_order_book.verify(symbol, value):
+            print(
+                "Mismatch between local and remote checksums: "
+                f"restarting book for symbol <{symbol}>..."
+            )
 
-        await bfx.wss.resubscribe(sub_id=subscription["sub_id"])
+            _subscription = cast(Dict[str, Any], subscription.copy())
 
-        raw_order_book.cooldown[symbol] = True
+            await bfx.wss.unsubscribe(sub_id=_subscription.pop("sub_id"))
+
+            await bfx.wss.subscribe(**_subscription)
+
+            raw_order_book.clear(symbol)
 
 
 bfx.wss.run()
