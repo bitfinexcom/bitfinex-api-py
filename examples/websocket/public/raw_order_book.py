@@ -2,11 +2,29 @@
 
 import zlib
 from collections import OrderedDict
+from decimal import Decimal
+from math import floor, log10
 from typing import Any, Dict, List, cast
 
 from bfxapi import Client
 from bfxapi.types import TradingPairRawBook
 from bfxapi.websocket.subscriptions import Book
+
+
+def _format_float(value: float) -> str:
+    """
+    Format float numbers into a string compatible with the Bitfinex API.
+    """
+
+    def _find_exp(number: float) -> int:
+        base10 = log10(abs(number))
+
+        return floor(base10)
+
+    if _find_exp(value) >= -6:
+        return format(Decimal(repr(value)), "f")
+
+    return str(value).replace("e-0", "e-")
 
 
 class RawOrderBook:
@@ -58,7 +76,7 @@ class RawOrderBook:
             values.extend([bid[0], bid[2]])
             values.extend([ask[0], ask[2]])
 
-        local = ":".join(str(value) for value in values)
+        local = ":".join(_format_float(value) for value in values)
 
         crc32 = zlib.crc32(local.encode("UTF-8"))
 
@@ -111,7 +129,7 @@ async def on_checksum(subscription: Book, value: int):
         if not raw_order_book.verify(symbol, value):
             print(
                 "Mismatch between local and remote checksums: "
-                f"restarting book for symbol <{symbol}>..."
+                + f"restarting book for symbol <{symbol}>..."
             )
 
             _subscription = cast(Dict[str, Any], subscription.copy())
