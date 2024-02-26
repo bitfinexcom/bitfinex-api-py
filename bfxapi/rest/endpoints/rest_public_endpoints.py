@@ -28,7 +28,6 @@ from ...types import (
 from ..middleware import Middleware
 
 
-# pylint: disable-next=too-many-public-methods
 class RestPublicEndpoints(Middleware):
     def conf(self, config: str) -> Any:
         return self._get(f"conf/{config}")[0]

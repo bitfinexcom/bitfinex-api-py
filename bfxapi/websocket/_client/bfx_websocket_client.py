@@ -67,7 +67,6 @@ class _Delay:
         self.__backoff_delay = _Delay.__BACKOFF_MIN
 
 
-# pylint: disable-next=too-many-instance-attributes
 class BfxWebSocketClient(Connection):
     def __init__(
         self,
@@ -101,7 +100,6 @@ class BfxWebSocketClient(Connection):
                 type(exception), exception, exception.__traceback__
             )
 
-            # pylint: disable-next=logging-not-lazy
             self.__logger.critical(header + "\n" + str().join(stack_trace)[:-1])
 
     @property
@@ -111,7 +109,6 @@ class BfxWebSocketClient(Connection):
     def run(self) -> None:
         return asyncio.get_event_loop().run_until_complete(self.start())
 
-    # pylint: disable-next=too-many-branches
     async def start(self) -> None:
         _delay = _Delay(backoff_factor=1.618)
 
@@ -149,7 +146,6 @@ class BfxWebSocketClient(Connection):
                     except asyncio.CancelledError:
                         pass
 
-                # pylint: disable-next=consider-using-dict-items
                 for bucket in self.__buckets:
                     if task := self.__buckets[bucket]:
                         self.__buckets[bucket] = None
@@ -185,14 +181,12 @@ class BfxWebSocketClient(Connection):
                     (isinstance(error, InvalidStatusCode) and error.status_code == 408)
                     or isinstance(error, gaierror)
                 ) and self.__reconnection:
-                    # pylint: disable-next=logging-fstring-interpolation
                     self.__logger.warning(
                         "Reconnection attempt unsuccessful (no."
                         f"{self.__reconnection['attempts']}): next attempt in "
                         f"~{int(_delay.peek())}.0s."
                     )
 
-                    # pylint: disable-next=logging-fstring-interpolation
                     self.__logger.info(
                         f"The client has been offline for "
                         f"{datetime.now() - self.__reconnection['timestamp']}."
@@ -214,7 +208,6 @@ class BfxWebSocketClient(Connection):
     async def __connect(self) -> None:
         async with websockets.client.connect(self._host) as websocket:
             if self.__reconnection:
-                # pylint: disable-next=logging-fstring-interpolation
                 self.__logger.warning(
                     "Reconnection attempt successful (no."
                     f"{self.__reconnection['attempts']}): recovering "
@@ -307,7 +300,6 @@ class BfxWebSocketClient(Connection):
 
     @Connection._require_websocket_connection
     async def unsubscribe(self, sub_id: str) -> None:
-        # pylint: disable-next=consider-using-dict-items
         for bucket in self.__buckets:
             if bucket.has(sub_id):
                 if bucket.count == 1:

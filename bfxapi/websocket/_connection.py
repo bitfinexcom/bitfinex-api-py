@@ -6,7 +6,6 @@ from datetime import datetime
 from functools import wraps
 from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeVar, cast
 
-# pylint: disable-next=wrong-import-order
 from typing_extensions import Concatenate, ParamSpec
 from websockets.client import WebSocketClientProtocol
 

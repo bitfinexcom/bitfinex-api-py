@@ -39,7 +39,6 @@ from ...types.serializers import _Notification
 from ..middleware import Middleware
 
 
-# pylint: disable-next=too-many-public-methods
 class RestAuthEndpoints(Middleware):
     def get_user_info(self) -> UserInfo:
         return serializers.UserInfo.parse(*self._post("auth/r/info/user"))
@@ -368,7 +367,6 @@ class RestAuthEndpoints(Middleware):
             for sub_data in self._post(endpoint)
         ]
 
-    # pylint: disable-next=too-many-arguments
     def submit_funding_offer(
         self,
         type: str,
@@ -552,7 +550,6 @@ class RestAuthEndpoints(Middleware):
             *(self._post(f"auth/r/info/funding/{key}")[2])
         )
 
-    # pylint: disable-next=too-many-arguments
     def transfer_between_wallets(
         self,
         from_wallet: str,

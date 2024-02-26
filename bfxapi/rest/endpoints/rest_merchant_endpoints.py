@@ -28,7 +28,6 @@ _CustomerInfo = TypedDict(
 
 
 class RestMerchantEndpoints(Middleware):
-    # pylint: disable-next=too-many-arguments
     def submit_invoice(
         self,
         amount: Union[str, float, Decimal],
@@ -179,7 +178,6 @@ class RestMerchantEndpoints(Middleware):
     def get_merchant_settings(self, key: str) -> Any:
         return self._post("auth/r/ext/pay/settings/get", body={"key": key})
 
-    # pylint: disable-next=dangerous-default-value
     def list_merchant_settings(self, keys: List[str] = []) -> Dict[str, Any]:
         return self._post("auth/r/ext/pay/settings/list", body={"keys": keys})
 

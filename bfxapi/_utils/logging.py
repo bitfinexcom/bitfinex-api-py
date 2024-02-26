@@ -1,7 +1,6 @@
 import sys
 from copy import copy
 
-# pylint: disable-next=wildcard-import,unused-wildcard-import
 from logging import *
 from typing import TYPE_CHECKING, Literal, Optional
 
@@ -42,7 +41,6 @@ class _ColorFormatter(Formatter):
 
         return super().format(_record)
 
-    # pylint: disable-next=invalid-name
     def formatTime(self, record: LogRecord, datefmt: Optional[str] = None) -> str:
         return _GREEN + super().formatTime(record, datefmt) + _NC
 

@@ -3,7 +3,6 @@ from distutils.core import setup
 _version = { }
 
 with open("bfxapi/_version.py", encoding="utf-8") as f:
-    #pylint: disable-next=exec-used
     exec(f.read(), _version)
 
 setup(

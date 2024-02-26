@@ -1,13 +1,11 @@
 from . import dataclasses
 
-# pylint: disable-next=unused-import
 from .labeler import (
     _Serializer,
     generate_labeler_serializer,
     generate_recursive_serializer,
 )
 
-# pylint: disable-next=unused-import
 from .notification import _Notification
 
 __serializers__ = [

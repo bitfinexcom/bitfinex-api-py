@@ -99,7 +99,6 @@ class BfxWebSocketInputs:
             "oc_multi", {"id": id, "cid": cid, "gid": gid, "all": all}
         )
 
-    # pylint: disable-next=too-many-arguments
     async def submit_funding_offer(
         self,
         type: str,

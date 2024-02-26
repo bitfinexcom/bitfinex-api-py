@@ -39,7 +39,6 @@ class PublicChannelsHandler:
         elif subscription["channel"] == "status":
             self.__status_channel_handler(cast(Status, subscription), stream)
 
-    # pylint: disable-next=inconsistent-return-statements
     def __ticker_channel_handler(self, subscription: Ticker, stream: List[Any]):
         if subscription["symbol"].startswith("t"):
             return self.__event_emitter.emit(
@@ -55,7 +54,6 @@ class PublicChannelsHandler:
                 serializers.FundingCurrencyTicker.parse(*stream[0]),
             )
 
-    # pylint: disable-next=inconsistent-return-statements
     def __trades_channel_handler(self, subscription: Trades, stream: List[Any]):
         if (event := stream[0]) and event in ["te", "tu", "fte", "ftu"]:
             events = {
@@ -99,7 +97,6 @@ class PublicChannelsHandler:
                 ],
             )
 
-    # pylint: disable-next=inconsistent-return-statements
     def __book_channel_handler(self, subscription: Book, stream: List[Any]):
         if subscription["symbol"].startswith("t"):
             if all(isinstance(sub_stream, list) for sub_stream in stream[0]):
@@ -135,7 +132,6 @@ class PublicChannelsHandler:
                 serializers.FundingCurrencyBook.parse(*stream[0]),
             )
 
-    # pylint: disable-next=inconsistent-return-statements
     def __raw_book_channel_handler(self, subscription: Book, stream: List[Any]):
         if subscription["symbol"].startswith("t"):
             if all(isinstance(sub_stream, list) for sub_stream in stream[0]):
@@ -171,7 +167,6 @@ class PublicChannelsHandler:
                 serializers.FundingCurrencyRawBook.parse(*stream[0]),
             )
 
-    # pylint: disable-next=inconsistent-return-statements
     def __candles_channel_handler(self, subscription: Candles, stream: List[Any]):
         if all(isinstance(sub_stream, list) for sub_stream in stream[0]):
             return self.__event_emitter.emit(
@@ -184,7 +179,6 @@ class PublicChannelsHandler:
             "candles_update", subscription, serializers.Candle.parse(*stream[0])
         )
 
-    # pylint: disable-next=inconsistent-return-statements
     def __status_channel_handler(self, subscription: Status, stream: List[Any]):
         if subscription["key"].startswith("deriv:"):
             return self.__event_emitter.emit(
@@ -200,6 +194,5 @@ class PublicChannelsHandler:
                 serializers.Liquidation.parse(*stream[0][0]),
             )
 
-    # pylint: disable-next=inconsistent-return-statements
     def __checksum_handler(self, subscription: Book, value: int):
         return self.__event_emitter.emit("checksum", subscription, value & 0xFFFFFFFF)
