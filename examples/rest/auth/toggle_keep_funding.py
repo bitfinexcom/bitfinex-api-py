@@ -6,10 +6,7 @@ from typing import List
 from bfxapi import Client
 from bfxapi.types import FundingLoan, Notification
 
-bfx = Client(
-    api_key=os.getenv("BFX_API_KEY"),
-    api_secret=os.getenv("BFX_API_SECRET")
-)
+bfx = Client(api_key=os.getenv("BFX_API_KEY"), api_secret=os.getenv("BFX_API_SECRET"))
 
 loans: List[FundingLoan] = bfx.rest.auth.get_funding_loans(symbol="fUSD")
 

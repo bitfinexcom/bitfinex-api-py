@@ -9,14 +9,30 @@ from bfxapi.types.serializers import _Notification
 
 class AuthEventsHandler:
     __ABBREVIATIONS = {
-        "os": "order_snapshot", "on": "order_new", "ou": "order_update",
-        "oc": "order_cancel", "ps": "position_snapshot", "pn": "position_new",
-        "pu": "position_update", "pc": "position_close", "te": "trade_execution",
-        "tu": "trade_execution_update", "fos": "funding_offer_snapshot", "fon": "funding_offer_new",
-        "fou": "funding_offer_update", "foc": "funding_offer_cancel", "fcs": "funding_credit_snapshot", 
-        "fcn": "funding_credit_new", "fcu": "funding_credit_update", "fcc": "funding_credit_close",
-        "fls": "funding_loan_snapshot", "fln": "funding_loan_new", "flu": "funding_loan_update",
-        "flc": "funding_loan_close", "ws": "wallet_snapshot", "wu": "wallet_update"
+        "os": "order_snapshot",
+        "on": "order_new",
+        "ou": "order_update",
+        "oc": "order_cancel",
+        "ps": "position_snapshot",
+        "pn": "position_new",
+        "pu": "position_update",
+        "pc": "position_close",
+        "te": "trade_execution",
+        "tu": "trade_execution_update",
+        "fos": "funding_offer_snapshot",
+        "fon": "funding_offer_new",
+        "fou": "funding_offer_update",
+        "foc": "funding_offer_cancel",
+        "fcs": "funding_credit_snapshot",
+        "fcn": "funding_credit_new",
+        "fcu": "funding_credit_update",
+        "fcc": "funding_credit_close",
+        "fls": "funding_loan_snapshot",
+        "fln": "funding_loan_new",
+        "flu": "funding_loan_update",
+        "flc": "funding_loan_close",
+        "ws": "wallet_snapshot",
+        "wu": "wallet_update",
     }
 
     __SERIALIZERS: Dict[Tuple[str, ...], serializers._Serializer] = {
@@ -26,7 +42,7 @@ class AuthEventsHandler:
         ("fos", "fon", "fou", "foc"): serializers.FundingOffer,
         ("fcs", "fcn", "fcu", "fcc"): serializers.FundingCredit,
         ("fls", "fln", "flu", "flc"): serializers.FundingLoan,
-        ("ws", "wu"): serializers.Wallet
+        ("ws", "wu"): serializers.Wallet,
     }
 
     def __init__(self, event_emitter: EventEmitter) -> None:
@@ -41,7 +57,7 @@ class AuthEventsHandler:
                 event = AuthEventsHandler.__ABBREVIATIONS[abbrevation]
 
                 if all(isinstance(sub_stream, list) for sub_stream in stream):
-                    data = [ serializer.parse(*sub_stream) for sub_stream in stream ]
+                    data = [serializer.parse(*sub_stream) for sub_stream in stream]
                 else:
                     data = serializer.parse(*stream)
 
@@ -53,11 +69,13 @@ class AuthEventsHandler:
         serializer: _Notification = _Notification[None](serializer=None)
 
         if stream[1] in ("on-req", "ou-req", "oc-req"):
-            event, serializer = f"{stream[1]}-notification", \
-                _Notification[Order](serializer=serializers.Order)
+            event, serializer = f"{stream[1]}-notification", _Notification[Order](
+                serializer=serializers.Order
+            )
 
         if stream[1] in ("fon-req", "foc-req"):
-            event, serializer = f"{stream[1]}-notification", \
-                _Notification[FundingOffer](serializer=serializers.FundingOffer)
+            event, serializer = f"{stream[1]}-notification", _Notification[
+                FundingOffer
+            ](serializer=serializers.FundingOffer)
 
         self.__event_emitter.emit(event, serializer.parse(*stream))

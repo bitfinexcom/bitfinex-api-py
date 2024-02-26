@@ -13,10 +13,7 @@ from bfxapi.types import (
     Withdrawal,
 )
 
-bfx = Client(
-    api_key=os.getenv("BFX_API_KEY"),
-    api_secret=os.getenv("BFX_API_SECRET")
-)
+bfx = Client(api_key=os.getenv("BFX_API_KEY"), api_secret=os.getenv("BFX_API_SECRET"))
 
 # Gets all user's available wallets
 wallets: List[Wallet] = bfx.rest.auth.get_wallets()

@@ -4,10 +4,7 @@ import os
 
 from bfxapi import Client
 
-bfx = Client(
-    api_key=os.getenv("BFX_API_KEY"),
-    api_secret=os.getenv("BFX_API_SECRET")
-)
+bfx = Client(api_key=os.getenv("BFX_API_KEY"), api_secret=os.getenv("BFX_API_SECRET"))
 
 if not bfx.rest.merchant.set_merchant_settings("bfx_pay_recommend_store", 1):
     print("Cannot set <bfx_pay_recommend_store> to <1>.")

@@ -1,22 +1,30 @@
 import sys
 from copy import copy
 
-#pylint: disable-next=wildcard-import,unused-wildcard-import
+# pylint: disable-next=wildcard-import,unused-wildcard-import
 from logging import *
 from typing import TYPE_CHECKING, Literal, Optional
 
 if TYPE_CHECKING:
     _Level = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
-_BLACK, _RED, _GREEN, _YELLOW, \
-_BLUE, _MAGENTA, _CYAN, _WHITE = \
-    [ f"\033[0;{90 + i}m" for i in range(8) ]
+_BLACK, _RED, _GREEN, _YELLOW, _BLUE, _MAGENTA, _CYAN, _WHITE = [
+    f"\033[0;{90 + i}m" for i in range(8)
+]
 
-_BOLD_BLACK, _BOLD_RED, _BOLD_GREEN, _BOLD_YELLOW, \
-_BOLD_BLUE, _BOLD_MAGENTA, _BOLD_CYAN, _BOLD_WHITE = \
-    [ f"\033[1;{90 + i}m" for i in range(8) ]
+(
+    _BOLD_BLACK,
+    _BOLD_RED,
+    _BOLD_GREEN,
+    _BOLD_YELLOW,
+    _BOLD_BLUE,
+    _BOLD_MAGENTA,
+    _BOLD_CYAN,
+    _BOLD_WHITE,
+) = [f"\033[1;{90 + i}m" for i in range(8)]
 
 _NC = "\033[0m"
+
 
 class _ColorFormatter(Formatter):
     __LEVELS = {
@@ -24,7 +32,7 @@ class _ColorFormatter(Formatter):
         "WARNING": _YELLOW,
         "ERROR": _RED,
         "CRITICAL": _BOLD_RED,
-        "DEBUG": _BOLD_WHITE
+        "DEBUG": _BOLD_WHITE,
     }
 
     def format(self, record: LogRecord) -> str:
@@ -34,7 +42,7 @@ class _ColorFormatter(Formatter):
 
         return super().format(_record)
 
-    #pylint: disable-next=invalid-name
+    # pylint: disable-next=invalid-name
     def formatTime(self, record: LogRecord, datefmt: Optional[str] = None) -> str:
         return _GREEN + super().formatTime(record, datefmt) + _NC
 
@@ -42,12 +50,14 @@ class _ColorFormatter(Formatter):
     def __format_level(level: str) -> str:
         return _ColorFormatter.__LEVELS[level] + level + _NC
 
+
 _FORMAT = "%(asctime)s %(name)s %(levelname)s %(message)s"
 
 _DATE_FORMAT = "%d-%m-%Y %H:%M:%S"
 
+
 class ColorLogger(Logger):
-    __FORMATTER = Formatter(_FORMAT,_DATE_FORMAT)
+    __FORMATTER = Formatter(_FORMAT, _DATE_FORMAT)
 
     def __init__(self, name: str, level: "_Level" = "NOTSET") -> None:
         super().__init__(name, level)

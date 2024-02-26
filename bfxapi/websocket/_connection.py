@@ -18,6 +18,7 @@ _R = TypeVar("_R")
 
 _P = ParamSpec("_P")
 
+
 class Connection(ABC):
     _HEARTBEAT = "hb"
 
@@ -30,8 +31,7 @@ class Connection(ABC):
 
     @property
     def open(self) -> bool:
-        return self.__protocol is not None and \
-            self.__protocol.open
+        return self.__protocol is not None and self.__protocol.open
 
     @property
     def authentication(self) -> bool:
@@ -46,12 +46,11 @@ class Connection(ABC):
         self.__protocol = protocol
 
     @abstractmethod
-    async def start(self) -> None:
-        ...
+    async def start(self) -> None: ...
 
     @staticmethod
     def _require_websocket_connection(
-        function: Callable[Concatenate[_S, _P], Awaitable[_R]]
+        function: Callable[Concatenate[_S, _P], Awaitable[_R]],
     ) -> Callable[Concatenate[_S, _P], Awaitable[_R]]:
         @wraps(function)
         async def wrapper(self: _S, *args: Any, **kwargs: Any) -> _R:
@@ -64,13 +63,15 @@ class Connection(ABC):
 
     @staticmethod
     def _require_websocket_authentication(
-        function: Callable[Concatenate[_S, _P], Awaitable[_R]]
+        function: Callable[Concatenate[_S, _P], Awaitable[_R]],
     ) -> Callable[Concatenate[_S, _P], Awaitable[_R]]:
         @wraps(function)
         async def wrapper(self: _S, *args: Any, **kwargs: Any) -> _R:
             if not self.authentication:
-                raise ActionRequiresAuthentication("To perform this action you need to " \
-                    "authenticate using your API_KEY and API_SECRET.")
+                raise ActionRequiresAuthentication(
+                    "To perform this action you need to "
+                    "authenticate using your API_KEY and API_SECRET."
+                )
 
             internal = Connection._require_websocket_connection(function)
 
@@ -80,12 +81,13 @@ class Connection(ABC):
 
     @staticmethod
     def _get_authentication_message(
-        api_key: str,
-        api_secret: str,
-        filters: Optional[List[str]] = None
+        api_key: str, api_secret: str, filters: Optional[List[str]] = None
     ) -> str:
-        message: Dict[str, Any] = \
-            { "event": "auth", "filter": filters, "apiKey": api_key }
+        message: Dict[str, Any] = {
+            "event": "auth",
+            "filter": filters,
+            "apiKey": api_key,
+        }
 
         message["authNonce"] = round(datetime.now().timestamp() * 1_000_000)
 
@@ -94,7 +96,7 @@ class Connection(ABC):
         auth_sig = hmac.new(
             key=api_secret.encode("utf8"),
             msg=message["authPayload"].encode("utf8"),
-            digestmod=hashlib.sha384
+            digestmod=hashlib.sha384,
         )
 
         message["authSig"] = auth_sig.hexdigest()
