@@ -1,26 +1,60 @@
-from .dataclasses import \
-    PlatformStatus, TradingPairTicker, FundingCurrencyTicker, \
-    TickersHistory, TradingPairTrade, FundingCurrencyTrade, \
-    TradingPairBook, FundingCurrencyBook, TradingPairRawBook, \
-    FundingCurrencyRawBook, Statistic, Candle, \
-    DerivativesStatus, Liquidation, Leaderboard, \
-    FundingStatistic, PulseProfile, PulseMessage, \
-    TradingMarketAveragePrice, FundingMarketAveragePrice, FxRate
-
-from .dataclasses import \
-    UserInfo, LoginHistory, BalanceAvailable, \
-    Order, Position, Trade, \
-    FundingTrade, OrderTrade, Ledger, \
-    FundingOffer, FundingCredit, FundingLoan, \
-    FundingAutoRenew, FundingInfo, Wallet, \
-    Transfer, Withdrawal, DepositAddress, \
-    LightningNetworkInvoice, Movement, SymbolMarginInfo, \
-    BaseMarginInfo, PositionClaim, PositionIncreaseInfo, \
-    PositionIncrease, PositionHistory, PositionSnapshot, \
-    PositionAudit, DerivativePositionCollateral, DerivativePositionCollateralLimits
-
-from .dataclasses import \
-    InvoiceSubmission, InvoicePage, InvoiceStats, \
-    CurrencyConversion, MerchantDeposit, MerchantUnlinkedDeposit
-
+from .dataclasses import (
+    BalanceAvailable,
+    BaseMarginInfo,
+    Candle,
+    CurrencyConversion,
+    DepositAddress,
+    DerivativePositionCollateral,
+    DerivativePositionCollateralLimits,
+    DerivativesStatus,
+    FundingAutoRenew,
+    FundingCredit,
+    FundingCurrencyBook,
+    FundingCurrencyRawBook,
+    FundingCurrencyTicker,
+    FundingCurrencyTrade,
+    FundingInfo,
+    FundingLoan,
+    FundingMarketAveragePrice,
+    FundingOffer,
+    FundingStatistic,
+    FundingTrade,
+    FxRate,
+    InvoicePage,
+    InvoiceStats,
+    InvoiceSubmission,
+    Leaderboard,
+    Ledger,
+    LightningNetworkInvoice,
+    Liquidation,
+    LoginHistory,
+    MerchantDeposit,
+    MerchantUnlinkedDeposit,
+    Movement,
+    Order,
+    OrderTrade,
+    PlatformStatus,
+    Position,
+    PositionAudit,
+    PositionClaim,
+    PositionHistory,
+    PositionIncrease,
+    PositionIncreaseInfo,
+    PositionSnapshot,
+    PulseMessage,
+    PulseProfile,
+    Statistic,
+    SymbolMarginInfo,
+    TickersHistory,
+    Trade,
+    TradingMarketAveragePrice,
+    TradingPairBook,
+    TradingPairRawBook,
+    TradingPairTicker,
+    TradingPairTrade,
+    Transfer,
+    UserInfo,
+    Wallet,
+    Withdrawal,
+)
 from .notification import Notification

@@ -1,9 +1,5 @@
-from typing import \
-    Callable, Awaitable, Tuple, \
-    List, Union, Optional, \
-    Any
-
 from decimal import Decimal
+from typing import Any, Awaitable, Callable, List, Optional, Tuple, Union
 
 _Handler = Callable[[str, Any], Awaitable[None]]
 

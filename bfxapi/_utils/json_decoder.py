@@ -1,6 +1,7 @@
-from typing import Dict, Any
+import json
+import re
+from typing import Any, Dict
 
-import re, json
 
 def _to_snake_case(string: str) -> str:
     return re.sub(r"(?<!^)(?=[A-Z])", "_", string).lower()

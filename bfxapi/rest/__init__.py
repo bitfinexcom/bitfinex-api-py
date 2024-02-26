@@ -1,2 +1,6 @@
-from .endpoints import BfxRestInterface, RestPublicEndpoints, RestAuthEndpoints, \
-                    RestMerchantEndpoints
+from .endpoints import (
+    BfxRestInterface,
+    RestAuthEndpoints,
+    RestMerchantEndpoints,
+    RestPublicEndpoints,
+)

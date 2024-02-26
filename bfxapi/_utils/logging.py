@@ -1,12 +1,9 @@
-from typing import \
-    TYPE_CHECKING, Literal, Optional
+import sys
+from copy import copy
 
 #pylint: disable-next=wildcard-import,unused-wildcard-import
 from logging import *
-
-from copy import copy
-
-import sys
+from typing import TYPE_CHECKING, Literal, Optional
 
 if TYPE_CHECKING:
     _Level = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]

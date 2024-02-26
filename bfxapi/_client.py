@@ -1,15 +1,12 @@
-from typing import \
-    TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from bfxapi._utils.logging import ColorLogger
-
+from bfxapi.exceptions import IncompleteCredentialError
 from bfxapi.rest import BfxRestInterface
 from bfxapi.websocket import BfxWebSocketClient
-from bfxapi.exceptions import IncompleteCredentialError
 
 if TYPE_CHECKING:
-    from bfxapi.websocket._client.bfx_websocket_client import \
-        _Credentials
+    from bfxapi.websocket._client.bfx_websocket_client import _Credentials
 
 REST_HOST = "https://api.bitfinex.com/v2"
 WSS_HOST = "wss://api.bitfinex.com/ws/2"

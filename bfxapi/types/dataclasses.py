@@ -1,9 +1,7 @@
-from typing import \
-    List, Dict, Literal, Optional, Any
-
 from dataclasses import dataclass
+from typing import Any, Dict, List, Literal, Optional
 
-from .labeler import _Type, partial, compose
+from .labeler import _Type, compose, partial
 
 #region Dataclass definitions for types of public use
 

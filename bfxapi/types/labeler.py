@@ -1,5 +1,4 @@
-from typing import Type, Generic, TypeVar, Iterable, \
-    Dict, List, Tuple, Any, cast
+from typing import Any, Dict, Generic, Iterable, List, Tuple, Type, TypeVar, cast
 
 T = TypeVar("T", bound="_Type")
 

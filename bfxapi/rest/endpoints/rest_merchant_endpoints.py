@@ -1,19 +1,15 @@
-from typing import \
-    TypedDict, Dict, List, \
-    Union, Literal, Optional, \
-    Any
-
 from decimal import Decimal
+from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
 
 from bfxapi.rest.middleware import Middleware
-
-from bfxapi.types import \
-    InvoiceSubmission, \
-    InvoicePage, \
-    InvoiceStats, \
-    CurrencyConversion, \
-    MerchantDeposit, \
-    MerchantUnlinkedDeposit
+from bfxapi.types import (
+    CurrencyConversion,
+    InvoicePage,
+    InvoiceStats,
+    InvoiceSubmission,
+    MerchantDeposit,
+    MerchantUnlinkedDeposit,
+)
 
 _CustomerInfo = TypedDict("_CustomerInfo", {
     "nationality": str,

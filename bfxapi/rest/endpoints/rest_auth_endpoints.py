@@ -1,24 +1,43 @@
-from typing import Dict, List, Tuple, Union, Literal, Optional
-
 from decimal import Decimal
+from typing import Dict, List, Literal, Optional, Tuple, Union
 
+from ...types import (
+    BalanceAvailable,
+    BaseMarginInfo,
+    DepositAddress,
+    DerivativePositionCollateral,
+    DerivativePositionCollateralLimits,
+    FundingAutoRenew,
+    FundingCredit,
+    FundingInfo,
+    FundingLoan,
+    FundingOffer,
+    FundingTrade,
+    Ledger,
+    LightningNetworkInvoice,
+    LoginHistory,
+    Movement,
+    Notification,
+    Order,
+    OrderTrade,
+    Position,
+    PositionAudit,
+    PositionClaim,
+    PositionHistory,
+    PositionIncrease,
+    PositionIncreaseInfo,
+    PositionSnapshot,
+    SymbolMarginInfo,
+    Trade,
+    Transfer,
+    UserInfo,
+    Wallet,
+    Withdrawal,
+    serializers,
+)
+from ...types.serializers import _Notification
 from ..middleware import Middleware
 
-from ...types import Notification, \
-    UserInfo, LoginHistory, BalanceAvailable, \
-    Order, Position, Trade, \
-    FundingTrade, OrderTrade, Ledger, \
-    FundingOffer, FundingCredit, FundingLoan, \
-    FundingAutoRenew, FundingInfo, Wallet, \
-    Transfer, Withdrawal, DepositAddress, \
-    LightningNetworkInvoice, Movement, SymbolMarginInfo, \
-    BaseMarginInfo, PositionClaim, PositionIncreaseInfo, \
-    PositionIncrease, PositionHistory, PositionSnapshot, \
-    PositionAudit, DerivativePositionCollateral, DerivativePositionCollateralLimits
-
-from ...types import serializers
-
-from ...types.serializers import _Notification
 
 #pylint: disable-next=too-many-public-methods
 class RestAuthEndpoints(Middleware):

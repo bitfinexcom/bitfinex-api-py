@@ -1,10 +1,7 @@
-from typing import \
-    TypeVar, Callable, List, \
-    Dict, Union, Optional, \
-    Any
-
-from collections import defaultdict
 from asyncio import AbstractEventLoop
+from collections import defaultdict
+from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
+
 from pyee.asyncio import AsyncIOEventEmitter
 
 from bfxapi.websocket.exceptions import UnknownEventError

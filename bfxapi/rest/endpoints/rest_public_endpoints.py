@@ -1,19 +1,32 @@
-from typing import List, Dict, Union, Literal, Optional, Any, cast
-
 from decimal import Decimal
+from typing import Any, Dict, List, Literal, Optional, Union, cast
 
+from ...types import (
+    Candle,
+    DerivativesStatus,
+    FundingCurrencyBook,
+    FundingCurrencyRawBook,
+    FundingCurrencyTicker,
+    FundingCurrencyTrade,
+    FundingMarketAveragePrice,
+    FundingStatistic,
+    FxRate,
+    Leaderboard,
+    Liquidation,
+    PlatformStatus,
+    PulseMessage,
+    PulseProfile,
+    Statistic,
+    TickersHistory,
+    TradingMarketAveragePrice,
+    TradingPairBook,
+    TradingPairRawBook,
+    TradingPairTicker,
+    TradingPairTrade,
+    serializers,
+)
 from ..middleware import Middleware
 
-from ...types import \
-    PlatformStatus, TradingPairTicker, FundingCurrencyTicker, \
-    TickersHistory, TradingPairTrade, FundingCurrencyTrade, \
-    TradingPairBook, FundingCurrencyBook, TradingPairRawBook, \
-    FundingCurrencyRawBook, Statistic, Candle, \
-    DerivativesStatus, Liquidation, Leaderboard, \
-    FundingStatistic, PulseProfile, PulseMessage, \
-    TradingMarketAveragePrice, FundingMarketAveragePrice, FxRate
-
-from ...types import serializers
 
 #pylint: disable-next=too-many-public-methods
 class RestPublicEndpoints(Middleware):

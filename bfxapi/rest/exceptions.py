@@ -1,5 +1,6 @@
 from bfxapi.exceptions import BfxBaseException
 
+
 class NotFoundError(BfxBaseException):
     pass
 

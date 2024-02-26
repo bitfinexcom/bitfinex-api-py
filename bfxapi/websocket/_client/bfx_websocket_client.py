@@ -1,41 +1,31 @@
-from typing import \
-    TypedDict, List, Dict, \
-    Optional, Any
-
-from logging import Logger
-
-from datetime import datetime
-from socket import gaierror
+import asyncio
+import json
+import random
+import traceback
 from asyncio import Task
+from datetime import datetime
+from logging import Logger
+from socket import gaierror
+from typing import Any, Dict, List, Optional, TypedDict
 
-import \
-    traceback, json, asyncio, \
-    random, websockets
-
+import websockets
 import websockets.client
-
-from websockets.exceptions import \
-    ConnectionClosedError, \
-    InvalidStatusCode
+from websockets.exceptions import ConnectionClosedError, InvalidStatusCode
 
 from bfxapi._utils.json_encoder import JSONEncoder
-
+from bfxapi.exceptions import InvalidCredentialError
 from bfxapi.websocket._connection import Connection
-from bfxapi.websocket._handlers import AuthEventsHandler
 from bfxapi.websocket._event_emitter import BfxEventEmitter
-
-from bfxapi.exceptions import \
-    InvalidCredentialError
-
-from bfxapi.websocket.exceptions import \
-    ReconnectionTimeoutError, \
-    VersionMismatchError, \
-    UnknownChannelError, \
-    UnknownSubscriptionError, \
-    SubIdError
+from bfxapi.websocket._handlers import AuthEventsHandler
+from bfxapi.websocket.exceptions import (
+    ReconnectionTimeoutError,
+    SubIdError,
+    UnknownChannelError,
+    UnknownSubscriptionError,
+    VersionMismatchError,
+)
 
 from .bfx_websocket_bucket import BfxWebSocketBucket
-
 from .bfx_websocket_inputs import BfxWebSocketInputs
 
 _Credentials = TypedDict("_Credentials", \

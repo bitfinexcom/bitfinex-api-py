@@ -1,13 +1,16 @@
-from typing import \
-    List, Any, cast
+from typing import Any, List, cast
 
 from pyee.base import EventEmitter
 
 from bfxapi.types import serializers
-
-from bfxapi.websocket.subscriptions import \
-    Subscription, Ticker, Trades, \
-    Book, Candles, Status
+from bfxapi.websocket.subscriptions import (
+    Book,
+    Candles,
+    Status,
+    Subscription,
+    Ticker,
+    Trades,
+)
 
 _CHECKSUM = "cs"
 

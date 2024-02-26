@@ -1,16 +1,17 @@
-from typing import TYPE_CHECKING, Optional, Any
-
+import hashlib
+import hmac
+import json
+import time
 from enum import IntEnum
-
 from http import HTTPStatus
+from typing import TYPE_CHECKING, Any, Optional
 
-import time, hmac, hashlib, json, requests
+import requests
 
-from ..exceptions import NotFoundError, RequestParametersError, UnknownGenericError
-
-from ...exceptions import InvalidCredentialError
-from ..._utils.json_encoder import JSONEncoder
 from ..._utils.json_decoder import JSONDecoder
+from ..._utils.json_encoder import JSONEncoder
+from ...exceptions import InvalidCredentialError
+from ..exceptions import NotFoundError, RequestParametersError, UnknownGenericError
 
 if TYPE_CHECKING:
     from requests.sessions import _Params

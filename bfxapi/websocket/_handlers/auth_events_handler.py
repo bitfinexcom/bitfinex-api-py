@@ -1,14 +1,11 @@
-from typing import \
-    Dict, Tuple, Any
+from typing import Any, Dict, Tuple
 
 from pyee.base import EventEmitter
 
 from bfxapi.types import serializers
-
+from bfxapi.types.dataclasses import FundingOffer, Order
 from bfxapi.types.serializers import _Notification
 
-from bfxapi.types.dataclasses import \
-    Order, FundingOffer
 
 class AuthEventsHandler:
     __ABBREVIATIONS = {

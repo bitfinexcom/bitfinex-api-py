@@ -1,3 +1,2 @@
-from .public_channels_handler import PublicChannelsHandler
-
 from .auth_events_handler import AuthEventsHandler
+from .public_channels_handler import PublicChannelsHandler

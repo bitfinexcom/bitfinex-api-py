@@ -1,25 +1,16 @@
-from typing import \
-    TypeVar, Callable, Awaitable, \
-    List, Dict, Optional, \
-    Any, cast
+import hashlib
+import hmac
+import json
+from abc import ABC, abstractmethod
+from datetime import datetime
+from functools import wraps
+from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeVar, cast
 
 # pylint: disable-next=wrong-import-order
-from typing_extensions import \
-    ParamSpec, Concatenate
-
-from abc import \
-    ABC, abstractmethod
-
-from functools import wraps
-
-from datetime import datetime
-
-import hmac, hashlib, json
-
+from typing_extensions import Concatenate, ParamSpec
 from websockets.client import WebSocketClientProtocol
 
-from bfxapi.websocket.exceptions import \
-    ConnectionNotOpen, ActionRequiresAuthentication
+from bfxapi.websocket.exceptions import ActionRequiresAuthentication, ConnectionNotOpen
 
 _S = TypeVar("_S", bound="Connection")
 

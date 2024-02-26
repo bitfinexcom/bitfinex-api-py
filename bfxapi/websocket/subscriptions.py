@@ -1,5 +1,4 @@
-from typing import \
-    Union, Literal, TypedDict
+from typing import Literal, TypedDict, Union
 
 Subscription = Union["Ticker", "Trades", "Book", "Candles", "Status"]
 

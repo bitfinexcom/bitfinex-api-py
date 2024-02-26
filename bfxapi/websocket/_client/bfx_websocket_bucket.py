@@ -1,16 +1,14 @@
-from typing import \
-    List, Dict, Any, \
-    Optional, cast
-
-import asyncio, json, uuid
+import asyncio
+import json
+import uuid
+from typing import Any, Dict, List, Optional, cast
 
 import websockets.client
-
 from pyee import EventEmitter
+
 from bfxapi._utils.json_decoder import JSONDecoder
 from bfxapi.websocket._connection import Connection
 from bfxapi.websocket._handlers import PublicChannelsHandler
-
 from bfxapi.websocket.subscriptions import Subscription
 
 _CHECKSUM_FLAG_VALUE = 131_072
