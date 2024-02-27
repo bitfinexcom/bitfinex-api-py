@@ -20,9 +20,9 @@ A possible solution could be...
 ## Steps to reproduce (for bugs)
 <!-- You can delete this section if you are not submitting a bug report -->
 
-1. &nbsp;
-2. &nbsp;
-3. &nbsp;
+1. 
+2. 
+3. 
 
 ### Python version
 <!-- Indicate your python version here -->

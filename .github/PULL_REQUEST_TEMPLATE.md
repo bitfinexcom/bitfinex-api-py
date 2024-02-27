@@ -20,10 +20,11 @@ PR fixes the following issue:
 
 # Checklist:
 
-- [ ] My code follows the style guidelines of this project;
-- [ ] I have performed a self-review of my code;
-- [ ] I have commented my code, particularly in hard-to-understand areas;
-- [ ] I have made corresponding changes to the documentation;
-- [ ] My changes generate no new warnings;
-- [ ] Mypy returns no errors or warnings when run on the root package;
-- [ ] Pylint returns a score of 10.00/10.00 when run on the root package;
+- [ ] I've done a self-review of my code;
+- [ ] I've made corresponding changes to the documentation;
+- [ ] I've made sure my changes generate no warnings;
+- [ ] mypy returns no errors when run on the root package;
+<!-- If you use pre-commit hooks you can always check the following tasks -->
+- [ ] I've run black to format my code;
+- [ ] I've run isort to format my code's import statements;
+- [ ] flake8 reports no errors when run on the entire code base;
