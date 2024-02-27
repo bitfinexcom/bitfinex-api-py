@@ -1,12 +1,16 @@
+.venv
+.DS_Store
 .vscode
-*.pyc
-*.log
-
-bitfinex_api_py.egg-info
-
+.python-version
 __pycache__
 
-dist
-venv
-!.gitkeep
-MANIFEST
+bitfinex_api_py.egg-info
+bitfinex_api_py.dist-info
+build/
+dist/
+pip-wheel-metadata/
+.eggs
+
+.idea
+
+venv/

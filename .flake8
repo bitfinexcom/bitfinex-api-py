@@ -5,7 +5,9 @@ extend-ignore = E203,E501,E701
 
 exclude =
     __pycache__
+    build
     dist
     venv
 
-per-file-ignores = */__init__.py:F401
+per-file-ignores = 
+    */__init__.py:F401
