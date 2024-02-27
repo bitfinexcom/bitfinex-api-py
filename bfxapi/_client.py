@@ -37,11 +37,11 @@ class Client:
             }
         elif api_key:
             raise IncompleteCredentialError(
-                "You must provide both an API-KEY and an API-SECRET (missing API-KEY)."
+                "You must provide both API-KEY and API-SECRET (missing API-KEY)."
             )
         elif api_secret:
             raise IncompleteCredentialError(
-                "You must provide both an API-KEY and an API-SECRET (missing API-SECRET)."
+                "You must provide both API-KEY and API-SECRET (missing API-SECRET)."
             )
 
         self.rest = BfxRestInterface(rest_host, api_key, api_secret)

@@ -35,7 +35,7 @@ class Middleware:
     def __build_authentication_headers(self, endpoint: str, data: Optional[str] = None):
         assert isinstance(self.api_key, str) and isinstance(
             self.api_secret, str
-        ), "API_KEY and API_SECRET must be both str to call __build_authentication_headers"
+        ), "API_KEY and API_SECRET must be both strings"
 
         nonce = str(round(time.time() * 1_000_000))
 
