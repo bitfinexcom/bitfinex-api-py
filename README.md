@@ -312,7 +312,9 @@ Contributors must uphold the [Contributor Covenant code of conduct](https://gith
 1. [Installation and setup](#installation-and-setup)
     * [Cloning the repository](#cloning-the-repository)
     * [Installing the dependencies](#installing-the-dependencies)
+    * [Set up the pre-commit hooks (optional)](#set-up-the-pre-commit-hooks-optional)
 2. [Before opening a PR](#before-opening-a-pr)
+    * [Tip](#tip)
 3. [License](#license)
 
 ## Installation and setup
@@ -333,23 +335,48 @@ git clone --branch v3-beta --single-branch https://github.com/bitfinexcom/bitfin
 python3 -m pip install -r dev-requirements.txt
 ```
 
-Make sure to install `dev-requirements.txt` instead of `requirements.txt`. \
-`dev-requirements.txt` will install all dependencies in `requirements.txt` plus any development dependencies. \
-This will also install the versions in use of [`pylint`](https://github.com/pylint-dev/pylint) and [`mypy`](https://github.com/python/mypy), which you should both use before opening your PRs.
+Make sure to install `dev-requirements.txt` (and not `requirements.txt`!). \
+`dev-requirements.txt` will install all dependencies in `requirements.txt` plus any development dependency. \
+dev-requirements includes [mypy](https://github.com/python/mypy), [black](https://github.com/psf/black), [isort](https://github.com/PyCQA/isort), [flake8](https://github.com/PyCQA/flake8), and [pre-commit](https://github.com/pre-commit/pre-commit) (more on these tools in later chapters).
 
 All done, your Python 3.8+ environment should now be able to run `bitfinex-api-py`'s source code.
 
+### Set up the pre-commit hooks (optional)
+
+**Do not skip this paragraph if you intend to contribute to the project.**
+
+This repository includes a pre-commit configuration file that defines the following hooks:
+1. [isort](https://github.com/PyCQA/isort)
+2. [black](https://github.com/psf/black)
+3. [flake8](https://github.com/PyCQA/flake8)
+
+To set up pre-commit use:
+```console
+python3 -m pre-commit install
+```
+
+These will ensure that isort, black and flake8 are run on each git commit.
+
+[Visit this page to learn more about git hooks and pre-commit.](https://pre-commit.com/#introduction)
+
+#### Manually triggering the pre-commit hooks
+
+You can also manually trigger the execution of all hooks with:
+```console
+python3 -m pre-commit run --all-files
+```
+
 ## Before opening a PR
 
-**We won't accept your PR or we will request changes if the following requirements aren't met.**
+**We won't accept your PR or we'll request changes if the following requirements aren't met.**
 
 Wheter you're submitting a bug fix, a new feature or a documentation change, you should first discuss it in an issue.
 
-All PRs must follow this [PULL_REQUEST_TEMPLATE](https://github.com/bitfinexcom/bitfinex-api-py/blob/v3-beta/.github/PULL_REQUEST_TEMPLATE.md) and include an exhaustive description.
+You must be able to check off all tasks listed in [PULL_REQUEST_TEMPLATE](https://raw.githubusercontent.com/bitfinexcom/bitfinex-api-py/master/.github/PULL_REQUEST_TEMPLATE.md) before opening a pull request.
 
-Before opening a pull request, you should also make sure that:
-- [ ] [`pylint`](https://github.com/pylint-dev/pylint) returns a score of 10.00/10.00 when run against your code.
-- [ ] [`mypy`](https://github.com/python/mypy) doesn't throw any error code when run on the project (excluding notes).
+### Tip
+
+Setting up the project's pre-commit hooks will help automate this process ([more](#set-up-the-pre-commit-hooks-optional)).
 
 ## License
 
