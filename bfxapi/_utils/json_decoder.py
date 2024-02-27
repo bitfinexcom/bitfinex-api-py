@@ -13,4 +13,4 @@ def _object_hook(data: Dict[str, Any]) -> Any:
 
 class JSONDecoder(json.JSONDecoder):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(object_hook=_object_hook, *args, **kwargs)
+        super().__init__(*args, **kwargs, object_hook=_object_hook)

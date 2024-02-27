@@ -105,8 +105,8 @@ class BfxEventEmitter(AsyncIOEventEmitter):
     ) -> Union[_Handler, Callable[[_Handler], _Handler]]:
         if event not in BfxEventEmitter._EVENTS:
             raise UnknownEventError(
-                f"Can't register to unknown event: <{event}> "
-                + "(to get a full list of available events see https://docs.bitfinex.com/)."
+                f"Can't register to unknown event: <{event}> (to get a full"
+                "list of available events see https://docs.bitfinex.com/)."
             )
 
         return super().on(event, f)

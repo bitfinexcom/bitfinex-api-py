@@ -24,7 +24,8 @@ def partial(cls):
 
         if len(kwargs) != 0:
             raise TypeError(
-                f"{cls.__name__}.__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'"
+                f"{cls.__name__}.__init__() got an unexpected "
+                "keyword argument '{list(kwargs.keys())[0]}'"
             )
 
     cls.__init__ = __init__

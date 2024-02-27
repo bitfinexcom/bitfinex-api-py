@@ -1,7 +1,6 @@
 import sys
 from copy import copy
-
-from logging import *
+from logging import FileHandler, Formatter, Logger, LogRecord, StreamHandler
 from typing import TYPE_CHECKING, Literal, Optional
 
 if TYPE_CHECKING:

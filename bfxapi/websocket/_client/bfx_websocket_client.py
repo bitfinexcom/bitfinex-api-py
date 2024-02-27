@@ -100,7 +100,7 @@ class BfxWebSocketClient(Connection):
                 type(exception), exception, exception.__traceback__
             )
 
-            self.__logger.critical(header + "\n" + str().join(stack_trace)[:-1])
+            self.__logger.critical(f"{header}\n" + str().join(stack_trace)[:-1])
 
     @property
     def inputs(self) -> BfxWebSocketInputs:
@@ -141,6 +141,8 @@ class BfxWebSocketClient(Connection):
                     try:
                         await task
                     except (ConnectionClosedError, InvalidStatusCode, gaierror) as _e:
+                        nonlocal error
+
                         if type(error) is not type(_e) or error.args != _e.args:
                             raise _e
                     except asyncio.CancelledError:
@@ -241,8 +243,9 @@ class BfxWebSocketClient(Connection):
                         if message["version"] != 2:
                             raise VersionMismatchError(
                                 "Mismatch between the client and the server version: "
-                                + "please update bitfinex-api-py to the latest version to resolve this error "
-                                + f"(client version: 2, server version: {message['version']})."
+                                "please update bitfinex-api-py to the latest version "
+                                f"to resolve this error (client version: 2, server "
+                                f"version: {message['version']})."
                             )
                     elif message["event"] == "info" and message["code"] == 20051:
                         rcvd = websockets.frames.Close(
@@ -253,8 +256,7 @@ class BfxWebSocketClient(Connection):
                     elif message["event"] == "auth":
                         if message["status"] != "OK":
                             raise InvalidCredentialError(
-                                "Can't authenticate "
-                                + "with given API-KEY and API-SECRET."
+                                "Can't authenticate with given API-KEY and API-SECRET."
                             )
 
                         self.__event_emitter.emit("authenticated", message)
@@ -281,14 +283,14 @@ class BfxWebSocketClient(Connection):
     async def subscribe(
         self, channel: str, sub_id: Optional[str] = None, **kwargs: Any
     ) -> None:
-        if not channel in ["ticker", "trades", "book", "candles", "status"]:
+        if channel not in ["ticker", "trades", "book", "candles", "status"]:
             raise UnknownChannelError(
-                "Available channels are: " + "ticker, trades, book, candles and status."
+                "Available channels are: ticker, trades, book, candles and status."
             )
 
         for bucket in self.__buckets:
             if sub_id in bucket.ids:
-                raise SubIdError("sub_id must be " + "unique for all subscriptions.")
+                raise SubIdError("sub_id must be unique for all subscriptions.")
 
         for bucket in self.__buckets:
             if not bucket.is_full:
@@ -310,7 +312,7 @@ class BfxWebSocketClient(Connection):
                 return await bucket.unsubscribe(sub_id)
 
         raise UnknownSubscriptionError(
-            "Unable to find " + f"a subscription with sub_id <{sub_id}>."
+            f"Unable to find a subscription with sub_id <{sub_id}>."
         )
 
     @Connection._require_websocket_connection
@@ -320,11 +322,11 @@ class BfxWebSocketClient(Connection):
                 return await bucket.resubscribe(sub_id)
 
         raise UnknownSubscriptionError(
-            "Unable to find " + f"a subscription with sub_id <{sub_id}>."
+            f"Unable to find a subscription with sub_id <{sub_id}>."
         )
 
     @Connection._require_websocket_connection
-    async def close(self, code: int = 1000, reason: str = str()) -> None:
+    async def close(self, code: int = 1000, reason: str = "") -> None:
         for bucket in self.__buckets:
             await bucket.close(code=code, reason=reason)
 

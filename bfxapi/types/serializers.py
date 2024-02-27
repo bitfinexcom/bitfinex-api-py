@@ -1,12 +1,10 @@
 from . import dataclasses
-
-from .labeler import (
+from .labeler import (  # noqa: F401
     _Serializer,
     generate_labeler_serializer,
     generate_recursive_serializer,
 )
-
-from .notification import _Notification
+from .notification import _Notification  # noqa: F401
 
 __serializers__ = [
     "PlatformStatus",

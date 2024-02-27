@@ -15,7 +15,7 @@ _CHECKSUM_FLAG_VALUE = 131_072
 
 
 def _strip(message: Dict[str, Any], keys: List[str]) -> Dict[str, Any]:
-    return {key: value for key, value in message.items() if not key in keys}
+    return {key: value for key, value in message.items() if key not in keys}
 
 
 class BfxWebSocketBucket(Connection):
@@ -136,7 +136,7 @@ class BfxWebSocketBucket(Connection):
                 await self.subscribe(**subscription)
 
     @Connection._require_websocket_connection
-    async def close(self, code: int = 1000, reason: str = str()) -> None:
+    async def close(self, code: int = 1000, reason: str = "") -> None:
         await self._websocket.close(code, reason)
 
     def has(self, sub_id: str) -> bool:

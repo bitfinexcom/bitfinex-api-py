@@ -178,8 +178,10 @@ class RestMerchantEndpoints(Middleware):
     def get_merchant_settings(self, key: str) -> Any:
         return self._post("auth/r/ext/pay/settings/get", body={"key": key})
 
-    def list_merchant_settings(self, keys: List[str] = []) -> Dict[str, Any]:
-        return self._post("auth/r/ext/pay/settings/list", body={"keys": keys})
+    def list_merchant_settings(
+        self, keys: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        return self._post("auth/r/ext/pay/settings/list", body={"keys": keys or []})
 
     def get_deposits(
         self,
