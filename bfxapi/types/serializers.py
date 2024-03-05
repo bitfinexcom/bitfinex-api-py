@@ -1,41 +1,69 @@
-from .import dataclasses
-
-#pylint: disable-next=unused-import
-from .labeler import _Serializer, \
-    generate_labeler_serializer, generate_recursive_serializer
-
-#pylint: disable-next=unused-import
-from .notification import _Notification
+from . import dataclasses
+from .labeler import (  # noqa: F401
+    _Serializer,
+    generate_labeler_serializer,
+    generate_recursive_serializer,
+)
+from .notification import _Notification  # noqa: F401
 
 __serializers__ = [
-    "PlatformStatus", "TradingPairTicker", "FundingCurrencyTicker",
-    "TickersHistory", "TradingPairTrade", "FundingCurrencyTrade",
-    "TradingPairBook", "FundingCurrencyBook", "TradingPairRawBook",
-    "FundingCurrencyRawBook", "Statistic", "Candle",
-    "DerivativesStatus", "Liquidation", "Leaderboard",
-    "FundingStatistic", "PulseProfile", "PulseMessage",
-    "TradingMarketAveragePrice", "FundingMarketAveragePrice", "FxRate",
-
-    "UserInfo", "LoginHistory", "BalanceAvailable",
-    "Order", "Position", "Trade",
-    "FundingTrade", "OrderTrade", "Ledger",
-    "FundingOffer", "FundingCredit", "FundingLoan",
-    "FundingAutoRenew", "FundingInfo", "Wallet",
-    "Transfer", "Withdrawal", "DepositAddress",
-    "LightningNetworkInvoice", "Movement", "SymbolMarginInfo",
-    "BaseMarginInfo", "PositionClaim", "PositionIncreaseInfo",
-    "PositionIncrease", "PositionHistory", "PositionSnapshot",
-    "PositionAudit", "DerivativePositionCollateral", "DerivativePositionCollateralLimits",
+    "PlatformStatus",
+    "TradingPairTicker",
+    "FundingCurrencyTicker",
+    "TickersHistory",
+    "TradingPairTrade",
+    "FundingCurrencyTrade",
+    "TradingPairBook",
+    "FundingCurrencyBook",
+    "TradingPairRawBook",
+    "FundingCurrencyRawBook",
+    "Statistic",
+    "Candle",
+    "DerivativesStatus",
+    "Liquidation",
+    "Leaderboard",
+    "FundingStatistic",
+    "PulseProfile",
+    "PulseMessage",
+    "TradingMarketAveragePrice",
+    "FundingMarketAveragePrice",
+    "FxRate",
+    "UserInfo",
+    "LoginHistory",
+    "BalanceAvailable",
+    "Order",
+    "Position",
+    "Trade",
+    "FundingTrade",
+    "OrderTrade",
+    "Ledger",
+    "FundingOffer",
+    "FundingCredit",
+    "FundingLoan",
+    "FundingAutoRenew",
+    "FundingInfo",
+    "Wallet",
+    "Transfer",
+    "Withdrawal",
+    "DepositAddress",
+    "LightningNetworkInvoice",
+    "Movement",
+    "SymbolMarginInfo",
+    "BaseMarginInfo",
+    "PositionClaim",
+    "PositionIncreaseInfo",
+    "PositionIncrease",
+    "PositionHistory",
+    "PositionSnapshot",
+    "PositionAudit",
+    "DerivativePositionCollateral",
+    "DerivativePositionCollateralLimits",
 ]
 
-#region Serializer definitions for types of public use
+# region Serializer definitions for types of public use
 
 PlatformStatus = generate_labeler_serializer(
-    name="PlatformStatus",
-    klass=dataclasses.PlatformStatus,
-    labels=[
-        "status"
-    ]
+    name="PlatformStatus", klass=dataclasses.PlatformStatus, labels=["status"]
 )
 
 TradingPairTicker = generate_labeler_serializer(
@@ -51,8 +79,8 @@ TradingPairTicker = generate_labeler_serializer(
         "last_price",
         "volume",
         "high",
-        "low"
-    ]
+        "low",
+    ],
 )
 
 FundingCurrencyTicker = generate_labeler_serializer(
@@ -74,8 +102,8 @@ FundingCurrencyTicker = generate_labeler_serializer(
         "low",
         "_PLACEHOLDER",
         "_PLACEHOLDER",
-        "frr_amount_available"
-    ]
+        "frr_amount_available",
+    ],
 )
 
 TickersHistory = generate_labeler_serializer(
@@ -94,95 +122,54 @@ TickersHistory = generate_labeler_serializer(
         "_PLACEHOLDER",
         "_PLACEHOLDER",
         "_PLACEHOLDER",
-        "mts"
-    ]
+        "mts",
+    ],
 )
 
 TradingPairTrade = generate_labeler_serializer(
     name="TradingPairTrade",
     klass=dataclasses.TradingPairTrade,
-    labels=[
-        "id",
-        "mts",
-        "amount",
-        "price"
-    ]
+    labels=["id", "mts", "amount", "price"],
 )
 
 FundingCurrencyTrade = generate_labeler_serializer(
     name="FundingCurrencyTrade",
     klass=dataclasses.FundingCurrencyTrade,
-    labels=[
-        "id",
-        "mts",
-        "amount",
-        "rate",
-        "period"
-    ]
+    labels=["id", "mts", "amount", "rate", "period"],
 )
 
 TradingPairBook = generate_labeler_serializer(
     name="TradingPairBook",
     klass=dataclasses.TradingPairBook,
-    labels=[
-        "price",
-        "count",
-        "amount"
-    ]
+    labels=["price", "count", "amount"],
 )
 
 FundingCurrencyBook = generate_labeler_serializer(
     name="FundingCurrencyBook",
     klass=dataclasses.FundingCurrencyBook,
-    labels=[
-        "rate",
-        "period",
-        "count",
-        "amount"
-    ]
+    labels=["rate", "period", "count", "amount"],
 )
 
 TradingPairRawBook = generate_labeler_serializer(
     name="TradingPairRawBook",
     klass=dataclasses.TradingPairRawBook,
-    labels=[
-        "order_id",
-        "price",
-        "amount"
-    ]
+    labels=["order_id", "price", "amount"],
 )
 
 FundingCurrencyRawBook = generate_labeler_serializer(
     name="FundingCurrencyRawBook",
     klass=dataclasses.FundingCurrencyRawBook,
-    labels=[
-        "offer_id",
-        "period",
-        "rate",
-        "amount"
-    ]
+    labels=["offer_id", "period", "rate", "amount"],
 )
 
 Statistic = generate_labeler_serializer(
-    name="Statistic",
-    klass=dataclasses.Statistic,
-    labels=[
-        "mts",
-        "value"
-    ]
+    name="Statistic", klass=dataclasses.Statistic, labels=["mts", "value"]
 )
 
 Candle = generate_labeler_serializer(
     name="Candle",
     klass=dataclasses.Candle,
-    labels=[
-        "mts",
-        "open",
-        "close",
-        "high",
-        "low",
-        "volume"
-    ]
+    labels=["mts", "open", "close", "high", "low", "volume"],
 )
 
 DerivativesStatus = generate_labeler_serializer(
@@ -190,7 +177,7 @@ DerivativesStatus = generate_labeler_serializer(
     klass=dataclasses.DerivativesStatus,
     labels=[
         "mts",
-        "_PLACEHOLDER", 
+        "_PLACEHOLDER",
         "deriv_price",
         "spot_price",
         "_PLACEHOLDER",
@@ -211,8 +198,8 @@ DerivativesStatus = generate_labeler_serializer(
         "_PLACEHOLDER",
         "_PLACEHOLDER",
         "clamp_min",
-        "clamp_max"
-    ]
+        "clamp_max",
+    ],
 )
 
 Liquidation = generate_labeler_serializer(
@@ -230,8 +217,8 @@ Liquidation = generate_labeler_serializer(
         "is_match",
         "is_market_sold",
         "_PLACEHOLDER",
-        "liquidation_price"
-    ]
+        "liquidation_price",
+    ],
 )
 
 Leaderboard = generate_labeler_serializer(
@@ -247,8 +234,8 @@ Leaderboard = generate_labeler_serializer(
         "value",
         "_PLACEHOLDER",
         "_PLACEHOLDER",
-        "twitter_handle"
-    ]
+        "twitter_handle",
+    ],
 )
 
 FundingStatistic = generate_labeler_serializer(
@@ -266,8 +253,8 @@ FundingStatistic = generate_labeler_serializer(
         "funding_amount_used",
         "_PLACEHOLDER",
         "_PLACEHOLDER",
-        "funding_below_threshold"
-    ]
+        "funding_below_threshold",
+    ],
 )
 
 PulseProfile = generate_labeler_serializer(
@@ -290,14 +277,14 @@ PulseProfile = generate_labeler_serializer(
         "_PLACEHOLDER",
         "_PLACEHOLDER",
         "_PLACEHOLDER",
-        "tipping_status"
-    ]
+        "tipping_status",
+    ],
 )
 
 PulseMessage = generate_recursive_serializer(
     name="PulseMessage",
     klass=dataclasses.PulseMessage,
-    serializers={ "profile": PulseProfile },
+    serializers={"profile": PulseProfile},
     labels=[
         "pid",
         "mts",
@@ -311,7 +298,7 @@ PulseMessage = generate_recursive_serializer(
         "is_pin",
         "is_public",
         "comments_disabled",
-        "tags", 
+        "tags",
         "attachments",
         "meta",
         "likes",
@@ -320,39 +307,29 @@ PulseMessage = generate_recursive_serializer(
         "profile",
         "comments",
         "_PLACEHOLDER",
-        "_PLACEHOLDER"
-    ]
+        "_PLACEHOLDER",
+    ],
 )
 
 TradingMarketAveragePrice = generate_labeler_serializer(
     name="TradingMarketAveragePrice",
     klass=dataclasses.TradingMarketAveragePrice,
-    labels=[
-        "price_avg",
-        "amount"
-    ]
+    labels=["price_avg", "amount"],
 )
 
 FundingMarketAveragePrice = generate_labeler_serializer(
     name="FundingMarketAveragePrice",
     klass=dataclasses.FundingMarketAveragePrice,
-    labels=[
-        "rate_avg",
-        "amount"
-    ]
+    labels=["rate_avg", "amount"],
 )
 
 FxRate = generate_labeler_serializer(
-    name="FxRate",
-    klass=dataclasses.FxRate,
-    labels=[
-        "current_rate"
-    ]
+    name="FxRate", klass=dataclasses.FxRate, labels=["current_rate"]
 )
 
-#endregion
+# endregion
 
-#region Serializer definitions for types of auth use
+# region Serializer definitions for types of auth use
 
 UserInfo = generate_labeler_serializer(
     name="UserInfo",
@@ -412,8 +389,8 @@ UserInfo = generate_labeler_serializer(
         "_PLACEHOLDER",
         "_PLACEHOLDER",
         "_PLACEHOLDER",
-        "is_merchant_enterprise"
-    ]
+        "is_merchant_enterprise",
+    ],
 )
 
 LoginHistory = generate_labeler_serializer(
@@ -427,16 +404,12 @@ LoginHistory = generate_labeler_serializer(
         "ip",
         "_PLACEHOLDER",
         "_PLACEHOLDER",
-        "extra_info"
-    ]
+        "extra_info",
+    ],
 )
 
 BalanceAvailable = generate_labeler_serializer(
-    name="BalanceAvailable",
-    klass=dataclasses.BalanceAvailable,
-    labels=[
-        "amount"
-    ]
+    name="BalanceAvailable", klass=dataclasses.BalanceAvailable, labels=["amount"]
 )
 
 Order = generate_labeler_serializer(
@@ -447,10 +420,10 @@ Order = generate_labeler_serializer(
         "gid",
         "cid",
         "symbol",
-        "mts_create", 
-        "mts_update", 
-        "amount", 
-        "amount_orig", 
+        "mts_create",
+        "mts_update",
+        "amount",
+        "amount_orig",
         "order_type",
         "type_prev",
         "mts_tif",
@@ -467,26 +440,26 @@ Order = generate_labeler_serializer(
         "_PLACEHOLDER",
         "_PLACEHOLDER",
         "notify",
-        "hidden", 
+        "hidden",
         "placed_id",
         "_PLACEHOLDER",
         "_PLACEHOLDER",
         "routing",
         "_PLACEHOLDER",
         "_PLACEHOLDER",
-        "meta"
-    ]
+        "meta",
+    ],
 )
 
 Position = generate_labeler_serializer(
     name="Position",
     klass=dataclasses.Position,
     labels=[
-        "symbol", 
-        "status", 
-        "amount", 
-        "base_price", 
-        "margin_funding", 
+        "symbol",
+        "status",
+        "amount",
+        "base_price",
+        "margin_funding",
         "margin_funding_type",
         "pl",
         "pl_perc",
@@ -501,41 +474,33 @@ Position = generate_labeler_serializer(
         "_PLACEHOLDER",
         "collateral",
         "collateral_min",
-        "meta"
-    ]
+        "meta",
+    ],
 )
 
 Trade = generate_labeler_serializer(
     name="Trade",
     klass=dataclasses.Trade,
     labels=[
-        "id", 
-        "symbol", 
-        "mts_create", 
-        "order_id", 
-        "exec_amount", 
-        "exec_price", 
-        "order_type", 
-        "order_price", 
-        "maker", 
-        "fee", 
+        "id",
+        "symbol",
+        "mts_create",
+        "order_id",
+        "exec_amount",
+        "exec_price",
+        "order_type",
+        "order_price",
+        "maker",
+        "fee",
         "fee_currency",
-        "cid"
-    ]
+        "cid",
+    ],
 )
 
 FundingTrade = generate_labeler_serializer(
     name="FundingTrade",
     klass=dataclasses.FundingTrade,
-    labels=[
-        "id",
-        "currency",
-        "mts_create",
-        "offer_id",
-        "amount",
-        "rate",
-        "period"
-    ]
+    labels=["id", "currency", "mts_create", "offer_id", "amount", "rate", "period"],
 )
 
 OrderTrade = generate_labeler_serializer(
@@ -553,8 +518,8 @@ OrderTrade = generate_labeler_serializer(
         "maker",
         "fee",
         "fee_currency",
-        "cid"
-    ]
+        "cid",
+    ],
 )
 
 Ledger = generate_labeler_serializer(
@@ -569,8 +534,8 @@ Ledger = generate_labeler_serializer(
         "amount",
         "balance",
         "_PLACEHOLDER",
-        "description"
-    ]
+        "description",
+    ],
 )
 
 FundingOffer = generate_labeler_serializer(
@@ -597,8 +562,8 @@ FundingOffer = generate_labeler_serializer(
         "hidden",
         "_PLACEHOLDER",
         "renew",
-        "_PLACEHOLDER"
-    ]
+        "_PLACEHOLDER",
+    ],
 )
 
 FundingCredit = generate_labeler_serializer(
@@ -626,8 +591,8 @@ FundingCredit = generate_labeler_serializer(
         "renew",
         "_PLACEHOLDER",
         "no_close",
-        "position_pair"
-    ]
+        "position_pair",
+    ],
 )
 
 FundingLoan = generate_labeler_serializer(
@@ -654,44 +619,34 @@ FundingLoan = generate_labeler_serializer(
         "_PLACEHOLDER",
         "renew",
         "_PLACEHOLDER",
-        "no_close"
-    ]
+        "no_close",
+    ],
 )
 
 FundingAutoRenew = generate_labeler_serializer(
     name="FundingAutoRenew",
     klass=dataclasses.FundingAutoRenew,
-    labels=[
-        "currency",
-        "period",
-        "rate",
-        "threshold"
-    ]
+    labels=["currency", "period", "rate", "threshold"],
 )
 
 FundingInfo = generate_labeler_serializer(
     name="FundingInfo",
     klass=dataclasses.FundingInfo,
-    labels=[
-        "yield_loan",
-        "yield_lend",
-        "duration_loan",
-        "duration_lend"
-    ]
+    labels=["yield_loan", "yield_lend", "duration_loan", "duration_lend"],
 )
 
 Wallet = generate_labeler_serializer(
     name="Wallet",
     klass=dataclasses.Wallet,
     labels=[
-        "wallet_type", 
-        "currency", 
-        "balance", 
+        "wallet_type",
+        "currency",
+        "balance",
         "unsettled_interest",
         "available_balance",
         "last_change",
-        "trade_details"
-    ]
+        "trade_details",
+    ],
 )
 
 Transfer = generate_labeler_serializer(
@@ -705,8 +660,8 @@ Transfer = generate_labeler_serializer(
         "currency",
         "currency_to",
         "_PLACEHOLDER",
-        "amount"
-    ]
+        "amount",
+    ],
 )
 
 Withdrawal = generate_labeler_serializer(
@@ -721,8 +676,8 @@ Withdrawal = generate_labeler_serializer(
         "amount",
         "_PLACEHOLDER",
         "_PLACEHOLDER",
-        "withdrawal_fee"
-    ]
+        "withdrawal_fee",
+    ],
 )
 
 DepositAddress = generate_labeler_serializer(
@@ -734,20 +689,14 @@ DepositAddress = generate_labeler_serializer(
         "currency_code",
         "_PLACEHOLDER",
         "address",
-        "pool_address"
-    ]
+        "pool_address",
+    ],
 )
 
 LightningNetworkInvoice = generate_labeler_serializer(
     name="LightningNetworkInvoice",
     klass=dataclasses.LightningNetworkInvoice,
-    labels=[
-        "invoice_hash",
-        "invoice",
-        "_PLACEHOLDER",
-        "_PLACEHOLDER",
-        "amount"
-    ]
+    labels=["invoice_hash", "invoice", "_PLACEHOLDER", "_PLACEHOLDER", "amount"],
 )
 
 Movement = generate_labeler_serializer(
@@ -775,8 +724,8 @@ Movement = generate_labeler_serializer(
         "_PLACEHOLDER",
         "_PLACEHOLDER",
         "transaction_id",
-        "withdraw_transaction_note"
-    ]
+        "withdraw_transaction_note",
+    ],
 )
 
 SymbolMarginInfo = generate_labeler_serializer(
@@ -788,22 +737,15 @@ SymbolMarginInfo = generate_labeler_serializer(
         "tradable_balance",
         "gross_balance",
         "buy",
-        "sell"
+        "sell",
     ],
-
-    flat=True
+    flat=True,
 )
 
 BaseMarginInfo = generate_labeler_serializer(
     name="BaseMarginInfo",
     klass=dataclasses.BaseMarginInfo,
-    labels=[
-        "user_pl",
-        "user_swaps",
-        "margin_balance",
-        "margin_net",
-        "margin_min"
-    ]
+    labels=["user_pl", "user_swaps", "margin_balance", "margin_net", "margin_min"],
 )
 
 PositionClaim = generate_labeler_serializer(
@@ -829,8 +771,8 @@ PositionClaim = generate_labeler_serializer(
         "_PLACEHOLDER",
         "collateral",
         "min_collateral",
-        "meta"
-    ]
+        "meta",
+    ],
 )
 
 PositionIncreaseInfo = generate_labeler_serializer(
@@ -854,21 +796,15 @@ PositionIncreaseInfo = generate_labeler_serializer(
         "funding_value",
         "funding_required",
         "funding_value_currency",
-        "funding_required_currency"
+        "funding_required_currency",
     ],
-
-    flat=True
+    flat=True,
 )
 
 PositionIncrease = generate_labeler_serializer(
     name="PositionIncrease",
     klass=dataclasses.PositionIncrease,
-    labels=[
-        "symbol",
-        "_PLACEHOLDER",
-        "amount",
-        "base_price"
-    ]
+    labels=["symbol", "_PLACEHOLDER", "amount", "base_price"],
 )
 
 PositionHistory = generate_labeler_serializer(
@@ -888,8 +824,8 @@ PositionHistory = generate_labeler_serializer(
         "_PLACEHOLDER",
         "position_id",
         "mts_create",
-        "mts_update"
-    ]
+        "mts_update",
+    ],
 )
 
 PositionSnapshot = generate_labeler_serializer(
@@ -909,8 +845,8 @@ PositionSnapshot = generate_labeler_serializer(
         "_PLACEHOLDER",
         "position_id",
         "mts_create",
-        "mts_update"
-    ]
+        "mts_update",
+    ],
 )
 
 PositionAudit = generate_labeler_serializer(
@@ -936,25 +872,20 @@ PositionAudit = generate_labeler_serializer(
         "_PLACEHOLDER",
         "collateral",
         "collateral_min",
-        "meta"
-    ]
+        "meta",
+    ],
 )
 
 DerivativePositionCollateral = generate_labeler_serializer(
     name="DerivativePositionCollateral",
     klass=dataclasses.DerivativePositionCollateral,
-    labels=[
-        "status"
-    ]
+    labels=["status"],
 )
 
 DerivativePositionCollateralLimits = generate_labeler_serializer(
     name="DerivativePositionCollateralLimits",
     klass=dataclasses.DerivativePositionCollateralLimits,
-    labels=[
-        "min_collateral",
-        "max_collateral"
-    ]
+    labels=["min_collateral", "max_collateral"],
 )
 
-#endregion
+# endregion

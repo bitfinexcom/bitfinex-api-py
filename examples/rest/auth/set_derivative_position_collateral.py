@@ -8,10 +8,7 @@ from bfxapi.types import (
     DerivativePositionCollateralLimits,
 )
 
-bfx = Client(
-    api_key=os.getenv("BFX_API_KEY"),
-    api_secret=os.getenv("BFX_API_SECRET")
-)
+bfx = Client(api_key=os.getenv("BFX_API_KEY"), api_secret=os.getenv("BFX_API_SECRET"))
 
 submit_order_notification = bfx.rest.auth.submit_order(
     type="LIMIT", symbol="tBTCF0:USTF0", amount="0.015", price="16700", lev=10

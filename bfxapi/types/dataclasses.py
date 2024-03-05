@@ -1,15 +1,15 @@
-from typing import \
-    List, Dict, Literal, Optional, Any
-
 from dataclasses import dataclass
+from typing import Any, Dict, List, Literal, Optional
 
-from .labeler import _Type, partial, compose
+from .labeler import _Type, compose, partial
 
-#region Dataclass definitions for types of public use
+# region Dataclass definitions for types of public use
+
 
 @dataclass
 class PlatformStatus(_Type):
     status: int
+
 
 @dataclass
 class TradingPairTicker(_Type):
@@ -23,6 +23,7 @@ class TradingPairTicker(_Type):
     volume: float
     high: float
     low: float
+
 
 @dataclass
 class FundingCurrencyTicker(_Type):
@@ -41,6 +42,7 @@ class FundingCurrencyTicker(_Type):
     low: float
     frr_amount_available: float
 
+
 @dataclass
 class TickersHistory(_Type):
     symbol: str
@@ -48,12 +50,14 @@ class TickersHistory(_Type):
     ask: float
     mts: int
 
+
 @dataclass
 class TradingPairTrade(_Type):
     id: int
     mts: int
     amount: float
     price: float
+
 
 @dataclass
 class FundingCurrencyTrade(_Type):
@@ -63,11 +67,13 @@ class FundingCurrencyTrade(_Type):
     rate: float
     period: int
 
+
 @dataclass
 class TradingPairBook(_Type):
     price: float
     count: int
     amount: float
+
 
 @dataclass
 class FundingCurrencyBook(_Type):
@@ -76,11 +82,13 @@ class FundingCurrencyBook(_Type):
     count: int
     amount: float
 
+
 @dataclass
 class TradingPairRawBook(_Type):
     order_id: int
     price: float
     amount: float
+
 
 @dataclass
 class FundingCurrencyRawBook(_Type):
@@ -89,10 +97,12 @@ class FundingCurrencyRawBook(_Type):
     rate: float
     amount: float
 
+
 @dataclass
 class Statistic(_Type):
     mts: int
     value: float
+
 
 @dataclass
 class Candle(_Type):
@@ -102,6 +112,7 @@ class Candle(_Type):
     high: int
     low: int
     volume: float
+
 
 @dataclass
 class DerivativesStatus(_Type):
@@ -118,6 +129,7 @@ class DerivativesStatus(_Type):
     clamp_min: float
     clamp_max: float
 
+
 @dataclass
 class Liquidation(_Type):
     pos_id: int
@@ -129,6 +141,7 @@ class Liquidation(_Type):
     is_market_sold: int
     liquidation_price: float
 
+
 @dataclass
 class Leaderboard(_Type):
     mts: int
@@ -136,6 +149,7 @@ class Leaderboard(_Type):
     ranking: int
     value: float
     twitter_handle: Optional[str]
+
 
 @dataclass
 class FundingStatistic(_Type):
@@ -145,6 +159,7 @@ class FundingStatistic(_Type):
     funding_amount: float
     funding_amount_used: float
     funding_below_threshold: float
+
 
 @dataclass
 class PulseProfile(_Type):
@@ -157,6 +172,7 @@ class PulseProfile(_Type):
     followers: int
     following: int
     tipping_status: int
+
 
 @dataclass
 class PulseMessage(_Type):
@@ -175,23 +191,28 @@ class PulseMessage(_Type):
     profile: PulseProfile
     comments: int
 
+
 @dataclass
 class TradingMarketAveragePrice(_Type):
     price_avg: float
     amount: float
+
 
 @dataclass
 class FundingMarketAveragePrice(_Type):
     rate_avg: float
     amount: float
 
+
 @dataclass
 class FxRate(_Type):
     current_rate: float
 
-#endregion
 
-#region Dataclass definitions for types of auth use
+# endregion
+
+# region Dataclass definitions for types of auth use
+
 
 @dataclass
 class UserInfo(_Type):
@@ -224,6 +245,7 @@ class UserInfo(_Type):
     compl_countries_resid: List[str]
     is_merchant_enterprise: int
 
+
 @dataclass
 class LoginHistory(_Type):
     id: int
@@ -231,9 +253,11 @@ class LoginHistory(_Type):
     ip: str
     extra_info: Dict[str, Any]
 
+
 @dataclass
 class BalanceAvailable(_Type):
     amount: float
+
 
 @dataclass
 class Order(_Type):
@@ -260,6 +284,7 @@ class Order(_Type):
     routing: str
     meta: Dict[str, Any]
 
+
 @dataclass
 class Position(_Type):
     symbol: str
@@ -280,6 +305,7 @@ class Position(_Type):
     collateral_min: float
     meta: Dict[str, Any]
 
+
 @dataclass
 class Trade(_Type):
     id: int
@@ -290,10 +316,11 @@ class Trade(_Type):
     exec_price: float
     order_type: str
     order_price: float
-    maker:int
+    maker: int
     fee: float
     fee_currency: str
     cid: int
+
 
 @dataclass()
 class FundingTrade(_Type):
@@ -305,6 +332,7 @@ class FundingTrade(_Type):
     rate: float
     period: int
 
+
 @dataclass
 class OrderTrade(_Type):
     id: int
@@ -313,10 +341,11 @@ class OrderTrade(_Type):
     order_id: int
     exec_amount: float
     exec_price: float
-    maker:int
+    maker: int
     fee: float
     fee_currency: str
     cid: int
+
 
 @dataclass
 class Ledger(_Type):
@@ -326,6 +355,7 @@ class Ledger(_Type):
     amount: float
     balance: float
     description: str
+
 
 @dataclass
 class FundingOffer(_Type):
@@ -343,6 +373,7 @@ class FundingOffer(_Type):
     notify: int
     hidden: int
     renew: int
+
 
 @dataclass
 class FundingCredit(_Type):
@@ -365,6 +396,7 @@ class FundingCredit(_Type):
     no_close: int
     position_pair: str
 
+
 @dataclass
 class FundingLoan(_Type):
     id: int
@@ -385,6 +417,7 @@ class FundingLoan(_Type):
     renew: int
     no_close: int
 
+
 @dataclass
 class FundingAutoRenew(_Type):
     currency: str
@@ -392,12 +425,14 @@ class FundingAutoRenew(_Type):
     rate: float
     threshold: float
 
+
 @dataclass()
 class FundingInfo(_Type):
     yield_loan: float
     yield_lend: float
     duration_loan: float
     duration_lend: float
+
 
 @dataclass
 class Wallet(_Type):
@@ -409,6 +444,7 @@ class Wallet(_Type):
     last_change: str
     trade_details: Dict[str, Any]
 
+
 @dataclass
 class Transfer(_Type):
     mts: int
@@ -417,6 +453,7 @@ class Transfer(_Type):
     currency: str
     currency_to: str
     amount: int
+
 
 @dataclass
 class Withdrawal(_Type):
@@ -427,6 +464,7 @@ class Withdrawal(_Type):
     amount: float
     withdrawal_fee: float
 
+
 @dataclass
 class DepositAddress(_Type):
     method: str
@@ -434,11 +472,13 @@ class DepositAddress(_Type):
     address: str
     pool_address: str
 
+
 @dataclass
 class LightningNetworkInvoice(_Type):
     invoice_hash: str
     invoice: str
     amount: str
+
 
 @dataclass
 class Movement(_Type):
@@ -454,6 +494,7 @@ class Movement(_Type):
     transaction_id: str
     withdraw_transaction_note: str
 
+
 @dataclass
 class SymbolMarginInfo(_Type):
     symbol: str
@@ -462,6 +503,7 @@ class SymbolMarginInfo(_Type):
     buy: float
     sell: float
 
+
 @dataclass
 class BaseMarginInfo(_Type):
     user_pl: float
@@ -469,6 +511,7 @@ class BaseMarginInfo(_Type):
     margin_balance: float
     margin_net: float
     margin_min: float
+
 
 @dataclass
 class PositionClaim(_Type):
@@ -486,6 +529,7 @@ class PositionClaim(_Type):
     min_collateral: str
     meta: Dict[str, Any]
 
+
 @dataclass
 class PositionIncreaseInfo(_Type):
     max_pos: int
@@ -501,11 +545,13 @@ class PositionIncreaseInfo(_Type):
     funding_value_currency: str
     funding_required_currency: str
 
+
 @dataclass
 class PositionIncrease(_Type):
     symbol: str
     amount: float
     base_price: float
+
 
 @dataclass
 class PositionHistory(_Type):
@@ -519,6 +565,7 @@ class PositionHistory(_Type):
     mts_create: int
     mts_update: int
 
+
 @dataclass
 class PositionSnapshot(_Type):
     symbol: str
@@ -530,6 +577,7 @@ class PositionSnapshot(_Type):
     position_id: int
     mts_create: int
     mts_update: int
+
 
 @dataclass
 class PositionAudit(_Type):
@@ -547,18 +595,22 @@ class PositionAudit(_Type):
     collateral_min: float
     meta: Dict[str, Any]
 
+
 @dataclass
 class DerivativePositionCollateral(_Type):
     status: int
+
 
 @dataclass
 class DerivativePositionCollateralLimits(_Type):
     min_collateral: float
     max_collateral: float
 
-#endregion
 
-#region Dataclass definitions for types of merchant use
+# endregion
+
+# region Dataclass definitions for types of merchant use
+
 
 @compose(dataclass, partial)
 class InvoiceSubmission(_Type):
@@ -582,7 +634,9 @@ class InvoiceSubmission(_Type):
     @classmethod
     def parse(cls, data: Dict[str, Any]) -> "InvoiceSubmission":
         if "customer_info" in data and data["customer_info"] is not None:
-            data["customer_info"] = InvoiceSubmission.CustomerInfo(**data["customer_info"])
+            data["customer_info"] = InvoiceSubmission.CustomerInfo(
+                **data["customer_info"]
+            )
 
         for index, invoice in enumerate(data["invoices"]):
             data["invoices"][index] = InvoiceSubmission.Invoice(**invoice)
@@ -592,7 +646,9 @@ class InvoiceSubmission(_Type):
 
         if "additional_payments" in data and data["additional_payments"] is not None:
             for index, additional_payment in enumerate(data["additional_payments"]):
-                data["additional_payments"][index] = InvoiceSubmission.Payment(**additional_payment)
+                data["additional_payments"][index] = InvoiceSubmission.Payment(
+                    **additional_payment
+                )
 
         return InvoiceSubmission(**data)
 
@@ -633,6 +689,7 @@ class InvoiceSubmission(_Type):
         force_completed: bool
         amount_diff: str
 
+
 @dataclass
 class InvoicePage(_Type):
     page: int
@@ -650,16 +707,19 @@ class InvoicePage(_Type):
 
         return InvoicePage(**data)
 
+
 @dataclass
 class InvoiceStats(_Type):
     time: str
     count: float
+
 
 @dataclass
 class CurrencyConversion(_Type):
     base_ccy: str
     convert_ccy: str
     created: int
+
 
 @dataclass
 class MerchantDeposit(_Type):
@@ -673,6 +733,7 @@ class MerchantDeposit(_Type):
     currency: str
     method: str
     pay_method: str
+
 
 @dataclass
 class MerchantUnlinkedDeposit(_Type):
@@ -689,4 +750,5 @@ class MerchantUnlinkedDeposit(_Type):
     status: str
     note: Optional[str]
 
-#endregion
+
+# endregion

@@ -8,9 +8,6 @@ on:
     branches:
       - master
 
-permissions:
-  contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,7 +20,7 @@ jobs:
           python-version: '3.8'
       - name: Install bitfinex-api-py's dependencies
         run: python -m pip install -r dev-requirements.txt
-      - name: Lint the project with pylint (and fail if score is lower than 10.00/10.00)
-        run: python -m pylint bfxapi
-      - name: Run mypy to check the correctness of type hinting (and fail if any error or warning is found)
+      - name: Run pre-commit hooks (see .pre-commit-config.yaml)
+        uses: pre-commit/action@v3.0.1
+      - name: Run mypy to ensure correct type hinting
         run: python -m mypy bfxapi

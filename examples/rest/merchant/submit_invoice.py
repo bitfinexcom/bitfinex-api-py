@@ -5,10 +5,7 @@ import os
 from bfxapi import Client
 from bfxapi.types import InvoiceSubmission
 
-bfx = Client(
-    api_key=os.getenv("BFX_API_KEY"),
-    api_secret=os.getenv("BFX_API_SECRET")
-)
+bfx = Client(api_key=os.getenv("BFX_API_KEY"), api_secret=os.getenv("BFX_API_SECRET"))
 
 customer_info = {
     "nationality": "DE",

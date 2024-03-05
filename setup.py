@@ -1,16 +1,15 @@
 from distutils.core import setup
 
-_version = { }
-
-with open("bfxapi/_version.py", encoding="utf-8") as f:
-    #pylint: disable-next=exec-used
-    exec(f.read(), _version)
+from bfxapi._version import __version__
 
 setup(
     name="bitfinex-api-py",
-    version=_version["__version__"],
+    version=__version__,
     description="Official Bitfinex Python API",
-    long_description="A Python reference implementation of the Bitfinex API for both REST and websocket interaction",
+    long_description=(
+        "A Python reference implementation of the Bitfinex API "
+        "for both REST and websocket interaction."
+    ),
     long_description_content_type="text/markdown",
     url="https://github.com/bitfinexcom/bitfinex-api-py",
     author="Bitfinex",
@@ -18,12 +17,9 @@ setup(
     license="Apache-2.0",
     classifiers=[
         "Development Status :: 4 - Beta",
-
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
-
         "License :: OSI Approved :: Apache Software License",
-
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -52,5 +48,5 @@ setup(
         "requests~=2.28.1",
         "urllib3~=1.26.14",
     ],
-    python_requires=">=3.8"
+    python_requires=">=3.8",
 )
