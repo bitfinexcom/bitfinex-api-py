@@ -41,12 +41,12 @@ from bfxapi.types.serializers import _Notification
 
 class RestAuthEndpoints(Interface):
     def get_user_info(self) -> UserInfo:
-        return serializers.UserInfo.parse(*self._post("auth/r/info/user"))
+        return serializers.UserInfo.parse(*self._m.post("auth/r/info/user"))
 
     def get_login_history(self) -> List[LoginHistory]:
         return [
             serializers.LoginHistory.parse(*sub_data)
-            for sub_data in self._post("auth/r/logins/hist")
+            for sub_data in self._m.post("auth/r/logins/hist")
         ]
 
     def get_balance_available_for_orders_or_offers(
@@ -61,13 +61,13 @@ class RestAuthEndpoints(Interface):
         body = {"symbol": symbol, "type": type, "dir": dir, "rate": rate, "lev": lev}
 
         return serializers.BalanceAvailable.parse(
-            *self._post("auth/calc/order/avail", body=body)
+            *self._m.post("auth/calc/order/avail", body=body)
         )
 
     def get_wallets(self) -> List[Wallet]:
         return [
             serializers.Wallet.parse(*sub_data)
-            for sub_data in self._post("auth/r/wallets")
+            for sub_data in self._m.post("auth/r/wallets")
         ]
 
     def get_orders(
@@ -80,7 +80,7 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.Order.parse(*sub_data)
-            for sub_data in self._post(endpoint, body={"id": ids})
+            for sub_data in self._m.post(endpoint, body={"id": ids})
         ]
 
     def submit_order(
@@ -115,7 +115,7 @@ class RestAuthEndpoints(Interface):
         }
 
         return _Notification[Order](serializers.Order).parse(
-            *self._post("auth/w/order/submit", body=body)
+            *self._m.post("auth/w/order/submit", body=body)
         )
 
     def update_order(
@@ -150,7 +150,7 @@ class RestAuthEndpoints(Interface):
         }
 
         return _Notification[Order](serializers.Order).parse(
-            *self._post("auth/w/order/update", body=body)
+            *self._m.post("auth/w/order/update", body=body)
         )
 
     def cancel_order(
@@ -161,7 +161,7 @@ class RestAuthEndpoints(Interface):
         cid_date: Optional[str] = None,
     ) -> Notification[Order]:
         return _Notification[Order](serializers.Order).parse(
-            *self._post(
+            *self._m.post(
                 "auth/w/order/cancel", body={"id": id, "cid": cid, "cid_date": cid_date}
             )
         )
@@ -177,7 +177,7 @@ class RestAuthEndpoints(Interface):
         body = {"id": id, "cid": cid, "gid": gid, "all": all}
 
         return _Notification[List[Order]](serializers.Order, is_iterable=True).parse(
-            *self._post("auth/w/order/cancel/multi", body=body)
+            *self._m.post("auth/w/order/cancel/multi", body=body)
         )
 
     def get_orders_history(
@@ -198,13 +198,13 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.Order.parse(*sub_data)
-            for sub_data in self._post(endpoint, body=body)
+            for sub_data in self._m.post(endpoint, body=body)
         ]
 
     def get_order_trades(self, symbol: str, id: int) -> List[OrderTrade]:
         return [
             serializers.OrderTrade.parse(*sub_data)
-            for sub_data in self._post(f"auth/r/order/{symbol}:{id}/trades")
+            for sub_data in self._m.post(f"auth/r/order/{symbol}:{id}/trades")
         ]
 
     def get_trades_history(
@@ -225,7 +225,7 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.Trade.parse(*sub_data)
-            for sub_data in self._post(endpoint, body=body)
+            for sub_data in self._m.post(endpoint, body=body)
         ]
 
     def get_ledgers(
@@ -241,43 +241,43 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.Ledger.parse(*sub_data)
-            for sub_data in self._post(f"auth/r/ledgers/{currency}/hist", body=body)
+            for sub_data in self._m.post(f"auth/r/ledgers/{currency}/hist", body=body)
         ]
 
     def get_base_margin_info(self) -> BaseMarginInfo:
         return serializers.BaseMarginInfo.parse(
-            *(self._post("auth/r/info/margin/base")[1])
+            *(self._m.post("auth/r/info/margin/base")[1])
         )
 
     def get_symbol_margin_info(self, symbol: str) -> SymbolMarginInfo:
         return serializers.SymbolMarginInfo.parse(
-            *self._post(f"auth/r/info/margin/{symbol}")
+            *self._m.post(f"auth/r/info/margin/{symbol}")
         )
 
     def get_all_symbols_margin_info(self) -> List[SymbolMarginInfo]:
         return [
             serializers.SymbolMarginInfo.parse(*sub_data)
-            for sub_data in self._post("auth/r/info/margin/sym_all")
+            for sub_data in self._m.post("auth/r/info/margin/sym_all")
         ]
 
     def get_positions(self) -> List[Position]:
         return [
             serializers.Position.parse(*sub_data)
-            for sub_data in self._post("auth/r/positions")
+            for sub_data in self._m.post("auth/r/positions")
         ]
 
     def claim_position(
         self, id: int, *, amount: Optional[Union[str, float, Decimal]] = None
     ) -> Notification[PositionClaim]:
         return _Notification[PositionClaim](serializers.PositionClaim).parse(
-            *self._post("auth/w/position/claim", body={"id": id, "amount": amount})
+            *self._m.post("auth/w/position/claim", body={"id": id, "amount": amount})
         )
 
     def increase_position(
         self, symbol: str, amount: Union[str, float, Decimal]
     ) -> Notification[PositionIncrease]:
         return _Notification[PositionIncrease](serializers.PositionIncrease).parse(
-            *self._post(
+            *self._m.post(
                 "auth/w/position/increase", body={"symbol": symbol, "amount": amount}
             )
         )
@@ -286,7 +286,7 @@ class RestAuthEndpoints(Interface):
         self, symbol: str, amount: Union[str, float, Decimal]
     ) -> PositionIncreaseInfo:
         return serializers.PositionIncreaseInfo.parse(
-            *self._post(
+            *self._m.post(
                 "auth/r/position/increase/info",
                 body={"symbol": symbol, "amount": amount},
             )
@@ -301,7 +301,7 @@ class RestAuthEndpoints(Interface):
     ) -> List[PositionHistory]:
         return [
             serializers.PositionHistory.parse(*sub_data)
-            for sub_data in self._post(
+            for sub_data in self._m.post(
                 "auth/r/positions/hist",
                 body={"start": start, "end": end, "limit": limit},
             )
@@ -316,7 +316,7 @@ class RestAuthEndpoints(Interface):
     ) -> List[PositionSnapshot]:
         return [
             serializers.PositionSnapshot.parse(*sub_data)
-            for sub_data in self._post(
+            for sub_data in self._m.post(
                 "auth/r/positions/snap",
                 body={"start": start, "end": end, "limit": limit},
             )
@@ -334,7 +334,7 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.PositionAudit.parse(*sub_data)
-            for sub_data in self._post("auth/r/positions/audit", body=body)
+            for sub_data in self._m.post("auth/r/positions/audit", body=body)
         ]
 
     def set_derivative_position_collateral(
@@ -342,7 +342,7 @@ class RestAuthEndpoints(Interface):
     ) -> DerivativePositionCollateral:
         return serializers.DerivativePositionCollateral.parse(
             *(
-                self._post(
+                self._m.post(
                     "auth/w/deriv/collateral/set",
                     body={"symbol": symbol, "collateral": collateral},
                 )[0]
@@ -353,7 +353,7 @@ class RestAuthEndpoints(Interface):
         self, symbol: str
     ) -> DerivativePositionCollateralLimits:
         return serializers.DerivativePositionCollateralLimits.parse(
-            *self._post("auth/calc/deriv/collateral/limit", body={"symbol": symbol})
+            *self._m.post("auth/calc/deriv/collateral/limit", body={"symbol": symbol})
         )
 
     def get_funding_offers(self, *, symbol: Optional[str] = None) -> List[FundingOffer]:
@@ -364,7 +364,7 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.FundingOffer.parse(*sub_data)
-            for sub_data in self._post(endpoint)
+            for sub_data in self._m.post(endpoint)
         ]
 
     def submit_funding_offer(
@@ -387,22 +387,24 @@ class RestAuthEndpoints(Interface):
         }
 
         return _Notification[FundingOffer](serializers.FundingOffer).parse(
-            *self._post("auth/w/funding/offer/submit", body=body)
+            *self._m.post("auth/w/funding/offer/submit", body=body)
         )
 
     def cancel_funding_offer(self, id: int) -> Notification[FundingOffer]:
         return _Notification[FundingOffer](serializers.FundingOffer).parse(
-            *self._post("auth/w/funding/offer/cancel", body={"id": id})
+            *self._m.post("auth/w/funding/offer/cancel", body={"id": id})
         )
 
     def cancel_all_funding_offers(self, currency: str) -> Notification[Literal[None]]:
         return _Notification[Literal[None]](None).parse(
-            *self._post("auth/w/funding/offer/cancel/all", body={"currency": currency})
+            *self._m.post(
+                "auth/w/funding/offer/cancel/all", body={"currency": currency}
+            )
         )
 
     def submit_funding_close(self, id: int) -> Notification[Literal[None]]:
         return _Notification[Literal[None]](None).parse(
-            *self._post("auth/w/funding/close", body={"id": id})
+            *self._m.post("auth/w/funding/close", body={"id": id})
         )
 
     def toggle_auto_renew(
@@ -423,7 +425,7 @@ class RestAuthEndpoints(Interface):
         }
 
         return _Notification[FundingAutoRenew](serializers.FundingAutoRenew).parse(
-            *self._post("auth/w/funding/auto", body=body)
+            *self._m.post("auth/w/funding/auto", body=body)
         )
 
     def toggle_keep_funding(
@@ -434,7 +436,7 @@ class RestAuthEndpoints(Interface):
         changes: Optional[Dict[int, Literal[1, 2]]] = None,
     ) -> Notification[Literal[None]]:
         return _Notification[Literal[None]](None).parse(
-            *self._post(
+            *self._m.post(
                 "auth/w/funding/keep",
                 body={"type": type, "id": ids, "changes": changes},
             )
@@ -455,7 +457,7 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.FundingOffer.parse(*sub_data)
-            for sub_data in self._post(
+            for sub_data in self._m.post(
                 endpoint, body={"start": start, "end": end, "limit": limit}
             )
         ]
@@ -468,7 +470,7 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.FundingLoan.parse(*sub_data)
-            for sub_data in self._post(endpoint)
+            for sub_data in self._m.post(endpoint)
         ]
 
     def get_funding_loans_history(
@@ -486,7 +488,7 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.FundingLoan.parse(*sub_data)
-            for sub_data in self._post(
+            for sub_data in self._m.post(
                 endpoint, body={"start": start, "end": end, "limit": limit}
             )
         ]
@@ -501,7 +503,7 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.FundingCredit.parse(*sub_data)
-            for sub_data in self._post(endpoint)
+            for sub_data in self._m.post(endpoint)
         ]
 
     def get_funding_credits_history(
@@ -519,7 +521,7 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.FundingCredit.parse(*sub_data)
-            for sub_data in self._post(
+            for sub_data in self._m.post(
                 endpoint, body={"start": start, "end": end, "limit": limit}
             )
         ]
@@ -542,12 +544,12 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.FundingTrade.parse(*sub_data)
-            for sub_data in self._post(endpoint, body=body)
+            for sub_data in self._m.post(endpoint, body=body)
         ]
 
     def get_funding_info(self, key: str) -> FundingInfo:
         return serializers.FundingInfo.parse(
-            *(self._post(f"auth/r/info/funding/{key}")[2])
+            *(self._m.post(f"auth/r/info/funding/{key}")[2])
         )
 
     def transfer_between_wallets(
@@ -567,7 +569,7 @@ class RestAuthEndpoints(Interface):
         }
 
         return _Notification[Transfer](serializers.Transfer).parse(
-            *self._post("auth/w/transfer", body=body)
+            *self._m.post("auth/w/transfer", body=body)
         )
 
     def submit_wallet_withdrawal(
@@ -581,14 +583,14 @@ class RestAuthEndpoints(Interface):
         }
 
         return _Notification[Withdrawal](serializers.Withdrawal).parse(
-            *self._post("auth/w/withdraw", body=body)
+            *self._m.post("auth/w/withdraw", body=body)
         )
 
     def get_deposit_address(
         self, wallet: str, method: str, op_renew: bool = False
     ) -> Notification[DepositAddress]:
         return _Notification[DepositAddress](serializers.DepositAddress).parse(
-            *self._post(
+            *self._m.post(
                 "auth/w/deposit/address",
                 body={"wallet": wallet, "method": method, "op_renew": op_renew},
             )
@@ -598,7 +600,7 @@ class RestAuthEndpoints(Interface):
         self, wallet: str, currency: str, amount: Union[str, float, Decimal]
     ) -> LightningNetworkInvoice:
         return serializers.LightningNetworkInvoice.parse(
-            *self._post(
+            *self._m.post(
                 "auth/w/deposit/invoice",
                 body={"wallet": wallet, "currency": currency, "amount": amount},
             )
@@ -619,7 +621,7 @@ class RestAuthEndpoints(Interface):
 
         return [
             serializers.Movement.parse(*sub_data)
-            for sub_data in self._post(
+            for sub_data in self._m.post(
                 endpoint, body={"start": start, "end": end, "limit": limit}
             )
         ]
