@@ -39,8 +39,8 @@ setup(
         "bfxapi.websocket._handlers",
         "bfxapi.websocket._event_emitter",
         "bfxapi.rest",
-        "bfxapi.rest.endpoints",
-        "bfxapi.rest.middleware",
+        "bfxapi.rest._interface",
+        "bfxapi.rest._interfaces",
     ],
     install_requires=[
         "pyee~=9.0.4",

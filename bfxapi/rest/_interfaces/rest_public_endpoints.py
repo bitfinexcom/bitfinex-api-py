@@ -1,7 +1,8 @@
 from decimal import Decimal
 from typing import Any, Dict, List, Literal, Optional, Union, cast
 
-from ...types import (
+from bfxapi.rest._interface import Interface
+from bfxapi.types import (
     Candle,
     DerivativesStatus,
     FundingCurrencyBook,
@@ -25,10 +26,9 @@ from ...types import (
     TradingPairTrade,
     serializers,
 )
-from ..middleware import Middleware
 
 
-class RestPublicEndpoints(Middleware):
+class RestPublicEndpoints(Interface):
     def conf(self, config: str) -> Any:
         return self._get(f"conf/{config}")[0]
 

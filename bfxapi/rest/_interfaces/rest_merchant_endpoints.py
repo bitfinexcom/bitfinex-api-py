@@ -1,7 +1,7 @@
 from decimal import Decimal
-from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
-from bfxapi.rest.middleware import Middleware
+from bfxapi.rest._interface import Interface
 from bfxapi.types import (
     CurrencyConversion,
     InvoicePage,
@@ -11,29 +11,14 @@ from bfxapi.types import (
     MerchantUnlinkedDeposit,
 )
 
-_CustomerInfo = TypedDict(
-    "_CustomerInfo",
-    {
-        "nationality": str,
-        "resid_country": str,
-        "resid_city": str,
-        "resid_zip_code": str,
-        "resid_street": str,
-        "resid_building_no": str,
-        "full_name": str,
-        "email": str,
-        "tos_accepted": bool,
-    },
-)
 
-
-class RestMerchantEndpoints(Middleware):
+class RestMerchantEndpoints(Interface):
     def submit_invoice(
         self,
         amount: Union[str, float, Decimal],
         currency: str,
         order_id: str,
-        customer_info: _CustomerInfo,
+        customer_info: Dict[str, Any],
         pay_currencies: List[str],
         *,
         duration: Optional[int] = None,

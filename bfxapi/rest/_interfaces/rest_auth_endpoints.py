@@ -1,7 +1,8 @@
 from decimal import Decimal
 from typing import Dict, List, Literal, Optional, Tuple, Union
 
-from ...types import (
+from bfxapi.rest._interface import Interface
+from bfxapi.types import (
     BalanceAvailable,
     BaseMarginInfo,
     DepositAddress,
@@ -35,11 +36,10 @@ from ...types import (
     Withdrawal,
     serializers,
 )
-from ...types.serializers import _Notification
-from ..middleware import Middleware
+from bfxapi.types.serializers import _Notification
 
 
-class RestAuthEndpoints(Middleware):
+class RestAuthEndpoints(Interface):
     def get_user_info(self) -> UserInfo:
         return serializers.UserInfo.parse(*self._post("auth/r/info/user"))
 
