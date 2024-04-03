@@ -1,7 +1,7 @@
 from decimal import Decimal
-from typing import Any, Dict, List, Literal, Optional, TypedDict, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
-from bfxapi.rest.middleware import Middleware
+from bfxapi.rest._interface import Interface
 from bfxapi.types import (
     CurrencyConversion,
     InvoicePage,
@@ -11,29 +11,14 @@ from bfxapi.types import (
     MerchantUnlinkedDeposit,
 )
 
-_CustomerInfo = TypedDict(
-    "_CustomerInfo",
-    {
-        "nationality": str,
-        "resid_country": str,
-        "resid_city": str,
-        "resid_zip_code": str,
-        "resid_street": str,
-        "resid_building_no": str,
-        "full_name": str,
-        "email": str,
-        "tos_accepted": bool,
-    },
-)
 
-
-class RestMerchantEndpoints(Middleware):
+class RestMerchantEndpoints(Interface):
     def submit_invoice(
         self,
         amount: Union[str, float, Decimal],
         currency: str,
         order_id: str,
-        customer_info: _CustomerInfo,
+        customer_info: Dict[str, Any],
         pay_currencies: List[str],
         *,
         duration: Optional[int] = None,
@@ -51,7 +36,7 @@ class RestMerchantEndpoints(Middleware):
             "redirectUrl": redirect_url,
         }
 
-        data = self._post("auth/w/ext/pay/invoice/create", body=body)
+        data = self._m.post("auth/w/ext/pay/invoice/create", body=body)
 
         return InvoiceSubmission.parse(data)
 
@@ -65,7 +50,7 @@ class RestMerchantEndpoints(Middleware):
     ) -> List[InvoiceSubmission]:
         body = {"id": id, "start": start, "end": end, "limit": limit}
 
-        data = self._post("auth/r/ext/pay/invoices", body=body)
+        data = self._m.post("auth/r/ext/pay/invoices", body=body)
 
         return [InvoiceSubmission.parse(sub_data) for sub_data in data]
 
@@ -96,7 +81,7 @@ class RestMerchantEndpoints(Middleware):
             "orderId": order_id,
         }
 
-        data = self._post("auth/r/ext/pay/invoices/paginated", body=body)
+        data = self._m.post("auth/r/ext/pay/invoices/paginated", body=body)
 
         return InvoicePage.parse(data)
 
@@ -105,7 +90,7 @@ class RestMerchantEndpoints(Middleware):
     ) -> List[InvoiceStats]:
         return [
             InvoiceStats(**sub_data)
-            for sub_data in self._post(
+            for sub_data in self._m.post(
                 "auth/r/ext/pay/invoice/stats/count",
                 body={"status": status, "format": format},
             )
@@ -116,7 +101,7 @@ class RestMerchantEndpoints(Middleware):
     ) -> List[InvoiceStats]:
         return [
             InvoiceStats(**sub_data)
-            for sub_data in self._post(
+            for sub_data in self._m.post(
                 "auth/r/ext/pay/invoice/stats/earning",
                 body={"currency": currency, "format": format},
             )
@@ -137,26 +122,26 @@ class RestMerchantEndpoints(Middleware):
             "ledgerId": ledger_id,
         }
 
-        data = self._post("auth/w/ext/pay/invoice/complete", body=body)
+        data = self._m.post("auth/w/ext/pay/invoice/complete", body=body)
 
         return InvoiceSubmission.parse(data)
 
     def expire_invoice(self, id: str) -> InvoiceSubmission:
         body = {"id": id}
 
-        data = self._post("auth/w/ext/pay/invoice/expire", body=body)
+        data = self._m.post("auth/w/ext/pay/invoice/expire", body=body)
 
         return InvoiceSubmission.parse(data)
 
     def get_currency_conversion_list(self) -> List[CurrencyConversion]:
         return [
             CurrencyConversion(**sub_data)
-            for sub_data in self._post("auth/r/ext/pay/settings/convert/list")
+            for sub_data in self._m.post("auth/r/ext/pay/settings/convert/list")
         ]
 
     def add_currency_conversion(self, base_ccy: str, convert_ccy: str) -> bool:
         return bool(
-            self._post(
+            self._m.post(
                 "auth/w/ext/pay/settings/convert/create",
                 body={"baseCcy": base_ccy, "convertCcy": convert_ccy},
             )
@@ -164,7 +149,7 @@ class RestMerchantEndpoints(Middleware):
 
     def remove_currency_conversion(self, base_ccy: str, convert_ccy: str) -> bool:
         return bool(
-            self._post(
+            self._m.post(
                 "auth/w/ext/pay/settings/convert/remove",
                 body={"baseCcy": base_ccy, "convertCcy": convert_ccy},
             )
@@ -172,16 +157,16 @@ class RestMerchantEndpoints(Middleware):
 
     def set_merchant_settings(self, key: str, val: Any) -> bool:
         return bool(
-            self._post("auth/w/ext/pay/settings/set", body={"key": key, "val": val})
+            self._m.post("auth/w/ext/pay/settings/set", body={"key": key, "val": val})
         )
 
     def get_merchant_settings(self, key: str) -> Any:
-        return self._post("auth/r/ext/pay/settings/get", body={"key": key})
+        return self._m.post("auth/r/ext/pay/settings/get", body={"key": key})
 
     def list_merchant_settings(
         self, keys: Optional[List[str]] = None
     ) -> Dict[str, Any]:
-        return self._post("auth/r/ext/pay/settings/list", body={"keys": keys or []})
+        return self._m.post("auth/r/ext/pay/settings/list", body={"keys": keys or []})
 
     def get_deposits(
         self,
@@ -193,7 +178,7 @@ class RestMerchantEndpoints(Middleware):
     ) -> List[MerchantDeposit]:
         body = {"from": start, "to": to, "ccy": ccy, "unlinked": unlinked}
 
-        data = self._post("auth/r/ext/pay/deposits", body=body)
+        data = self._m.post("auth/r/ext/pay/deposits", body=body)
 
         return [MerchantDeposit(**sub_data) for sub_data in data]
 
@@ -202,6 +187,6 @@ class RestMerchantEndpoints(Middleware):
     ) -> List[MerchantUnlinkedDeposit]:
         body = {"ccy": ccy, "start": start, "end": end}
 
-        data = self._post("/auth/r/ext/pay/deposits/unlinked", body=body)
+        data = self._m.post("/auth/r/ext/pay/deposits/unlinked", body=body)
 
         return [MerchantUnlinkedDeposit(**sub_data) for sub_data in data]

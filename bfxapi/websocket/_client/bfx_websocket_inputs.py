@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Any, Awaitable, Callable, List, Optional, Tuple, Union
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Tuple, Union
 
 _Handler = Callable[[str, Any], Awaitable[None]]
 
@@ -23,6 +23,7 @@ class BfxWebSocketInputs:
         cid: Optional[int] = None,
         flags: Optional[int] = None,
         tif: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
     ) -> None:
         await self.__handle_websocket_input(
             "on",
@@ -39,6 +40,7 @@ class BfxWebSocketInputs:
                 "cid": cid,
                 "flags": flags,
                 "tif": tif,
+                "meta": meta,
             },
         )
 
