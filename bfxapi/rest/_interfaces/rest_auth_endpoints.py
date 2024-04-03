@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 from bfxapi.rest._interface import Interface
 from bfxapi.types import (
@@ -98,6 +98,7 @@ class RestAuthEndpoints(Interface):
         cid: Optional[int] = None,
         flags: Optional[int] = None,
         tif: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
     ) -> Notification[Order]:
         body = {
             "type": type,
@@ -112,6 +113,7 @@ class RestAuthEndpoints(Interface):
             "cid": cid,
             "flags": flags,
             "tif": tif,
+            "meta": meta,
         }
 
         return _Notification[Order](serializers.Order).parse(
