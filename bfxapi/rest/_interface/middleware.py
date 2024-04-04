@@ -3,14 +3,14 @@ import hmac
 import json
 from datetime import datetime
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, List, NoReturn, Optional
 
 import requests
 
 from bfxapi._utils.json_decoder import JSONDecoder
 from bfxapi._utils.json_encoder import JSONEncoder
 from bfxapi.exceptions import InvalidCredentialError
-from bfxapi.rest.exceptions import RequestParametersError, UnknownGenericError
+from bfxapi.rest.exceptions import GenericError, RequestParameterError
 
 if TYPE_CHECKING:
     from requests.sessions import _Params
@@ -86,28 +86,30 @@ class Middleware:
 
         return data
 
-    def __handle_error(self, error: List[Any]) -> None:
+    def __handle_error(self, error: List[Any]) -> NoReturn:
         if error[1] == _Error.ERR_PARAMS:
-            raise RequestParametersError(
-                "The request was rejected with the following parameter"
-                f"error: <{error[2]}>"
+            raise RequestParameterError(
+                "The request was rejected with the following parameter "
+                f"error: <{error[2]}>."
             )
 
         if error[1] == _Error.ERR_AUTH_FAIL:
             raise InvalidCredentialError(
-                "Cannot authenticate with given API-KEY and API-SECRET."
+                "Can't authenticate with given API-KEY and API-SECRET."
             )
 
         if not error[1] or error[1] == _Error.ERR_UNK or error[1] == _Error.ERR_GENERIC:
-            raise UnknownGenericError(
-                "The server replied to the request with a generic error with "
-                f"the following message: <{error[2]}>."
+            raise GenericError(
+                "The request was rejected with the following generic "
+                f"error: <{error[2]}>."
             )
 
+        raise RuntimeError(
+            f"The request was rejected with an unexpected error: <{error}>."
+        )
+
     def __get_authentication_headers(self, endpoint: str, data: Optional[str] = None):
-        assert (
-            self.__api_key and self.__api_secret
-        ), "API-KEY and API-SECRET must be strings."
+        assert self.__api_key and self.__api_secret
 
         nonce = str(round(datetime.now().timestamp() * 1_000_000))
 
