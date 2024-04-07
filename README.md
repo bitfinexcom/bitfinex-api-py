@@ -1,11 +1,6 @@
-# bitfinex-api-py (v3-beta)
+# bitfinex-api-py
 
 Official implementation of the [Bitfinex APIs (V2)](https://docs.bitfinex.com/docs) for `Python 3.8+`.
-
-> **DISCLAIMER:** \
-Production use of v3.0.0b1 (and all future beta versions) is HIGHLY discouraged. \
-Beta versions should not be used in applications which require user authentication. \
-Provide your API-KEY/API-SECRET, and manage your account and funds at your own risk.
 
 ### Features
 
@@ -18,13 +13,6 @@ Provide your API-KEY/API-SECRET, and manage your account and funds at your own r
 
 ```console
 python3 -m pip install --pre bitfinex-api-py
-```
-
-### Selecting and installing a specific beta version
-
-It's also possible to select and install a specific beta version:
-```console
-python3 -m pip install bitfinex-api-py==3.0.0b1
 ```
 
 ---
@@ -305,7 +293,7 @@ All contributions are welcome! :D
 
 A guide on how to install and set up `bitfinex-api-py`'s source code can be found [here](#installation-and-setup). \
 Before opening any pull requests, please have a look at [Before Opening a PR](#before-opening-a-pr). \
-Contributors must uphold the [Contributor Covenant code of conduct](https://github.com/bitfinexcom/bitfinex-api-py/blob/v3-beta/CODE_OF_CONDUCT.md).
+Contributors must uphold the [Contributor Covenant code of conduct](https://github.com/bitfinexcom/bitfinex-api-py/blob/master/CODE_OF_CONDUCT.md).
 
 ### Index
 
@@ -323,10 +311,8 @@ A brief guide on how to install and set up the project in your Python 3.8+ envir
 
 ### Cloning the repository
 
-The following command will only clone the `v3-beta` branch (excluding all others):
-
 ```console
-git clone --branch v3-beta --single-branch https://github.com/bitfinexcom/bitfinex-api-py.git
+git clone https://github.com/bitfinexcom/bitfinex-api-py.git
 ```
 
 ### Installing the dependencies

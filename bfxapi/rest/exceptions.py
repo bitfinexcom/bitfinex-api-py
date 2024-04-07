@@ -1,9 +1,9 @@
 from bfxapi.exceptions import BfxBaseException
 
 
-class RequestParametersError(BfxBaseException):
+class RequestParameterError(BfxBaseException):
     pass
 
 
-class UnknownGenericError(BfxBaseException):
+class GenericError(BfxBaseException):
     pass
