@@ -1,10 +1,8 @@
 from distutils.core import setup
 
-from bfxapi._version import __version__
-
 setup(
     name="bitfinex-api-py",
-    version=__version__,
+    version="3.0.0",
     description="Official Bitfinex Python API",
     long_description=(
         "A Python reference implementation of the Bitfinex API "
