@@ -1,4 +1,4 @@
-name: bitfinex-api-py-ci
+name: build
 
 on:
   push:
