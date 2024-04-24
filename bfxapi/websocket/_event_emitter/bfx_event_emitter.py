@@ -64,6 +64,8 @@ _COMMON = [
     "trade_execution",
     "trade_execution_update",
     "wallet_update",
+    "base_margin_info",
+    "symbol_margin_info",
     "notification",
     "on-req-notification",
     "ou-req-notification",
@@ -105,7 +107,7 @@ class BfxEventEmitter(AsyncIOEventEmitter):
     ) -> Union[_Handler, Callable[[_Handler], _Handler]]:
         if event not in BfxEventEmitter._EVENTS:
             raise UnknownEventError(
-                f"Can't register to unknown event: <{event}> (to get a full"
+                f"Can't register to unknown event: <{event}> (to get a full "
                 "list of available events see https://docs.bitfinex.com/)."
             )
 

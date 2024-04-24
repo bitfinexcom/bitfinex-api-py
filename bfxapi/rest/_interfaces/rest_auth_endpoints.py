@@ -248,7 +248,7 @@ class RestAuthEndpoints(Interface):
 
     def get_base_margin_info(self) -> BaseMarginInfo:
         return serializers.BaseMarginInfo.parse(
-            *(self._m.post("auth/r/info/margin/base")[1])
+            *self._m.post("auth/r/info/margin/base")
         )
 
     def get_symbol_margin_info(self, symbol: str) -> SymbolMarginInfo:

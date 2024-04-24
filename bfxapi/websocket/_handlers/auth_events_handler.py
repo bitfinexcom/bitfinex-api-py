@@ -51,17 +51,26 @@ class AuthEventsHandler:
     def handle(self, abbrevation: str, stream: Any) -> None:
         if abbrevation == "n":
             self.__notification(stream)
+        elif abbrevation == "miu":
+            if stream[0] == "base":
+                self.__event_emitter.emit(
+                    "base_margin_info", serializers.BaseMarginInfo.parse(*stream)
+                )
+            elif stream[0] == "sym":
+                self.__event_emitter.emit(
+                    "symbol_margin_info", serializers.SymbolMarginInfo.parse(*stream)
+                )
+        else:
+            for abbrevations, serializer in AuthEventsHandler.__SERIALIZERS.items():
+                if abbrevation in abbrevations:
+                    event = AuthEventsHandler.__ABBREVIATIONS[abbrevation]
 
-        for abbrevations, serializer in AuthEventsHandler.__SERIALIZERS.items():
-            if abbrevation in abbrevations:
-                event = AuthEventsHandler.__ABBREVIATIONS[abbrevation]
+                    if all(isinstance(sub_stream, list) for sub_stream in stream):
+                        data = [serializer.parse(*sub_stream) for sub_stream in stream]
+                    else:
+                        data = serializer.parse(*stream)
 
-                if all(isinstance(sub_stream, list) for sub_stream in stream):
-                    data = [serializer.parse(*sub_stream) for sub_stream in stream]
-                else:
-                    data = serializer.parse(*stream)
-
-                self.__event_emitter.emit(event, data)
+                    self.__event_emitter.emit(event, data)
 
     def __notification(self, stream: Any) -> None:
         event: str = "notification"

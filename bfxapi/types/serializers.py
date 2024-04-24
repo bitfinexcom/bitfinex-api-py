@@ -745,7 +745,15 @@ SymbolMarginInfo = generate_labeler_serializer(
 BaseMarginInfo = generate_labeler_serializer(
     name="BaseMarginInfo",
     klass=dataclasses.BaseMarginInfo,
-    labels=["user_pl", "user_swaps", "margin_balance", "margin_net", "margin_min"],
+    labels=[
+        "_PLACEHOLDER",
+        "user_pl",
+        "user_swaps",
+        "margin_balance",
+        "margin_net",
+        "margin_min",
+    ],
+    flat=True,
 )
 
 PositionClaim = generate_labeler_serializer(
