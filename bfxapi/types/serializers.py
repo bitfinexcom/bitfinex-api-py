@@ -632,7 +632,15 @@ FundingAutoRenew = generate_labeler_serializer(
 FundingInfo = generate_labeler_serializer(
     name="FundingInfo",
     klass=dataclasses.FundingInfo,
-    labels=["yield_loan", "yield_lend", "duration_loan", "duration_lend"],
+    labels=[
+        "_PLACEHOLDER",
+        "symbol",
+        "yield_loan",
+        "yield_lend",
+        "duration_loan",
+        "duration_lend",
+    ],
+    flat=True,
 )
 
 Wallet = generate_labeler_serializer(

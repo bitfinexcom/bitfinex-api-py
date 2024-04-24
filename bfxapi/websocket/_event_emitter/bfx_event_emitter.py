@@ -66,6 +66,7 @@ _COMMON = [
     "wallet_update",
     "base_margin_info",
     "symbol_margin_info",
+    "funding_info_update",
     "notification",
     "on-req-notification",
     "ou-req-notification",

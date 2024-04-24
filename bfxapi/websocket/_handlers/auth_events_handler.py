@@ -33,6 +33,7 @@ class AuthEventsHandler:
         "flc": "funding_loan_close",
         "ws": "wallet_snapshot",
         "wu": "wallet_update",
+        "fiu": "funding_info_update",
     }
 
     __SERIALIZERS: Dict[Tuple[str, ...], serializers._Serializer] = {
@@ -43,6 +44,7 @@ class AuthEventsHandler:
         ("fcs", "fcn", "fcu", "fcc"): serializers.FundingCredit,
         ("fls", "fln", "flu", "flc"): serializers.FundingLoan,
         ("ws", "wu"): serializers.Wallet,
+        ("fiu",): serializers.FundingInfo,
     }
 
     def __init__(self, event_emitter: EventEmitter) -> None:

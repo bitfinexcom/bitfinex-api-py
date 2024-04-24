@@ -428,6 +428,7 @@ class FundingAutoRenew(_Type):
 
 @dataclass()
 class FundingInfo(_Type):
+    symbol: str
     yield_loan: float
     yield_lend: float
     duration_loan: float

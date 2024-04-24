@@ -551,7 +551,7 @@ class RestAuthEndpoints(Interface):
 
     def get_funding_info(self, key: str) -> FundingInfo:
         return serializers.FundingInfo.parse(
-            *(self._m.post(f"auth/r/info/funding/{key}")[2])
+            *self._m.post(f"auth/r/info/funding/{key}")
         )
 
     def transfer_between_wallets(
