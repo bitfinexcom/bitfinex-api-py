@@ -904,4 +904,10 @@ DerivativePositionCollateralLimits = generate_labeler_serializer(
     labels=["min_collateral", "max_collateral"],
 )
 
+BalanceInfo = generate_labeler_serializer(
+    name="BalanceInfo",
+    klass=dataclasses.BalanceInfo,
+    labels=["aum", "aum_net"],
+)
+
 # endregion

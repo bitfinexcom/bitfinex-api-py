@@ -1,5 +1,6 @@
 from .dataclasses import (
     BalanceAvailable,
+    BalanceInfo,
     BaseMarginInfo,
     Candle,
     CurrencyConversion,

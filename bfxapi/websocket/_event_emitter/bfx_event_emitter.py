@@ -67,6 +67,7 @@ _COMMON = [
     "base_margin_info",
     "symbol_margin_info",
     "funding_info_update",
+    "balance_update",
     "notification",
     "on-req-notification",
     "ou-req-notification",

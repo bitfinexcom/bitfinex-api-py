@@ -608,6 +608,12 @@ class DerivativePositionCollateralLimits(_Type):
     max_collateral: float
 
 
+@dataclass
+class BalanceInfo(_Type):
+    aum: float
+    aum_net: float
+
+
 # endregion
 
 # region Dataclass definitions for types of merchant use
