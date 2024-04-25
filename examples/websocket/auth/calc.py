@@ -13,11 +13,7 @@ bfx = Client(
 
 @bfx.wss.on("authenticated")
 async def on_authenticated(_):
-    await bfx.wss.inputs.calc("margin_base")
-
-    await bfx.wss.inputs.calc("margin_sym_tBTCUSD")
-
-    await bfx.wss.inputs.calc("funding_sym_fUST")
+    await bfx.wss.inputs.calc("margin_base", "margin_sym_tBTCUSD", "funding_sym_fUST")
 
 
 @bfx.wss.on("base_margin_info")
