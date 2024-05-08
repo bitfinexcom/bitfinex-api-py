@@ -632,7 +632,15 @@ FundingAutoRenew = generate_labeler_serializer(
 FundingInfo = generate_labeler_serializer(
     name="FundingInfo",
     klass=dataclasses.FundingInfo,
-    labels=["yield_loan", "yield_lend", "duration_loan", "duration_lend"],
+    labels=[
+        "_PLACEHOLDER",
+        "symbol",
+        "yield_loan",
+        "yield_lend",
+        "duration_loan",
+        "duration_lend",
+    ],
+    flat=True,
 )
 
 Wallet = generate_labeler_serializer(
@@ -745,7 +753,15 @@ SymbolMarginInfo = generate_labeler_serializer(
 BaseMarginInfo = generate_labeler_serializer(
     name="BaseMarginInfo",
     klass=dataclasses.BaseMarginInfo,
-    labels=["user_pl", "user_swaps", "margin_balance", "margin_net", "margin_min"],
+    labels=[
+        "_PLACEHOLDER",
+        "user_pl",
+        "user_swaps",
+        "margin_balance",
+        "margin_net",
+        "margin_min",
+    ],
+    flat=True,
 )
 
 PositionClaim = generate_labeler_serializer(
@@ -886,6 +902,12 @@ DerivativePositionCollateralLimits = generate_labeler_serializer(
     name="DerivativePositionCollateralLimits",
     klass=dataclasses.DerivativePositionCollateralLimits,
     labels=["min_collateral", "max_collateral"],
+)
+
+BalanceInfo = generate_labeler_serializer(
+    name="BalanceInfo",
+    klass=dataclasses.BalanceInfo,
+    labels=["aum", "aum_net"],
 )
 
 # endregion

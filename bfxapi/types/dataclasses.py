@@ -428,6 +428,7 @@ class FundingAutoRenew(_Type):
 
 @dataclass()
 class FundingInfo(_Type):
+    symbol: str
     yield_loan: float
     yield_lend: float
     duration_loan: float
@@ -605,6 +606,12 @@ class DerivativePositionCollateral(_Type):
 class DerivativePositionCollateralLimits(_Type):
     min_collateral: float
     max_collateral: float
+
+
+@dataclass
+class BalanceInfo(_Type):
+    aum: float
+    aum_net: float
 
 
 # endregion

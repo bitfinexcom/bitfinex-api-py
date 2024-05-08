@@ -248,7 +248,7 @@ class RestAuthEndpoints(Interface):
 
     def get_base_margin_info(self) -> BaseMarginInfo:
         return serializers.BaseMarginInfo.parse(
-            *(self._m.post("auth/r/info/margin/base")[1])
+            *self._m.post("auth/r/info/margin/base")
         )
 
     def get_symbol_margin_info(self, symbol: str) -> SymbolMarginInfo:
@@ -551,7 +551,7 @@ class RestAuthEndpoints(Interface):
 
     def get_funding_info(self, key: str) -> FundingInfo:
         return serializers.FundingInfo.parse(
-            *(self._m.post(f"auth/r/info/funding/{key}")[2])
+            *self._m.post(f"auth/r/info/funding/{key}")
         )
 
     def transfer_between_wallets(
