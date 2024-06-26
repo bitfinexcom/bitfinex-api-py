@@ -43,8 +43,10 @@ setup(
     install_requires=[
         "pyee~=9.0.4",
         "websockets~=11.0.3",
-        "requests~=2.28.1",
-        "urllib3~=1.26.14",
+        "requests~=2.31.0",
+        "types-requests~=2.31.0.10",
+        "types-urllib3~=1.26.25.14",
     ],
     python_requires=">=3.8",
+    package_data={"bfxapi": ["py.typed"]},
 )
