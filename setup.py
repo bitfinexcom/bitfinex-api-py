@@ -41,9 +41,9 @@ setup(
         "bfxapi.rest._interfaces",
     ],
     install_requires=[
-        "pyee~=9.0.4",
-        "websockets~=11.0.3",
-        "requests~=2.31.0",
+        "pyee~=11.1.0",
+        "websockets~=12.0",
+        "requests~=2.32.3",
         "types-requests~=2.31.0.10",
         "types-urllib3~=1.26.25.14",
     ],
