@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name="bitfinex-api-py",
-    version="3.0.3",
+    version="3.0.4",
     description="Official Bitfinex Python API",
     long_description=(
         "A Python reference implementation of the Bitfinex API "
