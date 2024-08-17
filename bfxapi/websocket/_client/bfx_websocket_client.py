@@ -3,7 +3,7 @@ import json
 import random
 import traceback
 from asyncio import Task
-from datetime import datetime
+from datetime import datetime, timedelta
 from logging import Logger
 from socket import gaierror
 from typing import Any, Dict, List, Optional, TypedDict
@@ -109,6 +109,17 @@ class BfxWebSocketClient(Connection):
     def run(self) -> None:
         return asyncio.get_event_loop().run_until_complete(self.start())
 
+    async def _check_latest_heartbeat(self):
+        while True:
+            if self.open:
+                diff = datetime.now() - self.__last_heartbeat_timestamp
+                if diff > timedelta(seconds=20):
+                    self.__logger.warning("Heartbeat timeout detected. Reconnecting...")
+                    self._authentication = False
+                    await self.close(code=1012, reason="Heartbeat Timeout") 
+            
+            await asyncio.sleep(5)
+
     async def start(self) -> None:
         _delay = _Delay(backoff_factor=1.618)
 
@@ -132,6 +143,8 @@ class BfxWebSocketClient(Connection):
                     ) from None
 
             try:
+                self.__last_heartbeat_timestamp = datetime.now()
+                asyncio.create_task(self._check_latest_heartbeat())
                 await self.__connect()
             except (ConnectionClosedError, InvalidStatusCode, gaierror) as error:
 
@@ -157,8 +170,9 @@ class BfxWebSocketClient(Connection):
                 if isinstance(error, ConnectionClosedError) and error.code in (
                     1006,
                     1012,
+                    1005
                 ):
-                    if error.code == 1006:
+                    if error.code in [1006, 1005]:
                         self.__logger.error("Connection lost: trying to reconnect...")
 
                     if error.code == 1012:
@@ -238,6 +252,8 @@ class BfxWebSocketClient(Connection):
             async for _message in self._websocket:
                 message = json.loads(_message)
 
+                self.__last_heartbeat_timestamp = datetime.now()
+
                 if isinstance(message, dict):
                     if message["event"] == "info" and "version" in message:
                         if message["version"] != 2:
@@ -270,8 +286,11 @@ class BfxWebSocketClient(Connection):
                 ):
                     self.__handler.handle(message[1], message[2])
 
+    def __update_last_heartbeat_timestamp(self):
+        self.__last_heartbeat_timestamp = datetime.now()
+
     async def __new_bucket(self) -> BfxWebSocketBucket:
-        bucket = BfxWebSocketBucket(self._host, self.__event_emitter)
+        bucket = BfxWebSocketBucket(self._host, self.__event_emitter, self.__update_last_heartbeat_timestamp)
 
         self.__buckets[bucket] = asyncio.create_task(bucket.start())
 

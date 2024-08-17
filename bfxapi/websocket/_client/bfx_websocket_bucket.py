@@ -1,7 +1,7 @@
 import asyncio
 import json
 import uuid
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, cast, Callable
 
 import websockets.client
 from pyee import EventEmitter
@@ -21,7 +21,7 @@ def _strip(message: Dict[str, Any], keys: List[str]) -> Dict[str, Any]:
 class BfxWebSocketBucket(Connection):
     __MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
 
-    def __init__(self, host: str, event_emitter: EventEmitter) -> None:
+    def __init__(self, host: str, event_emitter: EventEmitter, update_last_heartbeat_timestamp: Callable) -> None:
         super().__init__(host)
 
         self.__event_emitter = event_emitter
@@ -31,6 +31,8 @@ class BfxWebSocketBucket(Connection):
         self.__condition = asyncio.locks.Condition()
 
         self.__handler = PublicChannelsHandler(event_emitter=self.__event_emitter)
+
+        self.__update_last_heartbeat_timestamp = update_last_heartbeat_timestamp
 
     @property
     def count(self) -> int:
@@ -57,6 +59,8 @@ class BfxWebSocketBucket(Connection):
 
             async for _message in self._websocket:
                 message = json.loads(_message, cls=JSONDecoder)
+
+                self.__update_last_heartbeat_timestamp()
 
                 if isinstance(message, dict):
                     if message["event"] == "subscribed":
