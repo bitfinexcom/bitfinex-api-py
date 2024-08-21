@@ -1,7 +1,9 @@
 import asyncio
 import json
 import uuid
-from typing import Any, Dict, List, Optional, cast, Callable
+from typing import Any, Dict, List, Optional, cast
+from datetime import datetime, timedelta
+from logging import Logger
 
 import websockets.client
 from pyee import EventEmitter
@@ -21,10 +23,11 @@ def _strip(message: Dict[str, Any], keys: List[str]) -> Dict[str, Any]:
 class BfxWebSocketBucket(Connection):
     __MAXIMUM_SUBSCRIPTIONS_AMOUNT = 25
 
-    def __init__(self, host: str, event_emitter: EventEmitter, update_last_heartbeat_timestamp: Callable) -> None:
+    def __init__(self, host: str, event_emitter: EventEmitter, logger: Logger) -> None:
         super().__init__(host)
 
         self.__event_emitter = event_emitter
+        self.__logger = logger
         self.__pendings: List[Dict[str, Any]] = []
         self.__subscriptions: Dict[int, Subscription] = {}
 
@@ -32,7 +35,7 @@ class BfxWebSocketBucket(Connection):
 
         self.__handler = PublicChannelsHandler(event_emitter=self.__event_emitter)
 
-        self.__update_last_heartbeat_timestamp = update_last_heartbeat_timestamp
+        self.__last_heartbeat_timestamp = 0
 
     @property
     def count(self) -> int:
@@ -48,7 +51,21 @@ class BfxWebSocketBucket(Connection):
             subscription["sub_id"] for subscription in self.__subscriptions.values()
         ]
 
+    async def _check_latest_heartbeat(self):
+        while True:
+            if self.open:
+                diff = datetime.now() - self.__last_heartbeat_timestamp
+                if diff > timedelta(seconds=20):
+                    self.__logger.warning("Heartbeat timeout detected. Reconnecting...")
+                    await self.close(code=1012, reason="Heartbeat Timeout") 
+                    await self.start()
+            
+            await asyncio.sleep(5)
+
     async def start(self) -> None:
+        self.__last_heartbeat_timestamp = datetime.now()
+        asyncio.create_task(self._check_latest_heartbeat())
+
         async with websockets.client.connect(self._host) as websocket:
             self._websocket = websocket
 
@@ -60,7 +77,7 @@ class BfxWebSocketBucket(Connection):
             async for _message in self._websocket:
                 message = json.loads(_message, cls=JSONDecoder)
 
-                self.__update_last_heartbeat_timestamp()
+                self.__last_heartbeat_timestamp = datetime.now()
 
                 if isinstance(message, dict):
                     if message["event"] == "subscribed":
