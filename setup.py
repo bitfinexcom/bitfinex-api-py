@@ -45,7 +45,6 @@ setup(
         "pyee~=11.1.0",
         "websockets~=12.0",
         "requests~=2.32.3",
-        "types-requests~=2.31.0.10",
         "types-urllib3~=1.26.25.14",
     ],
     python_requires=">=3.8",
