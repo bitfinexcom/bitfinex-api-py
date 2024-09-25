@@ -342,7 +342,7 @@ This repository includes a pre-commit configuration file that defines the follow
 
 To set up pre-commit use:
 ```console
-python3 -m pre-commit install
+python3 -m pre_commit install
 ```
 
 These will ensure that isort, black and flake8 are run on each git commit.
@@ -353,7 +353,7 @@ These will ensure that isort, black and flake8 are run on each git commit.
 
 You can also manually trigger the execution of all hooks with:
 ```console
-python3 -m pre-commit run --all-files
+python3 -m pre_commit run --all-files
 ```
 
 ## Before opening a PR
