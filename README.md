@@ -19,6 +19,11 @@ Official implementation of the [Bitfinex APIs (V2)](https://docs.bitfinex.com/do
 python3 -m pip install bitfinex-api-py
 ```
 
+If you intend to use mypy type hints in your project, use:
+```console
+python3 -m pip install bitfinex-api-py[typing]
+```
+
 ---
 
 # Quickstart
