@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name="bitfinex-api-py",
-    version="3.0.4",
+    version="3.0.5",
     description="Official Bitfinex Python API",
     long_description=(
         "A Python reference implementation of the Bitfinex API "
@@ -23,6 +23,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
     ],
     keywords="bitfinex,api,trading",
     project_urls={
@@ -45,9 +46,12 @@ setup(
         "pyee~=11.1.0",
         "websockets~=12.0",
         "requests~=2.32.3",
-        "types-requests~=2.31.0.10",
-        "types-urllib3~=1.26.25.14",
     ],
+    extras_require={
+        "typing": [
+            "types-requests~=2.32.0.20241016",
+        ]
+    },
     python_requires=">=3.8",
     package_data={"bfxapi": ["py.typed"]},
 )
