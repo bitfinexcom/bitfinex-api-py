@@ -232,18 +232,23 @@ class RestAuthEndpoints(Interface):
 
     def get_ledgers(
         self,
-        currency: str,
+        currency: Optional[str] = None,
         *,
         category: Optional[int] = None,
         start: Optional[str] = None,
         end: Optional[str] = None,
         limit: Optional[int] = None,
     ) -> List[Ledger]:
+        if currency is None:
+            endpoint = "auth/r/ledgers/hist"
+        else:
+            endpoint = f"auth/r/ledgers/{currency}/hist"
+
         body = {"category": category, "start": start, "end": end, "limit": limit}
 
         return [
             serializers.Ledger.parse(*sub_data)
-            for sub_data in self._m.post(f"auth/r/ledgers/{currency}/hist", body=body)
+            for sub_data in self._m.post(endpoint, body=body)
         ]
 
     def get_base_margin_info(self) -> BaseMarginInfo:
