@@ -87,6 +87,29 @@ class BfxEventEmitter(AsyncIOEventEmitter):
 
         self._subscriptions: Dict[str, List[str]] = defaultdict(lambda: [])
 
+    def reset_connection_scope(self) -> None:
+        """Re-arm the once-per-* events for a newly established connection.
+
+        `_ONCE_PER_CONNECTION` and `_ONCE_PER_SUBSCRIPTION` deduplicate
+        against ledgers that are only ever appended to, so in practice the
+        scope is once per *client*, not once per connection. After the first
+        reconnection the client stops delivering `open`, `authenticated` and
+        every snapshot - wallet, order, position, funding offer/credit/loan,
+        book, candles - while continuing to deliver the updates built on top
+        of them.
+
+        That is the worst shape this failure can take: the socket is healthy,
+        updates keep arriving, and the consumer applies them to a
+        pre-disconnect snapshot it is never told to replace.
+
+        The reconnection re-subscribes under the same sub_id and the server
+        answers with a fresh `subscribed` and fresh snapshots, so the
+        per-subscription ledger is cleared along with the per-connection one.
+        """
+        self._connection = []
+
+        self._subscriptions = defaultdict(lambda: [])
+
     def emit(self, event: str, *args: Any, **kwargs: Any) -> bool:
         if event in _ONCE_PER_CONNECTION:
             if event in self._connection:
